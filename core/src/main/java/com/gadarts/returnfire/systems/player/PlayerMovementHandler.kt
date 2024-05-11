@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.*
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.math.collision.Sphere
-import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.SfxDefinitions
@@ -19,112 +18,41 @@ import com.gadarts.returnfire.components.ComponentsMapper.player
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.GameSessionData.Companion.REGION_SIZE
 import com.gadarts.returnfire.systems.SystemEvents
-import kotlin.math.*
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 
-class PlayerMovementHandler() {
+
+class PlayerMovementHandler {
+    private var rotating: Float = 0.0f
     private lateinit var assetsManager: GameAssetManager
     private lateinit var camera: PerspectiveCamera
     private lateinit var collisionEntities: ImmutableArray<Entity>
     private var tiltAnimationHandler = TiltAnimationHandler()
-    private var rotToAdd = 0F
-    private var desiredDirectionChanged: Boolean = false
-    private val desiredVelocity = Vector2()
     private val prevPos = Vector3()
 
-    fun onTouchUp() {
-        desiredVelocity.setZero()
-    }
-
-    private fun handleRotation(deltaTime: Float, player: Entity) {
-        if (desiredDirectionChanged && !desiredVelocity.isZero) {
-            calculateRotation(deltaTime, player)
-        } else {
-            tiltAnimationHandler.lowerRotationTilt()
-        }
-        applyRotation(player)
-    }
-
     private fun handleAcceleration(player: Entity) {
-        val currentVelocity =
-            ComponentsMapper.player.get(player).getCurrentVelocity(auxVector2_1)
-        if (desiredVelocity.len2() > 0.5F) {
-            currentVelocity.setLength2(
+        val playerComponent = ComponentsMapper.player.get(player)
+        if (playerComponent.thrust > 0F) {
+            playerComponent.currentVelocity =
                 min(
-                    currentVelocity.len2() + (ACCELERATION),
+                    playerComponent.currentVelocity + (ACCELERATION),
                     MAX_SPEED
                 )
+            tiltAnimationHandler.tilt = true
+        } else {
+            playerComponent.currentVelocity = max(
+                playerComponent.currentVelocity - (DECELERATION),
+                1F
             )
-            tiltAnimationHandler.onAcceleration()
-        } else {
-            currentVelocity.setLength2(
-                max(
-                    currentVelocity.len2() - (DECELERATION),
-                    1F
-                )
-            )
-            tiltAnimationHandler.onDeceleration()
-        }
-        ComponentsMapper.player.get(player).setCurrentVelocity(currentVelocity)
-    }
-
-    private fun calculateRotation(deltaTime: Float, player: Entity) {
-        val rotBefore = rotToAdd
-        updateRotationStep(player)
-        val currentVelocity =
-            ComponentsMapper.player.get(player).getCurrentVelocity(auxVector2_1)
-        val diff = abs(currentVelocity.angle() - desiredVelocity.angle())
-        if ((rotBefore < 0 && rotToAdd < 0) || (rotBefore > 0 && rotToAdd > 0) && diff > ROT_EPSILON) {
-            rotate(currentVelocity, deltaTime, player)
-        } else {
-            desiredDirectionChanged = false
+            tiltAnimationHandler.tilt = false
         }
     }
 
-    private fun rotate(currentVelocity: Vector2, deltaTime: Float, player: Entity) {
-        currentVelocity.rotate(rotToAdd * deltaTime)
-        ComponentsMapper.player.get(player).setCurrentVelocity(currentVelocity)
-        tiltAnimationHandler.onRotation(rotToAdd)
-    }
 
-    private fun updateRotationStep(player: Entity) {
-        if (desiredVelocity.isZero) return
-        val playerComponent = ComponentsMapper.player.get(player)
-        val diff =
-            desiredVelocity.angle() - playerComponent.getCurrentVelocity(auxVector2_1)
-                .angle()
-        val negativeRotation = auxVector2_1.set(1F, 0F).setAngle(diff).angle() > 180
-        rotToAdd = if (negativeRotation && rotToAdd < 0) {
-            max(rotToAdd - ROTATION_INCREASE, -MAX_ROTATION_STEP)
-        } else if (!negativeRotation && rotToAdd > 0) {
-            min(rotToAdd + ROTATION_INCREASE, MAX_ROTATION_STEP)
-        } else {
-            INITIAL_ROTATION_STEP * (if (negativeRotation) -1F else 1F)
-        }
-    }
-
-    private fun activateStrafing(player: Entity) {
-        val playerComponent = ComponentsMapper.player.get(player)
-        playerComponent.strafing =
-            ComponentsMapper.modelInstance.get(player).modelInstance.transform.getRotation(
-                auxQuat
-            ).getAngleAround(
-                Vector3.Y
-            )
-        tiltAnimationHandler.onStrafeActivated()
-    }
-
-    fun onTouchPadTouched(deltaX: Float, deltaY: Float, player: Entity) {
-        if (deltaX != 0F || deltaY != 0F) {
-            updateDesiredDirection(deltaX, deltaY, player)
-        } else {
-            desiredVelocity.setZero()
-        }
-    }
-
-    private fun updateDesiredDirection(deltaX: Float, deltaY: Float, player: Entity) {
-        desiredVelocity.set(deltaX, deltaY)
-        desiredDirectionChanged = true
-        updateRotationStep(player)
+    fun thrust(player: Entity, value: Float) {
+        ComponentsMapper.player.get(player).thrust = value
     }
 
     fun update(
@@ -134,7 +62,7 @@ class PlayerMovementHandler() {
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        handleRotation(deltaTime, player)
+        handleRotation(player)
         handleAcceleration(player)
         val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
         transform.getTranslation(prevPos)
@@ -142,6 +70,20 @@ class PlayerMovementHandler() {
         updateBlastVelocity(player)
         checkCollisions(player, soundPlayer)
         tiltAnimationHandler.update(player)
+    }
+
+    private fun handleRotation(player: Entity) {
+        if (rotating != 0F) {
+            val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
+            val position = auxVector3_1
+            transform.getTranslation(position)
+            val translateToOrigin = auxMatrix1.idt().setTranslation(-position.x, -position.y, -position.z)
+            val additionalRotation = auxMatrix2.idt().setToRotation(Vector3.Y, rotating)
+            val translateBack = auxMatrix3.idt().trn(position)
+            val finalTransform = auxMatrix4.idt()
+            finalTransform.set(translateBack).mul(additionalRotation).mul(translateToOrigin).mul(transform)
+            transform.set(finalTransform)
+        }
     }
 
     private fun updateBlastVelocity(player: Entity) {
@@ -183,8 +125,7 @@ class PlayerMovementHandler() {
         soundPlayer: SoundPlayer
     ) {
         val playerComp = ComponentsMapper.player.get(player)
-        val v = playerComp.getCurrentVelocity(auxVector2_2)
-        if (v.len2() > 2F) {
+        if (playerComp.currentVelocity > 2F) {
             soundPlayer.playPositionalSound(
                 assetsManager.getAssetByDefinition(SfxDefinitions.CRASH),
                 true,
@@ -193,9 +134,9 @@ class PlayerMovementHandler() {
             )
         }
         val dirToPlayer = pos.sub(auxBoundingBox_1.getCenter(auxVector3_2)).nor()
-        val blastVelocity = dirToPlayer.scl(max(v.len2() * 0.4F, 1F))
+        val blastVelocity = dirToPlayer.scl(max(playerComp.currentVelocity * 0.4F, 1F))
         playerComp.setBlastVelocity(auxVector2_1.set(blastVelocity.x, blastVelocity.z))
-        playerComp.setCurrentVelocity(v.scl(0.2F))
+        playerComp.currentVelocity *= 0.2F
         ComponentsMapper.modelInstance.get(player).modelInstance.transform.setTranslation(prevPos)
     }
 
@@ -233,7 +174,13 @@ class PlayerMovementHandler() {
         val currentPosition = transform.getTranslation(auxVector3_2)
         val prevHorizontalIndex = floor(currentPosition.x / REGION_SIZE)
         val prevVerticalIndex = floor(currentPosition.z / REGION_SIZE)
-        applyMovement(delta, p, currentMap, player.get(p).getCurrentVelocity(auxVector2_1))
+        applyMovement(
+            delta,
+            p,
+            currentMap,
+            auxVector2_1.set(1F, 0F).setAngleDeg(transform.getRotation(auxQuat).getAngleAround(Vector3.Y))
+                .scl(player.get(p).currentVelocity)
+        )
         applyMovement(delta, p, currentMap, player.get(p).getBlastVelocity(auxVector2_1))
         val newPosition = transform.getTranslation(auxVector3_2)
         val newHorizontalIndex = floor(newPosition.x / REGION_SIZE)
@@ -243,24 +190,6 @@ class PlayerMovementHandler() {
         }
     }
 
-    fun onTouchDown(lastTouchDown: Long, player: Entity) {
-        if (TimeUtils.timeSinceMillis(lastTouchDown) <= STRAFE_PRESS_INTERVAL) {
-            activateStrafing(player)
-        } else {
-            deactivateStrafing(player)
-        }
-    }
-
-    private fun deactivateStrafing(player: Entity) {
-        val playerComponent = ComponentsMapper.player.get(player)
-        if (playerComponent.strafing != null) {
-            val currentVelocity = playerComponent.getCurrentVelocity(auxVector2_1)
-            val newVelocity = currentVelocity.setAngle(playerComponent.strafing!!)
-            playerComponent.setCurrentVelocity(newVelocity)
-        }
-        playerComponent.strafing = null
-    }
-
     private fun applyMovement(
         deltaTime: Float,
         player: Entity,
@@ -268,9 +197,9 @@ class PlayerMovementHandler() {
         velocity: Vector2
     ) {
         if (velocity.len2() > 1F) {
+            val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
             val step = auxVector3_1.set(velocity.x, 0F, -velocity.y)
             step.setLength2(step.len2() - 1F).scl(deltaTime)
-            val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
             transform.trn(step)
             clampPosition(transform, currentMap)
         }
@@ -286,42 +215,31 @@ class PlayerMovementHandler() {
         transform.setTranslation(newPos)
     }
 
-    private fun applyRotation(player: Entity) {
-        val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
-        val position = transform.getTranslation(auxVector3_1)
-        val playerComponent = ComponentsMapper.player.get(player)
-        val currentVelocity = playerComponent.getCurrentVelocity(auxVector2_1)
-        transform.setToRotation(
-            Vector3.Y,
-            (if (playerComponent.strafing != null) playerComponent.strafing else currentVelocity.angle())!!
-        )
-        transform.rotate(Vector3.Z, -IDLE_Z_TILT_DEGREES)
-        transform.setTranslation(position)
-    }
-
-    fun initialize(engine: Engine, assetsManager: GameAssetManager, camera: PerspectiveCamera) {
+    fun initialize(engine: Engine, assetsManager: GameAssetManager, camera: PerspectiveCamera, player: Entity) {
+        tiltAnimationHandler.init(player)
         val family = Family.all(BoxCollisionComponent::class.java).get()
         collisionEntities = engine.getEntitiesFor(family)
         this.assetsManager = assetsManager
         this.camera = camera
     }
 
+    fun rotate(angle: Float) {
+        this.rotating = angle
+    }
+
     companion object {
-        private const val MAX_ROTATION_STEP = 200F
-        private const val ROTATION_INCREASE = 2F
-        private const val INITIAL_ROTATION_STEP = 6F
         private val auxVector2_1 = Vector2()
-        private val auxVector2_2 = Vector2()
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
-        private val auxQuat = Quaternion()
-        private const val ROT_EPSILON = 0.5F
-        private const val MAX_SPEED = 14F
-        private const val ACCELERATION = 0.04F
+        private const val MAX_SPEED = 7F
+        private const val ACCELERATION = 0.02F
         private const val DECELERATION = 0.06F
-        private const val IDLE_Z_TILT_DEGREES = 12F
-        private const val STRAFE_PRESS_INTERVAL = 500
         private val auxBoundingBox_1 = BoundingBox()
         private val auxSphere = Sphere(Vector3(), 0F)
+        private val auxMatrix1 = Matrix4()
+        private val auxMatrix2 = Matrix4()
+        private val auxMatrix3 = Matrix4()
+        private val auxMatrix4 = Matrix4()
+        private val auxQuat = Quaternion()
     }
 }

@@ -6,12 +6,8 @@ import com.badlogic.gdx.graphics.Texture
 enum class TexturesDefinitions(fileNames: Int = 1, ninepatch: Boolean = false) :
     AssetDefinition<Texture> {
 
-    JOYSTICK,
-    JOYSTICK_CENTER,
     BUTTON_UP,
     BUTTON_DOWN,
-    ICON_BULLETS,
-    ICON_MISSILES,
     PROPELLER_BLURRED,
     SPARK(3),
     SAND,

@@ -20,7 +20,7 @@ object GameDebugSettings {
     /**
      * Whether to play sounds.
      */
-    const val SFX = true
+    const val SFX = false
 
     /**
      * Whether to show the Helicopter's propeller.

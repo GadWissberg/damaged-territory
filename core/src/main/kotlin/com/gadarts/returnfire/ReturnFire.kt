@@ -9,6 +9,7 @@ class ReturnFire : Game() {
     private lateinit var assetsManager: GameAssetManager
 
     override fun create() {
+        Gdx.graphics.setWindowedMode(1920, 1080)
         loadAssets()
         Gdx.input.inputProcessor = InputMultiplexer()
         val soundPlayer = SoundPlayer()

@@ -2,16 +2,15 @@ package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
-import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Services
@@ -30,51 +29,21 @@ import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPri
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
-class PlayerSystem : GameEntitySystem() {
+class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerMovementHandler = PlayerMovementHandler()
     private lateinit var propellerBlurredModel: Model
-    private var lastTouchDown: Long = 0
     private lateinit var player: Entity
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         createPropellerBlurredModel(services.assetsManager)
-        gameSessionData.touchpad.addListener(object : ClickListener() {
-            override fun touchDown(
-                event: InputEvent?,
-                x: Float,
-                y: Float,
-                pointer: Int,
-                button: Int
-            ): Boolean {
-                playerMovementHandler.onTouchDown(lastTouchDown, player)
-                touchPadTouched(event!!.target)
-                lastTouchDown = TimeUtils.millis()
-                return super.touchDown(event, x, y, pointer, button)
-            }
-
-            override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
-                touchPadTouched(event!!.target)
-                super.touchDragged(event, x, y, pointer)
-            }
-
-            override fun touchUp(
-                event: InputEvent?,
-                x: Float,
-                y: Float,
-                pointer: Int,
-                button: Int
-            ) {
-                playerMovementHandler.onTouchUp()
-                super.touchUp(event, x, y, pointer, button)
-            }
-        })
         player = addPlayer(engine as PooledEngine, services.assetsManager)
         gameSessionData.player = player
         playerShootingHandler.initialize(services.assetsManager)
-        playerMovementHandler.initialize(engine, services.assetsManager, gameSessionData.camera)
+        playerMovementHandler.initialize(engine, services.assetsManager, gameSessionData.camera, gameSessionData.player)
+        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
     }
 
     override fun resume(delta: Long) {
@@ -96,14 +65,6 @@ class PlayerSystem : GameEntitySystem() {
     override fun dispose() {
         propellerBlurredModel.dispose()
     }
-
-
-    private fun touchPadTouched(actor: Actor) {
-        val deltaX = (actor as Touchpad).knobPercentX
-        val deltaY = actor.knobPercentY
-        playerMovementHandler.onTouchPadTouched(deltaX, deltaY, player)
-    }
-
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
@@ -200,5 +161,68 @@ class PlayerSystem : GameEntitySystem() {
         private const val SEC_BULLET_SPEED = 8F
         private const val SECONDARY_POSITION_BIAS = 0.3F
         private const val PLAYER_HEIGHT = 3.9F
+        private const val ROTATION_STEP = 2F
     }
+
+    override fun keyDown(keycode: Int): Boolean {
+        var handled = false
+        when (keycode) {
+            Input.Keys.UP -> {
+                playerMovementHandler.thrust(player, 4F)
+                handled = true
+            }
+
+            Input.Keys.LEFT -> {
+                playerMovementHandler.rotate(ROTATION_STEP)
+                handled = true
+            }
+
+            Input.Keys.RIGHT -> {
+                playerMovementHandler.rotate(-ROTATION_STEP)
+                handled = true
+            }
+        }
+        return handled
+    }
+
+    override fun keyUp(keycode: Int): Boolean {
+        var handled = false
+        if (keycode == Input.Keys.UP) {
+            playerMovementHandler.thrust(player, 0F)
+            handled = true
+        } else if (keycode == Input.Keys.LEFT || keycode == Input.Keys.RIGHT) {
+            playerMovementHandler.rotate(0F)
+            handled = true
+        }
+        return handled
+    }
+
+    override fun keyTyped(character: Char): Boolean {
+        return false
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        return false
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        return false
+    }
+
+    override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        return false
+    }
+
 }
