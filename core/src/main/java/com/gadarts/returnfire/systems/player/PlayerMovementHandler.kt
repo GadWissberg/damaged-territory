@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.*
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -17,6 +18,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.player
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.GameSessionData.Companion.REGION_SIZE
+import com.gadarts.returnfire.systems.SystemEvents
 import kotlin.math.*
 
 class PlayerMovementHandler() {
@@ -128,15 +130,15 @@ class PlayerMovementHandler() {
     fun update(
         player: Entity,
         deltaTime: Float,
-        subscribers: HashSet<PlayerSystemEventsSubscriber>,
         currentMap: GameMap,
-        soundPlayer: SoundPlayer
+        soundPlayer: SoundPlayer,
+        dispatcher: MessageDispatcher
     ) {
         handleRotation(deltaTime, player)
         handleAcceleration(player)
         val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
         transform.getTranslation(prevPos)
-        applyMovementWithRegionCheck(player, deltaTime, subscribers, currentMap)
+        applyMovementWithRegionCheck(player, deltaTime, currentMap, dispatcher)
         updateBlastVelocity(player)
         checkCollisions(player, soundPlayer)
         tiltAnimationHandler.update(player)
@@ -224,8 +226,8 @@ class PlayerMovementHandler() {
     private fun applyMovementWithRegionCheck(
         p: Entity,
         delta: Float,
-        subscribers: HashSet<PlayerSystemEventsSubscriber>,
-        currentMap: GameMap
+        currentMap: GameMap,
+        dispatcher: MessageDispatcher
     ) {
         val transform = ComponentsMapper.modelInstance.get(p).modelInstance.transform
         val currentPosition = transform.getTranslation(auxVector3_2)
@@ -237,7 +239,7 @@ class PlayerMovementHandler() {
         val newHorizontalIndex = floor(newPosition.x / REGION_SIZE)
         val newVerticalIndex = floor(newPosition.z / REGION_SIZE)
         if (prevHorizontalIndex != newHorizontalIndex || prevVerticalIndex != newVerticalIndex) {
-            subscribers.forEach { it.onPlayerEnteredNewRegion(p) }
+            dispatcher.dispatchMessage(SystemEvents.PLAYER_ENTERED_NEW_REGION.ordinal)
         }
     }
 

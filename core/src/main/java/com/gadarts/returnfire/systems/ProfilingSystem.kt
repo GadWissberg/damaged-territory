@@ -1,6 +1,5 @@
 package com.gadarts.returnfire.systems
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
@@ -8,28 +7,26 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.Services
 
+@Suppress("GDXKotlinProfilingCode")
 class ProfilingSystem : GameEntitySystem() {
 
     private val stringBuilder: StringBuilder = StringBuilder()
     private lateinit var glProfiler: GLProfiler
     private lateinit var label: Label
 
-    override fun initialize(am: GameAssetManager) {
-
-    }
-
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
     override fun resume(delta: Long) {
 
     }
 
     override fun dispose() {
-        commonData.stage.dispose()
+        gameSessionData.stage.dispose()
     }
 
-    override fun addedToEngine(engine: Engine?) {
-        super.addedToEngine(engine)
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
         glProfiler = GLProfiler(Gdx.graphics)
         setGlProfiler()
         addLabel()
@@ -41,7 +38,7 @@ class ProfilingSystem : GameEntitySystem() {
         val style = Label.LabelStyle(font, Color.WHITE)
         label = Label(stringBuilder, style)
         label.setPosition(0f, (Gdx.graphics.height - 175).toFloat())
-        commonData.stage.addActor(label)
+        gameSessionData.stage.addActor(label)
         label.zIndex = 0
     }
 
@@ -64,7 +61,7 @@ class ProfilingSystem : GameEntitySystem() {
     private fun displayBatchCalls() {
         displayLine(
             LABEL_UI_BATCH_RENDER_CALLS,
-            (commonData.stage.batch as SpriteBatch).renderCalls
+            (gameSessionData.stage.batch as SpriteBatch).renderCalls
         )
     }
 

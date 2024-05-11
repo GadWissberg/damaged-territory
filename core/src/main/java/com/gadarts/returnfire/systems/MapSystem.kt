@@ -1,6 +1,5 @@
 package com.gadarts.returnfire.systems
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
@@ -16,6 +15,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
+import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.SfxDefinitions
 import com.gadarts.returnfire.assets.TexturesDefinitions
@@ -39,9 +39,26 @@ class MapSystem : GameEntitySystem() {
     private lateinit var floors: Array<Array<Entity?>>
     private lateinit var ambEntities: ImmutableArray<Entity>
     private lateinit var floorModel: Model
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
 
-    override fun initialize(am: GameAssetManager) {
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
+        val builder = ModelBuilder()
+        createFloorModel(builder)
+        val tilesMapping = gameSessionData.currentMap.tilesMapping
+        floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
+        gameSessionData.modelCache = ModelCache()
+        addGround()
+        gameSessionData.currentMap.placedElements.forEach {
+            if (it.definition != CharactersDefinitions.PLAYER) {
+                addAmbModelObject(
+                    services.assetsManager,
+                    auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
+                    it.definition as AmbModelDefinitions
+                )
+            }
+        }
         applyTransformOnAmbEntities()
         initializeAmbObjectsBoundingBox()
     }
@@ -66,52 +83,25 @@ class MapSystem : GameEntitySystem() {
         val now = TimeUtils.millis()
         if (nextAmbSound < now) {
             nextAmbSound = now + random(AMB_SND_INTERVAL_MIN, AMB_SND_INTERVAL_MAX)
-            soundPlayer.play(assetsManager.getAssetByDefinition(ambSounds.random()))
-        }
-    }
-
-    private fun addAmbDecal(am: GameAssetManager, x: Float, z: Float) {
-        val textureRegion = TextureRegion(am.getAssetByDefinition(TexturesDefinitions.BUSH))
-        EntityBuilder.begin()
-            .addDecalComponent(textureRegion, auxVector1.set(x, 0.18F, z))
-            .addAmbComponent()
-            .finishAndAddToEngine()
-    }
-
-    override fun addedToEngine(engine: Engine?) {
-        super.addedToEngine(engine)
-        val builder = ModelBuilder()
-        createFloorModel(builder)
-        val tilesMapping = commonData.currentMap.tilesMapping
-        floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
-        commonData.modelCache = ModelCache()
-        addGround()
-        commonData.currentMap.placedElements.forEach {
-            if (it.definition != CharactersDefinitions.PLAYER) {
-                addAmbModelObject(
-                    assetsManager,
-                    auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
-                    it.definition as AmbModelDefinitions
-                )
-            }
+            services.soundPlayer.play(services.assetsManager.getAssetByDefinition(ambSounds.random()))
         }
     }
 
     private fun createFloorModel(builder: ModelBuilder) {
         builder.begin()
-        val texture = assetsManager.getAssetByDefinition(TexturesDefinitions.SAND)
+        val texture = services.assetsManager.getAssetByDefinition(TexturesDefinitions.SAND)
         GeneralUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
         floorModel = builder.end()
     }
 
     private fun addGround() {
-        commonData.modelCache.begin()
-        val tilesMapping = commonData.currentMap.tilesMapping
+        gameSessionData.modelCache.begin()
+        val tilesMapping = gameSessionData.currentMap.tilesMapping
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
         addGroundRegion(depth, width, 0, 0)
         addAllExternalGrounds(width, depth)
-        commonData.modelCache.end()
+        gameSessionData.modelCache.end()
     }
 
     private fun addAllExternalGrounds(width: Int, depth: Int) {
@@ -135,7 +125,7 @@ class MapSystem : GameEntitySystem() {
         val textureAttribute =
             modelInstance.materials.first().get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalGroundTextureAttribute(textureAttribute, width, depth)
-        commonData.modelCache.add(modelInstance)
+        gameSessionData.modelCache.add(modelInstance)
     }
 
     private fun initializeExternalGroundTextureAttribute(
@@ -181,22 +171,22 @@ class MapSystem : GameEntitySystem() {
             modelInstance,
             auxVector1.set(xOffset + col.toFloat() + 0.5F, 0F, zOffset + row.toFloat() + 0.5F)
         )
-        commonData.modelCache.add(modelInstance)
+        gameSessionData.modelCache.add(modelInstance)
         var current = GameMap.TILE_TYPE_EMPTY
         val rowWithOffset = row + xOffset
         val colWithOffset = col + zOffset
         if (rowWithOffset >= 0
             && colWithOffset >= 0
-            && rowWithOffset < commonData.currentMap.tilesMapping.size
-            && colWithOffset < commonData.currentMap.tilesMapping[0].size
+            && rowWithOffset < gameSessionData.currentMap.tilesMapping.size
+            && colWithOffset < gameSessionData.currentMap.tilesMapping[0].size
         ) {
-            current = commonData.currentMap.tilesMapping[rowWithOffset][colWithOffset]
+            current = gameSessionData.currentMap.tilesMapping[rowWithOffset][colWithOffset]
             floors[rowWithOffset][colWithOffset] = entity
         }
         if (current != GameMap.TILE_TYPE_EMPTY) {
-            initializeRoadTile(commonData.currentMap, row, col, modelInstance, assetsManager)
+            initializeRoadTile(gameSessionData.currentMap, row, col, modelInstance, services.assetsManager)
         } else {
-            randomizeSand(assetsManager, modelInstance)
+            randomizeSand(services.assetsManager, modelInstance)
         }
 
     }
@@ -277,7 +267,7 @@ class MapSystem : GameEntitySystem() {
 
     override fun dispose() {
         floorModel.dispose()
-        commonData.modelCache.dispose()
+        gameSessionData.modelCache.dispose()
     }
 
     /**

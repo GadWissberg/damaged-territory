@@ -1,11 +1,13 @@
 package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.ModelsDefinitions
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.systems.SystemEvents
 
 class PlayerShootingHandler {
 
@@ -21,11 +23,11 @@ class PlayerShootingHandler {
 
     }
 
-    fun update(player: Entity, subscribers: HashSet<PlayerSystemEventsSubscriber>) {
+    fun update(player: Entity, dispatcher: MessageDispatcher) {
         var armComp: ArmComponent = ComponentsMapper.primaryArm.get(player)
-        handleShooting(priShooting, armComp, priBulletsPool, player, subscribers)
+        handleShooting(priShooting, armComp, priBulletsPool, player, dispatcher)
         armComp = ComponentsMapper.secondaryArm.get(player)
-        handleShooting(secShooting, armComp, secBulletsPool, player, subscribers)
+        handleShooting(secShooting, armComp, secBulletsPool, player, dispatcher)
     }
 
     private fun handleShooting(
@@ -33,7 +35,7 @@ class PlayerShootingHandler {
         armComp: ArmComponent,
         pool: BulletsPool,
         player: Entity,
-        subscribers: HashSet<PlayerSystemEventsSubscriber>
+        dispatcher: MessageDispatcher
     ) {
         if (!shooting) return
         val now = TimeUtils.millis()
@@ -41,13 +43,7 @@ class PlayerShootingHandler {
             armComp.calculateRelativePosition(player)
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
-            subscribers.forEach {
-                it.onPlayerWeaponShot(
-                    player,
-                    pool.obtain(),
-                    armComp
-                )
-            }
+            dispatcher.dispatchMessage(SystemEvents.PLAYER_WEAPON_SHOT.ordinal, pool.obtain())
         }
     }
 

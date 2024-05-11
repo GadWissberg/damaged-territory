@@ -1,6 +1,5 @@
 package com.gadarts.returnfire.systems.render
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
@@ -9,7 +8,6 @@ import com.badlogic.gdx.Gdx.graphics
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.ModelBatch
-import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
@@ -19,16 +17,18 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.player.PlayerSystemEventsSubscriber
+import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.SystemEvents
 import kotlin.math.max
 
-class RenderSystem : GameEntitySystem(), Disposable, PlayerSystemEventsSubscriber {
+class RenderSystem : GameEntitySystem(), Disposable {
 
     private lateinit var decalEntities: ImmutableArray<Entity>
     private lateinit var childEntities: ImmutableArray<Entity>
@@ -37,8 +37,8 @@ class RenderSystem : GameEntitySystem(), Disposable, PlayerSystemEventsSubscribe
     private lateinit var modelBatch: ModelBatch
     private lateinit var modelInstanceEntities: ImmutableArray<Entity>
     private var axisModelHandler = AxisModelHandler()
-    override fun addedToEngine(engine: Engine?) {
-        super.addedToEngine(engine)
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
         modelInstanceEntities = engine!!.getEntitiesFor(
             Family.all(ModelInstanceComponent::class.java)
                 .exclude(GroundComponent::class.java)
@@ -52,7 +52,7 @@ class RenderSystem : GameEntitySystem(), Disposable, PlayerSystemEventsSubscribe
     }
 
     private fun createBatches() {
-        decalBatch = DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(commonData.camera))
+        decalBatch = DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.camera))
         modelBatch = ModelBatch()
     }
 
@@ -104,16 +104,16 @@ class RenderSystem : GameEntitySystem(), Disposable, PlayerSystemEventsSubscribe
         dims.x = max(dims.x, max(dims.y, dims.z))
         dims.y = max(dims.x, max(dims.y, dims.z))
         dims.z = max(dims.x, max(dims.y, dims.z))
-        return commonData.camera.frustum.boundsInFrustum(center, dims)
+        return gameSessionData.camera.frustum.boundsInFrustum(center, dims)
     }
 
     private fun renderModels() {
-        modelBatch.begin(commonData.camera)
+        modelBatch.begin(gameSessionData.camera)
         axisModelHandler.render(modelBatch)
         for (entity in modelInstanceEntities) {
             renderModel(entity)
         }
-        modelBatch.render(commonData.modelCache)
+        modelBatch.render(gameSessionData.modelCache)
         modelBatch.end()
     }
 
@@ -130,7 +130,7 @@ class RenderSystem : GameEntitySystem(), Disposable, PlayerSystemEventsSubscribe
     }
 
     private fun faceDecalToCamera(decal: Decal) {
-        val camera = commonData.camera
+        val camera = gameSessionData.camera
         decal.lookAt(auxVector3_1.set(decal.position).sub(camera.direction), camera.up)
     }
 
@@ -169,9 +169,6 @@ class RenderSystem : GameEntitySystem(), Disposable, PlayerSystemEventsSubscribe
         decalBatch.add(child.decal)
     }
 
-    override fun initialize(am: GameAssetManager) {
-    }
-
     override fun resume(delta: Long) {
 
     }
@@ -180,16 +177,8 @@ class RenderSystem : GameEntitySystem(), Disposable, PlayerSystemEventsSubscribe
         modelBatch.dispose()
     }
 
-    override fun onPlayerWeaponShot(
-        player: Entity,
-        bulletModelInstance: ModelInstance,
-        arm: ArmComponent
-    ) {
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
-    }
-
-    override fun onPlayerEnteredNewRegion(player: Entity) {
-    }
 
     companion object {
         val auxVector3_1 = Vector3()

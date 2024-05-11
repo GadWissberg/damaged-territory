@@ -1,10 +1,11 @@
 package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Engine
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.PlayerComponent
 
@@ -15,12 +16,12 @@ class CameraSystem : GameEntitySystem() {
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-        commonData.camera.update()
+        gameSessionData.camera.update()
         followPlayer()
     }
 
     private fun followPlayer() {
-        val player = commonData.player
+        val player = gameSessionData.player
         val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)
         val playerComp = ComponentsMapper.player.get(player)
@@ -33,11 +34,11 @@ class CameraSystem : GameEntitySystem() {
 
     private fun followPlayerWhenStrafing(playerPosition: Vector3) {
         if (cameraStrafeMode.isZero) {
-            cameraStrafeMode.set(commonData.camera.position).sub(playerPosition)
+            cameraStrafeMode.set(gameSessionData.camera.position).sub(playerPosition)
         } else {
-            commonData.camera.position.set(
+            gameSessionData.camera.position.set(
                 playerPosition.x,
-                commonData.camera.position.y,
+                gameSessionData.camera.position.y,
                 playerPosition.z
             ).add(cameraStrafeMode.x, 0F, cameraStrafeMode.z)
         }
@@ -50,16 +51,15 @@ class CameraSystem : GameEntitySystem() {
         val velocityDir = playerComp.getCurrentVelocity(auxVector2).nor().setLength2(5F)
         cameraTarget =
             playerPosition.add(velocityDir.x, 0F, -velocityDir.y + 4F)
-        cameraTarget.y = commonData.camera.position.y
-        commonData.camera.position.interpolate(cameraTarget, 0.2F, Interpolation.exp5)
+        cameraTarget.y = gameSessionData.camera.position.y
+        gameSessionData.camera.position.interpolate(cameraTarget, 0.2F, Interpolation.exp5)
         if (!cameraStrafeMode.isZero) {
             cameraStrafeMode.setZero()
         }
     }
 
-    override fun initialize(am: GameAssetManager) {
-        initializeCamera()
-    }
+
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
     override fun resume(delta: Long) {
     }
@@ -67,18 +67,20 @@ class CameraSystem : GameEntitySystem() {
     override fun dispose() {
     }
 
-    override fun addedToEngine(engine: Engine?) {
-        super.addedToEngine(engine)
+
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
+        initializeCamera()
     }
 
     private fun initializeCamera() {
-        commonData.camera.near = NEAR
-        commonData.camera.far = FAR
-        commonData.camera.update()
-        commonData.camera.position.set(0F, INITIAL_Y, INITIAL_Z)
-        commonData.camera.rotate(Vector3.X, -45F)
-        val get = ComponentsMapper.modelInstance.get(commonData.player)
-        commonData.camera.lookAt(get.modelInstance.transform.getTranslation(auxVector3_1))
+        gameSessionData.camera.near = NEAR
+        gameSessionData.camera.far = FAR
+        gameSessionData.camera.update()
+        gameSessionData.camera.position.set(0F, INITIAL_Y, INITIAL_Z)
+        gameSessionData.camera.rotate(Vector3.X, -45F)
+        val get = ComponentsMapper.modelInstance.get(gameSessionData.player)
+        gameSessionData.camera.lookAt(get.modelInstance.transform.getTranslation(auxVector3_1))
     }
 
     companion object {

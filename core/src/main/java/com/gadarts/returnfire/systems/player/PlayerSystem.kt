@@ -1,6 +1,5 @@
 package com.gadarts.returnfire.systems.player
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -15,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.GeneralUtils
+import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.ModelsDefinitions
 import com.gadarts.returnfire.assets.SfxDefinitions
@@ -23,52 +23,25 @@ import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.cd.ChildDecal
-import com.gadarts.returnfire.systems.EntityBuilder
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.*
 import com.gadarts.returnfire.systems.GameSessionData.Companion.SPARK_HEIGHT_BIAS
-import com.gadarts.returnfire.systems.Notifier
-import com.gadarts.returnfire.systems.hud.HudSystemEventsSubscriber
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
-class PlayerSystem : GameEntitySystem(), HudSystemEventsSubscriber,
-    Notifier<PlayerSystemEventsSubscriber> {
+class PlayerSystem : GameEntitySystem() {
 
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerMovementHandler = PlayerMovementHandler()
     private lateinit var propellerBlurredModel: Model
     private var lastTouchDown: Long = 0
     private lateinit var player: Entity
-    override val subscribers = HashSet<PlayerSystemEventsSubscriber>()
 
-    override fun initialize(am: GameAssetManager) {
-        playerShootingHandler.initialize(assetsManager)
-        playerMovementHandler.initialize(engine, assetsManager, commonData.camera)
-    }
-
-    override fun resume(delta: Long) {
-
-    }
-
-    private fun createPropellerBlurredModel(assetsManager: GameAssetManager) {
-        val builder = ModelBuilder()
-        builder.begin()
-        GeneralUtils.createFlatMesh(
-            builder,
-            "propeller_blurred",
-            1F,
-            assetsManager.getAssetByDefinition(TexturesDefinitions.PROPELLER_BLURRED)
-        )
-        propellerBlurredModel = builder.end()
-    }
-
-    override fun dispose() {
-        propellerBlurredModel.dispose()
-    }
-
-    override fun addedToEngine(engine: Engine?) {
-        super.addedToEngine(engine)
-        createPropellerBlurredModel(assetsManager)
-        commonData.touchpad.addListener(object : ClickListener() {
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
+        createPropellerBlurredModel(services.assetsManager)
+        gameSessionData.touchpad.addListener(object : ClickListener() {
             override fun touchDown(
                 event: InputEvent?,
                 x: Float,
@@ -98,8 +71,30 @@ class PlayerSystem : GameEntitySystem(), HudSystemEventsSubscriber,
                 super.touchUp(event, x, y, pointer, button)
             }
         })
-        player = addPlayer(engine as PooledEngine, assetsManager)
-        commonData.player = player
+        player = addPlayer(engine as PooledEngine, services.assetsManager)
+        gameSessionData.player = player
+        playerShootingHandler.initialize(services.assetsManager)
+        playerMovementHandler.initialize(engine, services.assetsManager, gameSessionData.camera)
+    }
+
+    override fun resume(delta: Long) {
+
+    }
+
+    private fun createPropellerBlurredModel(assetsManager: GameAssetManager) {
+        val builder = ModelBuilder()
+        builder.begin()
+        GeneralUtils.createFlatMesh(
+            builder,
+            "propeller_blurred",
+            1F,
+            assetsManager.getAssetByDefinition(TexturesDefinitions.PROPELLER_BLURRED)
+        )
+        propellerBlurredModel = builder.end()
+    }
+
+    override fun dispose() {
+        propellerBlurredModel.dispose()
     }
 
 
@@ -112,9 +107,11 @@ class PlayerSystem : GameEntitySystem(), HudSystemEventsSubscriber,
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-        val currentMap = commonData.currentMap
-        playerMovementHandler.update(player, deltaTime, subscribers, currentMap, soundPlayer)
-        playerShootingHandler.update(player, subscribers)
+        val currentMap = gameSessionData.currentMap
+        playerMovementHandler.update(player, deltaTime, currentMap, services.soundPlayer, services.dispatcher)
+        playerShootingHandler.update(
+            player, services.dispatcher
+        )
     }
 
 
@@ -182,21 +179,14 @@ class PlayerSystem : GameEntitySystem(), HudSystemEventsSubscriber,
         entityBuilder.addChildDecalComponent(decals, true)
     }
 
-    override fun onPrimaryWeaponButtonPressed() {
-        playerShootingHandler.onPrimaryWeaponButtonPressed()
-    }
-
-    override fun onPrimaryWeaponButtonReleased() {
-        playerShootingHandler.onPrimaryWeaponButtonReleased()
-    }
-
-    override fun onSecondaryWeaponButtonPressed() {
-        playerShootingHandler.onSecondaryWeaponButtonPressed()
-    }
-
-    override fun onSecondaryWeaponButtonReleased() {
-        playerShootingHandler.onSecondaryWeaponButtonReleased()
-    }
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(playerShootingHandler),
+        SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(playerShootingHandler),
+        SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(playerShootingHandler),
+        SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
+            playerShootingHandler
+        ),
+    )
 
     companion object {
         private const val INITIAL_HP = 100

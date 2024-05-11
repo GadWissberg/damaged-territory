@@ -1,7 +1,11 @@
 package com.gadarts.returnfire.systems
 
-import com.badlogic.ashley.core.*
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntityListener
+import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.MathUtils
@@ -9,22 +13,68 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GeneralUtils
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.BulletComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.player.PlayerSystemEventsSubscriber
 import com.gadarts.returnfire.systems.render.RenderSystem
 
-class CharacterSystem : GameEntitySystem(), PlayerSystemEventsSubscriber {
+class CharacterSystem : GameEntitySystem() {
 
     private lateinit var bulletEntities: ImmutableArray<Entity>
     private lateinit var ambSoundEntities: ImmutableArray<Entity>
 
-    override fun initialize(am: GameAssetManager) {
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
+        ambSoundEntities = engine!!.getEntitiesFor(Family.all(AmbSoundComponent::class.java).get())
+        engine.addEntityListener(object : EntityListener {
+            override fun entityAdded(entity: Entity?) {
+                if (ComponentsMapper.ambSound.has(entity)) {
+                    val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
+                    if (ambSoundComponent.soundId == -1L) {
+                        val id = services.soundPlayer.loopSound(ambSoundComponent.sound)
+                        ambSoundComponent.soundId = id
+                    }
+                }
+            }
+
+            override fun entityRemoved(entity: Entity?) {
+            }
+
+        })
         bulletEntities = engine.getEntitiesFor(Family.all(BulletComponent::class.java).get())
     }
+
+    override fun onSystemReady() {
+
+    }
+
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.PLAYER_WEAPON_SHOT to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, services: Services) {
+                val arm = ComponentsMapper.primaryArm.get(gameSessionData.player)
+                val relativePosition = arm.relativePos
+                positionSpark(
+                    arm, ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance,
+                    relativePosition
+                )
+                val armProperties = arm.armProperties
+                createBullet(
+                    gameSessionData.player,
+                    msg.extraInfo as ModelInstance,
+                    armProperties.speed,
+                    relativePosition
+                )
+                services.soundPlayer.playPositionalSound(
+                    armProperties.shootingSound,
+                    randomPitch = false,
+                    gameSessionData.player,
+                    this@CharacterSystem.gameSessionData.camera
+                )
+            }
+        },
+    )
 
     override fun resume(delta: Long) {
 
@@ -35,6 +85,7 @@ class CharacterSystem : GameEntitySystem(), PlayerSystemEventsSubscriber {
         update3dSound()
         handleBullets(deltaTime)
     }
+
 
     private fun handleBullets(deltaTime: Float) {
         for (bullet in bulletEntities) {
@@ -65,7 +116,7 @@ class CharacterSystem : GameEntitySystem(), PlayerSystemEventsSubscriber {
     }
 
     private fun updateEntity3dSound(entity: Entity) {
-        val distance = GeneralUtils.calculateVolumeAccordingToPosition(entity, commonData.camera)
+        val distance = GeneralUtils.calculateVolumeAccordingToPosition(entity, gameSessionData.camera)
         val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
         ambSoundComponent.sound.setVolume(ambSoundComponent.soundId, distance)
         if (distance <= 0F) {
@@ -82,25 +133,6 @@ class CharacterSystem : GameEntitySystem(), PlayerSystemEventsSubscriber {
 
     }
 
-    override fun addedToEngine(engine: Engine?) {
-        super.addedToEngine(engine)
-        ambSoundEntities = engine!!.getEntitiesFor(Family.all(AmbSoundComponent::class.java).get())
-        engine.addEntityListener(object : EntityListener {
-            override fun entityAdded(entity: Entity?) {
-                if (ComponentsMapper.ambSound.has(entity)) {
-                    val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
-                    if (ambSoundComponent.soundId == -1L) {
-                        val id = soundPlayer.loopSound(ambSoundComponent.sound)
-                        ambSoundComponent.soundId = id
-                    }
-                }
-            }
-
-            override fun entityRemoved(entity: Entity?) {
-            }
-
-        })
-    }
 
     private fun createBullet(
         player: Entity,
@@ -133,29 +165,6 @@ class CharacterSystem : GameEntitySystem(), PlayerSystemEventsSubscriber {
         return auxVector2
     }
 
-    override fun onPlayerWeaponShot(
-        player: Entity,
-        bulletModelInstance: ModelInstance,
-        arm: ArmComponent,
-    ) {
-        val relativePosition = arm.relativePos
-        positionSpark(
-            arm, ComponentsMapper.modelInstance.get(player).modelInstance,
-            relativePosition
-        )
-        val armProperties = arm.armProperties
-        createBullet(player, bulletModelInstance, armProperties.speed, relativePosition)
-        soundPlayer.playPositionalSound(
-            armProperties.shootingSound,
-            randomPitch = false,
-            player,
-            commonData.camera
-        )
-    }
-
-    override fun onPlayerEnteredNewRegion(player: Entity) {
-
-    }
 
     private fun positionSpark(
         armComp: ArmComponent,
