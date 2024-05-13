@@ -7,12 +7,9 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.ModelsDefinitions
@@ -33,12 +30,10 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerMovementHandler = PlayerMovementHandler()
-    private lateinit var propellerBlurredModel: Model
     private lateinit var player: Entity
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
-        createPropellerBlurredModel(services.assetsManager)
         player = addPlayer(engine as PooledEngine, services.assetsManager)
         gameSessionData.player = player
         playerShootingHandler.initialize(services.assetsManager)
@@ -50,20 +45,8 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     }
 
-    private fun createPropellerBlurredModel(assetsManager: GameAssetManager) {
-        val builder = ModelBuilder()
-        builder.begin()
-        GeneralUtils.createFlatMesh(
-            builder,
-            "propeller_blurred",
-            1F,
-            assetsManager.getAssetByDefinition(TexturesDefinitions.PROPELLER_BLURRED)
-        )
-        propellerBlurredModel = builder.end()
-    }
-
     override fun dispose() {
-        propellerBlurredModel.dispose()
+
     }
 
     override fun update(deltaTime: Float) {
@@ -120,13 +103,15 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 return pos
             }
         }
-        return entityBuilder.addAmbSoundComponent(am.getAssetByDefinition(SfxDefinitions.PROPELLER))
+        val player = entityBuilder.addAmbSoundComponent(am.getAssetByDefinition(SfxDefinitions.PROPELLER))
             .addCharacterComponent(INITIAL_HP)
             .addPlayerComponent()
             .addPrimaryArmComponent(priDecal, priArmProperties, priCalculateRelativePosition)
             .addSecondaryArmComponent(secDecal, secArmProperties, secCalculateRelativePosition)
             .addSphereCollisionComponent(apacheModel)
             .finishAndAddToEngine()
+        ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
+        return player
     }
 
     private fun addPropeller(
@@ -154,7 +139,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         private val auxVector3_1 = Vector3()
         private const val PRI_RELOAD_DUR = 125L
         private const val SEC_RELOAD_DUR = 2000L
-        private const val PROP_SIZE = 2F
+        private const val PROP_SIZE = 1.5F
         private const val PRI_SPARK_SIZE = 0.3F
         private const val SEC_SPARK_SIZE = 0.6F
         private const val PRI_BULLET_SPEED = 32F

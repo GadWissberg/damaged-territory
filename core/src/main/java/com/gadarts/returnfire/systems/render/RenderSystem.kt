@@ -98,6 +98,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     private fun isVisible(entity: Entity): Boolean {
         val modelInsComp = ComponentsMapper.modelInstance[entity]
+        if (modelInsComp.hidden) return false
+
         val pos: Vector3 = modelInsComp.modelInstance.transform.getTranslation(auxVector3_1)
         val center: Vector3 = pos.add(modelInsComp.getBoundingBox(auxBox).getCenter(auxVector3_2))
         val dims: Vector3 = auxBox.getDimensions(auxVector3_2)
@@ -136,7 +138,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     private fun renderModel(entity: Entity) {
         if (isVisible(entity)) {
-            val modelInstance = ComponentsMapper.modelInstance.get(entity).modelInstance
+            val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
+            val modelInstance = modelInstanceComponent.modelInstance
             modelBatch.render(modelInstance)
         }
     }
@@ -163,8 +166,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
     ) {
         child.decal.rotation = parentRotation
         child.decal.rotateX(90F)
-        child.decal.rotateZ(child.rotationStep.angle())
-        child.rotationStep.setAngle(child.rotationStep.angle() + ROT_STEP * deltaTime)
+        child.decal.rotateZ(child.rotationStep.angleDeg())
+        child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
         child.decal.position = parentPosition
         decalBatch.add(child.decal)
     }

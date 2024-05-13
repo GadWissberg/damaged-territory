@@ -165,3 +165,5 @@ Thumbs.db
 /gradle/wrapper/
 /gradlew
 /gradlew.bat
+*.blend1
+*.fbx

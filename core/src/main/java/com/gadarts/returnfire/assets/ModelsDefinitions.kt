@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.g3d.Model
 enum class ModelsDefinitions(fileNames: Int = 1) : AssetDefinition<Model> {
 
     APACHE,
-    PROPELLER,
-    BACK_PROPELLER,
     BULLET,
     MISSILE,
     PALM_TREE(3),
