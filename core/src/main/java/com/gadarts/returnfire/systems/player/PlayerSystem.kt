@@ -168,7 +168,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         var handled = false
         when (keycode) {
             Input.Keys.UP -> {
-                playerMovementHandler.thrust(player, 4F)
+                playerMovementHandler.thrust(player, 1F)
                 handled = true
             }
 
@@ -181,18 +181,36 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 playerMovementHandler.rotate(-ROTATION_STEP)
                 handled = true
             }
+
+            Input.Keys.DOWN -> {
+                playerMovementHandler.thrust(player, -1F)
+                handled = true
+            }
         }
         return handled
     }
 
     override fun keyUp(keycode: Int): Boolean {
         var handled = false
-        if (keycode == Input.Keys.UP) {
-            playerMovementHandler.thrust(player, 0F)
-            handled = true
-        } else if (keycode == Input.Keys.LEFT || keycode == Input.Keys.RIGHT) {
-            playerMovementHandler.rotate(0F)
-            handled = true
+        when (keycode) {
+            Input.Keys.UP -> {
+                if (ComponentsMapper.player.get(gameSessionData.player).thrust > 0F) {
+                    playerMovementHandler.thrust(player, 0F)
+                    handled = true
+                }
+            }
+
+            Input.Keys.DOWN -> {
+                if (ComponentsMapper.player.get(gameSessionData.player).thrust < 0F) {
+                    playerMovementHandler.thrust(player, 0F)
+                    handled = true
+                }
+            }
+
+            Input.Keys.LEFT, Input.Keys.RIGHT -> {
+                playerMovementHandler.rotate(0F)
+                handled = true
+            }
         }
         return handled
     }

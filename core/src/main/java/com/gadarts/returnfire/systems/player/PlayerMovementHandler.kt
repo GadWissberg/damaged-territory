@@ -15,6 +15,7 @@ import com.gadarts.returnfire.assets.SfxDefinitions
 import com.gadarts.returnfire.components.BoxCollisionComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.player
+import com.gadarts.returnfire.components.PlayerComponent
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.GameSessionData.Companion.REGION_SIZE
 import com.gadarts.returnfire.systems.SystemEvents
@@ -35,19 +36,29 @@ class PlayerMovementHandler {
     private fun handleAcceleration(player: Entity) {
         val playerComponent = ComponentsMapper.player.get(player)
         if (playerComponent.thrust > 0F) {
-            playerComponent.currentVelocity =
-                min(
-                    playerComponent.currentVelocity + (ACCELERATION),
-                    MAX_SPEED
+            accelerate(playerComponent, ACCELERATION, 1F)
+        } else if (playerComponent.thrust < 0F) {
+            accelerate(playerComponent, -ACCELERATION, -1F)
+        } else if (playerComponent.currentVelocity != 0F) {
+            if (playerComponent.currentVelocity > 0F) {
+                playerComponent.currentVelocity = max(
+                    playerComponent.currentVelocity - (DECELERATION),
+                    0F
                 )
-            tiltAnimationHandler.tilt = true
-        } else {
-            playerComponent.currentVelocity = max(
-                playerComponent.currentVelocity - (DECELERATION),
-                1F
-            )
-            tiltAnimationHandler.tilt = false
+            } else {
+                playerComponent.currentVelocity = min(
+                    playerComponent.currentVelocity + (DECELERATION),
+                    0F
+                )
+            }
+            tiltAnimationHandler.tiltForward = 0F
         }
+    }
+
+    private fun accelerate(playerComponent: PlayerComponent, acceleration: Float, tilt: Float) {
+        playerComponent.currentVelocity =
+            MathUtils.clamp(playerComponent.currentVelocity + (acceleration), MAX_REVERSE_SPEED, MAX_FORWARD_SPEED)
+        tiltAnimationHandler.tiltForward = tilt
     }
 
 
@@ -196,10 +207,10 @@ class PlayerMovementHandler {
         currentMap: GameMap,
         velocity: Vector2
     ) {
-        if (velocity.len2() > 1F) {
+        if (velocity.len2() != 0F) {
             val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
             val step = auxVector3_1.set(velocity.x, 0F, -velocity.y)
-            step.setLength2(step.len2() - 1F).scl(deltaTime)
+            step.setLength2(step.len2()).scl(deltaTime)
             transform.trn(step)
             clampPosition(transform, currentMap)
         }
@@ -231,7 +242,8 @@ class PlayerMovementHandler {
         private val auxVector2_1 = Vector2()
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
-        private const val MAX_SPEED = 7F
+        private const val MAX_REVERSE_SPEED = -3F
+        private const val MAX_FORWARD_SPEED = 7F
         private const val ACCELERATION = 0.02F
         private const val DECELERATION = 0.06F
         private val auxBoundingBox_1 = BoundingBox()
