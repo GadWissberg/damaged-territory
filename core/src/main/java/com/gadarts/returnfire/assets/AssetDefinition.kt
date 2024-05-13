@@ -12,10 +12,10 @@ interface AssetDefinition<T> {
         val paths = getPaths()
         val definitionName = getDefinitionName()
         if (fileNames == 1) {
-            paths.add(pathFormat.format(definitionName.toLowerCase(Locale.ROOT)))
+            paths.add(pathFormat.format(definitionName.lowercase(Locale.ROOT)))
         } else {
             for (i in 0 until fileNames) {
-                paths.add(pathFormat.format(definitionName.toLowerCase(Locale.ROOT) + "_" + i))
+                paths.add(pathFormat.format(definitionName.lowercase(Locale.ROOT) + "_" + i))
             }
         }
     }

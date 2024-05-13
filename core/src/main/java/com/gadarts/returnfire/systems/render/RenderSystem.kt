@@ -2,7 +2,6 @@ package com.gadarts.returnfire.systems.render
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Gdx.graphics
 import com.badlogic.gdx.graphics.Color
@@ -30,26 +29,42 @@ import kotlin.math.max
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
-    private lateinit var decalEntities: ImmutableArray<Entity>
-    private lateinit var childEntities: ImmutableArray<Entity>
     private lateinit var decalBatch: DecalBatch
-    private lateinit var armEntities: ImmutableArray<Entity>
     private lateinit var modelBatch: ModelBatch
-    private lateinit var modelInstanceEntities: ImmutableArray<Entity>
+    private lateinit var renderSystemRelatedEntities: RenderSystemRelatedEntities
     private var axisModelHandler = AxisModelHandler()
+
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
-        modelInstanceEntities = engine!!.getEntitiesFor(
-            Family.all(ModelInstanceComponent::class.java)
-                .exclude(GroundComponent::class.java)
-                .get()
-        )
-        armEntities = engine.getEntitiesFor(Family.all(PrimaryArmComponent::class.java).get())
-        childEntities = engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get())
-        decalEntities =
+        renderSystemRelatedEntities = RenderSystemRelatedEntities(
+            engine!!.getEntitiesFor(
+                Family.all(ModelInstanceComponent::class.java)
+                    .exclude(GroundComponent::class.java)
+                    .get()
+            ),
+            engine.getEntitiesFor(Family.all(PrimaryArmComponent::class.java).get()),
+            engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get())
+        )
         createBatches()
     }
+
+    override fun update(deltaTime: Float) {
+        super.update(deltaTime)
+        resetDisplay(Color.BLACK)
+        renderModels()
+        renderDecals(deltaTime)
+    }
+
+    override fun resume(delta: Long) {
+
+    }
+
+    override fun dispose() {
+        modelBatch.dispose()
+    }
+
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
     private fun createBatches() {
         decalBatch = DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.camera))
@@ -63,17 +78,10 @@ class RenderSystem : GameEntitySystem(), Disposable {
         Gdx.gl.glClearColor(color.r, color.g, color.b, 1f)
     }
 
-    override fun update(deltaTime: Float) {
-        super.update(deltaTime)
-        resetDisplay(Color.BLACK)
-        renderModels()
-        renderDecals(deltaTime)
-    }
-
     private fun renderDecals(deltaTime: Float) {
         Gdx.gl.glDepthMask(false)
         renderSparks()
-        for (entity in childEntities) {
+        for (entity in renderSystemRelatedEntities.childEntities) {
             renderChildren(entity, deltaTime)
         }
         renderIndependentDecals()
@@ -82,7 +90,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     private fun renderIndependentDecals() {
-        for (entity in decalEntities) {
+        for (entity in renderSystemRelatedEntities.decalEntities) {
             val decal = ComponentsMapper.independentDecal.get(entity).decal
             faceDecalToCamera(decal)
             decalBatch.add(decal)
@@ -90,7 +98,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     private fun renderSparks() {
-        for (entity in armEntities) {
+        for (entity in renderSystemRelatedEntities.armEntities) {
             renderSpark(ComponentsMapper.primaryArm.get(entity))
             renderSpark(ComponentsMapper.secondaryArm.get(entity))
         }
@@ -112,7 +120,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     private fun renderModels() {
         modelBatch.begin(gameSessionData.camera)
         axisModelHandler.render(modelBatch)
-        for (entity in modelInstanceEntities) {
+        for (entity in renderSystemRelatedEntities.modelInstanceEntities) {
             renderModel(entity)
         }
         modelBatch.render(gameSessionData.modelCache)
@@ -171,17 +179,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
         child.decal.position = parentPosition
         decalBatch.add(child.decal)
     }
-
-    override fun resume(delta: Long) {
-
-    }
-
-    override fun dispose() {
-        modelBatch.dispose()
-    }
-
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
-
 
     companion object {
         val auxVector3_1 = Vector3()

@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
@@ -11,7 +10,6 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.ModelsDefinitions
 import com.gadarts.returnfire.assets.SfxDefinitions
 import com.gadarts.returnfire.assets.TexturesDefinitions
@@ -30,12 +28,10 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerMovementHandler = PlayerMovementHandler()
-    private lateinit var player: Entity
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
-        player = addPlayer(engine as PooledEngine, services.assetsManager)
-        gameSessionData.player = player
+        addPlayer()
         playerShootingHandler.initialize(services.assetsManager)
         playerMovementHandler.initialize(engine, services.assetsManager, gameSessionData.camera, gameSessionData.player)
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
@@ -52,31 +48,46 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         val currentMap = gameSessionData.currentMap
-        playerMovementHandler.update(player, deltaTime, currentMap, services.soundPlayer, services.dispatcher)
+        playerMovementHandler.update(
+            gameSessionData.player,
+            deltaTime,
+            currentMap,
+            services.soundPlayer,
+            services.dispatcher
+        )
         playerShootingHandler.update(
-            player, services.dispatcher
+            gameSessionData.player, services.dispatcher
         )
     }
 
-
-    private fun addPlayer(engine: PooledEngine, am: GameAssetManager): Entity {
-        EntityBuilder.initialize(engine)
-        val apacheModel = am.getAssetByDefinition(ModelsDefinitions.APACHE)
-        val startPos = auxVector3_1.set(0F, PLAYER_HEIGHT, 2F)
-        val entityBuilder = EntityBuilder.begin().addModelInstanceComponent(apacheModel, startPos)
+    private fun addPlayer(): Entity {
+        EntityBuilder.initialize(services.engine)
+        val apacheModel = services.assetsManager.getAssetByDefinition(ModelsDefinitions.APACHE)
+        val entityBuilder =
+            EntityBuilder.begin().addModelInstanceComponent(apacheModel, auxVector3_1.set(0F, PLAYER_HEIGHT, 2F))
         if (GameDebugSettings.DISPLAY_PROPELLER) {
-            addPropeller(am, entityBuilder)
+            addPropeller(entityBuilder)
         }
-        val spark0 = TextureRegion(am.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 0))
-        val spark1 = TextureRegion(am.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 1))
-        val spark2 = TextureRegion(am.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 2))
+        val spark0 = TextureRegion(services.assetsManager.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 0))
+        val spark1 = TextureRegion(services.assetsManager.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 1))
+        val spark2 = TextureRegion(services.assetsManager.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 2))
         val sparkFrames = listOf(spark0, spark1, spark2)
-        val priSnd = am.getAssetByDefinition(SfxDefinitions.MACHINE_GUN)
-        val secSnd = am.getAssetByDefinition(SfxDefinitions.MISSILE)
-        val priDecal = newDecal(PRI_SPARK_SIZE, PRI_SPARK_SIZE, spark0, true)
-        val secDecal = newDecal(SEC_SPARK_SIZE, SEC_SPARK_SIZE, spark0, true)
+        entityBuilder.addAmbSoundComponent(services.assetsManager.getAssetByDefinition(SfxDefinitions.PROPELLER))
+            .addCharacterComponent(INITIAL_HP)
+            .addPlayerComponent()
+        addPrimaryArmComponent(entityBuilder, sparkFrames)
+        val player = addSecondaryArmComponent(entityBuilder, sparkFrames)
+            .addSphereCollisionComponent(apacheModel)
+            .finishAndAddToEngine()
+        gameSessionData.player = player
+        ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
+        return player
+    }
+
+    private fun addPrimaryArmComponent(entityBuilder: EntityBuilder, sparkFrames: List<TextureRegion>): EntityBuilder {
+        val priSnd = services.assetsManager.getAssetByDefinition(SfxDefinitions.MACHINE_GUN)
+        val priDecal = newDecal(PRI_SPARK_SIZE, PRI_SPARK_SIZE, sparkFrames.first(), true)
         val priArmProperties = ArmProperties(sparkFrames, priSnd, PRI_RELOAD_DUR, PRI_BULLET_SPEED)
-        val secArmProperties = ArmProperties(sparkFrames, secSnd, SEC_RELOAD_DUR, SEC_BULLET_SPEED)
         val priCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
             override fun calculate(parent: Entity): Vector3 {
                 val transform = ComponentsMapper.modelInstance.get(parent).modelInstance.transform
@@ -87,11 +98,22 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 return pos
             }
         }
+        entityBuilder.addPrimaryArmComponent(priDecal, priArmProperties, priCalculateRelativePosition)
+        return entityBuilder
+    }
+
+    private fun addSecondaryArmComponent(
+        entityBuilder: EntityBuilder,
+        sparkFrames: List<TextureRegion>
+    ): EntityBuilder {
+        val secSnd = services.assetsManager.getAssetByDefinition(SfxDefinitions.MISSILE)
+        val secArmProperties = ArmProperties(sparkFrames, secSnd, SEC_RELOAD_DUR, SEC_BULLET_SPEED)
+        val secDecal = newDecal(SEC_SPARK_SIZE, SEC_SPARK_SIZE, sparkFrames.first(), true)
         val secCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
             override fun calculate(parent: Entity): Vector3 {
                 playerShootingHandler.secondaryCreationSide =
                     !playerShootingHandler.secondaryCreationSide
-                val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
+                val transform = ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance.transform
                 val pos =
                     auxVector3_1.set(
                         0.2F,
@@ -103,22 +125,15 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 return pos
             }
         }
-        val player = entityBuilder.addAmbSoundComponent(am.getAssetByDefinition(SfxDefinitions.PROPELLER))
-            .addCharacterComponent(INITIAL_HP)
-            .addPlayerComponent()
-            .addPrimaryArmComponent(priDecal, priArmProperties, priCalculateRelativePosition)
-            .addSecondaryArmComponent(secDecal, secArmProperties, secCalculateRelativePosition)
-            .addSphereCollisionComponent(apacheModel)
-            .finishAndAddToEngine()
-        ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
-        return player
+        entityBuilder.addSecondaryArmComponent(secDecal, secArmProperties, secCalculateRelativePosition)
+        return entityBuilder
     }
 
     private fun addPropeller(
-        am: GameAssetManager,
         entityBuilder: EntityBuilder
     ) {
-        val propTextureRegion = TextureRegion(am.getAssetByDefinition(TexturesDefinitions.PROPELLER_BLURRED))
+        val propTextureRegion =
+            TextureRegion(services.assetsManager.getAssetByDefinition(TexturesDefinitions.PROPELLER_BLURRED))
         val propDec = newDecal(PROP_SIZE, PROP_SIZE, propTextureRegion, true)
         propDec.rotateX(90F)
         val decals = listOf(ChildDecal(propDec, Vector3.Zero))
@@ -153,7 +168,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         var handled = false
         when (keycode) {
             Input.Keys.UP -> {
-                playerMovementHandler.thrust(player, 1F)
+                playerMovementHandler.thrust(gameSessionData.player, 1F)
                 handled = true
             }
 
@@ -168,7 +183,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             }
 
             Input.Keys.DOWN -> {
-                playerMovementHandler.thrust(player, -1F)
+                playerMovementHandler.thrust(gameSessionData.player, -1F)
                 handled = true
             }
         }
@@ -180,14 +195,14 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         when (keycode) {
             Input.Keys.UP -> {
                 if (ComponentsMapper.player.get(gameSessionData.player).thrust > 0F) {
-                    playerMovementHandler.thrust(player, 0F)
+                    playerMovementHandler.thrust(gameSessionData.player, 0F)
                     handled = true
                 }
             }
 
             Input.Keys.DOWN -> {
                 if (ComponentsMapper.player.get(gameSessionData.player).thrust < 0F) {
-                    playerMovementHandler.thrust(player, 0F)
+                    playerMovementHandler.thrust(gameSessionData.player, 0F)
                     handled = true
                 }
             }
