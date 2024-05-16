@@ -1,0 +1,27 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="map_editor.js" defer></script>
+    <script type="text/javascript" src="main.js" defer></script>
+    <link rel="stylesheet" href="map_editor.css">
+</head>
+
+<body>
+    <div id="menu" class="fixedElement">
+        <div class="label" style="margin-right:0px">Mode:</div>
+        <div class="radioButton" style="padding-left: 0px"><input type="radio" id="option_mode_tiles" name="modes"
+                value="TILES" checked><label for="option_mode_tiles">Tiles</label></div>
+        <div class="radioButton"><input type="radio" id="option_mode_objects" name="modes" value="OBJECTS"><label
+                for="option_mode_objects">Objects</label></div>
+        <div class="menu_button" id="button_save">Save</div>
+        <div class="menu_button" id="button_load">Load</div>
+        <div class="label" style="margin-right:0px">Map Size:</div>
+        <select name="map_sizes" id="dropdown_map_sizes">
+        </select>
+    </div>
+    <div id="map"></div>
+    <div id="left_menu_div" class="fixedElement" style="display: table-cell;">
+    </div>
+</body>
+
+</html>

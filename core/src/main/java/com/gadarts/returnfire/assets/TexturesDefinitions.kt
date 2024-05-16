@@ -27,7 +27,18 @@ enum class TexturesDefinitions(fileNames: Int = 1, ninepatch: Boolean = false) :
     LEFT_END(2),
     TOP_END(2),
     BOTTOM_END(2),
-    BUSH(3);
+    BUSH(3),
+    TILE_BEACH,
+    TILE_BEACH_BOTTOM,
+    TILE_BEACH_BOTTOM_RIGHT,
+    TILE_BEACH_BOTTOM_LEFT,
+    TILE_BEACH_TOP_LEFT,
+    TILE_BEACH_TOP_RIGHT,
+    TILE_BEACH_TOP,
+    TILE_BEACH_RIGHT,
+    TILE_BEACH_LEFT,
+    TILE_WATER;
+
 
     private val paths = ArrayList<String>()
 
