@@ -10,7 +10,6 @@ enum class TexturesDefinitions(fileNames: Int = 1, ninepatch: Boolean = false) :
     BUTTON_DOWN,
     PROPELLER_BLURRED,
     SPARK(3),
-    SAND,
     SAND_DEC(4),
     VERTICAL,
     HORIZONTAL,

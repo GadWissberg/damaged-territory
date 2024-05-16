@@ -49,7 +49,7 @@ class MapSystem : GameEntitySystem() {
         val tilesMapping = gameSessionData.currentMap.tilesMapping
         floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.modelCache = ModelCache()
-        addGround()
+        addBackgroundSea()
         gameSessionData.currentMap.placedElements.forEach {
             if (it.definition != CharactersDefinitions.PLAYER) {
                 addAmbModelObject(
@@ -89,33 +89,33 @@ class MapSystem : GameEntitySystem() {
 
     private fun createFloorModel(builder: ModelBuilder) {
         builder.begin()
-        val texture = services.assetsManager.getAssetByDefinition(TexturesDefinitions.SAND)
+        val texture = services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_WATER)
         GeneralUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
         floorModel = builder.end()
     }
 
-    private fun addGround() {
+    private fun addBackgroundSea() {
         gameSessionData.modelCache.begin()
         val tilesMapping = gameSessionData.currentMap.tilesMapping
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
-        addGroundRegion(depth, width, 0, 0)
-        addAllExternalGrounds(width, depth)
+        addSeaRegion(depth, width)
+        addAllExternalSea(width, depth)
         gameSessionData.modelCache.end()
     }
 
-    private fun addAllExternalGrounds(width: Int, depth: Int) {
-        addExtGround(width, EXT_SIZE, width / 2F, -EXT_SIZE / 2F)
-        addExtGround(EXT_SIZE, EXT_SIZE, -EXT_SIZE / 2F, -EXT_SIZE / 2F)
-        addExtGround(EXT_SIZE, depth, -width / 2F, depth / 2F)
-        addExtGround(EXT_SIZE, EXT_SIZE, -width / 2F, depth + EXT_SIZE / 2F)
-        addExtGround(width, EXT_SIZE, width / 2F, depth + EXT_SIZE / 2F)
-        addExtGround(EXT_SIZE, EXT_SIZE, width + EXT_SIZE / 2F, depth + EXT_SIZE / 2F)
-        addExtGround(EXT_SIZE, depth, width + EXT_SIZE / 2F, depth / 2F)
-        addExtGround(EXT_SIZE, EXT_SIZE, width + EXT_SIZE / 2F, -depth / 2F)
+    private fun addAllExternalSea(width: Int, depth: Int) {
+        addExtSea(width, EXT_SIZE, width / 2F, -EXT_SIZE / 2F)
+        addExtSea(EXT_SIZE, EXT_SIZE, -EXT_SIZE / 2F, -EXT_SIZE / 2F)
+        addExtSea(EXT_SIZE, depth, -width / 2F, depth / 2F)
+        addExtSea(EXT_SIZE, EXT_SIZE, -width / 2F, depth + EXT_SIZE / 2F)
+        addExtSea(width, EXT_SIZE, width / 2F, depth + EXT_SIZE / 2F)
+        addExtSea(EXT_SIZE, EXT_SIZE, width + EXT_SIZE / 2F, depth + EXT_SIZE / 2F)
+        addExtSea(EXT_SIZE, depth, width + EXT_SIZE / 2F, depth / 2F)
+        addExtSea(EXT_SIZE, EXT_SIZE, width + EXT_SIZE / 2F, -depth / 2F)
     }
 
-    private fun addExtGround(width: Int, depth: Int, x: Float, z: Float) {
+    private fun addExtSea(width: Int, depth: Int, x: Float, z: Float) {
         val modelInstance = ModelInstance(floorModel)
         createAndAddGroundTileEntity(
             modelInstance,
@@ -124,11 +124,11 @@ class MapSystem : GameEntitySystem() {
         modelInstance.transform.scl(width.toFloat(), 1F, depth.toFloat())
         val textureAttribute =
             modelInstance.materials.first().get(TextureAttribute.Diffuse) as TextureAttribute
-        initializeExternalGroundTextureAttribute(textureAttribute, width, depth)
+        initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
         gameSessionData.modelCache.add(modelInstance)
     }
 
-    private fun initializeExternalGroundTextureAttribute(
+    private fun initializeExternalSeaTextureAttribute(
         textureAttribute: TextureAttribute,
         width: Int,
         depth: Int
@@ -141,54 +141,45 @@ class MapSystem : GameEntitySystem() {
         textureAttribute.scaleV = depth.toFloat()
     }
 
-    private fun addGroundRegion(
+    private fun addSeaRegion(
         rows: Int,
         cols: Int,
-        xOffset: Int,
-        zOffset: Int
     ) {
         for (row in 0 until rows) {
             for (col in 0 until cols) {
-                addGroundTile(
+                addSeaTile(
                     row,
                     col,
-                    xOffset,
-                    zOffset,
                     ModelInstance(floorModel)
                 )
             }
         }
     }
 
-    private fun addGroundTile(
+    private fun addSeaTile(
         row: Int,
         col: Int,
-        xOffset: Int,
-        zOffset: Int,
         modelInstance: ModelInstance
     ) {
         val entity = createAndAddGroundTileEntity(
             modelInstance,
-            auxVector1.set(xOffset + col.toFloat() + 0.5F, 0F, zOffset + row.toFloat() + 0.5F)
+            auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
         )
         gameSessionData.modelCache.add(modelInstance)
         var current = GameMap.TILE_TYPE_EMPTY
-        val rowWithOffset = row + xOffset
-        val colWithOffset = col + zOffset
-        if (rowWithOffset >= 0
-            && colWithOffset >= 0
-            && rowWithOffset < gameSessionData.currentMap.tilesMapping.size
-            && colWithOffset < gameSessionData.currentMap.tilesMapping[0].size
+        if (row >= 0
+            && col >= 0
+            && row < gameSessionData.currentMap.tilesMapping.size
+            && col < gameSessionData.currentMap.tilesMapping[0].size
         ) {
-            current = gameSessionData.currentMap.tilesMapping[rowWithOffset][colWithOffset]
-            floors[rowWithOffset][colWithOffset] = entity
+            current = gameSessionData.currentMap.tilesMapping[row][col]
+            floors[row][col] = entity
         }
-        if (current != GameMap.TILE_TYPE_EMPTY) {
-            initializeRoadTile(gameSessionData.currentMap, row, col, modelInstance, services.assetsManager)
-        } else {
-            randomizeSand(services.assetsManager, modelInstance)
-        }
-
+        val textureAttribute =
+            modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute
+        val texture = services.assetsManager.getAssetByDefinition(beachTiles[current.code - '0'.code])
+        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+        textureAttribute.set(TextureRegion(texture))
     }
 
     private fun createAndAddGroundTileEntity(
@@ -199,45 +190,6 @@ class MapSystem : GameEntitySystem() {
             .addModelInstanceComponent(modelInstance, position)
             .addGroundComponent()
             .finishAndAddToEngine()
-    }
-
-    private fun initializeRoadTile(
-        map: GameMap,
-        row: Int,
-        col: Int,
-        modelInstance: ModelInstance,
-        am: GameAssetManager
-    ) {
-        val depth = map.tilesMapping.size
-        val width = map.tilesMapping[0].size
-        if (row >= depth || row < 0 || col >= width || col < 0) return
-        val right = col < width - 1 && map.tilesMapping[row][col + 1] != GameMap.TILE_TYPE_EMPTY
-        val btm = row < depth - 1 && map.tilesMapping[row + 1][col] != GameMap.TILE_TYPE_EMPTY
-        val left = col > 0 && map.tilesMapping[row][col - 1] != GameMap.TILE_TYPE_EMPTY
-        val top = row > 0 && map.tilesMapping[row - 1][col] != GameMap.TILE_TYPE_EMPTY
-        val textureAttribute =
-            modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute
-        val roadTile = RoadTiles.getRoadTileByNeighbors(right, btm, left, top)
-        if (roadTile != null) {
-            textureAttribute.set(TextureRegion(am.getAssetByDefinition(roadTile.textureDefinition)))
-        }
-    }
-
-    private fun randomizeSand(
-        am: GameAssetManager,
-        modelInstance: ModelInstance
-    ) {
-        if (random() > CHANCE_SAND_DEC) {
-            val sandDecTexture = am.getAssetByDefinition(TexturesDefinitions.SAND_DEC)
-            val attr =
-                modelInstance.materials.first().get(TextureAttribute.Diffuse) as TextureAttribute
-            val textureRegion = TextureRegion(sandDecTexture)
-            attr.set(textureRegion)
-            modelInstance.transform.rotate(
-                Vector3.Y,
-                random(4) * 90F
-            )
-        }
     }
 
     private fun applyTransformOnAmbEntities() {
@@ -270,60 +222,27 @@ class MapSystem : GameEntitySystem() {
         gameSessionData.modelCache.dispose()
     }
 
-    /**
-     * 0,0,0
-     * 0,1,0
-     * 0,1,0
-     */
-    enum class RoadTiles(val textureDefinition: TexturesDefinitions, val signature: Int) {
-        VERTICAL(TexturesDefinitions.VERTICAL, 0B010010010),
-        HORIZONTAL(TexturesDefinitions.HORIZONTAL, 0B000111000),
-        LEFT_TO_BOTTOM(TexturesDefinitions.LEFT_TO_BOTTOM, 0B000110010),
-        RIGHT_TO_BOTTOM(TexturesDefinitions.RIGHT_TO_BOTTOM, 0B000011010),
-        LEFT_TO_TOP(TexturesDefinitions.LEFT_TO_TOP, 0B010110000),
-        RIGHT_TO_TOP(TexturesDefinitions.RIGHT_TO_TOP, 0B010011000),
-        RIGHT_END(TexturesDefinitions.RIGHT_END, 0B000011000),
-        BOTTOM_END(TexturesDefinitions.BOTTOM_END, 0B000010010),
-        LEFT_END(TexturesDefinitions.LEFT_END, 0B000110000),
-        TOP_END(TexturesDefinitions.TOP_END, 0B010010000),
-        CROSS(TexturesDefinitions.CROSS, 0B010111010),
-        HORIZONTAL_BOTTOM(TexturesDefinitions.HORIZONTAL_BOTTOM, 0B000111010),
-        HORIZONTAL_TOP(TexturesDefinitions.HORIZONTAL_TOP, 0B010111000),
-        VERTICAL_RIGHT(TexturesDefinitions.VERTICAL_RIGHT, 0B010011010),
-        VERTICAL_LEFT(TexturesDefinitions.VERTICAL_LEFT, 0B010110010);
-
-        companion object {
-            fun getRoadTileByNeighbors(
-                right: Boolean,
-                bottom: Boolean,
-                left: Boolean,
-                top: Boolean
-            ): RoadTiles? {
-                val signature = Integer.parseInt(
-                    "0${if (top) "1" else "0"}0"
-                        + "${if (left) "1" else "0"}1${if (right) "1" else "0"}"
-                        + "0${if (bottom) "1" else "0"}0", 2
-                )
-                val values = values()
-                for (element in values) {
-                    if (element.signature == signature) {
-                        return element
-                    }
-                }
-                return null
-            }
-        }
-    }
-
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxBoundingBox = BoundingBox()
         private const val MIN_SCALE = 0.95F
         private const val MAX_SCALE = 1.05F
-        private const val CHANCE_SAND_DEC = 0.95F
         private const val EXT_SIZE = 48
         private const val AMB_SND_INTERVAL_MIN = 7000
         private const val AMB_SND_INTERVAL_MAX = 22000
+        private val beachTiles = listOf(
+            TexturesDefinitions.TILE_WATER,
+            TexturesDefinitions.TILE_BEACH_BOTTOM_RIGHT,
+            TexturesDefinitions.TILE_BEACH_BOTTOM,
+            TexturesDefinitions.TILE_BEACH_BOTTOM_LEFT,
+            TexturesDefinitions.TILE_BEACH_RIGHT,
+            TexturesDefinitions.TILE_BEACH_LEFT,
+            TexturesDefinitions.TILE_BEACH_TOP_RIGHT,
+            TexturesDefinitions.TILE_BEACH_TOP,
+            TexturesDefinitions.TILE_BEACH_TOP_LEFT,
+            TexturesDefinitions.TILE_BEACH,
+        )
+
     }
 }

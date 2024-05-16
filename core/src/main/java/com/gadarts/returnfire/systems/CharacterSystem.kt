@@ -51,9 +51,32 @@ class CharacterSystem : GameEntitySystem() {
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.PLAYER_WEAPON_SHOT to object : HandlerOnEvent {
+        SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, services: Services) {
                 val arm = ComponentsMapper.primaryArm.get(gameSessionData.player)
+                val relativePosition = arm.relativePos
+                positionSpark(
+                    arm, ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance,
+                    relativePosition
+                )
+                val armProperties = arm.armProperties
+                createBullet(
+                    gameSessionData.player,
+                    msg.extraInfo as ModelInstance,
+                    armProperties.speed,
+                    relativePosition
+                )
+                services.soundPlayer.playPositionalSound(
+                    armProperties.shootingSound,
+                    randomPitch = false,
+                    gameSessionData.player,
+                    this@CharacterSystem.gameSessionData.camera
+                )
+            }
+        },
+        SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, services: Services) {
+                val arm = ComponentsMapper.secondaryArm.get(gameSessionData.player)
                 val relativePosition = arm.relativePos
                 positionSpark(
                     arm, ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance,

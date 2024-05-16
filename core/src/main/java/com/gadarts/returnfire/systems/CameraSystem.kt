@@ -21,7 +21,6 @@ class CameraSystem : GameEntitySystem() {
     private fun followPlayer() {
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.player)
         val playerPosition = modelInstanceComponent.modelInstance.transform.getTranslation(auxVector3_1)
-        gameSessionData.camera.lookAt(playerPosition)
         gameSessionData.camera.up.set(Vector3.Y)
         val player = gameSessionData.player
         val playerComp = ComponentsMapper.player.get(player)
@@ -53,7 +52,7 @@ class CameraSystem : GameEntitySystem() {
             ).getAngleAround(Vector3.Y)
         )
         cameraTarget =
-            playerPosition.add(velocityDir.x, 0F, -velocityDir.y + 8F)
+            playerPosition.add(velocityDir.x, 0F, -velocityDir.y + Z_OFFSET)
         cameraTarget.y = gameSessionData.camera.position.y
         gameSessionData.camera.position.interpolate(cameraTarget, 0.2F, Interpolation.exp5)
         if (!cameraStrafeMode.isZero) {
@@ -83,16 +82,16 @@ class CameraSystem : GameEntitySystem() {
         gameSessionData.camera.position.set(
             ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance.transform.getTranslation(
                 auxVector3_1
-            ).x, INITIAL_Y, INITIAL_Z
+            ).x, INITIAL_Y, Z_OFFSET
         )
-        gameSessionData.camera.rotate(Vector3.X, -45F)
+        gameSessionData.camera.rotate(Vector3.X, -65F)
     }
 
     companion object {
         const val NEAR = 0.1F
         const val FAR = 300F
         const val INITIAL_Y = 12F
-        const val INITIAL_Z = 5F
+        const val Z_OFFSET = 5F
         val auxVector2 = Vector2()
         val auxVector3_1 = Vector3()
         private val auxQuat = Quaternion()

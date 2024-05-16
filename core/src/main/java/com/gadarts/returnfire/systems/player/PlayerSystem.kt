@@ -32,7 +32,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         addPlayer()
-        playerShootingHandler.initialize(services.assetsManager)
+        playerShootingHandler.initialize(services.assetsManager, services.dispatcher)
         playerMovementHandler.initialize(engine, services.assetsManager, gameSessionData.camera, gameSessionData.player)
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
     }
@@ -55,9 +55,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             services.soundPlayer,
             services.dispatcher
         )
-        playerShootingHandler.update(
-            gameSessionData.player, services.dispatcher
-        )
+        playerShootingHandler.update(gameSessionData.player)
     }
 
     private fun addPlayer(): Entity {
@@ -186,6 +184,16 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 playerMovementHandler.thrust(gameSessionData.player, -1F)
                 handled = true
             }
+
+            Input.Keys.CONTROL_LEFT -> {
+                playerShootingHandler.onPrimaryWeaponButtonPressed()
+                handled = true
+            }
+
+            Input.Keys.ALT_LEFT -> {
+                playerShootingHandler.onSecondaryWeaponButtonPressed()
+                handled = true
+            }
         }
         return handled
     }
@@ -209,6 +217,16 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
             Input.Keys.LEFT, Input.Keys.RIGHT -> {
                 playerMovementHandler.rotate(0F)
+                handled = true
+            }
+
+            Input.Keys.CONTROL_LEFT -> {
+                playerShootingHandler.onPrimaryWeaponButtonReleased()
+                handled = true
+            }
+
+            Input.Keys.ALT_LEFT -> {
+                playerShootingHandler.onSecondaryWeaponButtonReleased()
                 handled = true
             }
         }

@@ -11,23 +11,24 @@ import com.gadarts.returnfire.systems.SystemEvents
 
 class PlayerShootingHandler {
 
+    private lateinit var dispatcher: MessageDispatcher
     var secondaryCreationSide = false
     private lateinit var priBulletsPool: BulletsPool
     private lateinit var secBulletsPool: BulletsPool
     private var priShooting: Boolean = false
     private var secShooting: Boolean = false
 
-    fun initialize(am: GameAssetManager) {
+    fun initialize(am: GameAssetManager, dispatcher: MessageDispatcher) {
         priBulletsPool = BulletsPool(am.getAssetByDefinition(ModelsDefinitions.BULLET))
         secBulletsPool = BulletsPool(am.getAssetByDefinition(ModelsDefinitions.MISSILE))
-
+        this.dispatcher = dispatcher
     }
 
-    fun update(player: Entity, dispatcher: MessageDispatcher) {
+    fun update(player: Entity) {
         var armComp: ArmComponent = ComponentsMapper.primaryArm.get(player)
-        handleShooting(priShooting, armComp, priBulletsPool, player, dispatcher)
+        handleShooting(priShooting, armComp, priBulletsPool, player, SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY)
         armComp = ComponentsMapper.secondaryArm.get(player)
-        handleShooting(secShooting, armComp, secBulletsPool, player, dispatcher)
+        handleShooting(secShooting, armComp, secBulletsPool, player, SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY)
     }
 
     private fun handleShooting(
@@ -35,7 +36,7 @@ class PlayerShootingHandler {
         armComp: ArmComponent,
         pool: BulletsPool,
         player: Entity,
-        dispatcher: MessageDispatcher
+        event: SystemEvents,
     ) {
         if (!shooting) return
         val now = TimeUtils.millis()
@@ -43,7 +44,7 @@ class PlayerShootingHandler {
             armComp.calculateRelativePosition(player)
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
-            dispatcher.dispatchMessage(SystemEvents.PLAYER_WEAPON_SHOT.ordinal, pool.obtain())
+            dispatcher.dispatchMessage(event.ordinal, pool.obtain())
         }
     }
 
@@ -57,7 +58,6 @@ class PlayerShootingHandler {
 
     fun onSecondaryWeaponButtonPressed() {
         secShooting = true
-
     }
 
     fun onSecondaryWeaponButtonReleased() {

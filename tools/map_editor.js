@@ -1,6 +1,5 @@
 class CellData {
     constructor() {
-        this.tile = "#00FF00"
         this.object = null,
             this.value = 0
     }
@@ -26,8 +25,6 @@ const ElementsDefinitions = Object.freeze([
 ]);
 const Directions = Object.freeze({ east: 0, north: 90, west: 180, south: 270 });
 const MAP_SIZES = Object.freeze({ small: 48, medium: 96, large: 192 });
-const TILE_WATER = Object.freeze({ tile: "#0000FF", symbol: "0" })
-const TILE_BEACH = Object.freeze({ tile: "#424242", symbol: "1" });
 const body = document.body;
 const table = document.getElementById(ID_MAP).appendChild(document.createElement('table'));
 const RADIO_GROUP_NAME_MODES = "modes"
@@ -54,6 +51,18 @@ tilesMaskMapping[0b00010110] = 'tile_beach_top_right'
 tilesMaskMapping[0b00011111] = 'tile_beach_top'
 tilesMaskMapping[0b00001011] = 'tile_beach_top_left'
 tilesMaskMapping[0b11111111] = 'tile_beach'
+const tiles = [
+    'tile_water',
+    'tile_beach_bottom_right',
+    'tile_beach_bottom',
+    'tile_beach_bottom_left',
+    'tile_beach_right',
+    'tile_beach_left',
+    'tile_beach_top_right',
+    'tile_beach_top',
+    'tile_beach_top_left',
+    'tile_beach',
+]
 class MapEditor {
 
     constructor() {
@@ -156,12 +165,15 @@ class MapEditor {
                     var tilesString = "";
                     for (var row = 0; row < table.rows.length; row++) {
                         for (var col = 0; col < table.rows[row].cells.length; col++) {
-                            var currentTile = TILE_WATER;
+                            var currentTile = 0;
                             var cellData = table.rows[row].cells[col].cellData;
-                            if (cellData != null && cellData.tile != null) {
-                                currentTile = self.findTileBySymbol(cellData.tile.symbol);
+                            if (cellData != null && cellData.selectedTile != null) {
+                                let result = tiles.find(str => str === cellData.selectedTile);
+                                if (result){
+                                    currentTile = tiles.indexOf(result)
+                                }
                             }
-                            tilesString += currentTile.symbol;
+                            tilesString += currentTile;
                         }
                     }
                     return tilesString;
@@ -180,13 +192,6 @@ class MapEditor {
         }
     }
 
-    findTileBySymbol(symbol) {
-        var result = TILE_WATER;
-        if (symbol == TILE_BEACH.symbol) {
-            result = TILE_BEACH;
-        }
-        return result;
-    }
     inflateElementsLeftMenu() {
         var leftMenu = document.getElementById(DIV_ID_LEFT_MENU);
         ElementsDefinitions.forEach(element => {
@@ -318,7 +323,7 @@ class MapEditor {
             }
         }
     }
-    
+
     initializeCellData(cell) {
         if (cell.cellData == null) {
             cell.cellData = new CellData();
@@ -439,4 +444,7 @@ class MapEditor {
 function applyTileOnCell(td, selectedTile) {
     td.style.backgroundImage = `url(../assets/textures/${selectedTile}.png)`;
     td.style.backgroundSize = 'cover';
+    if (td.cellData) {
+        td.cellData.selectedTile = selectedTile
+    }
 }
