@@ -53,11 +53,11 @@ configure(subprojects) {
     }
   }
   compileKotlin.compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
-  
+
 }
 
 subprojects {
-  version = '1.0.0'
+  version = '0.1.0'
   ext.appName = 'return-fire'
   repositories {
     mavenCentral()

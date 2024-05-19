@@ -22,6 +22,7 @@ const ElementsDefinitions = Object.freeze([
     "CAR",
     "GUARD_HOUSE",
     "ANTENNA",
+    "WATCH_TOWER"
 ]);
 const Directions = Object.freeze({ east: 0, north: 90, west: 180, south: 270 });
 const MAP_SIZES = Object.freeze({ small: 48, medium: 96, large: 192 });
