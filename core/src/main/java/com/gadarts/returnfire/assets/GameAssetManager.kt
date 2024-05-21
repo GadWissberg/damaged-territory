@@ -14,7 +14,7 @@ import java.util.*
 
 open class GameAssetManager : AssetManager() {
 
-    fun loadAssets() {
+    fun loadAssets(assetsFolderPath: String) {
         initializeCustomLoaders()
         AssetsTypes.entries.forEach { type ->
             if (type.isLoadedUsingLoader()) {
@@ -32,7 +32,7 @@ open class GameAssetManager : AssetManager() {
                     }
                 } else {
                     val toLowerCase = type.name.toLowerCase(Locale.ROOT)
-                    val path = "$ASSETS_FOLDER_NAME$separatorChar$toLowerCase"
+                    val path = "$assetsFolderPath$toLowerCase"
                     val dir = Gdx.files.internal(path)
                     dir.list().forEach {
                         load(

@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.gadarts.returnfire.assets.GameAssetManager
 
-class ReturnFire : Game() {
+class ReturnFire(private val assetsFolderPath: String) : Game() {
     private lateinit var assetsManager: GameAssetManager
 
     override fun create() {
@@ -18,7 +18,7 @@ class ReturnFire : Game() {
 
     private fun loadAssets() {
         assetsManager = GameAssetManager()
-        assetsManager.loadAssets()
+        assetsManager.loadAssets(assetsFolderPath)
         assetsManager.finishLoading()
     }
 

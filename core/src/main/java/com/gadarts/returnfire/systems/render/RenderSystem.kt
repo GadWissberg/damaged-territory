@@ -3,21 +3,30 @@ package com.gadarts.returnfire.systems.render
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Gdx.graphics
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.components.IndependentDecalComponent
+import com.gadarts.returnfire.components.ModelInstanceComponent
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
@@ -33,9 +42,13 @@ class RenderSystem : GameEntitySystem(), Disposable {
     private lateinit var modelBatch: ModelBatch
     private lateinit var renderSystemRelatedEntities: RenderSystemRelatedEntities
     private var axisModelHandler = AxisModelHandler()
+    private lateinit var shadowLight: DirectionalShadowLight
+    private lateinit var environment: Environment
+    private lateinit var shadowBatch: ModelBatch
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
+        initializeDirectionalLightAndShadows()
         renderSystemRelatedEntities = RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
                 Family.all(ModelInstanceComponent::class.java)
@@ -46,13 +59,43 @@ class RenderSystem : GameEntitySystem(), Disposable {
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get())
         )
-        createBatches()
+        decalBatch = DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.camera))
+        modelBatch = ModelBatch()
+    }
+
+    private fun initializeDirectionalLightAndShadows() {
+        environment = Environment()
+        environment.set(
+            ColorAttribute(
+                ColorAttribute.AmbientLight,
+                Color(0.9F, 0.9F, 0.9F, 1F)
+            )
+        )
+        shadowLight = DirectionalShadowLight(
+            2056,
+            2056,
+            60f,
+            60f,
+            .1f,
+            150f
+        )
+        val dirValue = 0.4f
+        shadowLight.set(dirValue, dirValue, dirValue, 40.0f, -35f, -35f)
+        environment.add(shadowLight)
+        environment.shadowMap = shadowLight
+        shadowBatch = ModelBatch(DepthShaderProvider())
     }
 
     override fun update(deltaTime: Float) {
-        super.update(deltaTime)
-        resetDisplay(Color.BLACK)
-        renderModels()
+        shadowLight.begin(Vector3.Zero, gameSessionData.camera.direction)
+        renderModels(
+            shadowBatch, shadowLight.camera,
+            renderModelCache = true,
+            applyEnvironment = false
+        )
+        shadowLight.end()
+        resetDisplay()
+        renderModels(modelBatch, gameSessionData.camera, true, true)
         renderDecals(deltaTime)
     }
 
@@ -62,20 +105,21 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     override fun dispose() {
         modelBatch.dispose()
+        shadowBatch.dispose()
+        shadowLight.dispose()
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
-    private fun createBatches() {
-        decalBatch = DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.camera))
-        modelBatch = ModelBatch()
-    }
-
-    private fun resetDisplay(@Suppress("SameParameterValue") color: Color) {
-        Gdx.gl.glViewport(0, 0, graphics.width, graphics.height)
-        val s = if (graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT or s)
-        Gdx.gl.glClearColor(color.r, color.g, color.b, 1f)
+    private fun resetDisplay() {
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.width, Gdx.graphics.height)
+        ScreenUtils.clear(Color.BLACK, true)
+        Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
+        Gdx.gl.glClear(
+            GL20.GL_COLOR_BUFFER_BIT
+                or GL20.GL_DEPTH_BUFFER_BIT
+                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+        )
     }
 
     private fun renderDecals(deltaTime: Float) {
@@ -117,14 +161,25 @@ class RenderSystem : GameEntitySystem(), Disposable {
         return gameSessionData.camera.frustum.boundsInFrustum(center, dims)
     }
 
-    private fun renderModels() {
-        modelBatch.begin(gameSessionData.camera)
-        axisModelHandler.render(modelBatch)
+    private fun renderModels(
+        batch: ModelBatch,
+        camera: Camera,
+        renderModelCache: Boolean,
+        applyEnvironment: Boolean
+    ) {
+        batch.begin(camera)
+        axisModelHandler.render(batch)
         for (entity in renderSystemRelatedEntities.modelInstanceEntities) {
-            renderModel(entity)
+            renderModel(entity, batch, applyEnvironment)
         }
-        modelBatch.render(gameSessionData.modelCache)
-        modelBatch.end()
+        if (renderModelCache) {
+            if (applyEnvironment) {
+                batch.render(gameSessionData.modelCache, environment)
+            } else {
+                batch.render(gameSessionData.modelCache)
+            }
+        }
+        batch.end()
     }
 
     private fun renderSpark(armComp: ArmComponent) {
@@ -144,11 +199,15 @@ class RenderSystem : GameEntitySystem(), Disposable {
         decal.lookAt(auxVector3_1.set(decal.position).sub(camera.direction), camera.up)
     }
 
-    private fun renderModel(entity: Entity) {
+    private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean) {
         if (isVisible(entity)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val modelInstance = modelInstanceComponent.modelInstance
-            modelBatch.render(modelInstance)
+            if (applyEnvironment) {
+                batch.render(modelInstance, environment)
+            } else {
+                batch.render(modelInstance)
+            }
         }
     }
 

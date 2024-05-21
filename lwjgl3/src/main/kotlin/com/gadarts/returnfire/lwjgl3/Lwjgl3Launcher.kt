@@ -11,7 +11,7 @@ fun main() {
     // This handles macOS support and helps on Windows.
     if (StartupHelper.startNewJvmIfRequired())
       return
-    Lwjgl3Application(ReturnFire(), Lwjgl3ApplicationConfiguration().apply {
+    Lwjgl3Application(ReturnFire("assets/"), Lwjgl3ApplicationConfiguration().apply {
         setTitle("return-fire")
         setWindowedMode(640, 480)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
