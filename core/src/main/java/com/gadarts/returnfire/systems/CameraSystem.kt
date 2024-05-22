@@ -1,11 +1,12 @@
 package com.gadarts.returnfire.systems
 
+import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.PlayerComponent
 
 class CameraSystem : GameEntitySystem() {
 
@@ -19,13 +20,12 @@ class CameraSystem : GameEntitySystem() {
     }
 
     private fun followPlayer() {
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.player)
-        val playerPosition = modelInstanceComponent.modelInstance.transform.getTranslation(auxVector3_1)
-        gameSessionData.camera.up.set(Vector3.Y)
         val player = gameSessionData.player
+        val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
+        val playerPosition = transform.getTranslation(auxVector3_1)
         val playerComp = ComponentsMapper.player.get(player)
         if (playerComp.strafing == null) {
-            followPlayerRegularMovement(playerPosition)
+            followPlayerRegularMovement(playerComp, playerPosition)
         } else {
             followPlayerWhenStrafing(playerPosition)
         }
@@ -44,13 +44,10 @@ class CameraSystem : GameEntitySystem() {
     }
 
     private fun followPlayerRegularMovement(
+        playerComp: PlayerComponent,
         playerPosition: Vector3
     ) {
-        val velocityDir = auxVector2.set(1F, 0F).setAngleDeg(
-            ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance.transform.getRotation(
-                auxQuat
-            ).getAngleAround(Vector3.Y)
-        )
+        val velocityDir = playerComp.getCurrentVelocity(auxVector2).nor().setLength2(5F)
         cameraTarget =
             playerPosition.add(velocityDir.x, 0F, -velocityDir.y + Z_OFFSET)
         cameraTarget.y = gameSessionData.camera.position.y
@@ -69,32 +66,32 @@ class CameraSystem : GameEntitySystem() {
     override fun dispose() {
     }
 
-
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         initializeCamera()
+    }
+
+    override fun addedToEngine(engine: Engine?) {
+        super.addedToEngine(engine)
     }
 
     private fun initializeCamera() {
         gameSessionData.camera.near = NEAR
         gameSessionData.camera.far = FAR
         gameSessionData.camera.update()
-        gameSessionData.camera.position.set(
-            ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance.transform.getTranslation(
-                auxVector3_1
-            ).x, INITIAL_Y, Z_OFFSET
-        )
-        gameSessionData.camera.rotate(Vector3.X, -65F)
+        gameSessionData.camera.position.set(0F, INITIAL_Y, Z_OFFSET)
+        gameSessionData.camera.rotate(Vector3.X, -45F)
+        val get = ComponentsMapper.modelInstance.get(gameSessionData.player)
+        gameSessionData.camera.lookAt(get.modelInstance.transform.getTranslation(auxVector3_1))
     }
 
     companion object {
         const val NEAR = 0.1F
         const val FAR = 300F
-        const val INITIAL_Y = 12F
-        const val Z_OFFSET = 5F
+        const val INITIAL_Y = 8F
+        const val Z_OFFSET = 4F
         val auxVector2 = Vector2()
         val auxVector3_1 = Vector3()
-        private val auxQuat = Quaternion()
     }
 
 }

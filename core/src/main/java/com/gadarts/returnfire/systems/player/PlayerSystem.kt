@@ -1,13 +1,14 @@
 package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
-import com.badlogic.gdx.InputMultiplexer
-import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.assets.ModelsDefinitions
@@ -17,28 +18,72 @@ import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.cd.ChildDecal
-import com.gadarts.returnfire.systems.*
+import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.GameSessionData.Companion.SPARK_HEIGHT_BIAS
+import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.SystemEvents
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
-class PlayerSystem : GameEntitySystem(), InputProcessor {
+class PlayerSystem : GameEntitySystem() {
 
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerMovementHandler = PlayerMovementHandler()
+    private var lastTouchDown: Long = 0
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         addPlayer()
+        gameSessionData.touchpad.addListener(object : ClickListener() {
+            override fun touchDown(
+                event: InputEvent?,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ): Boolean {
+                playerMovementHandler.onTouchDown(lastTouchDown, gameSessionData.player)
+                touchPadTouched(event!!.target)
+                lastTouchDown = TimeUtils.millis()
+                return super.touchDown(event, x, y, pointer, button)
+            }
+
+            override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
+                touchPadTouched(event!!.target)
+                super.touchDragged(event, x, y, pointer)
+            }
+
+            override fun touchUp(
+                event: InputEvent?,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ) {
+                playerMovementHandler.onTouchUp()
+                super.touchUp(event, x, y, pointer, button)
+            }
+        })
         playerShootingHandler.initialize(services.assetsManager, services.dispatcher)
-        playerMovementHandler.initialize(engine, services.assetsManager, gameSessionData.camera, gameSessionData.player)
-        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
+        playerMovementHandler.initialize(
+            engine,
+            services.assetsManager,
+            gameSessionData.camera,
+        )
     }
 
     override fun resume(delta: Long) {
 
+    }
+
+    private fun touchPadTouched(actor: Actor) {
+        val deltaX = (actor as Touchpad).knobPercentX
+        val deltaY = actor.knobPercentY
+        playerMovementHandler.onTouchPadTouched(deltaX, deltaY, gameSessionData.player)
     }
 
     override fun dispose() {
@@ -62,15 +107,35 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         EntityBuilder.initialize(services.engine)
         val apacheModel = services.assetsManager.getAssetByDefinition(ModelsDefinitions.APACHE)
         val entityBuilder =
-            EntityBuilder.begin().addModelInstanceComponent(apacheModel, auxVector3_1.set(0F, PLAYER_HEIGHT, 2F))
+            EntityBuilder.begin()
+                .addModelInstanceComponent(apacheModel, auxVector3_1.set(0F, PLAYER_HEIGHT, 2F))
         if (GameDebugSettings.DISPLAY_PROPELLER) {
             addPropeller(entityBuilder)
         }
-        val spark0 = TextureRegion(services.assetsManager.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 0))
-        val spark1 = TextureRegion(services.assetsManager.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 1))
-        val spark2 = TextureRegion(services.assetsManager.getAssetByDefinitionAndIndex(TexturesDefinitions.SPARK, 2))
+        val spark0 = TextureRegion(
+            services.assetsManager.getAssetByDefinitionAndIndex(
+                TexturesDefinitions.SPARK,
+                0
+            )
+        )
+        val spark1 = TextureRegion(
+            services.assetsManager.getAssetByDefinitionAndIndex(
+                TexturesDefinitions.SPARK,
+                1
+            )
+        )
+        val spark2 = TextureRegion(
+            services.assetsManager.getAssetByDefinitionAndIndex(
+                TexturesDefinitions.SPARK,
+                2
+            )
+        )
         val sparkFrames = listOf(spark0, spark1, spark2)
-        entityBuilder.addAmbSoundComponent(services.assetsManager.getAssetByDefinition(SfxDefinitions.PROPELLER))
+        entityBuilder.addAmbSoundComponent(
+            services.assetsManager.getAssetByDefinition(
+                SfxDefinitions.PROPELLER
+            )
+        )
             .addCharacterComponent(INITIAL_HP)
             .addPlayerComponent()
         addPrimaryArmComponent(entityBuilder, sparkFrames)
@@ -82,7 +147,10 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         return player
     }
 
-    private fun addPrimaryArmComponent(entityBuilder: EntityBuilder, sparkFrames: List<TextureRegion>): EntityBuilder {
+    private fun addPrimaryArmComponent(
+        entityBuilder: EntityBuilder,
+        sparkFrames: List<TextureRegion>
+    ): EntityBuilder {
         val priSnd = services.assetsManager.getAssetByDefinition(SfxDefinitions.MACHINE_GUN)
         val priDecal = newDecal(PRI_SPARK_SIZE, PRI_SPARK_SIZE, sparkFrames.first(), true)
         val priArmProperties = ArmProperties(sparkFrames, priSnd, PRI_RELOAD_DUR, PRI_BULLET_SPEED)
@@ -96,7 +164,11 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 return pos
             }
         }
-        entityBuilder.addPrimaryArmComponent(priDecal, priArmProperties, priCalculateRelativePosition)
+        entityBuilder.addPrimaryArmComponent(
+            priDecal,
+            priArmProperties,
+            priCalculateRelativePosition
+        )
         return entityBuilder
     }
 
@@ -111,7 +183,8 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             override fun calculate(parent: Entity): Vector3 {
                 playerShootingHandler.secondaryCreationSide =
                     !playerShootingHandler.secondaryCreationSide
-                val transform = ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance.transform
+                val transform =
+                    ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance.transform
                 val pos =
                     auxVector3_1.set(
                         0.2F,
@@ -123,7 +196,11 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 return pos
             }
         }
-        entityBuilder.addSecondaryArmComponent(secDecal, secArmProperties, secCalculateRelativePosition)
+        entityBuilder.addSecondaryArmComponent(
+            secDecal,
+            secArmProperties,
+            secCalculateRelativePosition
+        )
         return entityBuilder
     }
 
@@ -139,9 +216,15 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(playerShootingHandler),
-        SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(playerShootingHandler),
-        SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(playerShootingHandler),
+        SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(
+            playerShootingHandler
+        ),
+        SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(
+            playerShootingHandler
+        ),
+        SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(
+            playerShootingHandler
+        ),
         SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
             playerShootingHandler
         ),
@@ -159,106 +242,6 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         private const val SEC_BULLET_SPEED = 8F
         private const val SECONDARY_POSITION_BIAS = 0.3F
         private const val PLAYER_HEIGHT = 3.9F
-        private const val ROTATION_STEP = 2F
-    }
-
-    override fun keyDown(keycode: Int): Boolean {
-        var handled = false
-        when (keycode) {
-            Input.Keys.UP -> {
-                playerMovementHandler.thrust(gameSessionData.player, 1F)
-                handled = true
-            }
-
-            Input.Keys.LEFT -> {
-                playerMovementHandler.rotate(ROTATION_STEP)
-                handled = true
-            }
-
-            Input.Keys.RIGHT -> {
-                playerMovementHandler.rotate(-ROTATION_STEP)
-                handled = true
-            }
-
-            Input.Keys.DOWN -> {
-                playerMovementHandler.thrust(gameSessionData.player, -1F)
-                handled = true
-            }
-
-            Input.Keys.CONTROL_LEFT -> {
-                playerShootingHandler.onPrimaryWeaponButtonPressed()
-                handled = true
-            }
-
-            Input.Keys.ALT_LEFT -> {
-                playerShootingHandler.onSecondaryWeaponButtonPressed()
-                handled = true
-            }
-        }
-        return handled
-    }
-
-    override fun keyUp(keycode: Int): Boolean {
-        var handled = false
-        when (keycode) {
-            Input.Keys.UP -> {
-                if (ComponentsMapper.player.get(gameSessionData.player).thrust > 0F) {
-                    playerMovementHandler.thrust(gameSessionData.player, 0F)
-                    handled = true
-                }
-            }
-
-            Input.Keys.DOWN -> {
-                if (ComponentsMapper.player.get(gameSessionData.player).thrust < 0F) {
-                    playerMovementHandler.thrust(gameSessionData.player, 0F)
-                    handled = true
-                }
-            }
-
-            Input.Keys.LEFT, Input.Keys.RIGHT -> {
-                playerMovementHandler.rotate(0F)
-                handled = true
-            }
-
-            Input.Keys.CONTROL_LEFT -> {
-                playerShootingHandler.onPrimaryWeaponButtonReleased()
-                handled = true
-            }
-
-            Input.Keys.ALT_LEFT -> {
-                playerShootingHandler.onSecondaryWeaponButtonReleased()
-                handled = true
-            }
-        }
-        return handled
-    }
-
-    override fun keyTyped(character: Char): Boolean {
-        return false
-    }
-
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        return false
-    }
-
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
-        return false
-    }
-
-    override fun scrolled(amountX: Float, amountY: Float): Boolean {
-        return false
     }
 
 }

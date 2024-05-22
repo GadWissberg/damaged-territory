@@ -5,12 +5,16 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.assets.TexturesDefinitions
 import com.gadarts.returnfire.model.GameMap
 
 class GameSessionData(assetsManager: GameAssetManager) : Disposable {
-    val currentMap: GameMap = assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
+    val currentMap: GameMap =
+        assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     lateinit var player: Entity
     val camera: PerspectiveCamera = PerspectiveCamera(
         FOV,
@@ -19,6 +23,17 @@ class GameSessionData(assetsManager: GameAssetManager) : Disposable {
     )
     val stage: Stage = Stage()
     lateinit var modelCache: ModelCache
+    val touchpad: Touchpad = Touchpad(
+        15F,
+        Touchpad.TouchpadStyle(
+            TextureRegionDrawable(
+                assetsManager.getAssetByDefinition(
+                    TexturesDefinitions.JOYSTICK
+                )
+            ),
+            TextureRegionDrawable(assetsManager.getAssetByDefinition(TexturesDefinitions.JOYSTICK_CENTER))
+        )
+    )
 
 
     companion object {

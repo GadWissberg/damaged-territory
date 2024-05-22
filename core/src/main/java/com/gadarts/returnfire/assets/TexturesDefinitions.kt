@@ -36,7 +36,11 @@ enum class TexturesDefinitions(fileNames: Int = 1, ninepatch: Boolean = false) :
     TILE_BEACH_TOP,
     TILE_BEACH_RIGHT,
     TILE_BEACH_LEFT,
-    TILE_WATER;
+    TILE_WATER,
+    JOYSTICK,
+    JOYSTICK_CENTER,
+    ICON_BULLETS,
+    ICON_MISSILES;
 
 
     private val paths = ArrayList<String>()

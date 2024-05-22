@@ -3,13 +3,12 @@ package com.gadarts.returnfire.components
 import com.badlogic.gdx.math.Vector2
 
 class PlayerComponent : GameComponent() {
-    var thrust: Float = 0.0f
     private val blastVelocity = Vector2()
     private var fuel: Int = INITIAL_FUEL
-    var currentVelocity = 0F
+    private val currentVelocity = Vector2(1F, 0F)
     var strafing: Float? = null
-    private var primaryAmmo: Int = INITIAL_AMMO_PRIMARY
-    private var secondaryAmmo: Int = INITIAL_AMMO_SECONDARY
+    var primaryAmmo: Int = INITIAL_AMMO_PRIMARY
+    var secondaryAmmo: Int = INITIAL_AMMO_SECONDARY
 
     override fun reset() {
     }
@@ -18,9 +17,18 @@ class PlayerComponent : GameComponent() {
         return output.set(blastVelocity)
     }
 
+    fun getCurrentVelocity(output: Vector2): Vector2 {
+        return output.set(currentVelocity)
+    }
+
+    fun setCurrentVelocity(input: Vector2): Vector2 {
+        currentVelocity.set(input)
+        return input
+    }
+
     fun init() {
         this.fuel = INITIAL_FUEL
-        this.currentVelocity = 0F
+        this.currentVelocity.set(1F, 0F)
         this.primaryAmmo = INITIAL_AMMO_PRIMARY
         this.secondaryAmmo = INITIAL_AMMO_SECONDARY
     }
