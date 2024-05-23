@@ -17,7 +17,8 @@ enum class AmbModelDefinitions(
     CAR(ModelsDefinitions.CAR),
     GUARD_HOUSE(ModelsDefinitions.GUARD_HOUSE),
     ANTENNA(ModelsDefinitions.ANTENNA),
-    WATCH_TOWER(ModelsDefinitions.WATCH_TOWER);
+    WATCH_TOWER(ModelsDefinitions.WATCH_TOWER),
+    BUILDING_FLAG(ModelsDefinitions.BUILDING_FLAG);
 
     override fun getModelDefinition(): ModelsDefinitions {
         return modelDefinition

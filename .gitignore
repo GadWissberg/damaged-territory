@@ -167,3 +167,5 @@ Thumbs.db
 /gradlew.bat
 *.blend1
 *.fbx
+/materials/releases
+/android/release
