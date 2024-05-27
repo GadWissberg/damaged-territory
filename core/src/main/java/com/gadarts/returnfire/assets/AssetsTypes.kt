@@ -7,7 +7,7 @@ enum class AssetsTypes(
     TEXTURES(TexturesDefinitions.entries.toTypedArray()),
     SHADERS(ShaderDefinitions.entries.toTypedArray(), loadedUsingLoader = false),
     FONTS(FontsDefinitions.entries.toTypedArray()),
-    MODELS(ModelsDefinitions.entries.toTypedArray()),
+    MODELS(ModelDefinition.entries.toTypedArray()),
     SFX(SfxDefinitions.entries.toTypedArray()),
     MAPS;
 

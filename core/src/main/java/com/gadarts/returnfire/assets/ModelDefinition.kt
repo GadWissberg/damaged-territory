@@ -3,7 +3,7 @@ package com.gadarts.returnfire.assets
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.g3d.Model
 
-enum class ModelsDefinitions(fileNames: Int = 1) : AssetDefinition<Model> {
+enum class ModelDefinition(fileNames: Int = 1) : AssetDefinition<Model> {
 
     APACHE,
     BULLET,

@@ -34,7 +34,6 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.SystemEvents
-import kotlin.math.max
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
@@ -90,12 +89,11 @@ class RenderSystem : GameEntitySystem(), Disposable {
         shadowLight.begin(Vector3.Zero, gameSessionData.camera.direction)
         renderModels(
             shadowBatch, shadowLight.camera,
-            renderModelCache = true,
             applyEnvironment = false
         )
         shadowLight.end()
         resetDisplay()
-        renderModels(modelBatch, gameSessionData.camera, true, true)
+        renderModels(modelBatch, gameSessionData.camera, true)
         renderDecals(deltaTime)
     }
 
@@ -150,21 +148,21 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     private fun isVisible(entity: Entity): Boolean {
         val modelInsComp = ComponentsMapper.modelInstance[entity]
-        if (modelInsComp.hidden) return false
-
-        val pos: Vector3 = modelInsComp.modelInstance.transform.getTranslation(auxVector3_1)
-        val center: Vector3 = pos.add(modelInsComp.getBoundingBox(auxBox).getCenter(auxVector3_2))
-        val dims: Vector3 = auxBox.getDimensions(auxVector3_2)
-        dims.x = max(dims.x, max(dims.y, dims.z))
-        dims.y = max(dims.x, max(dims.y, dims.z))
-        dims.z = max(dims.x, max(dims.y, dims.z))
-        return gameSessionData.camera.frustum.boundsInFrustum(center, dims)
+        return !modelInsComp.hidden
+//        val pos: Vector3 =
+//            modelInsComp.modelInstance.modelInstance.transform.getTranslation(auxVector3_1)
+//        val center: Vector3 =
+//            pos.add(modelInsComp.modelInstance.getBoundingBox(auxBox).getCenter(auxVector3_2))
+//        val dims: Vector3 = auxBox.getDimensions(auxVector3_2)
+//        dims.x = max(dims.x, max(dims.y, dims.z))
+//        dims.y = max(dims.x, max(dims.y, dims.z))
+//        dims.z = max(dims.x, max(dims.y, dims.z))
+//        return gameSessionData.camera.frustum.boundsInFrustum(center, dims)
     }
 
     private fun renderModels(
         batch: ModelBatch,
         camera: Camera,
-        renderModelCache: Boolean,
         applyEnvironment: Boolean
     ) {
         batch.begin(camera)
@@ -172,12 +170,10 @@ class RenderSystem : GameEntitySystem(), Disposable {
         for (entity in renderSystemRelatedEntities.modelInstanceEntities) {
             renderModel(entity, batch, applyEnvironment)
         }
-        if (renderModelCache) {
-            if (applyEnvironment) {
-                batch.render(gameSessionData.modelCache, environment)
-            } else {
-                batch.render(gameSessionData.modelCache)
-            }
+        if (applyEnvironment) {
+            batch.render(gameSessionData.modelCache, environment)
+        } else {
+            batch.render(gameSessionData.modelCache)
         }
         batch.end()
     }
@@ -202,11 +198,11 @@ class RenderSystem : GameEntitySystem(), Disposable {
     private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean) {
         if (isVisible(entity)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
-            val modelInstance = modelInstanceComponent.modelInstance
+            val modelInstance = modelInstanceComponent.gameModelInstance
             if (applyEnvironment) {
-                batch.render(modelInstance, environment)
+                batch.render(modelInstance.modelInstance, environment)
             } else {
-                batch.render(modelInstance)
+                batch.render(modelInstance.modelInstance)
             }
         }
     }
@@ -217,9 +213,9 @@ class RenderSystem : GameEntitySystem(), Disposable {
     ) {
         val childComponent = ComponentsMapper.childDecal.get(entity)
         val children = childComponent.decals
-        val modelInstance = ComponentsMapper.modelInstance.get(entity).modelInstance
-        val parentPosition = modelInstance.transform.getTranslation(auxVector3_1)
-        val parentRotation = modelInstance.transform.getRotation(auxQuat)
+        val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
+        val parentPosition = modelInstance.modelInstance.transform.getTranslation(auxVector3_1)
+        val parentRotation = modelInstance.modelInstance.transform.getRotation(auxQuat)
         for (child in children) {
             renderChild(child, parentRotation, deltaTime, parentPosition)
         }

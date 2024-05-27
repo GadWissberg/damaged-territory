@@ -1,13 +1,13 @@
 package com.gadarts.returnfire.model
 
-import com.gadarts.returnfire.assets.ModelsDefinitions
+import com.gadarts.returnfire.assets.ModelDefinition
 
 enum class CharactersDefinitions(
-    private val modelDefinition: ModelsDefinitions,
+    private val modelDefinition: ModelDefinition,
 ) : ElementsDefinitions {
-    PLAYER(ModelsDefinitions.APACHE);
+    PLAYER(ModelDefinition.APACHE);
 
-    override fun getModelDefinition(): ModelsDefinitions {
+    override fun getModelDefinition(): ModelDefinition {
         return modelDefinition
     }
 

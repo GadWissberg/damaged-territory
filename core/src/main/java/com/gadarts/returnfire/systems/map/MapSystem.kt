@@ -1,8 +1,9 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.systems.map
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
@@ -12,7 +13,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils.random
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Services
@@ -21,9 +21,16 @@ import com.gadarts.returnfire.assets.SfxDefinitions
 import com.gadarts.returnfire.assets.TexturesDefinitions
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.model.AmbModelDefinitions
 import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.model.GameMap
+import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.GameSessionData.Companion.REGION_SIZE
+import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.SystemEvents
 
 class MapSystem : GameEntitySystem() {
 
@@ -39,7 +46,42 @@ class MapSystem : GameEntitySystem() {
     private lateinit var floors: Array<Array<Entity?>>
     private lateinit var ambEntities: ImmutableArray<Entity>
     private lateinit var floorModel: Model
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
+        mapOf(SystemEvents.ENTITY_ENTERED_NEW_REGION to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
+            ) {
+                moveObjectFromRegionToAnotherRegion(
+                    EntityEnteredNewRegionEventData.newRow,
+                    EntityEnteredNewRegionEventData.newColumn,
+                    gameSessionData.player,
+                    EntityEnteredNewRegionEventData.prevRow,
+                    EntityEnteredNewRegionEventData.prevColumn,
+                )
+            }
+        })
+
+    private fun moveObjectFromRegionToAnotherRegion(
+        newRow: Int, newColumn: Int, entity: Entity, prevRow: Int = -1, prevColumn: Int = -1,
+    ) {
+        if (prevRow == newRow && prevColumn == newColumn) return
+
+        if (gameSessionData.entitiesAcrossRegions[newRow][newColumn] == null) {
+            gameSessionData.entitiesAcrossRegions[newRow][newColumn] =
+                mutableListOf()
+        }
+        if (prevRow >= 0 && prevColumn >= 0) {
+            gameSessionData.entitiesAcrossRegions[prevRow][prevColumn]?.remove(
+                entity
+            )
+        }
+        gameSessionData.entitiesAcrossRegions[newRow][newColumn]?.add(
+            entity
+        )
+    }
 
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
@@ -47,6 +89,8 @@ class MapSystem : GameEntitySystem() {
         val builder = ModelBuilder()
         createFloorModel(builder)
         val tilesMapping = gameSessionData.currentMap.tilesMapping
+        gameSessionData.entitiesAcrossRegions =
+            Array(tilesMapping.size / REGION_SIZE) { arrayOfNulls(tilesMapping[0].size / REGION_SIZE) }
         floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.modelCache = ModelCache()
         addBackgroundSea()
@@ -60,18 +104,6 @@ class MapSystem : GameEntitySystem() {
             }
         }
         applyTransformOnAmbEntities()
-        initializeAmbObjectsBoundingBox()
-    }
-
-    private fun initializeAmbObjectsBoundingBox() {
-        for (entity in ambEntities) {
-            if (ComponentsMapper.modelInstance.has(entity)) {
-                val boxCollisionComponent = ComponentsMapper.boxCollision.get(entity)
-                boxCollisionComponent.getBoundingBox(auxBoundingBox)
-                auxBoundingBox.mul(ComponentsMapper.modelInstance.get(entity).modelInstance.transform)
-                boxCollisionComponent.setBoundingBox(auxBoundingBox)
-            }
-        }
     }
 
     override fun resume(delta: Long) {
@@ -116,16 +148,17 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addExtSea(width: Int, depth: Int, x: Float, z: Float) {
-        val modelInstance = ModelInstance(floorModel)
+        val modelInstance = GameModelInstance(ModelInstance(floorModel))
         createAndAddGroundTileEntity(
             modelInstance,
             auxVector1.set(x, 0F, z)
         )
-        modelInstance.transform.scl(width.toFloat(), 1F, depth.toFloat())
+        modelInstance.modelInstance.transform.scl(width.toFloat(), 1F, depth.toFloat())
         val textureAttribute =
-            modelInstance.materials.first().get(TextureAttribute.Diffuse) as TextureAttribute
+            modelInstance.modelInstance.materials.first()
+                .get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
-        gameSessionData.modelCache.add(modelInstance)
+        gameSessionData.modelCache.add(modelInstance.modelInstance)
     }
 
     private fun initializeExternalSeaTextureAttribute(
@@ -150,7 +183,7 @@ class MapSystem : GameEntitySystem() {
                 addSeaTile(
                     row,
                     col,
-                    ModelInstance(floorModel)
+                    GameModelInstance(ModelInstance(floorModel))
                 )
             }
         }
@@ -159,13 +192,13 @@ class MapSystem : GameEntitySystem() {
     private fun addSeaTile(
         row: Int,
         col: Int,
-        modelInstance: ModelInstance
+        modelInstance: GameModelInstance
     ) {
         val entity = createAndAddGroundTileEntity(
             modelInstance,
             auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
         )
-        gameSessionData.modelCache.add(modelInstance)
+        gameSessionData.modelCache.add(modelInstance.modelInstance)
         var current = GameMap.TILE_TYPE_EMPTY
         if (row >= 0
             && col >= 0
@@ -176,14 +209,16 @@ class MapSystem : GameEntitySystem() {
             floors[row][col] = entity
         }
         val textureAttribute =
-            modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute
-        val texture = services.assetsManager.getAssetByDefinition(beachTiles[current.code - '0'.code])
+            modelInstance.modelInstance.materials.get(0)
+                .get(TextureAttribute.Diffuse) as TextureAttribute
+        val texture =
+            services.assetsManager.getAssetByDefinition(beachTiles[current.code - '0'.code])
         texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
         textureAttribute.set(TextureRegion(texture))
     }
 
     private fun createAndAddGroundTileEntity(
-        modelInstance: ModelInstance,
+        modelInstance: GameModelInstance,
         position: Vector3
     ): Entity {
         return EntityBuilder.begin()
@@ -197,7 +232,8 @@ class MapSystem : GameEntitySystem() {
         ambEntities.forEach {
             if (!ComponentsMapper.modelInstance.has(it)) return
             val scale = ComponentsMapper.amb.get(it).getScale(auxVector1)
-            val transform = ComponentsMapper.modelInstance.get(it).modelInstance.transform
+            val transform =
+                ComponentsMapper.modelInstance.get(it).gameModelInstance.modelInstance.transform
             transform.scl(scale).rotate(Vector3.Y, ComponentsMapper.amb.get(it).rotation)
         }
     }
@@ -210,11 +246,20 @@ class MapSystem : GameEntitySystem() {
         val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
         val scale = auxVector1.set(randomScale, randomScale, randomScale)
         val model = am.getAssetByDefinition(def.getModelDefinition())
-        EntityBuilder.begin()
-            .addModelInstanceComponent(model, position)
+        val entity = EntityBuilder.begin()
+            .addModelInstanceComponent(
+                model,
+                position,
+                def.getModelDefinition(),
+                services.assetsManager.getCachedBoundingBox(def.getModelDefinition())
+            )
             .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F)
-            .addBoxCollisionComponent(model)
             .finishAndAddToEngine()
+        moveObjectFromRegionToAnotherRegion(
+            position.z.toInt() / REGION_SIZE,
+            position.x.toInt() / REGION_SIZE,
+            entity
+        )
     }
 
     override fun dispose() {
@@ -225,7 +270,6 @@ class MapSystem : GameEntitySystem() {
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
-        private val auxBoundingBox = BoundingBox()
         private const val MIN_SCALE = 0.95F
         private const val MAX_SCALE = 1.05F
         private const val EXT_SIZE = 48

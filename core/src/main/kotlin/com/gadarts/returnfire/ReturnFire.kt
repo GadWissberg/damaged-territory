@@ -19,7 +19,6 @@ class ReturnFire(private val assetsFolderPath: String) : Game() {
     private fun loadAssets() {
         assetsManager = GameAssetManager()
         assetsManager.loadAssets(assetsFolderPath)
-        assetsManager.finishLoading()
     }
 
 }

@@ -21,7 +21,8 @@ class CameraSystem : GameEntitySystem() {
 
     private fun followPlayer() {
         val player = gameSessionData.player
-        val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
+        val transform =
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)
         val playerComp = ComponentsMapper.player.get(player)
         if (playerComp.strafing == null) {
@@ -82,7 +83,11 @@ class CameraSystem : GameEntitySystem() {
         gameSessionData.camera.position.set(0F, INITIAL_Y, Z_OFFSET)
         gameSessionData.camera.rotate(Vector3.X, -45F)
         val get = ComponentsMapper.modelInstance.get(gameSessionData.player)
-        gameSessionData.camera.lookAt(get.modelInstance.transform.getTranslation(auxVector3_1))
+        gameSessionData.camera.lookAt(
+            get.gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            )
+        )
     }
 
     companion object {

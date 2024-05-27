@@ -9,13 +9,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.assets.ModelDefinition
 import com.gadarts.returnfire.assets.TexturesDefinitions
 import com.gadarts.returnfire.model.GameMap
+import com.gadarts.returnfire.systems.player.BulletsPool
 
 class GameSessionData(assetsManager: GameAssetManager) : Disposable {
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     lateinit var player: Entity
+    lateinit var entitiesAcrossRegions: Array<Array<MutableList<Entity>?>>
     val camera: PerspectiveCamera = PerspectiveCamera(
         FOV,
         Gdx.graphics.width.toFloat(),
@@ -34,14 +37,23 @@ class GameSessionData(assetsManager: GameAssetManager) : Disposable {
             TextureRegionDrawable(assetsManager.getAssetByDefinition(TexturesDefinitions.JOYSTICK_CENTER))
         )
     )
-
+    val priBulletsPool: BulletsPool = BulletsPool(
+        assetsManager.getAssetByDefinition(ModelDefinition.BULLET),
+        ModelDefinition.BULLET,
+        assetsManager.getCachedBoundingBox(ModelDefinition.BULLET)
+    )
+    val secBulletsPool: BulletsPool = BulletsPool(
+        assetsManager.getAssetByDefinition(ModelDefinition.MISSILE),
+        ModelDefinition.MISSILE,
+        assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE)
+    )
 
     companion object {
         const val FOV = 67F
         const val UI_TABLE_NAME = "ui_table"
         const val SPARK_FORWARD_BIAS = 0.55F
         const val SPARK_HEIGHT_BIAS = 0.37F
-        const val REGION_SIZE = 10.0
+        const val REGION_SIZE = 10
     }
 
     override fun dispose() {

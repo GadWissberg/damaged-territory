@@ -1,9 +1,9 @@
 package com.gadarts.returnfire.model
 
-import com.gadarts.returnfire.assets.ModelsDefinitions
+import com.gadarts.returnfire.assets.ModelDefinition
 
 interface ElementsDefinitions {
-    fun getModelDefinition(): ModelsDefinitions
+    fun getModelDefinition(): ModelDefinition
     fun isRandomizeScale(): Boolean
     fun isRandomizeRotation(): Boolean
 }

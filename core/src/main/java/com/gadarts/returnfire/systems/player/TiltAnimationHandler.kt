@@ -29,7 +29,8 @@ class TiltAnimationHandler {
     }
 
     private fun handleMovementTilt(player: Entity) {
-        val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
+        val transform =
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         if (accelerationTiltDegrees > 0) {
             transform.rotate(Vector3.Z, -accelerationTiltDegrees)
         }

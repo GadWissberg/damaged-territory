@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
@@ -16,13 +15,12 @@ import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
-import com.gadarts.returnfire.components.BulletComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.systems.player.BulletsPool
 import com.gadarts.returnfire.systems.render.RenderSystem
 
 class CharacterSystem : GameEntitySystem() {
 
-    private lateinit var bulletEntities: ImmutableArray<Entity>
     private lateinit var ambSoundEntities: ImmutableArray<Entity>
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
@@ -43,7 +41,6 @@ class CharacterSystem : GameEntitySystem() {
             }
 
         })
-        bulletEntities = engine.getEntitiesFor(Family.all(BulletComponent::class.java).get())
     }
 
     override fun onSystemReady() {
@@ -52,17 +49,22 @@ class CharacterSystem : GameEntitySystem() {
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, services: Services) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
+            ) {
                 val arm = ComponentsMapper.primaryArm.get(gameSessionData.player)
                 val relativePosition = arm.relativePos
                 positionSpark(
-                    arm, ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance,
+                    arm,
+                    ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance,
                     relativePosition
                 )
                 val armProperties = arm.armProperties
                 createBullet(
                     gameSessionData.player,
-                    msg.extraInfo as ModelInstance,
+                    msg.extraInfo as BulletsPool,
                     armProperties.speed,
                     relativePosition
                 )
@@ -75,17 +77,22 @@ class CharacterSystem : GameEntitySystem() {
             }
         },
         SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, services: Services) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
+            ) {
                 val arm = ComponentsMapper.secondaryArm.get(gameSessionData.player)
                 val relativePosition = arm.relativePos
                 positionSpark(
-                    arm, ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance,
+                    arm,
+                    ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance,
                     relativePosition
                 )
                 val armProperties = arm.armProperties
                 createBullet(
                     gameSessionData.player,
-                    msg.extraInfo as ModelInstance,
+                    msg.extraInfo as BulletsPool,
                     armProperties.speed,
                     relativePosition
                 )
@@ -106,31 +113,8 @@ class CharacterSystem : GameEntitySystem() {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         update3dSound()
-        handleBullets(deltaTime)
     }
 
-
-    private fun handleBullets(deltaTime: Float) {
-        for (bullet in bulletEntities) {
-            val transform = ComponentsMapper.modelInstance.get(bullet).modelInstance.transform
-            takeStepForBullet(bullet, transform, deltaTime)
-            val currentPosition = transform.getTranslation(auxVector1)
-            val dst = ComponentsMapper.bullet.get(bullet).initialPosition.dst2(currentPosition)
-            if (dst > BULLET_MAX_DISTANCE || currentPosition.y <= 0) {
-                val pooledEngine = engine as PooledEngine
-                pooledEngine.removeEntity(bullet)
-            }
-        }
-    }
-
-    private fun takeStepForBullet(
-        bullet: Entity,
-        transform: Matrix4,
-        deltaTime: Float
-    ) {
-        val speed = ComponentsMapper.bullet.get(bullet).speed
-        transform.trn(getDirectionOfModel(bullet).nor().scl(speed * deltaTime))
-    }
 
     private fun update3dSound() {
         for (entity in ambSoundEntities) {
@@ -139,7 +123,8 @@ class CharacterSystem : GameEntitySystem() {
     }
 
     private fun updateEntity3dSound(entity: Entity) {
-        val distance = GeneralUtils.calculateVolumeAccordingToPosition(entity, gameSessionData.camera)
+        val distance =
+            GeneralUtils.calculateVolumeAccordingToPosition(entity, gameSessionData.camera)
         val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
         ambSoundComponent.sound.setVolume(ambSoundComponent.soundId, distance)
         if (distance <= 0F) {
@@ -159,17 +144,20 @@ class CharacterSystem : GameEntitySystem() {
 
     private fun createBullet(
         player: Entity,
-        bulletModelInstance: ModelInstance,
+        pool: BulletsPool,
         speed: Float,
         relativePosition: Vector3
     ) {
-        val transform = ComponentsMapper.modelInstance.get(player).modelInstance.transform
+        val transform =
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
         position.add(relativePosition)
-        EntityBuilder.begin().addModelInstanceComponent(bulletModelInstance, position)
-            .addBulletComponent(position, speed)
+        val modelInstance = pool.obtain()
+        EntityBuilder.begin()
+            .addModelInstanceComponent(modelInstance, position)
+            .addBulletComponent(position, speed, pool)
             .finishAndAddToEngine()
-        tiltBullet(bulletModelInstance.transform, transform)
+        tiltBullet(modelInstance.modelInstance.transform, transform)
     }
 
     private fun tiltBullet(
@@ -179,13 +167,7 @@ class CharacterSystem : GameEntitySystem() {
         bulletTransform.rotate(transform.getRotation(auxQuat))
             .rotate(Vector3.X, MathUtils.random(-BULLET_TILT_BIAS, BULLET_TILT_BIAS))
             .rotate(Vector3.Y, MathUtils.random(-BULLET_TILT_BIAS, BULLET_TILT_BIAS))
-            .rotate(Vector3.Z, MathUtils.random(-BULLET_TILT_BIAS, BULLET_TILT_BIAS))
-    }
-
-    private fun getDirectionOfModel(entity: Entity): Vector3 {
-        val transform = ComponentsMapper.modelInstance.get(entity).modelInstance.transform
-        auxVector2.set(1F, 0F, 0F).rot(transform)
-        return auxVector2
+            .rotate(Vector3.Z, -45F)
     }
 
 
@@ -202,9 +184,7 @@ class CharacterSystem : GameEntitySystem() {
 
     companion object {
         private val auxVector1 = Vector3()
-        private val auxVector2 = Vector3()
         private val auxQuat = Quaternion()
-        private const val BULLET_MAX_DISTANCE = 100F
         private const val BULLET_TILT_BIAS = 0.8F
     }
 

@@ -8,9 +8,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader
+import com.badlogic.gdx.graphics.g3d.Model
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.model.GameMap
 import java.io.File.separatorChar
-import java.util.*
+import java.util.Arrays
+import java.util.Locale
 
 open class GameAssetManager : AssetManager() {
 
@@ -31,7 +34,7 @@ open class GameAssetManager : AssetManager() {
                         }
                     }
                 } else {
-                    val toLowerCase = type.name.toLowerCase(Locale.ROOT)
+                    val toLowerCase = type.name.lowercase(Locale.ROOT)
                     val path = "$assetsFolderPath$toLowerCase"
                     val dir = Gdx.files.internal(path)
                     dir.list().forEach {
@@ -53,6 +56,8 @@ open class GameAssetManager : AssetManager() {
                 }
             }
         }
+        finishLoading()
+        generateModelsBoundingBoxes()
     }
 
     private fun initializeCustomLoaders() {
@@ -64,6 +69,28 @@ open class GameAssetManager : AssetManager() {
         setLoader(GameMap::class.java, "json", mapLoader)
     }
 
+    fun getCachedBoundingBox(definition: ModelDefinition): BoundingBox {
+        return auxBoundingBox.set(
+            get(
+                BOUNDING_BOX_PREFIX + definition.getDefinitionName(),
+                BoundingBox::class.java
+            )
+        )
+    }
+
+    private fun generateModelsBoundingBoxes() {
+        Arrays.stream(ModelDefinition.entries.toTypedArray())
+            .forEach { def ->
+                val definitionName = def.getDefinitionName()
+                val model: Model = getAssetByDefinition(def)
+                addAsset(
+                    BOUNDING_BOX_PREFIX + definitionName,
+                    BoundingBox::class.java,
+                    model.calculateBoundingBox(BoundingBox())
+                )
+            }
+    }
+
     inline fun <reified T> getAssetByDefinition(definition: AssetDefinition<T>): T {
         return get(definition.getPaths().random(), T::class.java)
     }
@@ -73,6 +100,7 @@ open class GameAssetManager : AssetManager() {
     }
 
     companion object {
-        private const val ASSETS_FOLDER_NAME = "assets"
+        private val auxBoundingBox = BoundingBox()
+        private const val BOUNDING_BOX_PREFIX = "box_"
     }
 }

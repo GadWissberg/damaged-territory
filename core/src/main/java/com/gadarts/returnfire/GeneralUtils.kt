@@ -4,7 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.VertexAttributes.Usage.*
+import com.badlogic.gdx.graphics.VertexAttributes.Usage.Normal
+import com.badlogic.gdx.graphics.VertexAttributes.Usage.Position
+import com.badlogic.gdx.graphics.VertexAttributes.Usage.TextureCoordinates
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
@@ -18,7 +20,8 @@ object GeneralUtils {
     private val auxVector = Vector3()
 
     fun calculateVolumeAccordingToPosition(entity: Entity, camera: PerspectiveCamera): Float {
-        val transform = ComponentsMapper.modelInstance.get(entity).modelInstance.transform
+        val transform =
+            ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector)
         var distance = MathUtils.clamp(camera.position.dst2(position), 15F, 64F)
         distance = 1 - MathUtils.norm(15F, 64F, distance)

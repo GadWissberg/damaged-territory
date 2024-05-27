@@ -2,6 +2,7 @@ package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
@@ -11,11 +12,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.assets.ModelsDefinitions
+import com.gadarts.returnfire.assets.ModelDefinition
 import com.gadarts.returnfire.assets.SfxDefinitions
 import com.gadarts.returnfire.assets.TexturesDefinitions
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -37,6 +39,8 @@ class PlayerSystem : GameEntitySystem() {
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
+        playerShootingHandler.priBulletsPool = gameSessionData.priBulletsPool
+        playerShootingHandler.secBulletsPool = gameSessionData.secBulletsPool
         addPlayer()
         gameSessionData.touchpad.addListener(object : ClickListener() {
             override fun touchDown(
@@ -68,9 +72,11 @@ class PlayerSystem : GameEntitySystem() {
                 super.touchUp(event, x, y, pointer, button)
             }
         })
-        playerShootingHandler.initialize(services.assetsManager, services.dispatcher)
+        playerShootingHandler.initialize(
+            services.dispatcher,
+            services.engine
+        )
         playerMovementHandler.initialize(
-            engine,
             services.assetsManager,
             gameSessionData.camera,
         )
@@ -105,10 +111,17 @@ class PlayerSystem : GameEntitySystem() {
 
     private fun addPlayer(): Entity {
         EntityBuilder.initialize(services.engine)
-        val apacheModel = services.assetsManager.getAssetByDefinition(ModelsDefinitions.APACHE)
+        val apacheModel = services.assetsManager.getAssetByDefinition(ModelDefinition.APACHE)
         val entityBuilder =
             EntityBuilder.begin()
-                .addModelInstanceComponent(apacheModel, auxVector3_1.set(0F, PLAYER_HEIGHT, 2F))
+                .addModelInstanceComponent(
+                    GameModelInstance(
+                        ModelInstance(apacheModel),
+                        ModelDefinition.APACHE,
+                        services.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE)
+                    ),
+                    auxVector3_1.set(0F, PLAYER_HEIGHT, 2F)
+                )
         if (GameDebugSettings.DISPLAY_PROPELLER) {
             addPropeller(entityBuilder)
         }
@@ -156,7 +169,8 @@ class PlayerSystem : GameEntitySystem() {
         val priArmProperties = ArmProperties(sparkFrames, priSnd, PRI_RELOAD_DUR, PRI_BULLET_SPEED)
         val priCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
             override fun calculate(parent: Entity): Vector3 {
-                val transform = ComponentsMapper.modelInstance.get(parent).modelInstance.transform
+                val transform =
+                    ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
                 val pos = auxVector3_1.set(1F, 0F, 0F).rot(transform).scl(
                     GameSessionData.SPARK_FORWARD_BIAS
                 )
@@ -184,7 +198,7 @@ class PlayerSystem : GameEntitySystem() {
                 playerShootingHandler.secondaryCreationSide =
                     !playerShootingHandler.secondaryCreationSide
                 val transform =
-                    ComponentsMapper.modelInstance.get(gameSessionData.player).modelInstance.transform
+                    ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
                 val pos =
                     auxVector3_1.set(
                         0.2F,

@@ -24,9 +24,5 @@ object ComponentsMapper {
         ComponentMapper.getFor(AmbComponent::class.java)
     val independentDecal: ComponentMapper<IndependentDecalComponent> =
         ComponentMapper.getFor(IndependentDecalComponent::class.java)
-    val boxCollision: ComponentMapper<BoxCollisionComponent> =
-        ComponentMapper.getFor(BoxCollisionComponent::class.java)
-    val sphereCollision: ComponentMapper<SphereCollisionComponent> =
-        ComponentMapper.getFor(SphereCollisionComponent::class.java)
 
 }
