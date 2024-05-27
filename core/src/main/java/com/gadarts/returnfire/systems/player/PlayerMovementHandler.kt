@@ -206,6 +206,7 @@ class PlayerMovementHandler {
                 ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
             transform.trn(step)
             clampPosition(transform, currentMap)
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.updateBoundingBoxPosition()
         }
     }
 

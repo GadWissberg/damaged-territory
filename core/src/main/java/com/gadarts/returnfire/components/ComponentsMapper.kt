@@ -3,6 +3,7 @@ package com.gadarts.returnfire.components
 import com.badlogic.ashley.core.ComponentMapper
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
+import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 
 object ComponentsMapper {

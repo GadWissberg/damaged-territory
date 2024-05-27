@@ -7,8 +7,6 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.Decal
-import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GeneralUtils
@@ -16,7 +14,9 @@ import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.player.BulletsPool
+import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.PlayerWeaponShotEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
 
 class CharacterSystem : GameEntitySystem() {
@@ -64,7 +64,6 @@ class CharacterSystem : GameEntitySystem() {
                 val armProperties = arm.armProperties
                 createBullet(
                     gameSessionData.player,
-                    msg.extraInfo as BulletsPool,
                     armProperties.speed,
                     relativePosition
                 )
@@ -92,7 +91,6 @@ class CharacterSystem : GameEntitySystem() {
                 val armProperties = arm.armProperties
                 createBullet(
                     gameSessionData.player,
-                    msg.extraInfo as BulletsPool,
                     armProperties.speed,
                     relativePosition
                 )
@@ -144,7 +142,6 @@ class CharacterSystem : GameEntitySystem() {
 
     private fun createBullet(
         player: Entity,
-        pool: BulletsPool,
         speed: Float,
         relativePosition: Vector3
     ) {
@@ -152,22 +149,20 @@ class CharacterSystem : GameEntitySystem() {
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
         position.add(relativePosition)
-        val modelInstance = pool.obtain()
+        val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()
         EntityBuilder.begin()
-            .addModelInstanceComponent(modelInstance, position)
-            .addBulletComponent(position, speed, pool)
+            .addModelInstanceComponent(gameModelInstance, position)
+            .addBulletComponent(
+                position,
+                speed,
+                PlayerWeaponShotEventData.pool,
+                PlayerWeaponShotEventData.behavior
+            )
             .finishAndAddToEngine()
-        tiltBullet(modelInstance.modelInstance.transform, transform)
-    }
-
-    private fun tiltBullet(
-        bulletTransform: Matrix4,
-        transform: Matrix4
-    ) {
-        bulletTransform.rotate(transform.getRotation(auxQuat))
-            .rotate(Vector3.X, MathUtils.random(-BULLET_TILT_BIAS, BULLET_TILT_BIAS))
-            .rotate(Vector3.Y, MathUtils.random(-BULLET_TILT_BIAS, BULLET_TILT_BIAS))
-            .rotate(Vector3.Z, -45F)
+        gameModelInstance.modelInstance.transform.rotate(transform.getRotation(auxQuat)).rotate(
+            Vector3.Z,
+            if (PlayerWeaponShotEventData.behavior == BulletBehavior.REGULAR) -45F else 0F
+        )
     }
 
 
@@ -185,7 +180,6 @@ class CharacterSystem : GameEntitySystem() {
     companion object {
         private val auxVector1 = Vector3()
         private val auxQuat = Quaternion()
-        private const val BULLET_TILT_BIAS = 0.8F
     }
 
 }

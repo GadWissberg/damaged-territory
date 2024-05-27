@@ -4,15 +4,17 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.components.BulletComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.SystemEvents
+import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.MapUtils
 
 class BulletSystem : GameEntitySystem() {
@@ -27,9 +29,12 @@ class BulletSystem : GameEntitySystem() {
         bullet: Entity,
         deltaTime: Float
     ) {
-        val modelInstance =
-            ComponentsMapper.modelInstance.get(bullet).gameModelInstance
-        val speed = ComponentsMapper.bullet.get(bullet).speed
+        val bulletComponent = ComponentsMapper.bullet.get(bullet)
+        val modelInstance = ComponentsMapper.modelInstance.get(bullet).gameModelInstance
+        if (bulletComponent.behavior == BulletBehavior.CURVE) {
+            modelInstance.modelInstance.transform.rotate(Vector3.Z, -1F)
+        }
+        val speed = bulletComponent.speed
         val prevPosition = modelInstance.modelInstance.transform.getTranslation(auxVector)
         val prevRow = prevPosition.z.toInt() / GameSessionData.REGION_SIZE
         val prevCol = prevPosition.x.toInt() / GameSessionData.REGION_SIZE
@@ -97,6 +102,8 @@ class BulletSystem : GameEntitySystem() {
         private val auxVector = Vector3()
         private val auxBoundingBox1 = BoundingBox()
         private val auxBoundingBox2 = BoundingBox()
+        private val auxQuat = Quaternion()
         private const val BULLET_MAX_DISTANCE = 100F
+        private const val BULLET_TILT_BIAS = 0.5F
     }
 }

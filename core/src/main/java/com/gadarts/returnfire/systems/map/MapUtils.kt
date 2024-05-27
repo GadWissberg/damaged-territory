@@ -3,7 +3,8 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.systems.GameSessionData
-import com.gadarts.returnfire.systems.SystemEvents
+import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.EntityEnteredNewRegionEventData
 
 object MapUtils {
     fun notifyEntityRegionChanged(

@@ -11,7 +11,6 @@ import com.gadarts.returnfire.assets.ModelDefinition
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
-import com.gadarts.returnfire.components.BulletComponent
 import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.components.GroundComponent
@@ -21,6 +20,8 @@ import com.gadarts.returnfire.components.SphereCollisionComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
+import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.systems.player.BulletsPool
@@ -126,9 +127,14 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addBulletComponent(position: Vector3, speed: Float, pool: BulletsPool): EntityBuilder {
+    fun addBulletComponent(
+        position: Vector3,
+        speed: Float,
+        pool: BulletsPool,
+        behavior: BulletBehavior
+    ): EntityBuilder {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
-        bulletComponent.init(position, speed, pool)
+        bulletComponent.init(position, speed, pool, behavior)
         entity!!.add(bulletComponent)
         return instance
     }

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.systems.events.SystemEvents
 
 @Suppress("GDXKotlinProfilingCode")
 class ProfilingSystem : GameEntitySystem() {

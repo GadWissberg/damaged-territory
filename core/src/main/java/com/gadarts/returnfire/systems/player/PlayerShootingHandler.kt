@@ -7,17 +7,29 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.SystemEvents
+import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.PlayerWeaponShotEventData
 
 class PlayerShootingHandler {
-    lateinit var secBulletsPool: BulletsPool
-    lateinit var priBulletsPool: BulletsPool
+    private lateinit var player: Entity
+    private lateinit var secBulletsPool: BulletsPool
+    private lateinit var priBulletsPool: BulletsPool
     private lateinit var dispatcher: MessageDispatcher
     var secondaryCreationSide = false
     private var priShooting: Boolean = false
     private var secShooting: Boolean = false
 
-    fun initialize(dispatcher: MessageDispatcher, engine: PooledEngine) {
+    fun initialize(
+        dispatcher: MessageDispatcher,
+        engine: PooledEngine,
+        priBulletsPool: BulletsPool,
+        secBulletsPool: BulletsPool,
+        player: Entity
+    ) {
+        this.priBulletsPool = priBulletsPool
+        this.secBulletsPool = secBulletsPool
+        this.player = player
         engine.addEntityListener(object : EntityListener {
             override fun entityAdded(entity: Entity) {
 
@@ -38,22 +50,22 @@ class PlayerShootingHandler {
         this.dispatcher = dispatcher
     }
 
-    fun update(player: Entity) {
+    fun update() {
         var armComp: ArmComponent = ComponentsMapper.primaryArm.get(player)
         handleShooting(
             priShooting,
             armComp,
             priBulletsPool,
-            player,
-            SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY
+            SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY,
+            BulletBehavior.REGULAR
         )
         armComp = ComponentsMapper.secondaryArm.get(player)
         handleShooting(
             secShooting,
             armComp,
             secBulletsPool,
-            player,
-            SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY
+            SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY,
+            BulletBehavior.CURVE
         )
     }
 
@@ -61,8 +73,8 @@ class PlayerShootingHandler {
         shooting: Boolean,
         armComp: ArmComponent,
         pool: BulletsPool,
-        player: Entity,
         event: SystemEvents,
+        bulletBehavior: BulletBehavior,
     ) {
         if (!shooting) return
         val now = TimeUtils.millis()
@@ -70,7 +82,8 @@ class PlayerShootingHandler {
             armComp.calculateRelativePosition(player)
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
-            dispatcher.dispatchMessage(event.ordinal, pool)
+            PlayerWeaponShotEventData.set(pool, bulletBehavior)
+            dispatcher.dispatchMessage(event.ordinal)
         }
     }
 

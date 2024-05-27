@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.map
+package com.gadarts.returnfire.systems.events.data
 
 object EntityEnteredNewRegionEventData {
     var prevRow: Int = -1

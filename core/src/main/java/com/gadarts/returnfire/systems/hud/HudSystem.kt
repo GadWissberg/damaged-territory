@@ -15,7 +15,7 @@ import com.gadarts.returnfire.assets.TexturesDefinitions
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.SystemEvents
+import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem : GameEntitySystem() {
     private lateinit var debugInput: CameraInputController

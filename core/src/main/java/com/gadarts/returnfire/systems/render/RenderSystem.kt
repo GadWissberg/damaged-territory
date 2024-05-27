@@ -33,7 +33,8 @@ import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.SystemEvents
+import com.gadarts.returnfire.systems.events.SystemEvents
+import kotlin.math.max
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
@@ -148,16 +149,17 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     private fun isVisible(entity: Entity): Boolean {
         val modelInsComp = ComponentsMapper.modelInstance[entity]
-        return !modelInsComp.hidden
-//        val pos: Vector3 =
-//            modelInsComp.modelInstance.modelInstance.transform.getTranslation(auxVector3_1)
-//        val center: Vector3 =
-//            pos.add(modelInsComp.modelInstance.getBoundingBox(auxBox).getCenter(auxVector3_2))
-//        val dims: Vector3 = auxBox.getDimensions(auxVector3_2)
-//        dims.x = max(dims.x, max(dims.y, dims.z))
-//        dims.y = max(dims.x, max(dims.y, dims.z))
-//        dims.z = max(dims.x, max(dims.y, dims.z))
-//        return gameSessionData.camera.frustum.boundsInFrustum(center, dims)
+        if (modelInsComp.hidden) return false
+
+        val pos: Vector3 =
+            modelInsComp.gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
+        val center: Vector3 =
+            pos.add(modelInsComp.gameModelInstance.getBoundingBox(auxBox).getCenter(auxVector3_2))
+        val dims: Vector3 = auxBox.getDimensions(auxVector3_2)
+        dims.x = max(dims.x, max(dims.y, dims.z))
+        dims.y = max(dims.x, max(dims.y, dims.z))
+        dims.z = max(dims.x, max(dims.y, dims.z))
+        return gameSessionData.camera.frustum.boundsInFrustum(center, dims)
     }
 
     private fun renderModels(
@@ -196,6 +198,9 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean) {
+//        if (GameDebugSettings.DISPLAY_BOUNDING_BOX) {
+//            ComponentsMapper.modelInstance.get(entity).gameModelInstance.getBoundingBox(auxBox)
+//        }
         if (isVisible(entity)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val modelInstance = modelInstanceComponent.gameModelInstance

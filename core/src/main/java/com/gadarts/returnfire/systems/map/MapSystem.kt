@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.map
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
@@ -30,7 +31,8 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.GameSessionData.Companion.REGION_SIZE
 import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.SystemEvents
+import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.EntityEnteredNewRegionEventData
 
 class MapSystem : GameEntitySystem() {
 
@@ -64,28 +66,9 @@ class MapSystem : GameEntitySystem() {
             }
         })
 
-    private fun moveObjectFromRegionToAnotherRegion(
-        newRow: Int, newColumn: Int, entity: Entity, prevRow: Int = -1, prevColumn: Int = -1,
-    ) {
-        if (prevRow == newRow && prevColumn == newColumn) return
-
-        if (gameSessionData.entitiesAcrossRegions[newRow][newColumn] == null) {
-            gameSessionData.entitiesAcrossRegions[newRow][newColumn] =
-                mutableListOf()
-        }
-        if (prevRow >= 0 && prevColumn >= 0) {
-            gameSessionData.entitiesAcrossRegions[prevRow][prevColumn]?.remove(
-                entity
-            )
-        }
-        gameSessionData.entitiesAcrossRegions[newRow][newColumn]?.add(
-            entity
-        )
-    }
-
-
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
+        addEntityListener(gameSessionData)
         val builder = ModelBuilder()
         createFloorModel(builder)
         val tilesMapping = gameSessionData.currentMap.tilesMapping
@@ -104,6 +87,47 @@ class MapSystem : GameEntitySystem() {
             }
         }
         applyTransformOnAmbEntities()
+    }
+
+    private fun addEntityListener(gameSessionData: GameSessionData) {
+        engine.addEntityListener(object : EntityListener {
+            override fun entityAdded(entity: Entity) {
+
+            }
+
+            override fun entityRemoved(entity: Entity) {
+                if (ComponentsMapper.modelInstance.has(entity)) {
+                    val position =
+                        ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                            auxVector1
+                        )
+                    gameSessionData.entitiesAcrossRegions[position.z.toInt() / REGION_SIZE][position.x.toInt() / REGION_SIZE]?.remove(
+                        entity
+                    )
+                }
+            }
+
+        })
+    }
+
+
+    private fun moveObjectFromRegionToAnotherRegion(
+        newRow: Int, newColumn: Int, entity: Entity, prevRow: Int = -1, prevColumn: Int = -1,
+    ) {
+        if (prevRow == newRow && prevColumn == newColumn) return
+
+        if (gameSessionData.entitiesAcrossRegions[newRow][newColumn] == null) {
+            gameSessionData.entitiesAcrossRegions[newRow][newColumn] =
+                mutableListOf()
+        }
+        if (prevRow >= 0 && prevColumn >= 0) {
+            gameSessionData.entitiesAcrossRegions[prevRow][prevColumn]?.remove(
+                entity
+            )
+        }
+        gameSessionData.entitiesAcrossRegions[newRow][newColumn]?.add(
+            entity
+        )
     }
 
     override fun resume(delta: Long) {

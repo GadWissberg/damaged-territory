@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.systems.events.SystemEvents
 
 abstract class GameEntitySystem : Disposable, EntitySystem(), Telegraph {
     lateinit var gameSessionData: GameSessionData

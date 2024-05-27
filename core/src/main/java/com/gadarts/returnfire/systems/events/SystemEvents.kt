@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.systems.events
 
 enum class SystemEvents {
     PLAYER_WEAPON_SHOT_PRIMARY,

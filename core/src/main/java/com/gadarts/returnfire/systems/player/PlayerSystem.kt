@@ -25,7 +25,7 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.GameSessionData.Companion.SPARK_HEIGHT_BIAS
 import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.SystemEvents
+import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
@@ -39,8 +39,6 @@ class PlayerSystem : GameEntitySystem() {
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
-        playerShootingHandler.priBulletsPool = gameSessionData.priBulletsPool
-        playerShootingHandler.secBulletsPool = gameSessionData.secBulletsPool
         addPlayer()
         gameSessionData.touchpad.addListener(object : ClickListener() {
             override fun touchDown(
@@ -74,7 +72,10 @@ class PlayerSystem : GameEntitySystem() {
         })
         playerShootingHandler.initialize(
             services.dispatcher,
-            services.engine
+            services.engine,
+            gameSessionData.priBulletsPool,
+            gameSessionData.secBulletsPool,
+            gameSessionData.player
         )
         playerMovementHandler.initialize(
             services.assetsManager,
@@ -106,7 +107,7 @@ class PlayerSystem : GameEntitySystem() {
             services.soundPlayer,
             services.dispatcher
         )
-        playerShootingHandler.update(gameSessionData.player)
+        playerShootingHandler.update()
     }
 
     private fun addPlayer(): Entity {
@@ -252,8 +253,8 @@ class PlayerSystem : GameEntitySystem() {
         private const val PROP_SIZE = 1.5F
         private const val PRI_SPARK_SIZE = 0.3F
         private const val SEC_SPARK_SIZE = 0.6F
-        private const val PRI_BULLET_SPEED = 32F
-        private const val SEC_BULLET_SPEED = 8F
+        private const val PRI_BULLET_SPEED = 16F
+        private const val SEC_BULLET_SPEED = 5F
         private const val SECONDARY_POSITION_BIAS = 0.3F
         private const val PLAYER_HEIGHT = 3.9F
     }
