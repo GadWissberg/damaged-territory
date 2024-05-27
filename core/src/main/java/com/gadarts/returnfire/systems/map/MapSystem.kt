@@ -246,7 +246,7 @@ class MapSystem : GameEntitySystem() {
         position: Vector3
     ): Entity {
         return EntityBuilder.begin()
-            .addModelInstanceComponent(modelInstance, position)
+            .addModelInstanceComponent(modelInstance, position, true)
             .addGroundComponent()
             .finishAndAddToEngine()
     }
@@ -272,10 +272,9 @@ class MapSystem : GameEntitySystem() {
         val model = am.getAssetByDefinition(def.getModelDefinition())
         val entity = EntityBuilder.begin()
             .addModelInstanceComponent(
-                model,
+                GameModelInstance(ModelInstance(model)),
                 position,
-                def.getModelDefinition(),
-                services.assetsManager.getCachedBoundingBox(def.getModelDefinition())
+                true,
             )
             .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F)
             .finishAndAddToEngine()

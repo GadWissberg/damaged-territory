@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.player
@@ -131,7 +130,6 @@ class PlayerMovementHandler {
         player: Entity,
         deltaTime: Float,
         currentMap: GameMap,
-        soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
         handleRotation(deltaTime, player)
@@ -206,7 +204,6 @@ class PlayerMovementHandler {
                 ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
             transform.trn(step)
             clampPosition(transform, currentMap)
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.updateBoundingBoxPosition()
         }
     }
 

@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.gadarts.returnfire.assets.ModelDefinition
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
@@ -28,24 +27,14 @@ import com.gadarts.returnfire.systems.player.BulletsPool
 import kotlin.math.max
 
 class EntityBuilder private constructor() {
-    fun addModelInstanceComponent(
-        model: Model,
-        position: Vector3,
-        modelDefinition: ModelDefinition,
-        boundingBox: BoundingBox
-    ): EntityBuilder {
-        val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position, modelDefinition, boundingBox)
-        entity!!.add(modelInstanceComponent)
-        return instance
-    }
 
     fun addModelInstanceComponent(
         model: GameModelInstance,
         position: Vector3,
+        calculateBoundingBox: Boolean,
     ): EntityBuilder {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position)
+        modelInstanceComponent.init(model, position, calculateBoundingBox)
         entity!!.add(modelInstanceComponent)
         return instance
     }

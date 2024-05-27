@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.ModelCache
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -39,13 +40,11 @@ class GameSessionData(assetsManager: GameAssetManager) : Disposable {
     )
     val priBulletsPool: BulletsPool = BulletsPool(
         assetsManager.getAssetByDefinition(ModelDefinition.BULLET),
-        ModelDefinition.BULLET,
-        assetsManager.getCachedBoundingBox(ModelDefinition.BULLET)
+        BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.BULLET))
     )
     val secBulletsPool: BulletsPool = BulletsPool(
         assetsManager.getAssetByDefinition(ModelDefinition.MISSILE),
-        ModelDefinition.MISSILE,
-        assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE)
+        BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE))
     )
 
     companion object {

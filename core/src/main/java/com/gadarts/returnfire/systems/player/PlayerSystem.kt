@@ -104,7 +104,6 @@ class PlayerSystem : GameEntitySystem() {
             gameSessionData.player,
             deltaTime,
             currentMap,
-            services.soundPlayer,
             services.dispatcher
         )
         playerShootingHandler.update()
@@ -118,10 +117,10 @@ class PlayerSystem : GameEntitySystem() {
                 .addModelInstanceComponent(
                     GameModelInstance(
                         ModelInstance(apacheModel),
-                        ModelDefinition.APACHE,
                         services.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE)
                     ),
-                    auxVector3_1.set(0F, PLAYER_HEIGHT, 2F)
+                    auxVector3_1.set(0F, PLAYER_HEIGHT, 2F),
+                    false
                 )
         if (GameDebugSettings.DISPLAY_PROPELLER) {
             addPropeller(entityBuilder)

@@ -151,7 +151,7 @@ class CharacterSystem : GameEntitySystem() {
         position.add(relativePosition)
         val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()
         EntityBuilder.begin()
-            .addModelInstanceComponent(gameModelInstance, position)
+            .addModelInstanceComponent(gameModelInstance, position, false)
             .addBulletComponent(
                 position,
                 speed,

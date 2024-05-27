@@ -3,19 +3,20 @@ package com.gadarts.returnfire.components
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.gadarts.returnfire.assets.ModelDefinition
 
 
 class GameModelInstance(
     val modelInstance: ModelInstance,
-    val modelDefinition: ModelDefinition? = null,
     boundingBox: BoundingBox? = null
 ) {
+    var isSphere: Boolean = false
+        private set
     private val boundingBox = BoundingBox()
 
     init {
         if (boundingBox != null) {
             this.boundingBox.set(boundingBox)
+            isSphere = true
         }
     }
 
@@ -23,7 +24,8 @@ class GameModelInstance(
         return auxBox.set(boundingBox)
     }
 
-    fun updateBoundingBoxPosition() {
+    fun calculateBoundingBox() {
+        modelInstance.calculateBoundingBox(boundingBox)
         val position = modelInstance.transform.getTranslation(auxVector1)
         val dimensions = boundingBox.getDimensions(auxVector2).scl(0.5F)
         this.boundingBox.min.set(position).sub(dimensions)
@@ -34,7 +36,5 @@ class GameModelInstance(
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
-
     }
-
 }

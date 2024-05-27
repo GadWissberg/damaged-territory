@@ -34,7 +34,6 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.events.SystemEvents
-import kotlin.math.max
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
@@ -150,16 +149,17 @@ class RenderSystem : GameEntitySystem(), Disposable {
     private fun isVisible(entity: Entity): Boolean {
         val modelInsComp = ComponentsMapper.modelInstance[entity]
         if (modelInsComp.hidden) return false
+        if (ComponentsMapper.player.has(entity)) return true
 
-        val pos: Vector3 =
-            modelInsComp.gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
         val center: Vector3 =
-            pos.add(modelInsComp.gameModelInstance.getBoundingBox(auxBox).getCenter(auxVector3_2))
+            modelInsComp.gameModelInstance.getBoundingBox(auxBox).getCenter(auxVector3_1)
         val dims: Vector3 = auxBox.getDimensions(auxVector3_2)
-        dims.x = max(dims.x, max(dims.y, dims.z))
-        dims.y = max(dims.x, max(dims.y, dims.z))
-        dims.z = max(dims.x, max(dims.y, dims.z))
-        return gameSessionData.camera.frustum.boundsInFrustum(center, dims)
+        return if (modelInsComp.gameModelInstance.isSphere) gameSessionData.camera.frustum.sphereInFrustum(
+            modelInsComp.gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_3
+            ), dims.len2() / 2F
+        )
+        else gameSessionData.camera.frustum.boundsInFrustum(center, dims)
     }
 
     private fun renderModels(
@@ -198,9 +198,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean) {
-//        if (GameDebugSettings.DISPLAY_BOUNDING_BOX) {
-//            ComponentsMapper.modelInstance.get(entity).gameModelInstance.getBoundingBox(auxBox)
-//        }
         if (isVisible(entity)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val modelInstance = modelInstanceComponent.gameModelInstance
@@ -243,6 +240,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     companion object {
         val auxVector3_1 = Vector3()
         val auxVector3_2 = Vector3()
+        val auxVector3_3 = Vector3()
         val auxQuat = Quaternion()
         val auxBox = BoundingBox()
         const val ROT_STEP = 1600F

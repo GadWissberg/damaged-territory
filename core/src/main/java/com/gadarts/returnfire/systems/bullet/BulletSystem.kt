@@ -4,9 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
+import com.badlogic.gdx.math.collision.Sphere
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.bullet.BulletBehavior
@@ -16,6 +16,8 @@ import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.MapUtils
+import kotlin.math.max
+import kotlin.math.min
 
 class BulletSystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
@@ -41,18 +43,19 @@ class BulletSystem : GameEntitySystem() {
         modelInstance.modelInstance.transform.trn(
             getDirectionOfModel(bullet).nor().scl(speed * deltaTime)
         )
-        modelInstance.updateBoundingBoxPosition()
         if (gameSessionData.entitiesAcrossRegions[prevRow][prevCol] != null) {
-            val bulletBoundingBox =
+            val radius =
                 ComponentsMapper.modelInstance.get(bullet).gameModelInstance.getBoundingBox(
                     auxBoundingBox1
-                )
+                ).getDimensions(auxVector).len2() / 2F
+            auxSphere.radius = radius
+            auxSphere.center.set(modelInstance.modelInstance.transform.getTranslation(auxVector))
             for (entity in gameSessionData.entitiesAcrossRegions[prevRow][prevCol]!!) {
                 val entityBoundingBox =
                     ComponentsMapper.modelInstance.get(entity).gameModelInstance.getBoundingBox(
                         auxBoundingBox2
                     )
-                if (bulletBoundingBox.intersects(entityBoundingBox)) {
+                if (intersectBoundingBoxAndSphere(entityBoundingBox, auxSphere)) {
                     engine.removeEntity(bullet)
                     engine.removeEntity(entity)
                     break
@@ -65,6 +68,25 @@ class BulletSystem : GameEntitySystem() {
             prevCol,
             services.dispatcher
         )
+    }
+
+    private fun intersectBoundingBoxAndSphere(
+        box: BoundingBox,
+        sphere: Sphere
+    ): Boolean {
+        val closestPoint = Vector3(
+            max(box.min.x, min(sphere.center.x, box.max.x)),
+            max(box.min.y, min(sphere.center.y, box.max.y)),
+            max(box.min.z, min(sphere.center.z, box.max.z))
+        )
+
+
+        // Calculate the distance between the closest point and the sphere's center
+        val distanceSquared = closestPoint.dst2(sphere.center)
+
+
+        // Check if the distance is less than or equal to the sphere's radius squared
+        return distanceSquared * distanceSquared <= (sphere.radius * sphere.radius)
     }
 
     private fun getDirectionOfModel(entity: Entity): Vector3 {
@@ -102,8 +124,7 @@ class BulletSystem : GameEntitySystem() {
         private val auxVector = Vector3()
         private val auxBoundingBox1 = BoundingBox()
         private val auxBoundingBox2 = BoundingBox()
-        private val auxQuat = Quaternion()
+        private val auxSphere = Sphere(Vector3(), 0F)
         private const val BULLET_MAX_DISTANCE = 100F
-        private const val BULLET_TILT_BIAS = 0.5F
     }
 }
