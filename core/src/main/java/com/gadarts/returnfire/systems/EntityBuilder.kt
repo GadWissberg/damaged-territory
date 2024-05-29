@@ -5,14 +5,17 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.decals.Decal
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.BaseParticleEffectComponent
 import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.components.IndependentParticleEffectComponent
 import com.gadarts.returnfire.components.ModelInstanceComponent
 import com.gadarts.returnfire.components.PlayerComponent
 import com.gadarts.returnfire.components.SphereCollisionComponent
@@ -148,6 +151,32 @@ class EntityBuilder private constructor() {
         collisionComponent.init(radius)
         entity!!.add(collisionComponent)
         return instance
+    }
+
+    fun addParticleEffectComponent(
+        originalEffect: ParticleEffect,
+        position: Vector3
+    ): EntityBuilder {
+        val particleEffectComponent = createIndependentParticleEffectComponent(
+            originalEffect, position,
+            engine
+        )
+        entity!!.add(particleEffectComponent)
+        return instance
+    }
+
+    private fun createIndependentParticleEffectComponent(
+        originalEffect: ParticleEffect,
+        position: Vector3,
+        engine: PooledEngine
+    ): BaseParticleEffectComponent {
+        val effect: ParticleEffect = originalEffect.copy()
+        val particleEffectComponent = engine.createComponent(
+            IndependentParticleEffectComponent::class.java
+        )
+        particleEffectComponent.init(effect)
+        effect.translate(position)
+        return particleEffectComponent
     }
 
     companion object {

@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.ModelCache
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
@@ -46,6 +47,7 @@ class GameSessionData(assetsManager: GameAssetManager) : Disposable {
         assetsManager.getAssetByDefinition(ModelDefinition.MISSILE),
         BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE))
     )
+    lateinit var particleSystem: ParticleSystem
 
     companion object {
         const val FOV = 67F

@@ -105,6 +105,12 @@ class MapSystem : GameEntitySystem() {
                         entity
                     )
                 }
+                if (ComponentsMapper.amb.has(entity)) {
+                    services.dispatcher.dispatchMessage(
+                        SystemEvents.BUILDING_DESTROYED.ordinal,
+                        entity
+                    )
+                }
             }
 
         })

@@ -9,7 +9,11 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader
 import com.badlogic.gdx.graphics.g3d.Model
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader
+import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.collision.BoundingBox
+import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.model.GameMap
 import java.io.File.separatorChar
 import java.util.Arrays
@@ -76,6 +80,23 @@ open class GameAssetManager : AssetManager() {
                 BoundingBox::class.java
             )
         )
+    }
+
+    fun loadParticleEffects(pointSpriteParticleBatch: BillboardParticleBatch) {
+        ParticleEffectDefinition.entries.forEach {
+            it.getPaths().forEach { _ ->
+                load(
+                    it.getPaths()[0],
+                    ParticleEffect::class.java,
+                    ParticleEffectLoader.ParticleEffectLoadParameter(
+                        Array.with(
+                            pointSpriteParticleBatch
+                        )
+                    )
+                )
+            }
+        }
+        finishLoading()
     }
 
     private fun generateModelsBoundingBoxes() {

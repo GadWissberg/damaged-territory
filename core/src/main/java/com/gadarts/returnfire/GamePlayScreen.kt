@@ -9,6 +9,7 @@ import com.gadarts.returnfire.systems.CameraSystem
 import com.gadarts.returnfire.systems.CharacterSystem
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.ParticleEffectsSystem
 import com.gadarts.returnfire.systems.ProfilingSystem
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.hud.HudSystem
@@ -33,7 +34,8 @@ class GamePlayScreen(
         HudSystem(),
         ProfilingSystem(),
         MapSystem(),
-        BulletSystem()
+        BulletSystem(),
+        ParticleEffectsSystem()
     )
 
     override fun show() {

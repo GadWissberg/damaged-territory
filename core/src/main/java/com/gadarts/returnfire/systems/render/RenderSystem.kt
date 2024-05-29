@@ -89,11 +89,17 @@ class RenderSystem : GameEntitySystem(), Disposable {
         shadowLight.begin(Vector3.Zero, gameSessionData.camera.direction)
         renderModels(
             shadowBatch, shadowLight.camera,
-            applyEnvironment = false
+            applyEnvironment = false,
+            renderParticleEffects = false
         )
         shadowLight.end()
         resetDisplay()
-        renderModels(modelBatch, gameSessionData.camera, true)
+        renderModels(
+            modelBatch,
+            gameSessionData.camera,
+            applyEnvironment = true,
+            renderParticleEffects = true
+        )
         renderDecals(deltaTime)
     }
 
@@ -165,7 +171,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
     private fun renderModels(
         batch: ModelBatch,
         camera: Camera,
-        applyEnvironment: Boolean
+        applyEnvironment: Boolean,
+        renderParticleEffects: Boolean
     ) {
         batch.begin(camera)
         axisModelHandler.render(batch)
@@ -176,6 +183,9 @@ class RenderSystem : GameEntitySystem(), Disposable {
             batch.render(gameSessionData.modelCache, environment)
         } else {
             batch.render(gameSessionData.modelCache)
+        }
+        if (renderParticleEffects) {
+            modelBatch.render(gameSessionData.particleSystem, environment)
         }
         batch.end()
     }
