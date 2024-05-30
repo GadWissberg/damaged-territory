@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.assets.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.SoundDefinition
 import com.gadarts.returnfire.components.BaseParticleEffectComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.FollowerParticleEffectComponent
@@ -33,6 +34,11 @@ class ParticleEffectsSystem : GameEntitySystem() {
                 gameSessionData: GameSessionData,
                 services: Services
             ) {
+                services.soundPlayer.play(
+                    services.assetsManager.getAssetByDefinition(
+                        SoundDefinition.EXPLOSION
+                    )
+                )
                 EntityBuilder.begin().addParticleEffectComponent(
                     services.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
                     ComponentsMapper.modelInstance.get(msg.extraInfo as Entity).gameModelInstance.modelInstance.transform.getTranslation(

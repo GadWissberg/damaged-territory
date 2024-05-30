@@ -26,6 +26,7 @@ import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.systems.player.BulletsPool
 import kotlin.math.max
 
@@ -131,9 +132,9 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addAmbComponent(scale: Vector3, rotation: Float): EntityBuilder {
+    fun addAmbComponent(scale: Vector3, rotation: Float, def: AmbDefinition): EntityBuilder {
         val ambComponent = engine.createComponent(AmbComponent::class.java)
-        ambComponent.init(scale, rotation)
+        ambComponent.init(scale, rotation, def)
         entity!!.add(ambComponent)
         return instance
     }

@@ -2,7 +2,7 @@ package com.gadarts.returnfire.model
 
 import com.gadarts.returnfire.assets.ModelDefinition
 
-enum class AmbModelDefinitions(
+enum class AmbDefinition(
     private val modelDefinition: ModelDefinition,
     private val randomizeScale: Boolean = false,
     private val randomizeRotation: Boolean = false,
@@ -18,7 +18,8 @@ enum class AmbModelDefinitions(
     GUARD_HOUSE(ModelDefinition.GUARD_HOUSE),
     ANTENNA(ModelDefinition.ANTENNA),
     WATCH_TOWER(ModelDefinition.WATCH_TOWER),
-    BUILDING_FLAG(ModelDefinition.BUILDING_FLAG);
+    BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
+    FLAG(ModelDefinition.FLAG);
 
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition

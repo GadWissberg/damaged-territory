@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.assets.ModelDefinition
-import com.gadarts.returnfire.assets.SfxDefinitions
+import com.gadarts.returnfire.assets.SoundDefinition
 import com.gadarts.returnfire.assets.TexturesDefinitions
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -146,7 +146,7 @@ class PlayerSystem : GameEntitySystem() {
         val sparkFrames = listOf(spark0, spark1, spark2)
         entityBuilder.addAmbSoundComponent(
             services.assetsManager.getAssetByDefinition(
-                SfxDefinitions.PROPELLER
+                SoundDefinition.PROPELLER
             )
         )
             .addCharacterComponent(INITIAL_HP)
@@ -164,7 +164,7 @@ class PlayerSystem : GameEntitySystem() {
         entityBuilder: EntityBuilder,
         sparkFrames: List<TextureRegion>
     ): EntityBuilder {
-        val priSnd = services.assetsManager.getAssetByDefinition(SfxDefinitions.MACHINE_GUN)
+        val priSnd = services.assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN)
         val priDecal = newDecal(PRI_SPARK_SIZE, PRI_SPARK_SIZE, sparkFrames.first(), true)
         val priArmProperties = ArmProperties(sparkFrames, priSnd, PRI_RELOAD_DUR, PRI_BULLET_SPEED)
         val priCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
@@ -190,7 +190,7 @@ class PlayerSystem : GameEntitySystem() {
         entityBuilder: EntityBuilder,
         sparkFrames: List<TextureRegion>
     ): EntityBuilder {
-        val secSnd = services.assetsManager.getAssetByDefinition(SfxDefinitions.MISSILE)
+        val secSnd = services.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE)
         val secArmProperties = ArmProperties(sparkFrames, secSnd, SEC_RELOAD_DUR, SEC_BULLET_SPEED)
         val secDecal = newDecal(SEC_SPARK_SIZE, SEC_SPARK_SIZE, sparkFrames.first(), true)
         val secCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {

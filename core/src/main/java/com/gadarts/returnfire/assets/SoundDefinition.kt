@@ -3,7 +3,7 @@ package com.gadarts.returnfire.assets
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.audio.Sound
 
-enum class SfxDefinitions(fileNames: Int = 1) : AssetDefinition<Sound> {
+enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
 
     PROPELLER,
     MACHINE_GUN,
@@ -11,7 +11,8 @@ enum class SfxDefinitions(fileNames: Int = 1) : AssetDefinition<Sound> {
     AMB_WIND(2),
     AMB_EAGLE,
     AMB_OUD(3),
-    CRASH(2);
+    CRASH(2),
+    EXPLOSION;
 
     private val paths = ArrayList<String>()
 

@@ -6,10 +6,14 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
-import com.gadarts.returnfire.model.*
+import com.gadarts.returnfire.model.AmbDefinition
+import com.gadarts.returnfire.model.CharactersDefinitions
+import com.gadarts.returnfire.model.ElementsDefinitions
+import com.gadarts.returnfire.model.GameMap
+import com.gadarts.returnfire.model.PlacedElement
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import java.util.*
+import java.util.Locale
 
 class MapLoader(resolver: FileHandleResolver) :
     AsynchronousAssetLoader<GameMap, MapLoader.MapLoaderParameter>(resolver) {
@@ -57,7 +61,7 @@ class MapLoader(resolver: FileHandleResolver) :
                 definition = CharactersDefinitions.valueOf(definitionName)
             } catch (e: IllegalArgumentException) {
                 try {
-                    definition = AmbModelDefinitions.valueOf(definitionName.uppercase(Locale.ROOT))
+                    definition = AmbDefinition.valueOf(definitionName.uppercase(Locale.ROOT))
                 } catch (ignored: IllegalArgumentException) {
                 }
             }

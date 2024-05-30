@@ -8,7 +8,7 @@ enum class AssetsTypes(
     SHADERS(ShaderDefinitions.entries.toTypedArray(), loadedUsingLoader = false),
     FONTS(FontsDefinitions.entries.toTypedArray()),
     MODELS(ModelDefinition.entries.toTypedArray()),
-    SFX(SfxDefinitions.entries.toTypedArray()),
+    SFX(SoundDefinition.entries.toTypedArray()),
     MAPS;
 
     fun isLoadedUsingLoader(): Boolean {

@@ -18,12 +18,13 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.assets.GameAssetManager
-import com.gadarts.returnfire.assets.SfxDefinitions
+import com.gadarts.returnfire.assets.ModelDefinition
+import com.gadarts.returnfire.assets.SoundDefinition
 import com.gadarts.returnfire.assets.TexturesDefinitions
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GameModelInstance
-import com.gadarts.returnfire.model.AmbModelDefinitions
+import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -37,9 +38,9 @@ import com.gadarts.returnfire.systems.events.data.EntityEnteredNewRegionEventDat
 class MapSystem : GameEntitySystem() {
 
     private val ambSounds = listOf(
-        SfxDefinitions.AMB_EAGLE,
-        SfxDefinitions.AMB_WIND,
-        SfxDefinitions.AMB_OUD
+        SoundDefinition.AMB_EAGLE,
+        SoundDefinition.AMB_WIND,
+        SoundDefinition.AMB_OUD
     )
     private var nextAmbSound: Long = TimeUtils.millis() + random(
         AMB_SND_INTERVAL_MIN,
@@ -82,7 +83,7 @@ class MapSystem : GameEntitySystem() {
                 addAmbModelObject(
                     services.assetsManager,
                     auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
-                    it.definition as AmbModelDefinitions
+                    it.definition as AmbDefinition
                 )
             }
         }
@@ -104,16 +105,36 @@ class MapSystem : GameEntitySystem() {
                     gameSessionData.entitiesAcrossRegions[position.z.toInt() / REGION_SIZE][position.x.toInt() / REGION_SIZE]?.remove(
                         entity
                     )
-                }
-                if (ComponentsMapper.amb.has(entity)) {
-                    services.dispatcher.dispatchMessage(
-                        SystemEvents.BUILDING_DESTROYED.ordinal,
-                        entity
-                    )
+                    if (ComponentsMapper.amb.has(entity)) {
+                        if (ComponentsMapper.amb.get(entity).definition == AmbDefinition.BUILDING_FLAG) {
+                            addFlag(position)
+                        }
+                        services.dispatcher.dispatchMessage(
+                            SystemEvents.BUILDING_DESTROYED.ordinal,
+                            entity
+                        )
+                    }
                 }
             }
 
         })
+    }
+
+    private fun addFlag(position: Vector3) {
+        EntityBuilder.begin()
+            .addAmbComponent(auxVector2.set(0.5F, 0.5F, 0.5F), 0F, AmbDefinition.FLAG)
+            .addModelInstanceComponent(
+                GameModelInstance(
+                    ModelInstance(
+                        services.assetsManager.getAssetByDefinition(
+                            ModelDefinition.FLAG
+                        )
+                    )
+                ),
+                position,
+                false
+            )
+            .finishAndAddToEngine()
     }
 
 
@@ -271,7 +292,7 @@ class MapSystem : GameEntitySystem() {
     private fun addAmbModelObject(
         am: GameAssetManager,
         position: Vector3,
-        def: AmbModelDefinitions,
+        def: AmbDefinition,
     ) {
         val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
         val scale = auxVector1.set(randomScale, randomScale, randomScale)
@@ -282,7 +303,7 @@ class MapSystem : GameEntitySystem() {
                 position,
                 true,
             )
-            .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F)
+            .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F, def)
             .finishAndAddToEngine()
         moveObjectFromRegionToAnotherRegion(
             position.z.toInt() / REGION_SIZE,
