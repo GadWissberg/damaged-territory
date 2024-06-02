@@ -8,7 +8,4 @@ class RenderSystemRelatedEntities(
     val armEntities: ImmutableArray<Entity>,
     val childEntities: ImmutableArray<Entity>,
     val decalEntities: ImmutableArray<Entity>
-) {
-
-
-}
+)

@@ -7,8 +7,8 @@ class PlayerComponent : GameComponent() {
     private var fuel: Int = INITIAL_FUEL
     private val currentVelocity = Vector2(1F, 0F)
     var strafing: Float? = null
-    var primaryAmmo: Int = INITIAL_AMMO_PRIMARY
-    var secondaryAmmo: Int = INITIAL_AMMO_SECONDARY
+    private var primaryAmmo: Int = INITIAL_AMMO_PRIMARY
+    private var secondaryAmmo: Int = INITIAL_AMMO_SECONDARY
 
     override fun reset() {
     }

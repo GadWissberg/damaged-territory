@@ -36,6 +36,20 @@ class PlayerSystem : GameEntitySystem() {
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerMovementHandler = PlayerMovementHandler()
     private var lastTouchDown: Long = 0
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(
+            playerShootingHandler
+        ),
+        SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(
+            playerShootingHandler
+        ),
+        SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(
+            playerShootingHandler
+        ),
+        SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
+            playerShootingHandler
+        ),
+    )
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
@@ -77,10 +91,7 @@ class PlayerSystem : GameEntitySystem() {
             gameSessionData.secBulletsPool,
             gameSessionData.player
         )
-        playerMovementHandler.initialize(
-            services.assetsManager,
-            gameSessionData.camera,
-        )
+        playerMovementHandler.initialize(gameSessionData.camera)
     }
 
     override fun resume(delta: Long) {
@@ -228,21 +239,6 @@ class PlayerSystem : GameEntitySystem() {
         val decals = listOf(ChildDecal(propDec, Vector3.Zero))
         entityBuilder.addChildDecalComponent(decals, true)
     }
-
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(
-            playerShootingHandler
-        ),
-        SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(
-            playerShootingHandler
-        ),
-        SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(
-            playerShootingHandler
-        ),
-        SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
-            playerShootingHandler
-        ),
-    )
 
     companion object {
         private const val INITIAL_HP = 100

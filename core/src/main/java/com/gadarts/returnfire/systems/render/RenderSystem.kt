@@ -45,6 +45,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
     private lateinit var environment: Environment
     private lateinit var shadowBatch: ModelBatch
 
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         initializeDirectionalLightAndShadows()
@@ -60,29 +62,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
         )
         decalBatch = DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.camera))
         modelBatch = ModelBatch()
-    }
-
-    private fun initializeDirectionalLightAndShadows() {
-        environment = Environment()
-        environment.set(
-            ColorAttribute(
-                ColorAttribute.AmbientLight,
-                Color(0.9F, 0.9F, 0.9F, 1F)
-            )
-        )
-        shadowLight = DirectionalShadowLight(
-            2056,
-            2056,
-            60f,
-            60f,
-            .1f,
-            150f
-        )
-        val dirValue = 0.4f
-        shadowLight.set(dirValue, dirValue, dirValue, 40.0f, -35f, -35f)
-        environment.add(shadowLight)
-        environment.shadowMap = shadowLight
-        shadowBatch = ModelBatch(DepthShaderProvider())
     }
 
     override fun update(deltaTime: Float) {
@@ -113,7 +92,28 @@ class RenderSystem : GameEntitySystem(), Disposable {
         shadowLight.dispose()
     }
 
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+    private fun initializeDirectionalLightAndShadows() {
+        environment = Environment()
+        environment.set(
+            ColorAttribute(
+                ColorAttribute.AmbientLight,
+                Color(0.9F, 0.9F, 0.9F, 1F)
+            )
+        )
+        shadowLight = DirectionalShadowLight(
+            2056,
+            2056,
+            60f,
+            60f,
+            .1f,
+            150f
+        )
+        val dirValue = 0.4f
+        shadowLight.set(dirValue, dirValue, dirValue, 40.0f, -35f, -35f)
+        environment.add(shadowLight)
+        environment.shadowMap = shadowLight
+        shadowBatch = ModelBatch(DepthShaderProvider())
+    }
 
     private fun resetDisplay() {
         Gdx.gl.glViewport(0, 0, Gdx.graphics.width, Gdx.graphics.height)
@@ -159,7 +159,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
         val center: Vector3 =
             modelInsComp.gameModelInstance.getBoundingBox(auxBox).getCenter(auxVector3_1)
-        val dims: Vector3 = auxBox.getDimensions(auxVector3_2)
+        val dims: Vector3 = auxBox.getDimensions(auxVector3_2).scl(4.7F)
         return if (modelInsComp.gameModelInstance.isSphere) gameSessionData.camera.frustum.sphereInFrustum(
             modelInsComp.gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_3

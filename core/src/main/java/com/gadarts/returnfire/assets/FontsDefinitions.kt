@@ -4,12 +4,12 @@ import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader
-import java.util.*
+import java.util.Locale
 
 enum class FontsDefinitions : AssetDefinition<BitmapFont> {
     ;
 
-    private var path: String = "${name.toLowerCase(Locale.ROOT)}.ttf"
+    private var path: String = "${name.lowercase(Locale.ROOT)}.ttf"
 
     protected fun createFontParameters(
         size: Int,

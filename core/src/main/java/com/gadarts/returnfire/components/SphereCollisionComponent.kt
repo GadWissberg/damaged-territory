@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.components
 
 class SphereCollisionComponent : GameComponent() {
-    var radius: Float = 0.0f
+    private var radius: Float = 0.0f
 
     override fun reset() {
 

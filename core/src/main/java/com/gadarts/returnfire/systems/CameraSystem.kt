@@ -11,13 +11,31 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class CameraSystem : GameEntitySystem() {
 
+
     private var cameraStrafeMode = Vector3().setZero()
     private var cameraTarget = Vector3()
+
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         gameSessionData.camera.update()
         followPlayer()
+    }
+
+    override fun resume(delta: Long) {
+    }
+
+    override fun dispose() {
+    }
+
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
+        initializeCamera()
+    }
+
+    override fun addedToEngine(engine: Engine?) {
+        super.addedToEngine(engine)
     }
 
     private fun followPlayer() {
@@ -44,7 +62,6 @@ class CameraSystem : GameEntitySystem() {
             ).add(cameraStrafeMode.x, 0F, cameraStrafeMode.z)
         }
     }
-
     private fun followPlayerRegularMovement(
         playerComp: PlayerComponent,
         playerPosition: Vector3
@@ -59,23 +76,6 @@ class CameraSystem : GameEntitySystem() {
         }
     }
 
-
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
-
-    override fun resume(delta: Long) {
-    }
-
-    override fun dispose() {
-    }
-
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
-        initializeCamera()
-    }
-
-    override fun addedToEngine(engine: Engine?) {
-        super.addedToEngine(engine)
-    }
 
     private fun initializeCamera() {
         gameSessionData.camera.near = NEAR

@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.player
 import com.gadarts.returnfire.model.GameMap
@@ -22,7 +21,6 @@ import kotlin.math.min
 
 
 class PlayerMovementHandler {
-    private lateinit var assetsManager: GameAssetManager
     private lateinit var camera: PerspectiveCamera
     private var tiltAnimationHandler = TiltAnimationHandler()
     private var rotToAdd = 0F
@@ -231,8 +229,7 @@ class PlayerMovementHandler {
         transform.setTranslation(position)
     }
 
-    fun initialize(assetsManager: GameAssetManager, camera: PerspectiveCamera) {
-        this.assetsManager = assetsManager
+    fun initialize(camera: PerspectiveCamera) {
         this.camera = camera
     }
 

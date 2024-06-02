@@ -1,10 +1,9 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.systems.character
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.Quaternion
@@ -15,13 +14,24 @@ import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.character.react.CharacterSystemOnPlayerWeaponShotPrimary
+import com.gadarts.returnfire.systems.character.react.CharacterSystemOnPlayerWeaponShotSecondary
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PlayerWeaponShotEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
 
-class CharacterSystem : GameEntitySystem() {
+class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
+
 
     private lateinit var ambSoundEntities: ImmutableArray<Entity>
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY to CharacterSystemOnPlayerWeaponShotPrimary(this),
+        SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY to CharacterSystemOnPlayerWeaponShotSecondary(this),
+    )
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
@@ -43,66 +53,16 @@ class CharacterSystem : GameEntitySystem() {
         })
     }
 
-    override fun onSystemReady() {
-
+    override fun positionSpark(
+        arm: ArmComponent,
+        modelInstance: ModelInstance,
+        relativePosition: Vector3
+    ): Decal {
+        val decal = arm.sparkDecal
+        decal.position = modelInstance.transform.getTranslation(RenderSystem.auxVector3_1)
+        decal.position.add(relativePosition)
+        return decal
     }
-
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                services: Services
-            ) {
-                val arm = ComponentsMapper.primaryArm.get(gameSessionData.player)
-                val relativePosition = arm.relativePos
-                positionSpark(
-                    arm,
-                    ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance,
-                    relativePosition
-                )
-                val armProperties = arm.armProperties
-                createBullet(
-                    gameSessionData.player,
-                    armProperties.speed,
-                    relativePosition
-                )
-                services.soundPlayer.playPositionalSound(
-                    armProperties.shootingSound,
-                    randomPitch = false,
-                    gameSessionData.player,
-                    this@CharacterSystem.gameSessionData.camera
-                )
-            }
-        },
-        SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                services: Services
-            ) {
-                val arm = ComponentsMapper.secondaryArm.get(gameSessionData.player)
-                val relativePosition = arm.relativePos
-                positionSpark(
-                    arm,
-                    ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance,
-                    relativePosition
-                )
-                val armProperties = arm.armProperties
-                createBullet(
-                    gameSessionData.player,
-                    armProperties.speed,
-                    relativePosition
-                )
-                services.soundPlayer.playPositionalSound(
-                    armProperties.shootingSound,
-                    randomPitch = false,
-                    gameSessionData.player,
-                    this@CharacterSystem.gameSessionData.camera
-                )
-            }
-        },
-    )
 
     override fun resume(delta: Long) {
 
@@ -112,7 +72,6 @@ class CharacterSystem : GameEntitySystem() {
         super.update(deltaTime)
         update3dSound()
     }
-
 
     private fun update3dSound() {
         for (entity in ambSoundEntities) {
@@ -139,14 +98,9 @@ class CharacterSystem : GameEntitySystem() {
 
     }
 
-
-    private fun createBullet(
-        player: Entity,
-        speed: Float,
-        relativePosition: Vector3
-    ) {
+    override fun createBullet(speed: Float, relativePosition: Vector3) {
         val transform =
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
         position.add(relativePosition)
         val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()
@@ -163,18 +117,6 @@ class CharacterSystem : GameEntitySystem() {
             Vector3.Z,
             if (PlayerWeaponShotEventData.behavior == BulletBehavior.REGULAR) -45F else 0F
         )
-    }
-
-
-    private fun positionSpark(
-        armComp: ArmComponent,
-        modelInstance: ModelInstance,
-        relativePosition: Vector3
-    ): Decal {
-        val decal = armComp.sparkDecal
-        decal.position = modelInstance.transform.getTranslation(RenderSystem.auxVector3_1)
-        decal.position.add(relativePosition)
-        return decal
     }
 
     companion object {
