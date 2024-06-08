@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.gadarts.returnfire.assets.GameAssetManager
 
-class ReturnFire(private val assetsFolderPath: String) : Game() {
+class ReturnFire(private val assetsFolderPath: String, private val runsOnMobile: Boolean) : Game() {
     private lateinit var assetsManager: GameAssetManager
 
     override fun create() {
@@ -13,7 +13,7 @@ class ReturnFire(private val assetsFolderPath: String) : Game() {
         loadAssets()
         Gdx.input.inputProcessor = InputMultiplexer()
         val soundPlayer = SoundPlayer()
-        setScreen(GamePlayScreen(assetsManager, soundPlayer))
+        setScreen(GamePlayScreen(assetsManager, soundPlayer, runsOnMobile))
     }
 
     private fun loadAssets() {

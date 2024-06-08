@@ -16,7 +16,8 @@ import com.gadarts.returnfire.assets.TexturesDefinitions
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.player.BulletsPool
 
-class GameSessionData(assetsManager: GameAssetManager) : Disposable {
+class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean) :
+    Disposable {
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     lateinit var player: Entity

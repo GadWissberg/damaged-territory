@@ -1,6 +1,10 @@
 package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
@@ -26,15 +30,18 @@ import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.GameSessionData.Companion.SPARK_HEIGHT_BIAS
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandler
+import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerDesktop
+import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
-class PlayerSystem : GameEntitySystem() {
+class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()
-    private val playerMovementHandler = PlayerMovementHandler()
+    private lateinit var playerMovementHandler: PlayerMovementHandler
     private var lastTouchDown: Long = 0
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(
@@ -53,37 +60,43 @@ class PlayerSystem : GameEntitySystem() {
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
+        playerMovementHandler =
+            if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop()
         addPlayer()
-        gameSessionData.touchpad.addListener(object : ClickListener() {
-            override fun touchDown(
-                event: InputEvent?,
-                x: Float,
-                y: Float,
-                pointer: Int,
-                button: Int
-            ): Boolean {
-                playerMovementHandler.onTouchDown(lastTouchDown, gameSessionData.player)
-                touchPadTouched(event!!.target)
-                lastTouchDown = TimeUtils.millis()
-                return super.touchDown(event, x, y, pointer, button)
-            }
+        if (gameSessionData.runsOnMobile) {
+            gameSessionData.touchpad.addListener(object : ClickListener() {
+                override fun touchDown(
+                    event: InputEvent?,
+                    x: Float,
+                    y: Float,
+                    pointer: Int,
+                    button: Int
+                ): Boolean {
+                    playerMovementHandler.toggleStrafing(lastTouchDown, gameSessionData.player)
+                    touchPadTouched(event!!.target)
+                    lastTouchDown = TimeUtils.millis()
+                    return super.touchDown(event, x, y, pointer, button)
+                }
 
-            override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
-                touchPadTouched(event!!.target)
-                super.touchDragged(event, x, y, pointer)
-            }
+                override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
+                    touchPadTouched(event!!.target)
+                    super.touchDragged(event, x, y, pointer)
+                }
 
-            override fun touchUp(
-                event: InputEvent?,
-                x: Float,
-                y: Float,
-                pointer: Int,
-                button: Int
-            ) {
-                playerMovementHandler.onTouchUp()
-                super.touchUp(event, x, y, pointer, button)
-            }
-        })
+                override fun touchUp(
+                    event: InputEvent?,
+                    x: Float,
+                    y: Float,
+                    pointer: Int,
+                    button: Int
+                ) {
+                    playerMovementHandler.onTouchUp(gameSessionData.player)
+                    super.touchUp(event, x, y, pointer, button)
+                }
+            })
+        } else {
+            (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
+        }
         playerShootingHandler.initialize(
             services.dispatcher,
             services.engine,
@@ -101,7 +114,7 @@ class PlayerSystem : GameEntitySystem() {
     private fun touchPadTouched(actor: Actor) {
         val deltaX = (actor as Touchpad).knobPercentX
         val deltaY = actor.knobPercentY
-        playerMovementHandler.onTouchPadTouched(deltaX, deltaY, gameSessionData.player)
+        playerMovementHandler.thrust(gameSessionData.player, deltaX, deltaY)
     }
 
     override fun dispose() {
@@ -238,6 +251,50 @@ class PlayerSystem : GameEntitySystem() {
         propDec.rotateX(90F)
         val decals = listOf(ChildDecal(propDec, Vector3.Zero))
         entityBuilder.addChildDecalComponent(decals, true)
+    }
+
+    override fun keyDown(keycode: Int): Boolean {
+        if (keycode == Input.Keys.UP) {
+            playerMovementHandler.thrust(gameSessionData.player)
+        } else if (keycode == Input.Keys.DOWN) {
+            playerMovementHandler.thrust(gameSessionData.player, reverse = true)
+        }
+        return false
+    }
+
+    override fun keyUp(keycode: Int): Boolean {
+        if (keycode == Input.Keys.UP || keycode == Input.Keys.DOWN) {
+            playerMovementHandler.onTouchUp(gameSessionData.player)
+        }
+        return false
+    }
+
+    override fun keyTyped(character: Char): Boolean {
+        return false
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        return false
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        return false
+    }
+
+    override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        return false
     }
 
     companion object {

@@ -19,7 +19,8 @@ import com.gadarts.returnfire.systems.render.RenderSystem
 
 class GamePlayScreen(
     private val assetsManager: GameAssetManager,
-    private val soundPlayer: SoundPlayer
+    private val soundPlayer: SoundPlayer,
+    private val runsOnMobile: Boolean
 ) : Screen {
 
 
@@ -40,7 +41,7 @@ class GamePlayScreen(
 
     override fun show() {
         this.engine = PooledEngine()
-        gameSessionData = GameSessionData(assetsManager)
+        gameSessionData = GameSessionData(assetsManager, runsOnMobile)
         val dispatcher = MessageDispatcher()
         systems.forEach {
             engine.addSystem(it)

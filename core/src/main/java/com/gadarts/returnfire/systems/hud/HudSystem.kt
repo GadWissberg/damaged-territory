@@ -59,16 +59,20 @@ class HudSystem : GameEntitySystem() {
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         val ui = addUiTable()
-        addJoystick(ui)
-        addWeaponButton(
-            ui,
-            TexturesDefinitions.ICON_BULLETS,
-            clickListener = priWeaponButtonClickListener
-        )
-        addWeaponButton(
-            ui,
-            TexturesDefinitions.ICON_MISSILES, JOYSTICK_PADDING_LEFT, secWeaponButtonClickListener
-        )
+        if (gameSessionData.runsOnMobile) {
+            addJoystick(ui)
+            addWeaponButton(
+                ui,
+                TexturesDefinitions.ICON_BULLETS,
+                clickListener = priWeaponButtonClickListener
+            )
+            addWeaponButton(
+                ui,
+                TexturesDefinitions.ICON_MISSILES,
+                JOYSTICK_PADDING_LEFT,
+                secWeaponButtonClickListener
+            )
+        }
         initializeInput()
     }
 
