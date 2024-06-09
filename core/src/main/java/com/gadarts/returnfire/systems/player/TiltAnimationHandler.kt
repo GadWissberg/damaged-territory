@@ -44,7 +44,7 @@ class TiltAnimationHandler {
         handleMovementTilt(player)
     }
 
-    fun onAcceleration() {
+    fun animateForwardAcceleration() {
         accelerationTiltDegrees = min(
             accelerationTiltDegrees + ACC_TILT_STEP_SIZE, ACC_TILT_RELATIVE_MAX_DEGREES
         )

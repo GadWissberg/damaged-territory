@@ -20,12 +20,27 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
     private var desiredDirectionChanged: Boolean = false
 
     private fun handleRotation(deltaTime: Float, player: Entity) {
-        if (desiredDirectionChanged && !desiredVelocity.isZero) {
+        if (desiredDirectionChanged && !thrustVelocity.isZero) {
             calculateRotation(deltaTime, player)
         } else {
             tiltAnimationHandler.lowerRotationTilt()
         }
         applyRotation(player)
+    }
+
+    private fun applyRotation(player: Entity) {
+        val transform =
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+        val position = transform.getTranslation(auxVector3_1)
+        val playerComponent = ComponentsMapper.player.get(player)
+        val currentVelocity =
+            playerComponent.getCurrentVelocity(auxVector2_1)
+        transform.setToRotation(
+            Vector3.Y,
+            (if (playerComponent.strafing != null) playerComponent.strafing else (currentVelocity.angleDeg()))!!
+        )
+        transform.rotate(Vector3.Z, -IDLE_Z_TILT_DEGREES)
+        transform.setTranslation(position)
     }
 
 
@@ -34,7 +49,7 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         updateRotationStep(player)
         val currentVelocity =
             ComponentsMapper.player.get(player).getCurrentVelocity(auxVector2_1)
-        val diff = abs(currentVelocity.angleDeg() - desiredVelocity.angleDeg())
+        val diff = abs(currentVelocity.angleDeg() - thrustVelocity.angleDeg())
         if ((rotBefore < 0 && rotToAdd < 0) || (rotBefore > 0 && rotToAdd > 0) && diff > ROT_EPSILON) {
             rotate(currentVelocity, deltaTime, player)
         } else {
@@ -49,10 +64,10 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
     }
 
     private fun updateRotationStep(player: Entity) {
-        if (desiredVelocity.isZero) return
+        if (thrustVelocity.isZero) return
         val playerComponent = ComponentsMapper.player.get(player)
         val diff =
-            desiredVelocity.angleDeg() - playerComponent.getCurrentVelocity(auxVector2_1)
+            thrustVelocity.angleDeg() - playerComponent.getCurrentVelocity(auxVector2_1)
                 .angleDeg()
         val negativeRotation = auxVector2_1.set(1F, 0F).setAngleDeg(diff).angleDeg() > 180
         rotToAdd = if (negativeRotation && rotToAdd < 0) {
@@ -79,12 +94,12 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         if (directionX != 0F || directionY != 0F) {
             updateDesiredDirection(directionX, directionY, player)
         } else {
-            desiredVelocity.setZero()
+            thrustVelocity.setZero()
         }
     }
 
     private fun updateDesiredDirection(deltaX: Float, deltaY: Float, player: Entity) {
-        desiredVelocity.set(deltaX, deltaY)
+        thrustVelocity.set(deltaX, deltaY)
         desiredDirectionChanged = true
         updateRotationStep(player)
     }
@@ -96,9 +111,21 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         dispatcher: MessageDispatcher
     ) {
         handleRotation(deltaTime, player)
-        handleAcceleration(player, MAX_THRUST)
-        takeStep(player, deltaTime, currentMap, dispatcher)
+        handleAcceleration(player, MAX_THRUST, thrustVelocity)
+        takeStep(
+            player,
+            deltaTime,
+            currentMap,
+            dispatcher,
+            ComponentsMapper.player.get(player).getCurrentVelocity(
+                auxVector2_1
+            )
+        )
         tiltAnimationHandler.update(player)
+    }
+
+    override fun rotate(player: Entity, clockwise: Int) {
+
     }
 
     override fun toggleStrafing(lastTouchDown: Long, player: Entity) {
@@ -109,15 +136,15 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         }
     }
 
-    override fun handleAcceleration(player: Entity, maxSpeed: Float) {
+    override fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2) {
         val currentVelocity =
             ComponentsMapper.player.get(player)
                 .getCurrentVelocity(auxVector2_1)
-        if (desiredVelocity.len2() > desiredVelocitySizeThreshold) {
+        if (thrustVelocity.len2() > desiredVelocitySizeThreshold) {
             currentVelocity.setLength2(
                 min(currentVelocity.len2() + (ACCELERATION), MAX_THRUST)
             )
-            tiltAnimationHandler.onAcceleration()
+            tiltAnimationHandler.animateForwardAcceleration()
         } else {
             currentVelocity.setLength2(
                 max(
@@ -130,8 +157,8 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         ComponentsMapper.player.get(player).setCurrentVelocity(currentVelocity)
     }
 
-    override fun onTouchUp(player: Entity) {
-        desiredVelocity.setZero()
+    override fun onTouchUp(player: Entity, keycode: Int) {
+        thrustVelocity.setZero()
     }
 
     private fun deactivateStrafing(player: Entity) {
@@ -150,10 +177,9 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
     }
 
     companion object {
-        private const val MAX_ROTATION_STEP = 200F
-        private const val ROTATION_INCREASE = 2F
         private const val INITIAL_ROTATION_STEP = 6F
         private val auxVector2_1 = Vector2()
+        private val auxVector3_1 = Vector3()
         private val auxQuat = Quaternion()
         private const val ROT_EPSILON = 0.5F
         private const val STRAFE_PRESS_INTERVAL = 500

@@ -258,13 +258,17 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             playerMovementHandler.thrust(gameSessionData.player)
         } else if (keycode == Input.Keys.DOWN) {
             playerMovementHandler.thrust(gameSessionData.player, reverse = true)
+        } else if (keycode == Input.Keys.LEFT) {
+            playerMovementHandler.rotate(gameSessionData.player, 1)
+        } else if (keycode == Input.Keys.RIGHT) {
+            playerMovementHandler.rotate(gameSessionData.player, -1)
         }
         return false
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (keycode == Input.Keys.UP || keycode == Input.Keys.DOWN) {
-            playerMovementHandler.onTouchUp(gameSessionData.player)
+        if (keycode == Input.Keys.UP || keycode == Input.Keys.DOWN || keycode == Input.Keys.LEFT || keycode == Input.Keys.RIGHT) {
+            playerMovementHandler.onTouchUp(gameSessionData.player, keycode)
         }
         return false
     }

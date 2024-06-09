@@ -15,25 +15,10 @@ import com.gadarts.returnfire.systems.player.TiltAnimationHandler
 import kotlin.math.floor
 
 abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold: Float) {
-    protected val desiredVelocity: Vector2 = Vector2(desiredVelocitySizeThreshold, 0F)
+    protected val thrustVelocity: Vector2 = Vector2(desiredVelocitySizeThreshold, 0F)
     protected var tiltAnimationHandler = TiltAnimationHandler()
 
     private val prevPos = Vector3()
-
-    protected fun applyRotation(player: Entity, reverse: Boolean = false) {
-        val transform =
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
-        val position = transform.getTranslation(auxVector3_1)
-        val playerComponent = ComponentsMapper.player.get(player)
-        val currentVelocity =
-            playerComponent.getCurrentVelocity(auxVector2_1)
-        transform.setToRotation(
-            Vector3.Y,
-            (if (playerComponent.strafing != null) playerComponent.strafing else (currentVelocity.angleDeg() + (if (reverse) 180F else 0F)))!!
-        )
-        transform.rotate(Vector3.Z, -IDLE_Z_TILT_DEGREES)
-        transform.setTranslation(position)
-    }
 
     private fun clampPosition(
         transform: Matrix4,
@@ -49,12 +34,19 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
         player: Entity,
         deltaTime: Float,
         currentMap: GameMap,
-        dispatcher: MessageDispatcher
+        dispatcher: MessageDispatcher,
+        velocity: Vector2
     ) {
         val transform =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         transform.getTranslation(prevPos)
-        applyMovementWithRegionCheck(player, deltaTime, currentMap, dispatcher)
+        applyMovementWithRegionCheck(
+            player,
+            deltaTime,
+            currentMap,
+            dispatcher,
+            velocity
+        )
     }
 
     private fun applyMovement(
@@ -77,7 +69,8 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
         p: Entity,
         delta: Float,
         currentMap: GameMap,
-        dispatcher: MessageDispatcher
+        dispatcher: MessageDispatcher,
+        velocity: Vector2
     ) {
         val transform =
             ComponentsMapper.modelInstance.get(p).gameModelInstance.modelInstance.transform
@@ -85,9 +78,7 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
         val prevColumn = floor(currentPosition.x / GameSessionData.REGION_SIZE)
         val prevRow = floor(currentPosition.z / GameSessionData.REGION_SIZE)
         applyMovement(
-            delta, p, currentMap, ComponentsMapper.player.get(p).getCurrentVelocity(
-                auxVector2_1
-            )
+            delta, p, currentMap, velocity
         )
         val newPosition = transform.getTranslation(auxVector3_2)
         MapUtils.notifyEntityRegionChanged(
@@ -98,11 +89,11 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
         )
     }
 
-    abstract fun handleAcceleration(player: Entity, maxSpeed: Float)
+    abstract fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2)
 
     abstract fun toggleStrafing(lastTouchDown: Long, player: Entity)
 
-    abstract fun onTouchUp(player: Entity)
+    abstract fun onTouchUp(player: Entity, keycode: Int = -1)
 
     abstract fun initialize(camera: PerspectiveCamera)
     abstract fun thrust(
@@ -119,13 +110,16 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
         dispatcher: MessageDispatcher
     )
 
+    abstract fun rotate(player: Entity, clockwise: Int)
+
     companion object {
-        private val auxVector2_1 = Vector2()
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
-        const val MAX_THRUST = 14F
+        const val MAX_THRUST = 7F
         const val ACCELERATION = 0.04F
         const val DECELERATION = 0.06F
-        private const val IDLE_Z_TILT_DEGREES = 12F
+        const val IDLE_Z_TILT_DEGREES = 12F
+        const val MAX_ROTATION_STEP = 200F
+        const val ROTATION_INCREASE = 2F
     }
 }
