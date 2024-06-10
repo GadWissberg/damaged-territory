@@ -72,7 +72,6 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                     pointer: Int,
                     button: Int
                 ): Boolean {
-                    playerMovementHandler.toggleStrafing(lastTouchDown, gameSessionData.player)
                     touchPadTouched(event!!.target)
                     lastTouchDown = TimeUtils.millis()
                     return super.touchDown(event, x, y, pointer, button)
@@ -254,21 +253,47 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        if (keycode == Input.Keys.UP) {
-            playerMovementHandler.thrust(gameSessionData.player)
-        } else if (keycode == Input.Keys.DOWN) {
-            playerMovementHandler.thrust(gameSessionData.player, reverse = true)
-        } else if (keycode == Input.Keys.LEFT) {
-            playerMovementHandler.rotate(gameSessionData.player, 1)
-        } else if (keycode == Input.Keys.RIGHT) {
-            playerMovementHandler.rotate(gameSessionData.player, -1)
+        when (keycode) {
+            Input.Keys.UP -> {
+                playerMovementHandler.thrust(gameSessionData.player)
+            }
+
+            Input.Keys.DOWN -> {
+                playerMovementHandler.thrust(gameSessionData.player, reverse = true)
+            }
+
+            Input.Keys.LEFT -> {
+                playerMovementHandler.rotate(gameSessionData.player, 1)
+            }
+
+            Input.Keys.RIGHT -> {
+                playerMovementHandler.rotate(gameSessionData.player, -1)
+            }
+
+            Input.Keys.CONTROL_LEFT -> {
+                playerShootingHandler.startPrimaryShooting()
+            }
+
+            Input.Keys.SHIFT_LEFT -> {
+                playerShootingHandler.startSecondaryShooting()
+            }
         }
         return false
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (keycode == Input.Keys.UP || keycode == Input.Keys.DOWN || keycode == Input.Keys.LEFT || keycode == Input.Keys.RIGHT) {
-            playerMovementHandler.onTouchUp(gameSessionData.player, keycode)
+        when (keycode) {
+            Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
+                playerMovementHandler.onTouchUp(gameSessionData.player, keycode)
+            }
+
+            Input.Keys.CONTROL_LEFT -> {
+                playerShootingHandler.stopPrimaryShooting()
+            }
+
+            Input.Keys.SHIFT_LEFT -> {
+                playerShootingHandler.stopSecondaryShooting()
+            }
         }
         return false
     }

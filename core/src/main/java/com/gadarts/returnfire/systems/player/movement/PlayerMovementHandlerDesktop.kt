@@ -36,10 +36,6 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler(0F) {
         ComponentsMapper.player.get(player).setCurrentVelocity(currentVelocity)
     }
 
-    override fun toggleStrafing(lastTouchDown: Long, player: Entity) {
-
-    }
-
     override fun onTouchUp(player: Entity, keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
@@ -122,7 +118,7 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler(0F) {
         if (rotating != 0) {
             rotation += rotating
             rotation =
-                MathUtils.clamp(rotation, -100F, 100F)
+                MathUtils.clamp(rotation, -MAX_ROTATION_STEP, MAX_ROTATION_STEP)
             tiltAnimationHandler.onRotation(rotation)
         } else if (rotation > 0) {
             rotation = max(rotation - ROTATION_DECELERATION, 0F)
@@ -138,7 +134,7 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler(0F) {
     }
 
     override fun rotate(player: Entity, clockwise: Int) {
-        rotating = clockwise * 2
+        rotating = clockwise * 3
     }
 
     companion object {
@@ -146,5 +142,6 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler(0F) {
         private val auxVector2_2 = Vector2()
         private val auxVector3_1 = Vector3()
         private const val ROTATION_DECELERATION = 3F
+        private const val MAX_ROTATION_STEP = 100F
     }
 }

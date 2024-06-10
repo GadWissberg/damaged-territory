@@ -91,7 +91,6 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
 
     abstract fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2)
 
-    abstract fun toggleStrafing(lastTouchDown: Long, player: Entity)
 
     abstract fun onTouchUp(player: Entity, keycode: Int = -1)
 

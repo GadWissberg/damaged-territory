@@ -87,19 +87,19 @@ class PlayerShootingHandler {
         }
     }
 
-    fun onPrimaryWeaponButtonPressed() {
+    fun startPrimaryShooting() {
         priShooting = true
     }
 
-    fun onPrimaryWeaponButtonReleased() {
+    fun stopPrimaryShooting() {
         priShooting = false
     }
 
-    fun onSecondaryWeaponButtonPressed() {
+    fun startSecondaryShooting() {
         secShooting = true
     }
 
-    fun onSecondaryWeaponButtonReleased() {
+    fun stopSecondaryShooting() {
         secShooting = false
     }
 

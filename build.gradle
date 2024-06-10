@@ -42,8 +42,8 @@ configure(subprojects - project(':android')) {
 }
 
 subprojects {
-  version = '0.1.0'
-  ext.appName = 'return-fire'
+  version = '0.2.0'
+  ext.appName = 'open-fire'
   repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
@@ -55,4 +55,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'return-fire' + '-parent'
+eclipse.project.name = 'open-fire' + '-parent'

@@ -2,6 +2,7 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Services
@@ -12,7 +13,6 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 class CameraSystem : GameEntitySystem() {
 
 
-    private var cameraStrafeMode = Vector3().setZero()
     private var cameraTarget = Vector3()
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
@@ -44,36 +44,26 @@ class CameraSystem : GameEntitySystem() {
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)
         val playerComp = ComponentsMapper.player.get(player)
-        if (playerComp.strafing == null) {
-            followPlayerRegularMovement(playerComp, playerPosition)
-        } else {
-            followPlayerWhenStrafing(playerPosition)
-        }
+        followPlayerRegularMovement(playerComp, playerPosition)
     }
 
-    private fun followPlayerWhenStrafing(playerPosition: Vector3) {
-        if (cameraStrafeMode.isZero) {
-            cameraStrafeMode.set(gameSessionData.camera.position).sub(playerPosition)
-        } else {
-            gameSessionData.camera.position.set(
-                playerPosition.x,
-                gameSessionData.camera.position.y,
-                playerPosition.z
-            ).add(cameraStrafeMode.x, 0F, cameraStrafeMode.z)
-        }
-    }
     private fun followPlayerRegularMovement(
         playerComp: PlayerComponent,
         playerPosition: Vector3
     ) {
-        val velocityDir = playerComp.getCurrentVelocity(auxVector2).nor().setLength2(5F)
+        if (gameSessionData.runsOnMobile) {
+            playerComp.getCurrentVelocity(auxVector2).nor().setLength2(5F)
+        } else {
+            auxVector2.set(1F, 0F).setAngleDeg(
+                ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getRotation(
+                    auxQuat
+                ).yaw
+            )
+        }
         cameraTarget =
-            playerPosition.add(velocityDir.x, 0F, -velocityDir.y + Z_OFFSET)
+            playerPosition.add(auxVector2.x, 0F, -auxVector2.y + Z_OFFSET)
         cameraTarget.y = gameSessionData.camera.position.y
         gameSessionData.camera.position.interpolate(cameraTarget, 0.2F, Interpolation.exp5)
-        if (!cameraStrafeMode.isZero) {
-            cameraStrafeMode.setZero()
-        }
     }
 
 
@@ -92,12 +82,13 @@ class CameraSystem : GameEntitySystem() {
     }
 
     companion object {
-        const val NEAR = 0.1F
-        const val FAR = 300F
-        const val INITIAL_Y = 8F
-        const val Z_OFFSET = 4F
-        val auxVector2 = Vector2()
-        val auxVector3_1 = Vector3()
+        private const val NEAR = 0.1F
+        private const val FAR = 300F
+        private const val INITIAL_Y = 8F
+        private const val Z_OFFSET = 4F
+        private val auxVector2 = Vector2()
+        private val auxVector3_1 = Vector3()
+        private val auxQuat = Quaternion()
     }
 
 }

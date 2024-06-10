@@ -9,7 +9,7 @@ import com.gadarts.returnfire.systems.player.PlayerShootingHandler
 class PlayerSystemOnWeaponButtonSecondaryReleased(private val playerShootingHandler: PlayerShootingHandler) :
     HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, services: Services) {
-        playerShootingHandler.onSecondaryWeaponButtonReleased()
+        playerShootingHandler.stopSecondaryShooting()
     }
 
 }

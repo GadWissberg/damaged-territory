@@ -3,10 +3,8 @@ package com.gadarts.returnfire.systems.player.movement
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
-import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.GameMap
 import kotlin.math.abs
@@ -37,7 +35,7 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
             playerComponent.getCurrentVelocity(auxVector2_1)
         transform.setToRotation(
             Vector3.Y,
-            (if (playerComponent.strafing != null) playerComponent.strafing else (currentVelocity.angleDeg()))!!
+            currentVelocity.angleDeg()
         )
         transform.rotate(Vector3.Z, -IDLE_Z_TILT_DEGREES)
         transform.setTranslation(position)
@@ -79,17 +77,6 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         }
     }
 
-    private fun activateStrafing(player: Entity) {
-        val playerComponent = ComponentsMapper.player.get(player)
-        playerComponent.strafing =
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(
-                auxQuat
-            ).getAngleAround(
-                Vector3.Y
-            )
-        tiltAnimationHandler.onStrafeActivated()
-    }
-
     override fun thrust(player: Entity, directionX: Float, directionY: Float, reverse: Boolean) {
         if (directionX != 0F || directionY != 0F) {
             updateDesiredDirection(directionX, directionY, player)
@@ -128,14 +115,6 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
 
     }
 
-    override fun toggleStrafing(lastTouchDown: Long, player: Entity) {
-        if (TimeUtils.timeSinceMillis(lastTouchDown) <= STRAFE_PRESS_INTERVAL) {
-            activateStrafing(player)
-        } else {
-            deactivateStrafing(player)
-        }
-    }
-
     override fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2) {
         val currentVelocity =
             ComponentsMapper.player.get(player)
@@ -161,16 +140,6 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         thrustVelocity.setZero()
     }
 
-    private fun deactivateStrafing(player: Entity) {
-        val playerComponent = ComponentsMapper.player.get(player)
-        if (playerComponent.strafing != null) {
-            val currentVelocity = playerComponent.getCurrentVelocity(auxVector2_1)
-            val newVelocity = currentVelocity.setAngleDeg(playerComponent.strafing!!)
-            playerComponent.setCurrentVelocity(newVelocity)
-        }
-        playerComponent.strafing = null
-    }
-
 
     override fun initialize(camera: PerspectiveCamera) {
         this.camera = camera
@@ -180,8 +149,6 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         private const val INITIAL_ROTATION_STEP = 6F
         private val auxVector2_1 = Vector2()
         private val auxVector3_1 = Vector3()
-        private val auxQuat = Quaternion()
         private const val ROT_EPSILON = 0.5F
-        private const val STRAFE_PRESS_INTERVAL = 500
     }
 }

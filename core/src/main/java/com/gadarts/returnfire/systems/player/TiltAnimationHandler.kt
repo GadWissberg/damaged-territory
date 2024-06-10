@@ -11,9 +11,6 @@ class TiltAnimationHandler {
 
     private var accelerationTiltDegrees: Float = 0.0f
     private var rotTiltDegrees: Float = 0.0f
-    fun onStrafeActivated() {
-        rotTiltDegrees = 0F
-    }
 
     private fun increaseRotationTilt(rotToAdd: Float) {
         rotTiltDegrees += if (rotToAdd > 0) -ROT_TILT_STEP_SIZE else ROT_TILT_STEP_SIZE
@@ -34,10 +31,7 @@ class TiltAnimationHandler {
         if (accelerationTiltDegrees > 0) {
             transform.rotate(Vector3.Z, -accelerationTiltDegrees)
         }
-        val playerComponent = ComponentsMapper.player.get(player)
-        if (playerComponent.strafing == null) {
-            transform.rotate(Vector3.X, rotTiltDegrees)
-        }
+        transform.rotate(Vector3.X, rotTiltDegrees)
     }
 
     fun update(player: Entity) {
