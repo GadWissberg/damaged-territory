@@ -16,9 +16,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.assets.ModelDefinition
-import com.gadarts.returnfire.assets.SoundDefinition
-import com.gadarts.returnfire.assets.TexturesDefinitions
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.TextureDefinition
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GameModelInstance
@@ -150,19 +150,19 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         }
         val spark0 = TextureRegion(
             services.assetsManager.getAssetByDefinitionAndIndex(
-                TexturesDefinitions.SPARK,
+                TextureDefinition.SPARK,
                 0
             )
         )
         val spark1 = TextureRegion(
             services.assetsManager.getAssetByDefinitionAndIndex(
-                TexturesDefinitions.SPARK,
+                TextureDefinition.SPARK,
                 1
             )
         )
         val spark2 = TextureRegion(
             services.assetsManager.getAssetByDefinitionAndIndex(
-                TexturesDefinitions.SPARK,
+                TextureDefinition.SPARK,
                 2
             )
         )
@@ -245,7 +245,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         entityBuilder: EntityBuilder
     ) {
         val propTextureRegion =
-            TextureRegion(services.assetsManager.getAssetByDefinition(TexturesDefinitions.PROPELLER_BLURRED))
+            TextureRegion(services.assetsManager.getAssetByDefinition(TextureDefinition.PROPELLER_BLURRED))
         val propDec = newDecal(PROP_SIZE, PROP_SIZE, propTextureRegion, true)
         propDec.rotateX(90F)
         val decals = listOf(ChildDecal(propDec, Vector3.Zero))

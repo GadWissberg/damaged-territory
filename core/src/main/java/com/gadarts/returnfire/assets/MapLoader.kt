@@ -6,14 +6,11 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
-import com.gadarts.returnfire.model.AmbDefinition
-import com.gadarts.returnfire.model.CharactersDefinitions
-import com.gadarts.returnfire.model.ElementsDefinitions
-import com.gadarts.returnfire.model.GameMap
-import com.gadarts.returnfire.model.PlacedElement
+import com.gadarts.returnfire.GameException
+import com.gadarts.returnfire.model.*
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import java.util.Locale
+import java.util.*
 
 class MapLoader(resolver: FileHandleResolver) :
     AsynchronousAssetLoader<GameMap, MapLoader.MapLoaderParameter>(resolver) {
@@ -42,6 +39,9 @@ class MapLoader(resolver: FileHandleResolver) :
         val jsonObj = gson.fromJson(file!!.reader(), JsonObject::class.java)
         val tilesString = jsonObj.getAsJsonPrimitive(KEY_TILES_MAPPING).asString
         val size = jsonObj.getAsJsonPrimitive(KEY_SIZE).asInt
+        if (size <= 0) {
+            throw GameException("Failed loading map - size is 0! Map content: $jsonObj")
+        }
         val tilesMapping = Array(size) { CharArray(size) }
         for (row in 0 until size) {
             for (col in 0 until size) {

@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.assets.TexturesDefinitions
+import com.gadarts.returnfire.assets.definitions.TextureDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -63,12 +63,12 @@ class HudSystem : GameEntitySystem() {
             addJoystick(ui)
             addWeaponButton(
                 ui,
-                TexturesDefinitions.ICON_BULLETS,
+                TextureDefinition.ICON_BULLETS,
                 clickListener = priWeaponButtonClickListener
             )
             addWeaponButton(
                 ui,
-                TexturesDefinitions.ICON_MISSILES,
+                TextureDefinition.ICON_MISSILES,
                 JOYSTICK_PADDING_LEFT,
                 secWeaponButtonClickListener
             )
@@ -78,18 +78,18 @@ class HudSystem : GameEntitySystem() {
 
     private fun addWeaponButton(
         ui: Table,
-        iconDefinition: TexturesDefinitions,
+        iconDefinition: TextureDefinition,
         rightPadding: Float = 0F,
         clickListener: ClickListener
     ) {
         val up = TextureRegionDrawable(
             services.assetsManager.getAssetByDefinition(
-                TexturesDefinitions.BUTTON_UP
+                TextureDefinition.BUTTON_UP
             )
         )
         val down = TextureRegionDrawable(
             services.assetsManager.getAssetByDefinition(
-                TexturesDefinitions.BUTTON_DOWN
+                TextureDefinition.BUTTON_DOWN
             )
         )
         val icon =
@@ -104,7 +104,7 @@ class HudSystem : GameEntitySystem() {
 
     private fun addJoystick(ui: Table) {
         val joystickTexture =
-            services.assetsManager.getAssetByDefinition(TexturesDefinitions.JOYSTICK)
+            services.assetsManager.getAssetByDefinition(TextureDefinition.JOYSTICK)
         ui.add(gameSessionData.touchpad)
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
             .pad(0F, JOYSTICK_PADDING_LEFT, 64F, 0F)

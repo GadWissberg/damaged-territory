@@ -1,12 +1,12 @@
-package com.gadarts.returnfire.assets
+package com.gadarts.returnfire.assets.definitions
 
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader
-import java.util.Locale
+import java.util.*
 
-enum class FontsDefinitions : AssetDefinition<BitmapFont> {
+enum class FontsDefinition : AssetDefinition<BitmapFont> {
     ;
 
     private var path: String = "${name.lowercase(Locale.ROOT)}.ttf"

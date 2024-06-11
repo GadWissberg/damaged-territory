@@ -18,9 +18,9 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.assets.GameAssetManager
-import com.gadarts.returnfire.assets.ModelDefinition
-import com.gadarts.returnfire.assets.SoundDefinition
-import com.gadarts.returnfire.assets.TexturesDefinitions
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.TextureDefinition
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GameModelInstance
@@ -172,7 +172,7 @@ class MapSystem : GameEntitySystem() {
 
     private fun createFloorModel(builder: ModelBuilder) {
         builder.begin()
-        val texture = services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_WATER)
+        val texture = services.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER)
         GeneralUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
         floorModel = builder.end()
     }
@@ -326,16 +326,16 @@ class MapSystem : GameEntitySystem() {
         private const val AMB_SND_INTERVAL_MIN = 7000
         private const val AMB_SND_INTERVAL_MAX = 22000
         private val beachTiles = listOf(
-            TexturesDefinitions.TILE_WATER,
-            TexturesDefinitions.TILE_BEACH_BOTTOM_RIGHT,
-            TexturesDefinitions.TILE_BEACH_BOTTOM,
-            TexturesDefinitions.TILE_BEACH_BOTTOM_LEFT,
-            TexturesDefinitions.TILE_BEACH_RIGHT,
-            TexturesDefinitions.TILE_BEACH_LEFT,
-            TexturesDefinitions.TILE_BEACH_TOP_RIGHT,
-            TexturesDefinitions.TILE_BEACH_TOP,
-            TexturesDefinitions.TILE_BEACH_TOP_LEFT,
-            TexturesDefinitions.TILE_BEACH,
+            TextureDefinition.TILE_WATER,
+            TextureDefinition.TILE_BEACH_BOTTOM_RIGHT,
+            TextureDefinition.TILE_BEACH_BOTTOM,
+            TextureDefinition.TILE_BEACH_BOTTOM_LEFT,
+            TextureDefinition.TILE_BEACH_RIGHT,
+            TextureDefinition.TILE_BEACH_LEFT,
+            TextureDefinition.TILE_BEACH_TOP_RIGHT,
+            TextureDefinition.TILE_BEACH_TOP,
+            TextureDefinition.TILE_BEACH_TOP_LEFT,
+            TextureDefinition.TILE_BEACH,
         )
 
     }

@@ -1,9 +1,9 @@
-package com.gadarts.returnfire.assets
+package com.gadarts.returnfire.assets.definitions
 
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.Texture
 
-enum class TexturesDefinitions(fileNames: Int = 1, ninepatch: Boolean = false) :
+enum class TextureDefinition(fileNames: Int = 1, ninepatch: Boolean = false) :
     AssetDefinition<Texture> {
 
     BUTTON_UP,

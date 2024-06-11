@@ -28,6 +28,24 @@ allprojects {
   }
 }
 
+task writeAllAssetsToFile {
+  doLast {
+    // projectfolder/assets
+    def assetsFolder = new File("${project.rootDir}/assets/")
+    // projectfolder/assets/assets.txt
+    def assetsFile = new File(assetsFolder, "assets.txt")
+    // delete that file in case we've already created it
+    assetsFile.delete()
+
+    // iterate through all files inside that folder
+    // convert it to a relative path
+    // and append it to assets.txt the file
+    fileTree(assetsFolder).collect { assetsFolder.relativePath(it) }.each {
+      assetsFile.append(it + "\n")
+    }
+  }
+}
+
 configure(subprojects - project(':android')) {
   apply plugin: 'java-library'
   apply plugin: 'kotlin'

@@ -1,15 +1,17 @@
 package com.gadarts.returnfire.assets
 
+import com.gadarts.returnfire.assets.definitions.*
+
 enum class AssetsTypes(
     val assets: Array<out AssetDefinition<*>> = arrayOf(),
     private val loadedUsingLoader: Boolean = true
 ) {
-    TEXTURES(TexturesDefinitions.entries.toTypedArray()),
-    SHADERS(ShaderDefinitions.entries.toTypedArray(), loadedUsingLoader = false),
-    FONTS(FontsDefinitions.entries.toTypedArray()),
+    TEXTURES(TextureDefinition.entries.toTypedArray()),
+    SHADERS(ShaderDefinition.entries.toTypedArray(), loadedUsingLoader = false),
+    FONTS(FontsDefinition.entries.toTypedArray()),
     MODELS(ModelDefinition.entries.toTypedArray()),
     SFX(SoundDefinition.entries.toTypedArray()),
-    MAPS;
+    MAPS(MapDefinition.entries.toTypedArray());
 
     fun isLoadedUsingLoader(): Boolean {
         return loadedUsingLoader

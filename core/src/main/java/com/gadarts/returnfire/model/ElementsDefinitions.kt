@@ -1,6 +1,6 @@
 package com.gadarts.returnfire.model
 
-import com.gadarts.returnfire.assets.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
 
 interface ElementsDefinitions {
     fun getModelDefinition(): ModelDefinition

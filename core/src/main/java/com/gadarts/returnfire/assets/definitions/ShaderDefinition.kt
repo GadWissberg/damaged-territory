@@ -1,8 +1,8 @@
-package com.gadarts.returnfire.assets
+package com.gadarts.returnfire.assets.definitions
 
 import com.badlogic.gdx.assets.AssetLoaderParameters
 
-enum class ShaderDefinitions : AssetDefinition<String> {
+enum class ShaderDefinition : AssetDefinition<String> {
     ;
 
     private val paths = ArrayList<String>()

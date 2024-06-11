@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.gadarts.returnfire.assets.GameAssetManager
 
-class ReturnFire(private val assetsFolderPath: String, private val runsOnMobile: Boolean) : Game() {
+class OpenFire(private val runsOnMobile: Boolean) : Game() {
     private lateinit var assetsManager: GameAssetManager
 
     override fun create() {
@@ -18,7 +18,7 @@ class ReturnFire(private val assetsFolderPath: String, private val runsOnMobile:
 
     private fun loadAssets() {
         assetsManager = GameAssetManager()
-        assetsManager.loadAssets(assetsFolderPath)
+        assetsManager.loadAssets()
     }
 
 }

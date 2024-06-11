@@ -12,8 +12,8 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.assets.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.BaseParticleEffectComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.FollowerParticleEffectComponent

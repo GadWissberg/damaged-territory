@@ -11,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.GameAssetManager
-import com.gadarts.returnfire.assets.ModelDefinition
-import com.gadarts.returnfire.assets.TexturesDefinitions
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.TextureDefinition
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.player.BulletsPool
 
@@ -34,10 +34,10 @@ class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean
         Touchpad.TouchpadStyle(
             TextureRegionDrawable(
                 assetsManager.getAssetByDefinition(
-                    TexturesDefinitions.JOYSTICK
+                    TextureDefinition.JOYSTICK
                 )
             ),
-            TextureRegionDrawable(assetsManager.getAssetByDefinition(TexturesDefinitions.JOYSTICK_CENTER))
+            TextureRegionDrawable(assetsManager.getAssetByDefinition(TextureDefinition.JOYSTICK_CENTER))
         )
     )
     val priBulletsPool: BulletsPool = BulletsPool(

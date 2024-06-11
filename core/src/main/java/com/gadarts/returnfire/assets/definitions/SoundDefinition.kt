@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.assets
+package com.gadarts.returnfire.assets.definitions
 
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.audio.Sound

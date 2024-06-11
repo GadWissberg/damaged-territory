@@ -14,14 +14,15 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Array
+import com.gadarts.returnfire.assets.definitions.AssetDefinition
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.model.GameMap
-import java.io.File.separatorChar
-import java.util.Arrays
-import java.util.Locale
+import java.util.*
 
 open class GameAssetManager : AssetManager() {
 
-    fun loadAssets(assetsFolderPath: String) {
+    fun loadAssets() {
         initializeCustomLoaders()
         AssetsTypes.entries.forEach { type ->
             if (type.isLoadedUsingLoader()) {
@@ -37,24 +38,15 @@ open class GameAssetManager : AssetManager() {
                             asset.getPaths().forEach { load(it, asset.getClazz()) }
                         }
                     }
-                } else {
-                    val toLowerCase = type.name.lowercase(Locale.ROOT)
-                    val path = "$assetsFolderPath$toLowerCase"
-                    val dir = Gdx.files.internal(path)
-                    dir.list().forEach {
-                        load(
-                            "$path$separatorChar${it.name()}",
-                            GameMap::class.java
-                        )
-                    }
                 }
             } else {
                 type.assets.forEach { asset ->
                     asset.getPaths().forEach {
+                        val content = Gdx.files.internal(it).readString()
                         addAsset(
                             it,
                             String::class.java,
-                            Gdx.files.internal(it).readString()
+                            content
                         )
                     }
                 }
