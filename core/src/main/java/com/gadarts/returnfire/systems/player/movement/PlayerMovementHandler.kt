@@ -114,8 +114,8 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
     companion object {
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
-        const val MAX_THRUST = 7F
-        const val ACCELERATION = 0.04F
+        const val MAX_THRUST = 8F
+        const val ACCELERATION = 0.08F
         const val DECELERATION = 0.06F
         const val IDLE_Z_TILT_DEGREES = 12F
         const val MAX_ROTATION_STEP = 200F

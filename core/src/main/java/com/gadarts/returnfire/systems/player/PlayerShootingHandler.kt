@@ -13,8 +13,7 @@ import com.gadarts.returnfire.systems.events.data.PlayerWeaponShotEventData
 
 class PlayerShootingHandler {
     private lateinit var player: Entity
-    private lateinit var secBulletsPool: BulletsPool
-    private lateinit var priBulletsPool: BulletsPool
+    private lateinit var bulletsPools: BulletsPools
     private lateinit var dispatcher: MessageDispatcher
     var secondaryCreationSide = false
     private var priShooting: Boolean = false
@@ -27,8 +26,7 @@ class PlayerShootingHandler {
         secBulletsPool: BulletsPool,
         player: Entity
     ) {
-        this.priBulletsPool = priBulletsPool
-        this.secBulletsPool = secBulletsPool
+        this.bulletsPools = BulletsPools(priBulletsPool, secBulletsPool)
         this.player = player
         engine.addEntityListener(object : EntityListener {
             override fun entityAdded(entity: Entity) {
@@ -55,7 +53,7 @@ class PlayerShootingHandler {
         handleShooting(
             priShooting,
             armComp,
-            priBulletsPool,
+            bulletsPools.priBulletsPool,
             SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY,
             BulletBehavior.REGULAR
         )
@@ -63,7 +61,7 @@ class PlayerShootingHandler {
         handleShooting(
             secShooting,
             armComp,
-            secBulletsPool,
+            bulletsPools.secBulletsPool,
             SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY,
             BulletBehavior.CURVE
         )

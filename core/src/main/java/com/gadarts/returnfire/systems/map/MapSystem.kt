@@ -141,13 +141,19 @@ class MapSystem : GameEntitySystem() {
     private fun moveObjectFromRegionToAnotherRegion(
         newRow: Int, newColumn: Int, entity: Entity, prevRow: Int = -1, prevColumn: Int = -1,
     ) {
-        if (prevRow == newRow && prevColumn == newColumn) return
+        val maxRow = gameSessionData.currentMap.tilesMapping.size / REGION_SIZE
+        val maxCol = gameSessionData.currentMap.tilesMapping[0].size / REGION_SIZE
+        if ((prevRow == newRow && prevColumn == newColumn)
+            || newRow >= maxRow
+            || newColumn >= maxCol
+        )
+            return
 
         if (gameSessionData.entitiesAcrossRegions[newRow][newColumn] == null) {
             gameSessionData.entitiesAcrossRegions[newRow][newColumn] =
                 mutableListOf()
         }
-        if (prevRow >= 0 && prevColumn >= 0) {
+        if (prevRow >= 0 && prevColumn >= 0 && prevRow < maxRow && prevColumn < maxCol) {
             gameSessionData.entitiesAcrossRegions[prevRow][prevColumn]?.remove(
                 entity
             )

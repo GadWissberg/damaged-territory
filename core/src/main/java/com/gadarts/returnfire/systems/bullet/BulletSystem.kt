@@ -4,11 +4,13 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.math.collision.Sphere
 import com.gadarts.returnfire.Services
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -21,10 +23,22 @@ import kotlin.math.min
 
 class BulletSystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+
     private lateinit var bulletEntities: ImmutableArray<Entity>
+
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         bulletEntities = engine.getEntitiesFor(Family.all(BulletComponent::class.java).get())
+    }
+
+    override fun update(deltaTime: Float) {
+        updateBullets(deltaTime)
+    }
+
+    override fun resume(delta: Long) {
+    }
+
+    override fun dispose() {
     }
 
     private fun takeStepForBullet(
@@ -33,34 +47,19 @@ class BulletSystem : GameEntitySystem() {
     ) {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
         val modelInstance = ComponentsMapper.modelInstance.get(bullet).gameModelInstance
-        if (bulletComponent.behavior == BulletBehavior.CURVE) {
-            modelInstance.modelInstance.transform.rotate(Vector3.Z, -1F)
-        }
-        val speed = bulletComponent.speed
+        handleBulletSpecialMovement(bulletComponent, modelInstance)
         val prevPosition = modelInstance.modelInstance.transform.getTranslation(auxVector)
         val prevRow = prevPosition.z.toInt() / GameSessionData.REGION_SIZE
         val prevCol = prevPosition.x.toInt() / GameSessionData.REGION_SIZE
         modelInstance.modelInstance.transform.trn(
-            getDirectionOfModel(bullet).nor().scl(speed * deltaTime)
+            getDirectionOfModel(bullet).nor().scl(bulletComponent.speed * deltaTime)
         )
         if (gameSessionData.entitiesAcrossRegions[prevRow][prevCol] != null) {
-            val radius =
-                ComponentsMapper.modelInstance.get(bullet).gameModelInstance.getBoundingBox(
-                    auxBoundingBox1
-                ).getDimensions(auxVector).len2() / 2F
-            auxSphere.radius = radius
+            auxSphere.radius = ComponentsMapper.modelInstance.get(bullet).gameModelInstance.getBoundingBox(
+                auxBoundingBox1
+            ).getDimensions(auxVector).len2() / 2F
             auxSphere.center.set(modelInstance.modelInstance.transform.getTranslation(auxVector))
-            for (entity in gameSessionData.entitiesAcrossRegions[prevRow][prevCol]!!) {
-                val entityBoundingBox =
-                    ComponentsMapper.modelInstance.get(entity).gameModelInstance.getBoundingBox(
-                        auxBoundingBox2
-                    )
-                if (intersectBoundingBoxAndSphere(entityBoundingBox, auxSphere)) {
-                    engine.removeEntity(bullet)
-                    engine.removeEntity(entity)
-                    break
-                }
-            }
+            applyCollisionInTheCurrentRegion(prevRow, prevCol, bullet)
         }
         MapUtils.notifyEntityRegionChanged(
             modelInstance.modelInstance.transform.getTranslation(auxVector),
@@ -68,6 +67,33 @@ class BulletSystem : GameEntitySystem() {
             prevCol,
             services.dispatcher
         )
+    }
+
+    private fun applyCollisionInTheCurrentRegion(prevRow: Int, prevCol: Int, bullet: Entity) {
+        for (entity in gameSessionData.entitiesAcrossRegions[prevRow][prevCol]!!) {
+            val entityBoundingBox =
+                ComponentsMapper.modelInstance.get(entity).gameModelInstance.getBoundingBox(
+                    auxBoundingBox2
+                )
+            if (intersectBoundingBoxAndSphere(entityBoundingBox, auxSphere)) {
+                engine.removeEntity(bullet)
+                engine.removeEntity(entity)
+                break
+            }
+        }
+    }
+
+    private fun handleBulletSpecialMovement(
+        bulletComponent: BulletComponent,
+        modelInstance: GameModelInstance
+    ) {
+        if (bulletComponent.behavior == BulletBehavior.CURVE) {
+            if (modelInstance.modelInstance.transform.getRotation(auxQuat)
+                    .getAngleAround(Vector3.Z) > 270F
+            ) {
+                modelInstance.modelInstance.transform.rotate(Vector3.Z, -1F)
+            }
+        }
     }
 
     private fun intersectBoundingBoxAndSphere(
@@ -110,18 +136,9 @@ class BulletSystem : GameEntitySystem() {
         }
     }
 
-    override fun update(deltaTime: Float) {
-        updateBullets(deltaTime)
-    }
-
-    override fun resume(delta: Long) {
-    }
-
-    override fun dispose() {
-    }
-
     companion object {
         private val auxVector = Vector3()
+        private val auxQuat = Quaternion()
         private val auxBoundingBox1 = BoundingBox()
         private val auxBoundingBox2 = BoundingBox()
         private val auxSphere = Sphere(Vector3(), 0F)
