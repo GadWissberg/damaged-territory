@@ -115,7 +115,8 @@ class MapEditor {
                         function inflateTiles() {
                             for (var i = 0; i < inputMapObject.tiles.length; i++) {
                                 var cell = table.rows[Math.floor(i / self.map_size)].cells[i % self.map_size];
-                                var placedTile = self.findTileBySymbol(inputMapObject.tiles.charAt(i));
+                                var placedTile = tiles[inputMapObject.tiles.charAt(i)];
+                                applyTileOnCell(cell, placedTile)
                                 cell.style.backgroundColor = placedTile.tile;
                                 cell.cellData = new CellData();
                                 cell.cellData.tile = placedTile;
@@ -171,7 +172,7 @@ class MapEditor {
                             var cellData = table.rows[row].cells[col].cellData;
                             if (cellData != null && cellData.selectedTile != null) {
                                 let result = tiles.find(str => str === cellData.selectedTile);
-                                if (result){
+                                if (result) {
                                     currentTile = tiles.indexOf(result)
                                 }
                             }
