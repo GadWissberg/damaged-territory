@@ -8,17 +8,7 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.gadarts.returnfire.components.AmbComponent
-import com.gadarts.returnfire.components.AmbSoundComponent
-import com.gadarts.returnfire.components.ArmComponent
-import com.gadarts.returnfire.components.BaseParticleEffectComponent
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.GameModelInstance
-import com.gadarts.returnfire.components.GroundComponent
-import com.gadarts.returnfire.components.IndependentParticleEffectComponent
-import com.gadarts.returnfire.components.ModelInstanceComponent
-import com.gadarts.returnfire.components.PlayerComponent
-import com.gadarts.returnfire.components.SphereCollisionComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
@@ -36,9 +26,10 @@ class EntityBuilder private constructor() {
         model: GameModelInstance,
         position: Vector3,
         calculateBoundingBox: Boolean,
+        direction: Float = 0F
     ): EntityBuilder {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position, calculateBoundingBox)
+        modelInstanceComponent.init(model, position, calculateBoundingBox, direction)
         entity!!.add(modelInstanceComponent)
         return instance
     }

@@ -15,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.TextureDefinition
@@ -58,8 +58,8 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         ),
     )
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         playerMovementHandler =
             if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop()
         addPlayer()
@@ -97,8 +97,8 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
         }
         playerShootingHandler.initialize(
-            services.dispatcher,
-            services.engine,
+            managers.dispatcher,
+            managers.engine,
             gameSessionData.priBulletsPool,
             gameSessionData.secBulletsPool,
             gameSessionData.player
@@ -127,20 +127,21 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             gameSessionData.player,
             deltaTime,
             currentMap,
-            services.dispatcher
+            managers.dispatcher
         )
         playerShootingHandler.update()
     }
 
     private fun addPlayer(): Entity {
-        EntityBuilder.initialize(services.engine)
-        val apacheModel = services.assetsManager.getAssetByDefinition(ModelDefinition.APACHE)
+        EntityBuilder.initialize(managers.engine)
+        val apacheModel = managers.assetsManager.getAssetByDefinition(ModelDefinition.APACHE)
         val entityBuilder =
             EntityBuilder.begin()
                 .addModelInstanceComponent(
                     GameModelInstance(
                         ModelInstance(apacheModel),
-                        services.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE)
+                        ModelDefinition.APACHE,
+                        managers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE),
                     ),
                     auxVector3_1.set(0F, PLAYER_HEIGHT, 2F),
                     false
@@ -149,26 +150,26 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             addPropeller(entityBuilder)
         }
         val spark0 = TextureRegion(
-            services.assetsManager.getAssetByDefinitionAndIndex(
+            managers.assetsManager.getAssetByDefinitionAndIndex(
                 TextureDefinition.SPARK,
                 0
             )
         )
         val spark1 = TextureRegion(
-            services.assetsManager.getAssetByDefinitionAndIndex(
+            managers.assetsManager.getAssetByDefinitionAndIndex(
                 TextureDefinition.SPARK,
                 1
             )
         )
         val spark2 = TextureRegion(
-            services.assetsManager.getAssetByDefinitionAndIndex(
+            managers.assetsManager.getAssetByDefinitionAndIndex(
                 TextureDefinition.SPARK,
                 2
             )
         )
         val sparkFrames = listOf(spark0, spark1, spark2)
         entityBuilder.addAmbSoundComponent(
-            services.assetsManager.getAssetByDefinition(
+            managers.assetsManager.getAssetByDefinition(
                 SoundDefinition.PROPELLER
             )
         )
@@ -187,7 +188,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         entityBuilder: EntityBuilder,
         sparkFrames: List<TextureRegion>
     ): EntityBuilder {
-        val priSnd = services.assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN)
+        val priSnd = managers.assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN)
         val priDecal = newDecal(PRI_SPARK_SIZE, PRI_SPARK_SIZE, sparkFrames.first(), true)
         val priArmProperties = ArmProperties(sparkFrames, priSnd, PRI_RELOAD_DUR, PRI_BULLET_SPEED)
         val priCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
@@ -213,7 +214,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         entityBuilder: EntityBuilder,
         sparkFrames: List<TextureRegion>
     ): EntityBuilder {
-        val secSnd = services.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE)
+        val secSnd = managers.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE)
         val secArmProperties = ArmProperties(sparkFrames, secSnd, SEC_RELOAD_DUR, SEC_BULLET_SPEED)
         val secDecal = newDecal(SEC_SPARK_SIZE, SEC_SPARK_SIZE, sparkFrames.first(), true)
         val secCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
@@ -245,7 +246,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         entityBuilder: EntityBuilder
     ) {
         val propTextureRegion =
-            TextureRegion(services.assetsManager.getAssetByDefinition(TextureDefinition.PROPELLER_BLURRED))
+            TextureRegion(managers.assetsManager.getAssetByDefinition(TextureDefinition.PROPELLER_BLURRED))
         val propDec = newDecal(PROP_SIZE, PROP_SIZE, propTextureRegion, true)
         propDec.rotateX(90F)
         val decals = listOf(ChildDecal(propDec, Vector3.Zero))

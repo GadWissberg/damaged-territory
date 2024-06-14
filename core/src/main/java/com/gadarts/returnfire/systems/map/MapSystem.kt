@@ -16,8 +16,7 @@ import com.badlogic.gdx.math.MathUtils.random
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
-import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.TextureDefinition
@@ -55,7 +54,7 @@ class MapSystem : GameEntitySystem() {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                services: Services
+                managers: Managers
             ) {
                 moveObjectFromRegionToAnotherRegion(
                     EntityEnteredNewRegionEventData.newRow,
@@ -67,8 +66,8 @@ class MapSystem : GameEntitySystem() {
             }
         })
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         addEntityListener(gameSessionData)
         val builder = ModelBuilder()
         createFloorModel(builder)
@@ -81,9 +80,9 @@ class MapSystem : GameEntitySystem() {
         gameSessionData.currentMap.placedElements.forEach {
             if (it.definition != CharactersDefinitions.PLAYER) {
                 addAmbModelObject(
-                    services.assetsManager,
                     auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
-                    it.definition as AmbDefinition
+                    it.definition as AmbDefinition,
+                    it.direction
                 )
             }
         }
@@ -109,7 +108,7 @@ class MapSystem : GameEntitySystem() {
                         if (ComponentsMapper.amb.get(entity).definition == AmbDefinition.BUILDING_FLAG) {
                             addFlag(position)
                         }
-                        services.dispatcher.dispatchMessage(
+                        managers.dispatcher.dispatchMessage(
                             SystemEvents.BUILDING_DESTROYED.ordinal,
                             entity
                         )
@@ -126,10 +125,11 @@ class MapSystem : GameEntitySystem() {
             .addModelInstanceComponent(
                 GameModelInstance(
                     ModelInstance(
-                        services.assetsManager.getAssetByDefinition(
+                        managers.assetsManager.getAssetByDefinition(
                             ModelDefinition.FLAG
                         )
-                    )
+                    ),
+                    definition = ModelDefinition.FLAG
                 ),
                 position,
                 false
@@ -172,13 +172,13 @@ class MapSystem : GameEntitySystem() {
         val now = TimeUtils.millis()
         if (nextAmbSound < now) {
             nextAmbSound = now + random(AMB_SND_INTERVAL_MIN, AMB_SND_INTERVAL_MAX)
-            services.soundPlayer.play(services.assetsManager.getAssetByDefinition(ambSounds.random()))
+            managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(ambSounds.random()))
         }
     }
 
     private fun createFloorModel(builder: ModelBuilder) {
         builder.begin()
-        val texture = services.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER)
+        val texture = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER)
         GeneralUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
         floorModel = builder.end()
     }
@@ -205,7 +205,7 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addExtSea(width: Int, depth: Int, x: Float, z: Float) {
-        val modelInstance = GameModelInstance(ModelInstance(floorModel))
+        val modelInstance = GameModelInstance(ModelInstance(floorModel), definition = null)
         createAndAddGroundTileEntity(
             modelInstance,
             auxVector1.set(x, 0F, z)
@@ -240,7 +240,10 @@ class MapSystem : GameEntitySystem() {
                 addSeaTile(
                     row,
                     col,
-                    GameModelInstance(ModelInstance(floorModel))
+                    GameModelInstance(
+                        ModelInstance(floorModel),
+                        definition = null
+                    )
                 )
             }
         }
@@ -269,7 +272,7 @@ class MapSystem : GameEntitySystem() {
             modelInstance.modelInstance.materials.get(0)
                 .get(TextureAttribute.Diffuse) as TextureAttribute
         val texture =
-            services.assetsManager.getAssetByDefinition(beachTiles[current.code - '0'.code])
+            managers.assetsManager.getAssetByDefinition(beachTiles[current.code - '0'.code])
         texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
         textureAttribute.set(TextureRegion(texture))
     }
@@ -296,18 +299,21 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addAmbModelObject(
-        am: GameAssetManager,
         position: Vector3,
         def: AmbDefinition,
+        direction: Int,
     ) {
         val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
         val scale = auxVector1.set(randomScale, randomScale, randomScale)
-        val model = am.getAssetByDefinition(def.getModelDefinition())
+        val modelDefinition = def.getModelDefinition()
+        val model = managers.assetsManager.getAssetByDefinition(modelDefinition)
+        val modelInstance = ModelInstance(model)
         val entity = EntityBuilder.begin()
             .addModelInstanceComponent(
-                GameModelInstance(ModelInstance(model)),
+                GameModelInstance(modelInstance, definition = modelDefinition),
                 position,
                 true,
+                direction.toFloat()
             )
             .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F, def)
             .finishAndAddToEngine()

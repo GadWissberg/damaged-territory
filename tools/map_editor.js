@@ -116,10 +116,9 @@ class MapEditor {
                             for (var i = 0; i < inputMapObject.tiles.length; i++) {
                                 var cell = table.rows[Math.floor(i / self.map_size)].cells[i % self.map_size];
                                 var placedTile = tiles[inputMapObject.tiles.charAt(i)];
+                                cell.cellData = new CellData();
                                 applyTileOnCell(cell, placedTile)
                                 cell.style.backgroundColor = placedTile.tile;
-                                cell.cellData = new CellData();
-                                cell.cellData.tile = placedTile;
                             }
                         }
                     };
@@ -168,6 +167,7 @@ class MapEditor {
                     var tilesString = "";
                     for (var row = 0; row < table.rows.length; row++) {
                         for (var col = 0; col < table.rows[row].cells.length; col++) {
+                            debugger
                             var currentTile = 0;
                             var cellData = table.rows[row].cells[col].cellData;
                             if (cellData != null && cellData.selectedTile != null) {
@@ -238,7 +238,7 @@ class MapEditor {
         var self = this;
         var leftClick = input == "click";
         if (selectedMode == Modes.TILES) {
-            this.applyTileChangeInCell(leftClick, cellData, cell, row, col);
+            this.applyTileChangeInCell(cellData, cell, row, col);
         } else if (selectedMode == Modes.OBJECTS) {
             applyElementChangeInCell();
         }
@@ -267,7 +267,7 @@ class MapEditor {
     }
 
 
-    applyTileChangeInCell(leftClick, cellData, cell, row, col) {
+    applyTileChangeInCell(cellData, cell, row, col) {
         cellData.value = 1;
         applyTileOnCell(cell, 'tile_beach')
         for (let adjRow = row - 1; adjRow < row + 2; adjRow++) {

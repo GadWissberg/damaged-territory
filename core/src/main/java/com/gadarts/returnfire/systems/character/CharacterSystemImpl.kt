@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GeneralUtils
-import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -33,15 +33,15 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY to CharacterSystemOnPlayerWeaponShotSecondary(this),
     )
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         ambSoundEntities = engine!!.getEntitiesFor(Family.all(AmbSoundComponent::class.java).get())
         engine.addEntityListener(object : EntityListener {
             override fun entityAdded(entity: Entity?) {
                 if (ComponentsMapper.ambSound.has(entity)) {
                     val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
                     if (ambSoundComponent.soundId == -1L) {
-                        val id = services.soundPlayer.loopSound(ambSoundComponent.sound)
+                        val id = managers.soundPlayer.loopSound(ambSoundComponent.sound)
                         ambSoundComponent.soundId = id
                     }
                 }

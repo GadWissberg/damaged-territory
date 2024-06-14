@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 @Suppress("GDXKotlinProfilingCode")
@@ -26,8 +26,8 @@ class ProfilingSystem : GameEntitySystem() {
         gameSessionData.stage.dispose()
     }
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         glProfiler = GLProfiler(Gdx.graphics)
         setGlProfiler()
         addLabel()

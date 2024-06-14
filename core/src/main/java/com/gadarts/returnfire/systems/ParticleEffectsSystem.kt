@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.BaseParticleEffectComponent
@@ -32,15 +32,15 @@ class ParticleEffectsSystem : GameEntitySystem() {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                services: Services
+                managers: Managers
             ) {
-                services.soundPlayer.play(
-                    services.assetsManager.getAssetByDefinition(
+                managers.soundPlayer.play(
+                    managers.assetsManager.getAssetByDefinition(
                         SoundDefinition.EXPLOSION
                     )
                 )
                 EntityBuilder.begin().addParticleEffectComponent(
-                    services.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
+                    managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
                     ComponentsMapper.modelInstance.get(msg.extraInfo as Entity).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
                     )
@@ -56,13 +56,13 @@ class ParticleEffectsSystem : GameEntitySystem() {
         gameSessionData.particleSystem.add(billboardParticleBatch)
     }
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         this.gameSessionData.particleSystem = ParticleSystem()
         billboardParticleBatch = BillboardParticleBatch()
         billboardParticleBatch.blendingAttribute.sourceFunction = GL20.GL_SRC_ALPHA
         billboardParticleBatch.blendingAttribute.destFunction = GL20.GL_ONE_MINUS_SRC_ALPHA
-        services.assetsManager.loadParticleEffects(billboardParticleBatch)
+        managers.assetsManager.loadParticleEffects(billboardParticleBatch)
         particleEffectsEntities = engine.getEntitiesFor(
             Family.one(
                 IndependentParticleEffectComponent::class.java,

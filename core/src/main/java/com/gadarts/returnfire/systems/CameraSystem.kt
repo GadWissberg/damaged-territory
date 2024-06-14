@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.PlayerComponent
 import com.gadarts.returnfire.systems.events.SystemEvents
@@ -29,8 +29,8 @@ class CameraSystem : GameEntitySystem() {
     override fun dispose() {
     }
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         initializeCamera()
     }
 

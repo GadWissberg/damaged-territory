@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.math.collision.Sphere
-import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.components.bullet.BulletBehavior
@@ -26,8 +26,8 @@ class BulletSystem : GameEntitySystem() {
 
     private lateinit var bulletEntities: ImmutableArray<Entity>
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         bulletEntities = engine.getEntitiesFor(Family.all(BulletComponent::class.java).get())
     }
 
@@ -65,7 +65,7 @@ class BulletSystem : GameEntitySystem() {
             modelInstance.modelInstance.transform.getTranslation(auxVector),
             prevRow,
             prevCol,
-            services.dispatcher
+            managers.dispatcher
         )
     }
 

@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.Services
+import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.TextureDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
@@ -29,12 +29,12 @@ class HudSystem : GameEntitySystem() {
             pointer: Int,
             button: Int
         ): Boolean {
-            services.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED.ordinal)
+            managers.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            services.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED.ordinal)
+            managers.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
@@ -46,18 +46,18 @@ class HudSystem : GameEntitySystem() {
             pointer: Int,
             button: Int
         ): Boolean {
-            services.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED.ordinal)
+            managers.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            services.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED.ordinal)
+            managers.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         val ui = addUiTable()
         if (gameSessionData.runsOnMobile) {
             addJoystick(ui)
@@ -83,17 +83,17 @@ class HudSystem : GameEntitySystem() {
         clickListener: ClickListener
     ) {
         val up = TextureRegionDrawable(
-            services.assetsManager.getAssetByDefinition(
+            managers.assetsManager.getAssetByDefinition(
                 TextureDefinition.BUTTON_UP
             )
         )
         val down = TextureRegionDrawable(
-            services.assetsManager.getAssetByDefinition(
+            managers.assetsManager.getAssetByDefinition(
                 TextureDefinition.BUTTON_DOWN
             )
         )
         val icon =
-            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(iconDefinition))
+            TextureRegionDrawable(managers.assetsManager.getAssetByDefinition(iconDefinition))
         val button = ImageButton(ImageButton.ImageButtonStyle(up, down, null, icon, null, null))
         ui.add(button)
         if (rightPadding != 0F) {
@@ -104,7 +104,7 @@ class HudSystem : GameEntitySystem() {
 
     private fun addJoystick(ui: Table) {
         val joystickTexture =
-            services.assetsManager.getAssetByDefinition(TextureDefinition.JOYSTICK)
+            managers.assetsManager.getAssetByDefinition(TextureDefinition.JOYSTICK)
         ui.add(gameSessionData.touchpad)
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
             .pad(0F, JOYSTICK_PADDING_LEFT, 64F, 0F)

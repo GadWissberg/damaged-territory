@@ -67,7 +67,8 @@ class MapLoader(resolver: FileHandleResolver) :
             }
             val row = asJsonObject.get(KEY_ROW).asInt
             val col = asJsonObject.get(KEY_COL).asInt
-            PlacedElement(definition!!, row, col)
+            val direction = asJsonObject.get(KEY_DIRECTION).asInt
+            PlacedElement(definition!!, row, col, direction)
         }
     }
 
@@ -78,6 +79,7 @@ class MapLoader(resolver: FileHandleResolver) :
         private const val KEY_DEFINITION = "definition"
         private const val KEY_ROW = "row"
         private const val KEY_COL = "col"
+        private const val KEY_DIRECTION = "direction"
         private const val KEY_SIZE = "size"
     }
 

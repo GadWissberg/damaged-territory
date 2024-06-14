@@ -42,11 +42,13 @@ class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean
     )
     val priBulletsPool: BulletsPool = BulletsPool(
         assetsManager.getAssetByDefinition(ModelDefinition.BULLET),
-        BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.BULLET))
+        BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.BULLET)),
+        ModelDefinition.BULLET
     )
     val secBulletsPool: BulletsPool = BulletsPool(
         assetsManager.getAssetByDefinition(ModelDefinition.MISSILE),
-        BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE))
+        BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE)),
+        ModelDefinition.MISSILE
     )
     lateinit var particleSystem: ParticleSystem
 

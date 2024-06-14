@@ -21,12 +21,8 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.Services
-import com.gadarts.returnfire.components.ArmComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GroundComponent
-import com.gadarts.returnfire.components.IndependentDecalComponent
-import com.gadarts.returnfire.components.ModelInstanceComponent
+import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
@@ -47,8 +43,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         initializeDirectionalLightAndShadows()
         renderSystemRelatedEntities = RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(

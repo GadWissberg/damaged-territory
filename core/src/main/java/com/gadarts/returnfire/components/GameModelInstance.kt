@@ -3,11 +3,13 @@ package com.gadarts.returnfire.components
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
 
 
 class GameModelInstance(
     val modelInstance: ModelInstance,
-    boundingBox: BoundingBox? = null
+    val definition: ModelDefinition?,
+    boundingBox: BoundingBox? = null,
 ) {
     var isSphere: Boolean = false
         private set
@@ -22,6 +24,10 @@ class GameModelInstance(
 
     fun getBoundingBox(auxBox: BoundingBox): BoundingBox {
         return auxBox.set(boundingBox)
+    }
+
+    override fun toString(): String {
+        return definition.toString()
     }
 
     fun calculateBoundingBox() {
