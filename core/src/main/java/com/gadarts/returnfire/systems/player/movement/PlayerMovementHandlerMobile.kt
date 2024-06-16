@@ -136,7 +136,7 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         ComponentsMapper.player.get(player).setCurrentVelocity(currentVelocity)
     }
 
-    override fun onTouchUp(player: Entity, keycode: Int) {
+    override fun onTouchUp(keycode: Int) {
         thrustVelocity.setZero()
     }
 

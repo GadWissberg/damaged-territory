@@ -10,7 +10,7 @@ import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.hud.HudSystem
 import com.gadarts.returnfire.systems.map.MapSystem
-import com.gadarts.returnfire.systems.player.PlayerSystem
+import com.gadarts.returnfire.systems.player.PlayerSystemImpl
 import com.gadarts.returnfire.systems.render.RenderSystem
 
 class GamePlayScreen(
@@ -25,7 +25,7 @@ class GamePlayScreen(
     private lateinit var engine: PooledEngine
     private val systems: List<GameEntitySystem> = listOf(
         CharacterSystemImpl(),
-        PlayerSystem(),
+        PlayerSystemImpl(),
         RenderSystem(),
         CameraSystem(),
         HudSystem(),

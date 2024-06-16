@@ -36,7 +36,7 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler(0F) {
         ComponentsMapper.player.get(player).setCurrentVelocity(currentVelocity)
     }
 
-    override fun onTouchUp(player: Entity, keycode: Int) {
+    override fun onTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 thrustVelocity.setZero()

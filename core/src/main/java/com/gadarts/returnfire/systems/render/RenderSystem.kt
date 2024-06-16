@@ -33,13 +33,11 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
-    private lateinit var decalBatch: DecalBatch
-    private lateinit var modelBatch: ModelBatch
     private lateinit var renderSystemRelatedEntities: RenderSystemRelatedEntities
     private var axisModelHandler = AxisModelHandler()
     private lateinit var shadowLight: DirectionalShadowLight
     private lateinit var environment: Environment
-    private lateinit var shadowBatch: ModelBatch
+    private lateinit var renderSystemBatches: RenderSystemBatches
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
@@ -56,21 +54,26 @@ class RenderSystem : GameEntitySystem(), Disposable {
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get())
         )
-        decalBatch = DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.camera))
-        modelBatch = ModelBatch()
+        renderSystemBatches =
+            RenderSystemBatches(
+                DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.camera)),
+                ModelBatch(),
+                ModelBatch(DepthShaderProvider())
+            )
     }
 
     override fun update(deltaTime: Float) {
         shadowLight.begin(Vector3.Zero, gameSessionData.camera.direction)
         renderModels(
-            shadowBatch, shadowLight.camera,
+            renderSystemBatches.shadowBatch,
+            shadowLight.camera,
             applyEnvironment = false,
             renderParticleEffects = false
         )
         shadowLight.end()
         resetDisplay()
         renderModels(
-            modelBatch,
+            renderSystemBatches.modelBatch,
             gameSessionData.camera,
             applyEnvironment = true,
             renderParticleEffects = true
@@ -83,8 +86,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     override fun dispose() {
-        modelBatch.dispose()
-        shadowBatch.dispose()
+        renderSystemBatches.dispose()
         shadowLight.dispose()
     }
 
@@ -108,7 +110,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
         shadowLight.set(dirValue, dirValue, dirValue, 40.0f, -35f, -35f)
         environment.add(shadowLight)
         environment.shadowMap = shadowLight
-        shadowBatch = ModelBatch(DepthShaderProvider())
     }
 
     private fun resetDisplay() {
@@ -129,7 +130,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
             renderChildren(entity, deltaTime)
         }
         renderIndependentDecals()
-        decalBatch.flush()
+        renderSystemBatches.decalBatch.flush()
         Gdx.gl.glDepthMask(true)
     }
 
@@ -137,7 +138,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         for (entity in renderSystemRelatedEntities.decalEntities) {
             val decal = ComponentsMapper.independentDecal.get(entity).decal
             faceDecalToCamera(decal)
-            decalBatch.add(decal)
+            renderSystemBatches.decalBatch.add(decal)
         }
     }
 
@@ -181,7 +182,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
             batch.render(gameSessionData.modelCache)
         }
         if (renderParticleEffects) {
-            modelBatch.render(gameSessionData.particleSystem, environment)
+            renderSystemBatches.modelBatch.render(gameSessionData.particleSystem, environment)
         }
         batch.end()
     }
@@ -194,7 +195,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
                 armComp.sparkDecal.textureRegion = frame
             }
             faceDecalToCamera(armComp.sparkDecal)
-            decalBatch.add(armComp.sparkDecal)
+            renderSystemBatches.decalBatch.add(armComp.sparkDecal)
         }
     }
 
@@ -240,7 +241,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         child.decal.rotateZ(child.rotationStep.angleDeg())
         child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
         child.decal.position = parentPosition
-        decalBatch.add(child.decal)
+        renderSystemBatches.decalBatch.add(child.decal)
     }
 
     companion object {

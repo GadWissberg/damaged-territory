@@ -15,20 +15,11 @@ import com.gadarts.returnfire.systems.player.TiltAnimationHandler
 import kotlin.math.floor
 
 abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold: Float) {
+
     protected val thrustVelocity: Vector2 = Vector2(desiredVelocitySizeThreshold, 0F)
     protected var tiltAnimationHandler = TiltAnimationHandler()
 
     private val prevPos = Vector3()
-
-    private fun clampPosition(
-        transform: Matrix4,
-        currentMap: GameMap,
-    ) {
-        val newPos = transform.getTranslation(auxVector3_1)
-        newPos.x = MathUtils.clamp(newPos.x, 0F, currentMap.tilesMapping.size.toFloat())
-        newPos.z = MathUtils.clamp(newPos.z, 0F, currentMap.tilesMapping[0].size.toFloat())
-        transform.setTranslation(newPos)
-    }
 
     protected fun takeStep(
         player: Entity,
@@ -47,6 +38,38 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
             dispatcher,
             velocity
         )
+    }
+
+    abstract fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2)
+
+    abstract fun onTouchUp(keycode: Int = -1)
+
+    abstract fun initialize(camera: PerspectiveCamera)
+
+    abstract fun thrust(
+        player: Entity,
+        directionX: Float = 0F,
+        directionY: Float = 0F,
+        reverse: Boolean = false
+    )
+
+    abstract fun update(
+        player: Entity,
+        deltaTime: Float,
+        currentMap: GameMap,
+        dispatcher: MessageDispatcher
+    )
+
+    abstract fun rotate(player: Entity, clockwise: Int)
+
+    private fun clampPosition(
+        transform: Matrix4,
+        currentMap: GameMap,
+    ) {
+        val newPos = transform.getTranslation(auxVector3_1)
+        newPos.x = MathUtils.clamp(newPos.x, 0F, currentMap.tilesMapping.size.toFloat())
+        newPos.z = MathUtils.clamp(newPos.z, 0F, currentMap.tilesMapping[0].size.toFloat())
+        transform.setTranslation(newPos)
     }
 
     private fun applyMovement(
@@ -88,28 +111,6 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
             dispatcher
         )
     }
-
-    abstract fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2)
-
-
-    abstract fun onTouchUp(player: Entity, keycode: Int = -1)
-
-    abstract fun initialize(camera: PerspectiveCamera)
-    abstract fun thrust(
-        player: Entity,
-        directionX: Float = 0F,
-        directionY: Float = 0F,
-        reverse: Boolean = false
-    )
-
-    abstract fun update(
-        player: Entity,
-        deltaTime: Float,
-        currentMap: GameMap,
-        dispatcher: MessageDispatcher
-    )
-
-    abstract fun rotate(player: Entity, clockwise: Int)
 
     companion object {
         private val auxVector3_1 = Vector3()
