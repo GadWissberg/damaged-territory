@@ -71,13 +71,14 @@ class CameraSystem : GameEntitySystem() {
         gameSessionData.camera.near = NEAR
         gameSessionData.camera.far = FAR
         gameSessionData.camera.update()
-        gameSessionData.camera.position.set(0F, INITIAL_Y, Z_OFFSET)
-        gameSessionData.camera.rotate(Vector3.X, -45F)
         val get = ComponentsMapper.modelInstance.get(gameSessionData.player)
+        val playerPosition = get.gameModelInstance.modelInstance.transform.getTranslation(
+            auxVector3_1
+        )
+        gameSessionData.camera.position.set(playerPosition.x, INITIAL_Y, playerPosition.z + Z_OFFSET)
+        gameSessionData.camera.rotate(Vector3.X, -45F)
         gameSessionData.camera.lookAt(
-            get.gameModelInstance.modelInstance.transform.getTranslation(
-                auxVector3_1
-            )
+            playerPosition
         )
     }
 
@@ -85,7 +86,7 @@ class CameraSystem : GameEntitySystem() {
         private const val NEAR = 0.1F
         private const val FAR = 300F
         private const val INITIAL_Y = 8F
-        private const val Z_OFFSET = 4F
+        private const val Z_OFFSET = 2F
         private val auxVector2 = Vector2()
         private val auxVector3_1 = Vector3()
         private val auxQuat = Quaternion()

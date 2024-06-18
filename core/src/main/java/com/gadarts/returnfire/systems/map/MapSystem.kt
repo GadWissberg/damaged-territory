@@ -25,7 +25,6 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharactersDefinitions
-import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
@@ -76,11 +75,11 @@ class MapSystem : GameEntitySystem() {
             Array(tilesMapping.size / REGION_SIZE) { arrayOfNulls(tilesMapping[0].size / REGION_SIZE) }
         floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.modelCache = ModelCache()
-        addBackgroundSea()
+        addFloor()
         gameSessionData.currentMap.placedElements.forEach {
             if (it.definition != CharactersDefinitions.PLAYER) {
                 addAmbModelObject(
-                    auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
+                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
                     it.definition as AmbDefinition,
                     it.direction
                 )
@@ -183,12 +182,12 @@ class MapSystem : GameEntitySystem() {
         floorModel = builder.end()
     }
 
-    private fun addBackgroundSea() {
+    private fun addFloor() {
         gameSessionData.modelCache.begin()
         val tilesMapping = gameSessionData.currentMap.tilesMapping
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
-        addSeaRegion(depth, width)
+        addFloorRegion(depth, width)
         addAllExternalSea(width, depth)
         gameSessionData.modelCache.end()
     }
@@ -231,13 +230,13 @@ class MapSystem : GameEntitySystem() {
         textureAttribute.scaleV = depth.toFloat()
     }
 
-    private fun addSeaRegion(
+    private fun addFloorRegion(
         rows: Int,
         cols: Int,
     ) {
         for (row in 0 until rows) {
             for (col in 0 until cols) {
-                addSeaTile(
+                addFloorTile(
                     row,
                     col,
                     GameModelInstance(
@@ -249,7 +248,7 @@ class MapSystem : GameEntitySystem() {
         }
     }
 
-    private fun addSeaTile(
+    private fun addFloorTile(
         row: Int,
         col: Int,
         modelInstance: GameModelInstance
@@ -259,22 +258,30 @@ class MapSystem : GameEntitySystem() {
             auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
         )
         gameSessionData.modelCache.add(modelInstance.modelInstance)
-        var current = GameMap.TILE_TYPE_EMPTY
-        if (row >= 0
+        var textureDefinition: TextureDefinition? = null
+        val playerPosition =
+            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        if (playerPosition.x.toInt() == row && playerPosition.z.toInt() == col) {
+            textureDefinition = TextureDefinition.BASE_DOOR
+        } else if (row >= 0
             && col >= 0
             && row < gameSessionData.currentMap.tilesMapping.size
             && col < gameSessionData.currentMap.tilesMapping[0].size
         ) {
-            current = gameSessionData.currentMap.tilesMapping[row][col]
             floors[row][col] = entity
+            textureDefinition = beachTiles[gameSessionData.currentMap.tilesMapping[row][col].code - '0'.code]
         }
-        val textureAttribute =
-            modelInstance.modelInstance.materials.get(0)
-                .get(TextureAttribute.Diffuse) as TextureAttribute
-        val texture =
-            managers.assetsManager.getAssetByDefinition(beachTiles[current.code - '0'.code])
-        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-        textureAttribute.set(TextureRegion(texture))
+        if (textureDefinition != null) {
+            val textureAttribute =
+                modelInstance.modelInstance.materials.get(0)
+                    .get(TextureAttribute.Diffuse) as TextureAttribute
+            val texture =
+                managers.assetsManager.getAssetByDefinition(textureDefinition)
+            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+            textureAttribute.set(TextureRegion(texture))
+        }
     }
 
     private fun createAndAddGroundTileEntity(

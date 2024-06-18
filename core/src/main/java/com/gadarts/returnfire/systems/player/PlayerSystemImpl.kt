@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.TextureDefinition
@@ -19,6 +20,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.cd.ChildDecal
+import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
@@ -97,7 +99,10 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private fun addPlayer(): Entity {
         EntityBuilder.initialize(managers.engine)
+        val map = managers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
         val apacheModel = managers.assetsManager.getAssetByDefinition(ModelDefinition.APACHE)
+        val placedPlayer =
+            map.placedElements.find { placedElement -> placedElement.definition == CharactersDefinitions.PLAYER }
         val entityBuilder =
             EntityBuilder.begin()
                 .addModelInstanceComponent(
@@ -106,7 +111,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                         ModelDefinition.APACHE,
                         managers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE),
                     ),
-                    auxVector3_1.set(0F, PLAYER_HEIGHT, 2F),
+                    auxVector3_1.set(placedPlayer!!.col.toFloat(), PLAYER_HEIGHT, placedPlayer.row.toFloat()),
                     false
                 )
         if (GameDebugSettings.DISPLAY_PROPELLER) {

@@ -167,7 +167,6 @@ class MapEditor {
                     var tilesString = "";
                     for (var row = 0; row < table.rows.length; row++) {
                         for (var col = 0; col < table.rows[row].cells.length; col++) {
-                            debugger
                             var currentTile = 0;
                             var cellData = table.rows[row].cells[col].cellData;
                             if (cellData != null && cellData.selectedTile != null) {

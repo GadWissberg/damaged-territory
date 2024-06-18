@@ -10,8 +10,8 @@
     {
       "definition": "PLAYER",
       "direction": 0,
-      "row": 5,
-      "col": 2
+      "row": 4,
+      "col": 4
     },
     {
       "definition": "WATCH_TOWER",

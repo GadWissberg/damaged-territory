@@ -11,11 +11,6 @@ enum class TextureDefinition(fileNames: Int = 1, ninepatch: Boolean = false) :
     PROPELLER_BLURRED,
     SPARK(3),
     SAND_DEC(4),
-    VERTICAL,
-    HORIZONTAL,
-    CROSS(2),
-    HORIZONTAL_BOTTOM(2),
-    HORIZONTAL_TOP(2),
     VERTICAL_LEFT(2),
     VERTICAL_RIGHT(2),
     LEFT_TO_BOTTOM(2),
@@ -40,7 +35,8 @@ enum class TextureDefinition(fileNames: Int = 1, ninepatch: Boolean = false) :
     JOYSTICK,
     JOYSTICK_CENTER,
     ICON_BULLETS,
-    ICON_MISSILES;
+    ICON_MISSILES,
+    BASE_DOOR;
 
 
     private val paths = ArrayList<String>()
