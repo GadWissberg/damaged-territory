@@ -55,7 +55,7 @@ class ProfilingSystem : GameEntitySystem() {
             displayLine(LABEL_FPS, Gdx.graphics.framesPerSecond)
             displayGlProfiling()
             displayBatchCalls()
-            displayLine("Version: ", "0.1")
+            displayLine("Version: ", "0.2")
             label.setText(stringBuilder)
         }
     }
