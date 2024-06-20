@@ -13,15 +13,7 @@ const Modes = Object.freeze({
 const ElementsDefinitions = Object.freeze([
     "PLAYER",
     "PALM_TREE",
-    "ROCK",
-    "BUILDING",
-    "FENCE",
-    "LIGHT_POLE",
-    "BARRIER",
-    "CABIN",
-    "CAR",
     "GUARD_HOUSE",
-    "ANTENNA",
     "WATCH_TOWER",
     "BUILDING_FLAG"
 ]);
