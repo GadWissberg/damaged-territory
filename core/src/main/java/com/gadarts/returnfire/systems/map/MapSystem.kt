@@ -271,7 +271,7 @@ class MapSystem : GameEntitySystem() {
             && col < gameSessionData.currentMap.tilesMapping[0].size
         ) {
             floors[row][col] = entity
-            textureDefinition = beachTiles[gameSessionData.currentMap.tilesMapping[row][col].code - '0'.code]
+            textureDefinition = beachTiles[gameSessionData.currentMap.tilesMapping[row][col].toString().toInt(16)]
         }
         if (textureDefinition != null) {
             val textureAttribute =
@@ -347,6 +347,7 @@ class MapSystem : GameEntitySystem() {
         private val beachTiles = listOf(
             TextureDefinition.TILE_WATER,
             TextureDefinition.TILE_BEACH_BOTTOM_RIGHT,
+            TextureDefinition.TILE_BEACH_GULF_BOTTOM_RIGHT,
             TextureDefinition.TILE_BEACH_BOTTOM,
             TextureDefinition.TILE_BEACH_BOTTOM_LEFT,
             TextureDefinition.TILE_BEACH_RIGHT,

@@ -37,6 +37,9 @@ const CLASS_NAME_CELL_CONTENTS = "cellContents";
 
 tilesMaskMapping = [];
 tilesMaskMapping[0b11010000] = 'tile_beach_bottom_right'
+tilesMaskMapping[0b11010100] = 'tile_beach_bottom_right'
+tilesMaskMapping[0b11110000] = 'tile_beach_bottom_right'
+tilesMaskMapping[0b11111110] = 'tile_beach_gulf_bottom_right'
 tilesMaskMapping[0b11111000] = 'tile_beach_bottom'
 tilesMaskMapping[0b01101000] = 'tile_beach_bottom_left'
 tilesMaskMapping[0b11010110] = 'tile_beach_right'
@@ -48,6 +51,7 @@ tilesMaskMapping[0b11111111] = 'tile_beach'
 const tiles = [
     'tile_water',
     'tile_beach_bottom_right',
+    'tile_beach_gulf_bottom_right',
     'tile_beach_bottom',
     'tile_beach_bottom_left',
     'tile_beach_right',
@@ -164,7 +168,7 @@ class MapEditor {
                             if (cellData != null && cellData.selectedTile != null) {
                                 let result = tiles.find(str => str === cellData.selectedTile);
                                 if (result) {
-                                    currentTile = tiles.indexOf(result)
+                                    currentTile =  tiles.indexOf(result).toString(16)
                                 }
                             }
                             tilesString += currentTile;
