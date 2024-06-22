@@ -29,6 +29,7 @@ enum class TextureDefinition(fileNames: Int = 1, ninepatch: Boolean = false) :
     TILE_BEACH_BOTTOM_LEFT,
     TILE_BEACH_TOP_LEFT,
     TILE_BEACH_TOP_RIGHT,
+    TILE_BEACH_GULF_TOP_RIGHT,
     TILE_BEACH_TOP,
     TILE_BEACH_RIGHT,
     TILE_BEACH_LEFT,

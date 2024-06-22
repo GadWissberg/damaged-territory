@@ -43,9 +43,13 @@ tilesMaskMapping[0b11111110] = 'tile_beach_gulf_bottom_right'
 tilesMaskMapping[0b11111000] = 'tile_beach_bottom'
 tilesMaskMapping[0b01101000] = 'tile_beach_bottom_left'
 tilesMaskMapping[0b11010110] = 'tile_beach_right'
+tilesMaskMapping[0b11110110] = 'tile_beach_right'
 tilesMaskMapping[0b01101011] = 'tile_beach_left'
 tilesMaskMapping[0b00010110] = 'tile_beach_top_right'
+tilesMaskMapping[0b10010110] = 'tile_beach_top_right'
+tilesMaskMapping[0b11011111] = 'tile_beach_gulf_top_right'
 tilesMaskMapping[0b00011111] = 'tile_beach_top'
+tilesMaskMapping[0b10011111] = 'tile_beach_top'
 tilesMaskMapping[0b00001011] = 'tile_beach_top_left'
 tilesMaskMapping[0b11111111] = 'tile_beach'
 const tiles = [
@@ -57,6 +61,7 @@ const tiles = [
     'tile_beach_right',
     'tile_beach_left',
     'tile_beach_top_right',
+    'tile_beach_gulf_top_right',
     'tile_beach_top',
     'tile_beach_top_left',
     'tile_beach',
