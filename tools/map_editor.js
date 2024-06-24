@@ -39,18 +39,40 @@ tilesMaskMapping = [];
 tilesMaskMapping[0b11010000] = 'tile_beach_bottom_right'
 tilesMaskMapping[0b11010100] = 'tile_beach_bottom_right'
 tilesMaskMapping[0b11110000] = 'tile_beach_bottom_right'
-tilesMaskMapping[0b11111110] = 'tile_beach_gulf_bottom_right'
+tilesMaskMapping[0b11111110] = 'tile_beach_gulf_bottom_right'// 11111100
 tilesMaskMapping[0b11111000] = 'tile_beach_bottom'
+tilesMaskMapping[0b11111001] = 'tile_beach_bottom'
+tilesMaskMapping[0b11111100] = 'tile_beach_bottom'
+tilesMaskMapping[0b11101000] = 'tile_beach_bottom_left' //01101-000
+tilesMaskMapping[0b11101001] = 'tile_beach_bottom_left'
 tilesMaskMapping[0b01101000] = 'tile_beach_bottom_left'
+tilesMaskMapping[0b01101001] = 'tile_beach_bottom_left'
+tilesMaskMapping[0b01101100] = 'tile_beach_bottom_left'
+tilesMaskMapping[0b01101110] = 'tile_beach_bottom_left'
+tilesMaskMapping[0b01101110] = 'tile_beach_bottom_left'
+tilesMaskMapping[0b11111011] = 'tile_beach_gulf_bottom_left'
 tilesMaskMapping[0b11010110] = 'tile_beach_right'
 tilesMaskMapping[0b11110110] = 'tile_beach_right'
+tilesMaskMapping[0b11010110] = 'tile_beach_right'
+tilesMaskMapping[0b11110111] = 'tile_beach_right'
+tilesMaskMapping[0b11010111] = 'tile_beach_right'
 tilesMaskMapping[0b01101011] = 'tile_beach_left'
+tilesMaskMapping[0b01101111] = 'tile_beach_left'
+tilesMaskMapping[0b11101011] = 'tile_beach_left'
 tilesMaskMapping[0b00010110] = 'tile_beach_top_right'
 tilesMaskMapping[0b10010110] = 'tile_beach_top_right'
+tilesMaskMapping[0b00010111] = 'tile_beach_top_right'
+tilesMaskMapping[0b10010111] = 'tile_beach_top_right'
 tilesMaskMapping[0b11011111] = 'tile_beach_gulf_top_right'
 tilesMaskMapping[0b00011111] = 'tile_beach_top'
 tilesMaskMapping[0b10011111] = 'tile_beach_top'
+tilesMaskMapping[0b00111111] = 'tile_beach_top'
+tilesMaskMapping[0b10111111] = 'tile_beach_top'
 tilesMaskMapping[0b00001011] = 'tile_beach_top_left'
+tilesMaskMapping[0b00101011] = 'tile_beach_top_left'
+tilesMaskMapping[0b00001111] = 'tile_beach_top_left'
+tilesMaskMapping[0b00101111] = 'tile_beach_top_left'
+tilesMaskMapping[0b01111111] = 'tile_beach_gulf_top_left'
 tilesMaskMapping[0b11111111] = 'tile_beach'
 const tiles = [
     'tile_water',
@@ -58,12 +80,14 @@ const tiles = [
     'tile_beach_gulf_bottom_right',
     'tile_beach_bottom',
     'tile_beach_bottom_left',
+    'tile_beach_gulf_bottom_left',
     'tile_beach_right',
     'tile_beach_left',
     'tile_beach_top_right',
     'tile_beach_gulf_top_right',
     'tile_beach_top',
     'tile_beach_top_left',
+    'tile_beach_gulf_top_left',
     'tile_beach',
 ]
 class MapEditor {
