@@ -35,43 +35,32 @@ const DIV_ID_DIRECTION = "direction";
 const DIV_ID_CELL_CONTENTS = "cell_contents";
 const CLASS_NAME_CELL_CONTENTS = "cellContents";
 
+maskIndices = [0b11111111,
+               0b01111111,
+               0b11011111,
+               0b11111011,
+               0b11111110,
+               0b00011111,
+               0b01101011,
+               0b11010110,
+               0b11111000,
+               0b00001011,
+               0b00010110,
+               0b01101000,
+               0b11010000]
+
 tilesMaskMapping = [];
 tilesMaskMapping[0b11010000] = 'tile_beach_bottom_right'
-tilesMaskMapping[0b11010100] = 'tile_beach_bottom_right'
-tilesMaskMapping[0b11110000] = 'tile_beach_bottom_right'
-tilesMaskMapping[0b11111110] = 'tile_beach_gulf_bottom_right'// 11111100
-tilesMaskMapping[0b11111000] = 'tile_beach_bottom'
-tilesMaskMapping[0b11111001] = 'tile_beach_bottom'
-tilesMaskMapping[0b11111100] = 'tile_beach_bottom'
-tilesMaskMapping[0b11101000] = 'tile_beach_bottom_left' //01101-000
-tilesMaskMapping[0b11101001] = 'tile_beach_bottom_left'
 tilesMaskMapping[0b01101000] = 'tile_beach_bottom_left'
-tilesMaskMapping[0b01101001] = 'tile_beach_bottom_left'
-tilesMaskMapping[0b01101100] = 'tile_beach_bottom_left'
-tilesMaskMapping[0b01101110] = 'tile_beach_bottom_left'
-tilesMaskMapping[0b01101110] = 'tile_beach_bottom_left'
-tilesMaskMapping[0b11111011] = 'tile_beach_gulf_bottom_left'
-tilesMaskMapping[0b11010110] = 'tile_beach_right'
-tilesMaskMapping[0b11110110] = 'tile_beach_right'
-tilesMaskMapping[0b11010110] = 'tile_beach_right'
-tilesMaskMapping[0b11110111] = 'tile_beach_right'
-tilesMaskMapping[0b11010111] = 'tile_beach_right'
-tilesMaskMapping[0b01101011] = 'tile_beach_left'
-tilesMaskMapping[0b01101111] = 'tile_beach_left'
-tilesMaskMapping[0b11101011] = 'tile_beach_left'
 tilesMaskMapping[0b00010110] = 'tile_beach_top_right'
-tilesMaskMapping[0b10010110] = 'tile_beach_top_right'
-tilesMaskMapping[0b00010111] = 'tile_beach_top_right'
-tilesMaskMapping[0b10010111] = 'tile_beach_top_right'
-tilesMaskMapping[0b11011111] = 'tile_beach_gulf_top_right'
-tilesMaskMapping[0b00011111] = 'tile_beach_top'
-tilesMaskMapping[0b10011111] = 'tile_beach_top'
-tilesMaskMapping[0b00111111] = 'tile_beach_top'
-tilesMaskMapping[0b10111111] = 'tile_beach_top'
 tilesMaskMapping[0b00001011] = 'tile_beach_top_left'
-tilesMaskMapping[0b00101011] = 'tile_beach_top_left'
-tilesMaskMapping[0b00001111] = 'tile_beach_top_left'
-tilesMaskMapping[0b00101111] = 'tile_beach_top_left'
+tilesMaskMapping[0b11111000] = 'tile_beach_bottom'
+tilesMaskMapping[0b11010110] = 'tile_beach_right'
+tilesMaskMapping[0b01101011] = 'tile_beach_left'
+tilesMaskMapping[0b00011111] = 'tile_beach_top'
+tilesMaskMapping[0b11111110] = 'tile_beach_gulf_bottom_right'
+tilesMaskMapping[0b11111011] = 'tile_beach_gulf_bottom_left'
+tilesMaskMapping[0b11011111] = 'tile_beach_gulf_top_right'
 tilesMaskMapping[0b01111111] = 'tile_beach_gulf_top_left'
 tilesMaskMapping[0b11111111] = 'tile_beach'
 const tiles = [
@@ -307,9 +296,21 @@ class MapEditor {
             for (let adjCol = col - 1; adjCol < col + 2; adjCol++) {
                 if (adjRow >= 0 && adjRow < this.map_size && adjCol >= 0 && adjCol < this.map_size && (adjRow != row || adjCol != col)) {
                     var adjCell = table.rows[adjRow].cells[adjCol]
-                    applyTileOnCell(adjCell, tilesMaskMapping[this.calculateMask(adjRow, adjCol)])
-                }
+                    const mask = this.calculateMask(adjRow, adjCol)
+                    var tile = tilesMaskMapping[mask]
+                    if (!tile){
+                        for (let i = 0; i < maskIndices.length; i++) {
+                        debugger
+                        let element = maskIndices[i]
+                        if (((element & mask) == element)){
+                            tile = tilesMaskMapping[element]
+                            break
+                        }
+                    }
+                    }
+                    applyTileOnCell(adjCell, tile)
             }
+        }
         }
     }
 
