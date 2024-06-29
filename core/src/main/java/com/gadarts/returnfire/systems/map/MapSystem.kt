@@ -271,7 +271,7 @@ class MapSystem : GameEntitySystem() {
             && col < gameSessionData.currentMap.tilesMapping[0].size
         ) {
             floors[row][col] = entity
-            textureDefinition = beachTiles[gameSessionData.currentMap.tilesMapping[row][col].toString().toInt(16)]
+            textureDefinition = beachTiles[gameSessionData.currentMap.tilesMapping[row][col].toString().toInt(32)]
         }
         if (textureDefinition != null) {
             val textureAttribute =
@@ -359,6 +359,19 @@ class MapSystem : GameEntitySystem() {
             TextureDefinition.TILE_BEACH_TOP_LEFT,
             TextureDefinition.TILE_BEACH_GULF_TOP_LEFT,
             TextureDefinition.TILE_BEACH,
+            TextureDefinition.TILE_WATER_SHALLOW_BOTTOM_RIGHT,
+            TextureDefinition.TILE_WATER_SHALLOW_GULF_BOTTOM_RIGHT,
+            TextureDefinition.TILE_WATER_SHALLOW_BOTTOM,
+            TextureDefinition.TILE_WATER_SHALLOW_BOTTOM_LEFT,
+            TextureDefinition.TILE_WATER_SHALLOW_GULF_BOTTOM_LEFT,
+            TextureDefinition.TILE_WATER_SHALLOW_RIGHT,
+            TextureDefinition.TILE_WATER_SHALLOW_LEFT,
+            TextureDefinition.TILE_WATER_SHALLOW_TOP_RIGHT,
+            TextureDefinition.TILE_WATER_SHALLOW_GULF_TOP_RIGHT,
+            TextureDefinition.TILE_WATER_SHALLOW_TOP,
+            TextureDefinition.TILE_WATER_SHALLOW_TOP_LEFT,
+            TextureDefinition.TILE_WATER_SHALLOW_GULF_TOP_LEFT,
+            TextureDefinition.TILE_WATER_SHALLOW,
         )
 
     }

@@ -34,35 +34,42 @@ const SELECT_ID_DROPDOWN_MAP_SIZES = "dropdown_map_sizes";
 const DIV_ID_DIRECTION = "direction";
 const DIV_ID_CELL_CONTENTS = "cell_contents";
 const CLASS_NAME_CELL_CONTENTS = "cellContents";
+const BIT_GROUND = 2
+const BIT_SHALLOW_WATER = 1
+const BIT_DEEP_WATER = 0
 
-maskIndices = [0b11111111,
-               0b01111111,
-               0b11011111,
-               0b11111011,
-               0b11111110,
-               0b00011111,
-               0b01101011,
-               0b11010110,
-               0b11111000,
-               0b00001011,
-               0b00010110,
-               0b01101000,
-               0b11010000]
 
-tilesMaskMapping = [];
-tilesMaskMapping[0b11010000] = 'tile_beach_bottom_right'
-tilesMaskMapping[0b01101000] = 'tile_beach_bottom_left'
-tilesMaskMapping[0b00010110] = 'tile_beach_top_right'
-tilesMaskMapping[0b00001011] = 'tile_beach_top_left'
-tilesMaskMapping[0b11111000] = 'tile_beach_bottom'
-tilesMaskMapping[0b11010110] = 'tile_beach_right'
-tilesMaskMapping[0b01101011] = 'tile_beach_left'
-tilesMaskMapping[0b00011111] = 'tile_beach_top'
-tilesMaskMapping[0b11111110] = 'tile_beach_gulf_bottom_right'
-tilesMaskMapping[0b11111011] = 'tile_beach_gulf_bottom_left'
-tilesMaskMapping[0b11011111] = 'tile_beach_gulf_top_right'
-tilesMaskMapping[0b01111111] = 'tile_beach_gulf_top_left'
-tilesMaskMapping[0b11111111] = 'tile_beach'
+const maskIndices = [
+    0b11111111,
+    0b01111111,
+    0b11011111,
+    0b11111011,
+    0b11111110,
+    0b00011111,
+    0b01101011,
+    0b11010110,
+    0b11111000,
+    0b00001011,
+    0b00010110,
+    0b01101000,
+    0b11010000
+]
+
+const tilesMaskMapping = [];
+tilesMaskMapping[0b11010000] = 'tile_?_bottom_right'
+tilesMaskMapping[0b01101000] = 'tile_?_bottom_left'
+tilesMaskMapping[0b00010110] = 'tile_?_top_right'
+tilesMaskMapping[0b00001011] = 'tile_?_top_left'
+tilesMaskMapping[0b11111000] = 'tile_?_bottom'
+tilesMaskMapping[0b11010110] = 'tile_?_right'
+tilesMaskMapping[0b01101011] = 'tile_?_left'
+tilesMaskMapping[0b00011111] = 'tile_?_top'
+tilesMaskMapping[0b11111110] = 'tile_?_gulf_bottom_right'
+tilesMaskMapping[0b11111011] = 'tile_?_gulf_bottom_left'
+tilesMaskMapping[0b11011111] = 'tile_?_gulf_top_right'
+tilesMaskMapping[0b01111111] = 'tile_?_gulf_top_left'
+tilesMaskMapping[0b11111111] = 'tile_?'
+
 const tiles = [
     'tile_water',
     'tile_beach_bottom_right',
@@ -78,6 +85,19 @@ const tiles = [
     'tile_beach_top_left',
     'tile_beach_gulf_top_left',
     'tile_beach',
+    'tile_water_shallow_bottom_right',
+    'tile_water_shallow_gulf_bottom_right',
+    'tile_water_shallow_bottom',
+    'tile_water_shallow_bottom_left',
+    'tile_water_shallow_gulf_bottom_left',
+    'tile_water_shallow_right',
+    'tile_water_shallow_left',
+    'tile_water_shallow_top_right',
+    'tile_water_shallow_gulf_top_right',
+    'tile_water_shallow_top',
+    'tile_water_shallow_top_left',
+    'tile_water_shallow_gulf_top_left',
+    'tile_water_shallow',
 ]
 class MapEditor {
 
@@ -186,7 +206,7 @@ class MapEditor {
                             if (cellData != null && cellData.selectedTile != null) {
                                 let result = tiles.find(str => str === cellData.selectedTile);
                                 if (result) {
-                                    currentTile =  tiles.indexOf(result).toString(16)
+                                    currentTile = tiles.indexOf(result).toString(32)
                                 }
                             }
                             tilesString += currentTile;
@@ -281,40 +301,90 @@ class MapEditor {
 
 
     applyTileChangeInCell(cellData, cell, row, col) {
-        cellData.value = 1;
+        cellData.value = BIT_GROUND;
         applyTileOnCell(cell, 'tile_beach')
+        this.applyGroundTiles(row, col);
+        this.applyShallowWaterTiles(row, col);
+    }
+
+    applyShallowWaterTiles(row, col) {
+        for (let adjRow = row - 2; adjRow < row + 3; adjRow++) {
+            for (let adjCol = col - 2; adjCol < col + 3; adjCol++) {
+                if (adjRow >= 0 && adjRow < this.map_size && adjCol >= 0 && adjCol < this.map_size && (adjRow != row || adjCol != col)) {
+                    var adjCell = table.rows[adjRow].cells[adjCol];
+                    this.initializeCellData(adjCell);
+                    if (adjCell.cellData.value < BIT_SHALLOW_WATER) {
+                        adjCell.cellData.value = BIT_SHALLOW_WATER;
+                    }
+                }
+            }
+        }
+
+        for (let adjRow = row - 2; adjRow < row + 3; adjRow++) {
+            for (let adjCol = col - 2; adjCol < col + 3; adjCol++) {
+                if (adjRow >= 0 && adjRow < this.map_size && adjCol >= 0 && adjCol < this.map_size && (adjRow != row || adjCol != col)) {
+                    var adjCell = table.rows[adjRow].cells[adjCol];
+                    if (!adjCell || adjCell.cellData.value <= BIT_SHALLOW_WATER) {
+                        const mask = this.calculateMask(adjRow, adjCol, BIT_SHALLOW_WATER);
+                        var tile = tilesMaskMapping[mask];
+                        debugger;
+                        if (!tile) {
+                            for (let i = 0; i < maskIndices.length; i++) {
+                                let element = maskIndices[i];
+                                if (((element & mask) == element)) {
+                                    tile = tilesMaskMapping[element];
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (tile) {
+                            tile = tile.replace("?", "water_shallow")
+                            applyTileOnCell(adjCell, tile);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    applyGroundTiles(row, col) {
         for (let adjRow = row - 1; adjRow < row + 2; adjRow++) {
             for (let adjCol = col - 1; adjCol < col + 2; adjCol++) {
                 if (adjRow >= 0 && adjRow < this.map_size && adjCol >= 0 && adjCol < this.map_size && (adjRow != row || adjCol != col)) {
-                    var adjCell = table.rows[adjRow].cells[adjCol]
-                    this.initializeCellData(adjCell)
-                    adjCell.cellData.value = 1
+                    var adjCell = table.rows[adjRow].cells[adjCol];
+                    this.initializeCellData(adjCell);
+                    adjCell.cellData.value = BIT_GROUND;
                 }
             }
         }
         for (let adjRow = row - 1; adjRow < row + 2; adjRow++) {
             for (let adjCol = col - 1; adjCol < col + 2; adjCol++) {
                 if (adjRow >= 0 && adjRow < this.map_size && adjCol >= 0 && adjCol < this.map_size && (adjRow != row || adjCol != col)) {
-                    var adjCell = table.rows[adjRow].cells[adjCol]
-                    const mask = this.calculateMask(adjRow, adjCol)
-                    var tile = tilesMaskMapping[mask]
-                    if (!tile){
+                    var adjCell = table.rows[adjRow].cells[adjCol];
+                    const mask = this.calculateMask(adjRow, adjCol, BIT_GROUND);
+                    var tile = tilesMaskMapping[mask];
+                    debugger;
+                    if (!tile) {
                         for (let i = 0; i < maskIndices.length; i++) {
-                        debugger
-                        let element = maskIndices[i]
-                        if (((element & mask) == element)){
-                            tile = tilesMaskMapping[element]
-                            break
+                            let element = maskIndices[i];
+                            if (((element & mask) == element)) {
+                                tile = tilesMaskMapping[element];
+                                break;
+                            }
                         }
                     }
+
+                    if (tile) {
+                        tile = tile.replace("?", "beach")
+                        applyTileOnCell(adjCell, tile);
                     }
-                    applyTileOnCell(adjCell, tile)
+                }
             }
-        }
         }
     }
 
-    calculateMask(row, col) {
+    calculateMask(row, col, highValue) {
         var mask = 0
         if (row > 0 && col > 0) {
             mask |= (fetchValueFromCell(row - 1, col - 1) << 7) & 0b10000000;
@@ -345,7 +415,7 @@ class MapEditor {
         function fetchValueFromCell(row, col) {
             const cellData = table.rows[row].cells[col].cellData;
             if (cellData) {
-                return cellData.value;
+                return cellData.value >= highValue ? 1 : 0;
             } else {
                 return 0
             }
