@@ -35,6 +35,12 @@ import com.gadarts.returnfire.systems.events.data.EntityEnteredNewRegionEventDat
 
 class MapSystem : GameEntitySystem() {
 
+    private var nextChange: Long = 0L
+    private lateinit var test1: Texture
+    private lateinit var test2: Texture
+    private lateinit var test3: Texture
+    private lateinit var test4: Texture
+    private val test = mutableListOf<GameModelInstance>()
     private val ambSounds = listOf(
         SoundDefinition.AMB_EAGLE,
         SoundDefinition.AMB_WIND,
@@ -86,6 +92,10 @@ class MapSystem : GameEntitySystem() {
             }
         }
         applyTransformOnAmbEntities()
+        test1 = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER)
+        test2 = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER_1)
+        test3 = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER_2)
+        test4 = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER_3)
     }
 
     private fun addEntityListener(gameSessionData: GameSessionData) {
@@ -173,6 +183,34 @@ class MapSystem : GameEntitySystem() {
             nextAmbSound = now + random(AMB_SND_INTERVAL_MIN, AMB_SND_INTERVAL_MAX)
             managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(ambSounds.random()))
         }
+        if (now >= nextChange) {
+            for (modelInstance in test) {
+                (modelInstance.modelInstance.materials.get(0)
+                    .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                    (getIndex((now / 1000L % 4L).toInt()))
+            }
+        }
+    }
+
+    private fun getIndex(index: Int): Texture {
+        when (index) {
+            0 -> {
+                return test1
+            }
+
+            1 -> {
+                return test2
+            }
+
+            2 -> {
+                return test3
+            }
+
+            else -> {
+                return test4
+            }
+        }
+
     }
 
     private fun createFloorModel(builder: ModelBuilder) {
@@ -281,6 +319,9 @@ class MapSystem : GameEntitySystem() {
                 managers.assetsManager.getAssetByDefinition(textureDefinition)
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
             textureAttribute.set(TextureRegion(texture))
+            if (textureDefinition == TextureDefinition.TILE_WATER) {
+                test.add(modelInstance)
+            }
         }
     }
 
