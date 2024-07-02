@@ -29,5 +29,7 @@ object ComponentsMapper {
         ComponentMapper.getFor(IndependentParticleEffectComponent::class.java)
     val followerParticleEffect: ComponentMapper<FollowerParticleEffectComponent> =
         ComponentMapper.getFor(FollowerParticleEffectComponent::class.java)
+    val animatedTexture: ComponentMapper<AnimatedTextureComponent> =
+        ComponentMapper.getFor(AnimatedTextureComponent::class.java)
 
 }

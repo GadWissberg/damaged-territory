@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
@@ -20,9 +21,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.TextureDefinition
-import com.gadarts.returnfire.components.AmbComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GameModelInstance
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -35,12 +34,8 @@ import com.gadarts.returnfire.systems.events.data.EntityEnteredNewRegionEventDat
 
 class MapSystem : GameEntitySystem() {
 
-    private var nextChange: Long = 0L
-    private lateinit var test1: Texture
-    private lateinit var test2: Texture
-    private lateinit var test3: Texture
-    private lateinit var test4: Texture
-    private val test = mutableListOf<GameModelInstance>()
+    private lateinit var animatedFloorsEntities: ImmutableArray<Entity>
+    private var groundTextureAnimationStateTime = 0F
     private val ambSounds = listOf(
         SoundDefinition.AMB_EAGLE,
         SoundDefinition.AMB_WIND,
@@ -73,6 +68,8 @@ class MapSystem : GameEntitySystem() {
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
+        animatedFloorsEntities =
+            engine.getEntitiesFor(Family.all(GroundComponent::class.java, AnimatedTextureComponent::class.java).get())
         addEntityListener(gameSessionData)
         val builder = ModelBuilder()
         createFloorModel(builder)
@@ -92,10 +89,6 @@ class MapSystem : GameEntitySystem() {
             }
         }
         applyTransformOnAmbEntities()
-        test1 = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER)
-        test2 = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER_1)
-        test3 = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER_2)
-        test4 = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER_3)
     }
 
     private fun addEntityListener(gameSessionData: GameSessionData) {
@@ -183,34 +176,16 @@ class MapSystem : GameEntitySystem() {
             nextAmbSound = now + random(AMB_SND_INTERVAL_MIN, AMB_SND_INTERVAL_MAX)
             managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(ambSounds.random()))
         }
-        if (now >= nextChange) {
-            for (modelInstance in test) {
-                (modelInstance.modelInstance.materials.get(0)
-                    .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                    (getIndex((now / 1000L % 4L).toInt()))
-            }
+        groundTextureAnimationStateTime += deltaTime
+        for (entity in animatedFloorsEntities) {
+            val keyFrame = ComponentsMapper.animatedTexture.get(entity).animation.getKeyFrame(
+                groundTextureAnimationStateTime,
+                true
+            )
+            (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(0)
+                .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                keyFrame
         }
-    }
-
-    private fun getIndex(index: Int): Texture {
-        when (index) {
-            0 -> {
-                return test1
-            }
-
-            1 -> {
-                return test2
-            }
-
-            2 -> {
-                return test3
-            }
-
-            else -> {
-                return test4
-            }
-        }
-
     }
 
     private fun createFloorModel(builder: ModelBuilder) {
@@ -319,8 +294,14 @@ class MapSystem : GameEntitySystem() {
                 managers.assetsManager.getAssetByDefinition(textureDefinition)
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
             textureAttribute.set(TextureRegion(texture))
-            if (textureDefinition == TextureDefinition.TILE_WATER) {
-                test.add(modelInstance)
+            if (textureDefinition.animated) {
+                val frames = com.badlogic.gdx.utils.Array<Texture>()
+                for (i in 0 until textureDefinition.fileNames) {
+                    frames.add(managers.assetsManager.getAssetByDefinitionAndIndex(textureDefinition, i))
+                }
+                val animation = Animation(0.5F, frames)
+                animation.playMode = Animation.PlayMode.NORMAL
+                entity.add(AnimatedTextureComponent(animation))
             }
         }
     }

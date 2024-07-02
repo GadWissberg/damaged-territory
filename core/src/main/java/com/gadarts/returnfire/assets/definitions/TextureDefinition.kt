@@ -3,7 +3,7 @@ package com.gadarts.returnfire.assets.definitions
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.Texture
 
-enum class TextureDefinition(fileNames: Int = 1, ninepatch: Boolean = false) :
+enum class TextureDefinition(val fileNames: Int = 1, ninepatch: Boolean = false, val animated: Boolean = false) :
     AssetDefinition<Texture> {
 
     BUTTON_UP,
@@ -48,10 +48,7 @@ enum class TextureDefinition(fileNames: Int = 1, ninepatch: Boolean = false) :
     TILE_WATER_SHALLOW_TOP,
     TILE_WATER_SHALLOW_RIGHT,
     TILE_WATER_SHALLOW_LEFT,
-    TILE_WATER,
-    TILE_WATER_1,
-    TILE_WATER_2,
-    TILE_WATER_3,
+    TILE_WATER(fileNames = 4, animated = true),
     JOYSTICK,
     JOYSTICK_CENTER,
     ICON_BULLETS,
