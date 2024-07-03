@@ -299,7 +299,7 @@ class MapSystem : GameEntitySystem() {
                 for (i in 0 until textureDefinition.fileNames) {
                     frames.add(managers.assetsManager.getAssetByDefinitionAndIndex(textureDefinition, i))
                 }
-                val animation = Animation(0.5F, frames)
+                val animation = Animation(0.25F, frames)
                 animation.playMode = Animation.PlayMode.NORMAL
                 entity.add(AnimatedTextureComponent(animation))
             }
