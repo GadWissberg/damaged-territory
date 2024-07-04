@@ -19,6 +19,7 @@ const ElementsDefinitions = Object.freeze([
 ]);
 const Directions = Object.freeze({ east: 0, north: 90, west: 180, south: 270 });
 const MAP_SIZES = Object.freeze({ small: 48, medium: 96, large: 192 });
+const TILE_BRUSHES = Object.freeze(["DYNAMIC", "MANUAL"]);
 const body = document.body;
 const table = document.getElementById(ID_MAP).appendChild(document.createElement('table'));
 const RADIO_GROUP_NAME_MODES = "modes"
@@ -31,6 +32,7 @@ const DIV_ID_BUTTON_SAVE = "button_save";
 const DIV_ID_BUTTON_LOAD = "button_load";
 const OUTPUT_FILE_NAME = 'map.json';
 const SELECT_ID_DROPDOWN_MAP_SIZES = "dropdown_map_sizes";
+const SELECT_ID_DROPDOWN_TILE_BRUSHES = "dropdown_tile_brushes";
 const DIV_ID_DIRECTION = "direction";
 const DIV_ID_CELL_CONTENTS = "cell_contents";
 const CLASS_NAME_CELL_CONTENTS = "cellContents";
@@ -105,24 +107,26 @@ class MapEditor {
         this.resetMap();
         this.initializeModesRadioButtons();
         this.inflateElementsLeftMenu();
-        fillMapSizesDropdown();
+        fillDropdownOptions(SELECT_ID_DROPDOWN_MAP_SIZES, Object.keys(MAP_SIZES));
+        document.getElementById(SELECT_ID_DROPDOWN_MAP_SIZES).addEventListener("change", function () {
+            self.resetMap(options[dropDown.value]);
+        })
+        fillDropdownOptions(SELECT_ID_DROPDOWN_TILE_BRUSHES,Object.values(TILE_BRUSHES) );
         table.style.width = this.map_size * 64 + 'px';
         table.style.height = this.map_size * 64 + 'px';
         var self = this;
         defineSaveProcess();
         defineLoadProcess();
 
-        function fillMapSizesDropdown() {
-            var dropDown = document.getElementById(SELECT_ID_DROPDOWN_MAP_SIZES);
-            for (var size in MAP_SIZES) {
+        function fillDropdownOptions(id, options) {
+            debugger
+            var dropDown = document.getElementById(id);
+            for (const element of options) {
                 var option = document.createElement("option");
-                option.value = size;
-                option.text = size;
+                option.value = element;
+                option.text = element;
                 dropDown.appendChild(option);
             }
-            dropDown.addEventListener("change", function () {
-                self.resetMap(MAP_SIZES[dropDown.value]);
-            })
         }
 
         function defineLoadProcess() {

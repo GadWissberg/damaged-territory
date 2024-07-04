@@ -218,7 +218,7 @@ class MapSystem : GameEntitySystem() {
 
     private fun addExtSea(width: Int, depth: Int, x: Float, z: Float) {
         val modelInstance = GameModelInstance(ModelInstance(floorModel), definition = null)
-        createAndAddGroundTileEntity(
+        val entity = createAndAddGroundTileEntity(
             modelInstance,
             auxVector1.set(x, 0F, z)
         )
@@ -228,6 +228,7 @@ class MapSystem : GameEntitySystem() {
                 .get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
         gameSessionData.modelCache.add(modelInstance.modelInstance)
+        applyAnimatedTextureComponentToFloor(TextureDefinition.TILE_WATER, entity)
     }
 
     private fun initializeExternalSeaTextureAttribute(
@@ -295,15 +296,22 @@ class MapSystem : GameEntitySystem() {
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
             textureAttribute.set(TextureRegion(texture))
             if (textureDefinition.animated) {
-                val frames = com.badlogic.gdx.utils.Array<Texture>()
-                for (i in 0 until textureDefinition.fileNames) {
-                    frames.add(managers.assetsManager.getAssetByDefinitionAndIndex(textureDefinition, i))
-                }
-                val animation = Animation(0.25F, frames)
-                animation.playMode = Animation.PlayMode.NORMAL
-                entity.add(AnimatedTextureComponent(animation))
+                applyAnimatedTextureComponentToFloor(textureDefinition, entity)
             }
         }
+    }
+
+    private fun applyAnimatedTextureComponentToFloor(
+        textureDefinition: TextureDefinition,
+        entity: Entity
+    ) {
+        val frames = com.badlogic.gdx.utils.Array<Texture>()
+        for (i in 0 until textureDefinition.fileNames) {
+            frames.add(managers.assetsManager.getAssetByDefinitionAndIndex(textureDefinition, i))
+        }
+        val animation = Animation(0.25F, frames)
+        animation.playMode = Animation.PlayMode.NORMAL
+        entity.add(AnimatedTextureComponent(animation))
     }
 
     private fun createAndAddGroundTileEntity(
