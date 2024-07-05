@@ -33,6 +33,7 @@ const DIV_ID_BUTTON_LOAD = "button_load";
 const OUTPUT_FILE_NAME = 'map.json';
 const SELECT_ID_DROPDOWN_MAP_SIZES = "dropdown_map_sizes";
 const SELECT_ID_DROPDOWN_TILE_BRUSHES = "dropdown_tile_brushes";
+const SELECT_ID_DROPDOWN_TILES = "dropdown_tiles";
 const DIV_ID_DIRECTION = "direction";
 const DIV_ID_CELL_CONTENTS = "cell_contents";
 const CLASS_NAME_CELL_CONTENTS = "cellContents";
@@ -73,33 +74,36 @@ tilesMaskMapping[0b01111111] = 'tile_?_gulf_top_left'
 tilesMaskMapping[0b11111111] = 'tile_?'
 
 const tiles = [
-    'tile_water',
-    'tile_beach_bottom_right',
-    'tile_beach_gulf_bottom_right',
-    'tile_beach_bottom',
-    'tile_beach_bottom_left',
-    'tile_beach_gulf_bottom_left',
-    'tile_beach_right',
-    'tile_beach_left',
-    'tile_beach_top_right',
-    'tile_beach_gulf_top_right',
-    'tile_beach_top',
-    'tile_beach_top_left',
-    'tile_beach_gulf_top_left',
-    'tile_beach',
-    'tile_water_shallow_bottom_right',
-    'tile_water_shallow_gulf_bottom_right',
-    'tile_water_shallow_bottom',
-    'tile_water_shallow_bottom_left',
-    'tile_water_shallow_gulf_bottom_left',
-    'tile_water_shallow_right',
-    'tile_water_shallow_left',
-    'tile_water_shallow_top_right',
-    'tile_water_shallow_gulf_top_right',
-    'tile_water_shallow_top',
-    'tile_water_shallow_top_left',
-    'tile_water_shallow_gulf_top_left',
-    'tile_water_shallow',
+    { name: 'tile_water', animated: true },
+    { name: 'tile_beach_bottom_right', animated: true },
+    { name: 'tile_beach_gulf_bottom_right', animated: true },
+    { name: 'tile_beach_bottom', animated: true },
+    { name: 'tile_beach_bottom_left', animated: true },
+    { name: 'tile_beach_gulf_bottom_left', animated: true },
+    { name: 'tile_beach_right', animated: true },
+    { name: 'tile_beach_left', animated: true },
+    { name: 'tile_beach_top_right', animated: true },
+    { name: 'tile_beach_gulf_top_right', animated: true },
+    { name: 'tile_beach_top', animated: true },
+    { name: 'tile_beach_top_left', animated: true },
+    { name: 'tile_beach_gulf_top_left', animated: true },
+    { name: 'tile_beach', animated: false },
+    { name: 'tile_water_shallow_bottom_right', animated: true },
+    { name: 'tile_water_shallow_gulf_bottom_right', animated: true },
+    { name: 'tile_water_shallow_bottom', animated: true },
+    { name: 'tile_water_shallow_bottom_left', animated: true },
+    { name: 'tile_water_shallow_gulf_bottom_left', animated: true },
+    { name: 'tile_water_shallow_right', animated: true },
+    { name: 'tile_water_shallow_left', animated: true },
+    { name: 'tile_water_shallow_top_right', animated: true },
+    { name: 'tile_water_shallow_gulf_top_right', animated: true },
+    { name: 'tile_water_shallow_top', animated: true },
+    { name: 'tile_water_shallow_top_left', animated: true },
+    { name: 'tile_water_shallow_gulf_top_left', animated: true },
+    { name: 'tile_water_shallow', animated: true },
+    { name: 'tile_beach_road_horizontal', animate: false },
+    { name: 'tile_beach_road_vertical', animate: false },
+    { name: 'tile_beach_road_bottom_right', animate: false },
 ]
 class MapEditor {
 
@@ -107,11 +111,20 @@ class MapEditor {
         this.resetMap();
         this.initializeModesRadioButtons();
         this.inflateElementsLeftMenu();
-        fillDropdownOptions(SELECT_ID_DROPDOWN_MAP_SIZES, Object.keys(MAP_SIZES));
+        const mapSizesDropDown = fillDropdownOptions(SELECT_ID_DROPDOWN_MAP_SIZES, Object.keys(MAP_SIZES));
         document.getElementById(SELECT_ID_DROPDOWN_MAP_SIZES).addEventListener("change", function () {
-            self.resetMap(options[dropDown.value]);
+            self.resetMap(options[mapSizesDropDown.value]);
         })
-        fillDropdownOptions(SELECT_ID_DROPDOWN_TILE_BRUSHES,Object.values(TILE_BRUSHES) );
+        const tileBrushesDropDown = fillDropdownOptions(SELECT_ID_DROPDOWN_TILE_BRUSHES, Object.values(TILE_BRUSHES));
+        document.getElementById(SELECT_ID_DROPDOWN_TILE_BRUSHES).addEventListener("change", function () {
+            const manualSelector = document.getElementById("manualSelector");
+            if (tileBrushesDropDown.value === "MANUAL") {
+                manualSelector.style.visibility = "visible"
+            } else {
+                manualSelector.style.visibility = "hidden"
+            }
+        })
+        fillDropdownOptions(SELECT_ID_DROPDOWN_TILES, tiles.map(tileObject => tileObject.name));
         table.style.width = this.map_size * 64 + 'px';
         table.style.height = this.map_size * 64 + 'px';
         var self = this;
@@ -119,7 +132,6 @@ class MapEditor {
         defineLoadProcess();
 
         function fillDropdownOptions(id, options) {
-            debugger
             var dropDown = document.getElementById(id);
             for (const element of options) {
                 var option = document.createElement("option");
@@ -127,6 +139,7 @@ class MapEditor {
                 option.text = element;
                 dropDown.appendChild(option);
             }
+            return dropDown
         }
 
         function defineLoadProcess() {
@@ -275,7 +288,13 @@ class MapEditor {
         var self = this;
         var leftClick = input == "click";
         if (selectedMode == Modes.TILES) {
-            this.applyTileChangeInCell(cellData, cell, row, col);
+            const dropDown = document.getElementById(SELECT_ID_DROPDOWN_TILE_BRUSHES);
+            if (dropDown.value === "MANUAL") {
+                const tilesDropDown = document.getElementById(SELECT_ID_DROPDOWN_TILES);
+                this.applyTileChangeInCell(cellData, cell, row, col, tiles.find(tileObject => tileObject.name === tilesDropDown.value), false);
+            } else {
+                this.applyTileChangeInCell(cellData, cell, row, col, 'tile_beach', true);
+            }
         } else if (selectedMode == Modes.OBJECTS) {
             applyElementChangeInCell();
         }
@@ -304,11 +323,13 @@ class MapEditor {
     }
 
 
-    applyTileChangeInCell(cellData, cell, row, col) {
+    applyTileChangeInCell(cellData, cell, row, col, tileName, surround) {
         cellData.value = BIT_GROUND;
-        applyTileOnCell(cell, 'tile_beach')
-        this.applyGroundTiles(row, col);
-        this.applyShallowWaterTiles(row, col);
+        applyTileOnCell(cell, tileName)
+        if (surround) {
+            this.applyGroundTiles(row, col);
+            this.applyShallowWaterTiles(row, col);
+        }
     }
 
     applyShallowWaterTiles(row, col) {
@@ -331,7 +352,6 @@ class MapEditor {
                     if (!adjCell || adjCell.cellData.value <= BIT_SHALLOW_WATER) {
                         const mask = this.calculateMask(adjRow, adjCol, BIT_SHALLOW_WATER);
                         var tile = tilesMaskMapping[mask];
-                        debugger;
                         if (!tile) {
                             for (let i = 0; i < maskIndices.length; i++) {
                                 let element = maskIndices[i];
@@ -344,7 +364,7 @@ class MapEditor {
 
                         if (tile) {
                             tile = tile.replace("?", "water_shallow")
-                            applyTileOnCell(adjCell, tile);
+                            applyTileOnCell(adjCell, tiles.find(tileObject => tileObject.name === tile));
                         }
                     }
                 }
@@ -381,7 +401,7 @@ class MapEditor {
 
                     if (tile) {
                         tile = tile.replace("?", "beach")
-                        applyTileOnCell(adjCell, tile);
+                        applyTileOnCell(adjCell, tiles.find(tileObject => tileObject.name === tile));
                     }
                 }
             }
@@ -502,7 +522,7 @@ class MapEditor {
             const tr = table.insertRow();
             for (let j = 0; j < this.map_size; j++) {
                 const td = tr.insertCell();
-                applyTileOnCell(td, 'tile_water');
+                applyTileOnCell(td, { name: 'tile_water', animated: true });
                 td.classList.add('cell');
                 td.addEventListener('click', e => {
                     this.onCellLeftClicked(i, j);
@@ -544,7 +564,11 @@ class MapEditor {
 }
 
 function applyTileOnCell(td, selectedTile) {
-    td.style.backgroundImage = `url(../assets/textures/${selectedTile}.png)`;
+    let finalName = selectedTile
+    if (typeof selectedTile !== 'string') {
+        finalName = selectedTile.name + ((selectedTile.animated) ? '_0' : '')
+    }
+    td.style.backgroundImage = `url(../assets/textures/${finalName}.png)`;
     td.style.backgroundSize = 'cover';
     if (td.cellData) {
         td.cellData.selectedTile = selectedTile

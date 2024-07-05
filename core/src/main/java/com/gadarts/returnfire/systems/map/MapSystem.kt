@@ -402,6 +402,9 @@ class MapSystem : GameEntitySystem() {
             TextureDefinition.TILE_WATER_SHALLOW_TOP_LEFT,
             TextureDefinition.TILE_WATER_SHALLOW_GULF_TOP_LEFT,
             TextureDefinition.TILE_WATER_SHALLOW,
+            TextureDefinition.TILE_BEACH_ROAD_HORIZONTAL,
+            TextureDefinition.TILE_BEACH_ROAD_VERTICAL,
+            TextureDefinition.TILE_BEACH_ROAD_BOTTOM_RIGHT,
         )
 
     }
