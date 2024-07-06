@@ -40,7 +40,7 @@ const CLASS_NAME_CELL_CONTENTS = "cellContents";
 const BIT_GROUND = 2
 const BIT_SHALLOW_WATER = 1
 const BIT_DEEP_WATER = 0
-
+const BASE_64_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/';
 
 const maskIndices = [
     0b11111111,
@@ -104,6 +104,10 @@ const tiles = [
     { name: 'tile_beach_road_horizontal', animate: false },
     { name: 'tile_beach_road_vertical', animate: false },
     { name: 'tile_beach_road_bottom_right', animate: false },
+    { name: 'tile_beach_road_bottom_left', animate: false },
+    { name: 'tile_beach_road_top_left', animate: false },
+    { name: 'tile_beach_road_top_right', animate: false },
+    { name: 'tile_beach_road_cross', animate: false },
 ]
 class MapEditor {
 
@@ -221,9 +225,10 @@ class MapEditor {
                             var currentTile = 0;
                             var cellData = table.rows[row].cells[col].cellData;
                             if (cellData != null && cellData.selectedTile != null) {
-                                let result = tiles.find(str => str === cellData.selectedTile);
+                                const tileName = (typeof cellData.selectedTile !== 'string' ? cellData.selectedTile.name : cellData.selectedTile)
+                                const result = tiles.find(tileObject => tileObject.name === tileName);
                                 if (result) {
-                                    currentTile = tiles.indexOf(result).toString(32)
+                                    currentTile = BASE_64_CHARS[tiles.indexOf(result)]
                                 }
                             }
                             tilesString += currentTile;
@@ -388,7 +393,6 @@ class MapEditor {
                     var adjCell = table.rows[adjRow].cells[adjCol];
                     const mask = this.calculateMask(adjRow, adjCol, BIT_GROUND);
                     var tile = tilesMaskMapping[mask];
-                    debugger;
                     if (!tile) {
                         for (let i = 0; i < maskIndices.length; i++) {
                             let element = maskIndices[i];
