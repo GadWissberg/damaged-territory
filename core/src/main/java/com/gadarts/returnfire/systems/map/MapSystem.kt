@@ -415,6 +415,11 @@ class MapSystem : GameEntitySystem() {
             TextureDefinition.TILE_BEACH_ROAD_TOP_LEFT,
             TextureDefinition.TILE_BEACH_ROAD_TOP_RIGHT,
             TextureDefinition.TILE_BEACH_ROAD_CROSS,
+            TextureDefinition.TILE_BEACH_GRASS,
+            TextureDefinition.TILE_BEACH_GRASS_TOP,
+            TextureDefinition.TILE_BEACH_GRASS_RIGHT,
+            TextureDefinition.TILE_BEACH_GRASS_BOTTOM,
+            TextureDefinition.TILE_BEACH_GRASS_LEFT,
         )
 
     }

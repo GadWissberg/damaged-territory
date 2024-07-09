@@ -112,6 +112,11 @@ const tiles = [
     { name: 'tile_beach_road_top_left', animate: false },
     { name: 'tile_beach_road_top_right', animate: false },
     { name: 'tile_beach_road_cross', animate: false },
+    { name: 'tile_beach_grass', animate: false },
+    { name: 'tile_beach_grass_top', animate: false },
+    { name: 'tile_beach_grass_right', animate: false },
+    { name: 'tile_beach_grass_bottom', animate: false },
+    { name: 'tile_beach_grass_left', animate: false },
 ]
 class MapEditor {
 
