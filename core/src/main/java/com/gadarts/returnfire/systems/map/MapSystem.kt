@@ -428,6 +428,11 @@ class MapSystem : GameEntitySystem() {
             TextureDefinition.TILE_BEACH_GRASS_GULF_TOP_LEFT,
             TextureDefinition.TILE_BEACH_GRASS_GULF_BOTTOM_RIGHT,
             TextureDefinition.TILE_BEACH_GRASS_GULF_BOTTOM_LEFT,
+            TextureDefinition.TILE_BEACH_DARK,
+            TextureDefinition.TILE_BEACH_DARK_TOP,
+            TextureDefinition.TILE_BEACH_DARK_RIGHT,
+            TextureDefinition.TILE_BEACH_DARK_BOTTOM,
+            TextureDefinition.TILE_BEACH_DARK_LEFT,
         )
 
     }
