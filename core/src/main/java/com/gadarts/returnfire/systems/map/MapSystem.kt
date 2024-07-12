@@ -286,7 +286,7 @@ class MapSystem : GameEntitySystem() {
         ) {
             floors[row][col] = entity
             textureDefinition =
-                beachTiles[BASE_64_CHARS.indexOfFirst { c: Char -> gameSessionData.currentMap.tilesMapping[row][col] == c }]
+                beachTiles[TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.currentMap.tilesMapping[row][col] == c }]
         }
         if (textureDefinition != null) {
             val textureAttribute =
@@ -375,7 +375,7 @@ class MapSystem : GameEntitySystem() {
         private const val EXT_SIZE = 48
         private const val AMB_SND_INTERVAL_MIN = 7000
         private const val AMB_SND_INTERVAL_MAX = 22000
-        private const val BASE_64_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/"
+        private val TILES_CHARS = CharArray(80) { (it + 48).toChar() }.joinToString("")
         private val beachTiles = listOf(
             TextureDefinition.TILE_WATER,
             TextureDefinition.TILE_BEACH_BOTTOM_RIGHT,
@@ -433,6 +433,14 @@ class MapSystem : GameEntitySystem() {
             TextureDefinition.TILE_BEACH_DARK_RIGHT,
             TextureDefinition.TILE_BEACH_DARK_BOTTOM,
             TextureDefinition.TILE_BEACH_DARK_LEFT,
+            TextureDefinition.TILE_BEACH_DARK_TOP_RIGHT,
+            TextureDefinition.TILE_BEACH_DARK_TOP_LEFT,
+            TextureDefinition.TILE_BEACH_DARK_BOTTOM_RIGHT,
+            TextureDefinition.TILE_BEACH_DARK_BOTTOM_LEFT,
+            TextureDefinition.TILE_BEACH_DARK_GULF_TOP_RIGHT,
+            TextureDefinition.TILE_BEACH_DARK_GULF_TOP_LEFT,
+            TextureDefinition.TILE_BEACH_DARK_GULF_BOTTOM_RIGHT,
+            TextureDefinition.TILE_BEACH_DARK_GULF_BOTTOM_LEFT,
         )
 
     }
