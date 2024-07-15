@@ -277,7 +277,7 @@ class MapSystem : GameEntitySystem() {
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        if (playerPosition.x.toInt() == row && playerPosition.z.toInt() == col) {
+        if (playerPosition.x.toInt() == col && playerPosition.z.toInt() == row) {
             textureDefinition = TextureDefinition.BASE_DOOR
         } else if (row >= 0
             && col >= 0

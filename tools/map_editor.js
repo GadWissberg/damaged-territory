@@ -67,75 +67,75 @@ tilesMaskMapping[0b01111111] = "tile_?_gulf_top_left";
 tilesMaskMapping[0b11111111] = "tile_?";
 
 const tiles = [
-  { name: "tile_water", animated: true },
-  { name: "tile_beach_bottom_right", animated: true },
-  { name: "tile_beach_gulf_bottom_right", animated: true },
-  { name: "tile_beach_bottom", animated: true },
-  { name: "tile_beach_bottom_special", animated: true },
-  { name: "tile_beach_bottom_left", animated: true },
-  { name: "tile_beach_gulf_bottom_left", animated: true },
-  { name: "tile_beach_right", animated: true },
-  { name: "tile_beach_left", animated: true },
-  { name: "tile_beach_top_right", animated: true },
-  { name: "tile_beach_gulf_top_right", animated: true },
-  { name: "tile_beach_top", animated: true },
-  { name: "tile_beach_top_left", animated: true },
-  { name: "tile_beach_gulf_top_left", animated: true },
-  { name: "tile_beach", animated: false },
-  { name: "tile_water_shallow_bottom_right", animated: true },
-  { name: "tile_water_shallow_gulf_bottom_right", animated: true },
-  { name: "tile_water_shallow_bottom", animated: true },
-  { name: "tile_water_shallow_bottom_left", animated: true },
-  { name: "tile_water_shallow_gulf_bottom_left", animated: true },
-  { name: "tile_water_shallow_right", animated: true },
-  { name: "tile_water_shallow_left", animated: true },
-  { name: "tile_water_shallow_top_right", animated: true },
-  { name: "tile_water_shallow_gulf_top_right", animated: true },
-  { name: "tile_water_shallow_top", animated: true },
-  { name: "tile_water_shallow_top_left", animated: true },
-  { name: "tile_water_shallow_gulf_top_left", animated: true },
-  { name: "tile_water_shallow", animated: true },
-  { name: "tile_beach_road_horizontal", animate: false },
-  { name: "tile_beach_road_horizontal_top", animate: false },
-  { name: "tile_beach_road_horizontal_bottom", animate: false },
-  { name: "tile_beach_road_horizontal_end_right", animate: false },
-  { name: "tile_beach_road_horizontal_end_left", animate: false },
-  { name: "tile_beach_road_vertical", animate: false },
-  { name: "tile_beach_road_vertical_right", animate: false },
-  { name: "tile_beach_road_vertical_left", animate: false },
-  { name: "tile_beach_road_vertical_end_up", animate: false },
-  { name: "tile_beach_road_vertical_end_down", animate: false },
-  { name: "tile_beach_road_bottom_right", animate: false },
-  { name: "tile_beach_road_bottom_left", animate: false },
-  { name: "tile_beach_road_top_left", animate: false },
-  { name: "tile_beach_road_top_right", animate: false },
-  { name: "tile_beach_road_cross", animate: false },
-  { name: "tile_beach_grass", animate: false },
-  { name: "tile_beach_grass_top", animate: false },
-  { name: "tile_beach_grass_right", animate: false },
-  { name: "tile_beach_grass_bottom", animate: false },
-  { name: "tile_beach_grass_left", animate: false },
-  { name: "tile_beach_grass_top_right", animate: false },
-  { name: "tile_beach_grass_top_left", animate: false },
-  { name: "tile_beach_grass_bottom_right", animate: false },
-  { name: "tile_beach_grass_bottom_left", animate: false },
-  { name: "tile_beach_grass_gulf_top_right", animate: false },
-  { name: "tile_beach_grass_gulf_top_left", animate: false },
-  { name: "tile_beach_grass_gulf_bottom_right", animate: false },
-  { name: "tile_beach_grass_gulf_bottom_left", animate: false },
-  { name: "tile_beach_dark", animate: false },
-  { name: "tile_beach_dark_top", animate: false },
-  { name: "tile_beach_dark_right", animate: false },
-  { name: "tile_beach_dark_bottom", animate: false },
-  { name: "tile_beach_dark_left", animate: false },
-  { name: "tile_beach_dark_top_right", animate: false },
-  { name: "tile_beach_dark_top_left", animate: false },
-  { name: "tile_beach_dark_bottom_right", animate: false },
-  { name: "tile_beach_dark_bottom_left", animate: false },
-  { name: "tile_beach_dark_gulf_top_right", animate: false },
-  { name: "tile_beach_dark_gulf_top_left", animate: false },
-  { name: "tile_beach_dark_gulf_bottom_right", animate: false },
-  { name: "tile_beach_dark_gulf_bottom_left", animate: false },
+  { name: "tile_water", animated: true, bit: BIT_DEEP_WATER },
+  { name: "tile_beach_bottom_right", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_gulf_bottom_right", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_bottom", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_bottom_special", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_bottom_left", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_gulf_bottom_left", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_right", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_left", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_top_right", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_gulf_top_right", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_top", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_top_left", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach_gulf_top_left", animated: true, bit: BIT_GROUND },
+  { name: "tile_beach", animated: false, bit: BIT_GROUND },
+  { name: "tile_water_shallow_bottom_right", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_gulf_bottom_right", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_bottom", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_bottom_left", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_gulf_bottom_left", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_right", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_left", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_top_right", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_gulf_top_right", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_top", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_top_left", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow_gulf_top_left", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_water_shallow", animated: true, bit: BIT_SHALLOW_WATER },
+  { name: "tile_beach_road_horizontal", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_horizontal_top", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_horizontal_bottom", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_horizontal_end_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_horizontal_end_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_vertical", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_vertical_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_vertical_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_vertical_end_up", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_vertical_end_down", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_bottom_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_bottom_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_top_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_top_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_road_cross", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_top", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_bottom", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_top_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_top_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_bottom_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_bottom_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_gulf_top_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_gulf_top_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_gulf_bottom_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_grass_gulf_bottom_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_top", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_bottom", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_top_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_top_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_bottom_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_bottom_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_gulf_top_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_gulf_top_left", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_gulf_bottom_right", animate: false, bit: BIT_GROUND },
+  { name: "tile_beach_dark_gulf_bottom_left", animate: false, bit: BIT_GROUND },
 ];
 class MapEditor {
   constructor() {
@@ -220,9 +220,12 @@ class MapEditor {
                       table.rows[Math.floor(i / self.map_size)].cells[
                         i % self.map_size
                       ];
-                    var placedTile = tiles[inputMapObject.tiles.charAt(i)];
+                    var placedTile =
+                      tiles[
+                        TILES_CHARS.indexOf(inputMapObject.tiles.charAt(i))
+                      ];
                     cell.cellData = new CellData();
-                    applyTileOnCell(cell, placedTile);
+                    applyTileOnCell(cell, placedTile, placedTile.bit);
                     cell.style.backgroundColor = placedTile.tile;
                   }
                 }
@@ -716,7 +719,9 @@ class MapEditor {
   }
 }
 
-function applyTileOnCell(td, selectedTile) {
+function applyTileOnCell(td, selectedTile, bit = -1) {
+  if (!selectedTile) return;
+
   let finalName = selectedTile;
   if (typeof selectedTile !== "string") {
     finalName = selectedTile.name + (selectedTile.animated ? "_0" : "");
@@ -725,5 +730,8 @@ function applyTileOnCell(td, selectedTile) {
   td.style.backgroundSize = "cover";
   if (td.cellData) {
     td.cellData.selectedTile = selectedTile;
+    if (bit >= 0){
+      td.cellData.value = bit;
+    }
   }
 }
