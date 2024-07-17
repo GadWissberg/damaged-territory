@@ -15,11 +15,9 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils.random
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.TextureDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.model.AmbDefinition
@@ -34,17 +32,9 @@ import com.gadarts.returnfire.systems.events.data.EntityEnteredNewRegionEventDat
 
 class MapSystem : GameEntitySystem() {
 
-    private lateinit var animatedFloorsEntities: ImmutableArray<Entity>
+    private val ambSoundsHandler = AmbSoundsHandler()
     private var groundTextureAnimationStateTime = 0F
-    private val ambSounds = listOf(
-        SoundDefinition.AMB_EAGLE,
-        SoundDefinition.AMB_WIND,
-        SoundDefinition.AMB_OUD
-    )
-    private var nextAmbSound: Long = TimeUtils.millis() + random(
-        AMB_SND_INTERVAL_MIN,
-        AMB_SND_INTERVAL_MAX
-    )
+    private lateinit var animatedFloorsEntities: ImmutableArray<Entity>
     private lateinit var floors: Array<Array<Entity?>>
     private lateinit var ambEntities: ImmutableArray<Entity>
     private lateinit var floorModel: Model
@@ -91,36 +81,6 @@ class MapSystem : GameEntitySystem() {
         applyTransformOnAmbEntities()
     }
 
-    private fun addEntityListener(gameSessionData: GameSessionData) {
-        engine.addEntityListener(object : EntityListener {
-            override fun entityAdded(entity: Entity) {
-
-            }
-
-            override fun entityRemoved(entity: Entity) {
-                if (ComponentsMapper.modelInstance.has(entity)) {
-                    val position =
-                        ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
-                            auxVector1
-                        )
-                    gameSessionData.entitiesAcrossRegions[position.z.toInt() / REGION_SIZE][position.x.toInt() / REGION_SIZE]?.remove(
-                        entity
-                    )
-                    if (ComponentsMapper.amb.has(entity)) {
-                        if (ComponentsMapper.amb.get(entity).definition == AmbDefinition.BUILDING_FLAG) {
-                            addFlag(position)
-                        }
-                        managers.dispatcher.dispatchMessage(
-                            SystemEvents.BUILDING_DESTROYED.ordinal,
-                            entity
-                        )
-                    }
-                }
-            }
-
-        })
-    }
-
     private fun addFlag(position: Vector3) {
         EntityBuilder.begin()
             .addAmbComponent(auxVector2.set(0.5F, 0.5F, 0.5F), 0F, AmbDefinition.FLAG)
@@ -139,6 +99,66 @@ class MapSystem : GameEntitySystem() {
             .finishAndAddToEngine()
     }
 
+    override fun resume(delta: Long) {
+        ambSoundsHandler.resume(delta)
+    }
+
+
+    override fun update(deltaTime: Float) {
+        super.update(deltaTime)
+        ambSoundsHandler.update(managers)
+        groundTextureAnimationStateTime += deltaTime
+        for (entity in animatedFloorsEntities) {
+            val keyFrame = ComponentsMapper.animatedTexture.get(entity).animation.getKeyFrame(
+                groundTextureAnimationStateTime,
+                true
+            )
+            (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(0)
+                .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                keyFrame
+        }
+    }
+
+
+    override fun dispose() {
+        floorModel.dispose()
+        gameSessionData.modelCache.dispose()
+    }
+
+    private fun addEntityListener(gameSessionData: GameSessionData) {
+        engine.addEntityListener(object : EntityListener {
+            override fun entityAdded(entity: Entity) {
+
+            }
+
+            override fun entityRemoved(entity: Entity) {
+                if (ComponentsMapper.modelInstance.has(entity)) {
+                    val position =
+                        ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                            auxVector1
+                        )
+                    val row = position.z.toInt() / REGION_SIZE
+                    val col = position.x.toInt() / REGION_SIZE
+                    if (row < gameSessionData.entitiesAcrossRegions.size && col < gameSessionData.entitiesAcrossRegions[0].size) {
+
+                        gameSessionData.entitiesAcrossRegions[row][col]?.remove(
+                            entity
+                        )
+                        if (ComponentsMapper.amb.has(entity)) {
+                            if (ComponentsMapper.amb.get(entity).definition == AmbDefinition.BUILDING_FLAG) {
+                                addFlag(position)
+                            }
+                            managers.dispatcher.dispatchMessage(
+                                SystemEvents.BUILDING_DESTROYED.ordinal,
+                                entity
+                            )
+                        }
+                    }
+                }
+            }
+
+        })
+    }
 
     private fun moveObjectFromRegionToAnotherRegion(
         newRow: Int, newColumn: Int, entity: Entity, prevRow: Int = -1, prevColumn: Int = -1,
@@ -163,29 +183,6 @@ class MapSystem : GameEntitySystem() {
         gameSessionData.entitiesAcrossRegions[newRow][newColumn]?.add(
             entity
         )
-    }
-
-    override fun resume(delta: Long) {
-        nextAmbSound += delta
-    }
-
-    override fun update(deltaTime: Float) {
-        super.update(deltaTime)
-        val now = TimeUtils.millis()
-        if (nextAmbSound < now) {
-            nextAmbSound = now + random(AMB_SND_INTERVAL_MIN, AMB_SND_INTERVAL_MAX)
-            managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(ambSounds.random()))
-        }
-        groundTextureAnimationStateTime += deltaTime
-        for (entity in animatedFloorsEntities) {
-            val keyFrame = ComponentsMapper.animatedTexture.get(entity).animation.getKeyFrame(
-                groundTextureAnimationStateTime,
-                true
-            )
-            (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(0)
-                .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                keyFrame
-        }
     }
 
     private fun createFloorModel(builder: ModelBuilder) {
@@ -286,16 +283,14 @@ class MapSystem : GameEntitySystem() {
         ) {
             floors[row][col] = entity
             textureDefinition =
-                beachTiles[TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.currentMap.tilesMapping[row][col] == c }]
+                TilesMapping.tiles[TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.currentMap.tilesMapping[row][col] == c }]
         }
         if (textureDefinition != null) {
-            val textureAttribute =
-                modelInstance.modelInstance.materials.get(0)
-                    .get(TextureAttribute.Diffuse) as TextureAttribute
             val texture =
                 managers.assetsManager.getAssetByDefinition(textureDefinition)
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-            textureAttribute.set(TextureRegion(texture))
+            (modelInstance.modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute)
+                .set(TextureRegion(texture))
             if (textureDefinition.animated) {
                 applyAnimatedTextureComponentToFloor(textureDefinition, entity)
             }
@@ -362,91 +357,13 @@ class MapSystem : GameEntitySystem() {
         )
     }
 
-    override fun dispose() {
-        floorModel.dispose()
-        gameSessionData.modelCache.dispose()
-    }
-
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private const val MIN_SCALE = 0.95F
         private const val MAX_SCALE = 1.05F
         private const val EXT_SIZE = 48
-        private const val AMB_SND_INTERVAL_MIN = 7000
-        private const val AMB_SND_INTERVAL_MAX = 22000
         private val TILES_CHARS = CharArray(80) { (it + 48).toChar() }.joinToString("")
-        private val beachTiles = listOf(
-            TextureDefinition.TILE_WATER,
-            TextureDefinition.TILE_BEACH_BOTTOM_RIGHT,
-            TextureDefinition.TILE_BEACH_GULF_BOTTOM_RIGHT,
-            TextureDefinition.TILE_BEACH_BOTTOM,
-            TextureDefinition.TILE_BEACH_BOTTOM_SPECIAL,
-            TextureDefinition.TILE_BEACH_BOTTOM_LEFT,
-            TextureDefinition.TILE_BEACH_GULF_BOTTOM_LEFT,
-            TextureDefinition.TILE_BEACH_RIGHT,
-            TextureDefinition.TILE_BEACH_LEFT,
-            TextureDefinition.TILE_BEACH_TOP_RIGHT,
-            TextureDefinition.TILE_BEACH_GULF_TOP_RIGHT,
-            TextureDefinition.TILE_BEACH_TOP,
-            TextureDefinition.TILE_BEACH_TOP_LEFT,
-            TextureDefinition.TILE_BEACH_GULF_TOP_LEFT,
-            TextureDefinition.TILE_BEACH,
-            TextureDefinition.TILE_WATER_SHALLOW_BOTTOM_RIGHT,
-            TextureDefinition.TILE_WATER_SHALLOW_GULF_BOTTOM_RIGHT,
-            TextureDefinition.TILE_WATER_SHALLOW_BOTTOM,
-            TextureDefinition.TILE_WATER_SHALLOW_BOTTOM_LEFT,
-            TextureDefinition.TILE_WATER_SHALLOW_GULF_BOTTOM_LEFT,
-            TextureDefinition.TILE_WATER_SHALLOW_RIGHT,
-            TextureDefinition.TILE_WATER_SHALLOW_LEFT,
-            TextureDefinition.TILE_WATER_SHALLOW_TOP_RIGHT,
-            TextureDefinition.TILE_WATER_SHALLOW_GULF_TOP_RIGHT,
-            TextureDefinition.TILE_WATER_SHALLOW_TOP,
-            TextureDefinition.TILE_WATER_SHALLOW_TOP_LEFT,
-            TextureDefinition.TILE_WATER_SHALLOW_GULF_TOP_LEFT,
-            TextureDefinition.TILE_WATER_SHALLOW,
-            TextureDefinition.TILE_BEACH_ROAD_HORIZONTAL,
-            TextureDefinition.TILE_BEACH_ROAD_HORIZONTAL_TOP,
-            TextureDefinition.TILE_BEACH_ROAD_HORIZONTAL_BOTTOM,
-            TextureDefinition.TILE_BEACH_ROAD_HORIZONTAL_END_RIGHT,
-            TextureDefinition.TILE_BEACH_ROAD_HORIZONTAL_END_LEFT,
-            TextureDefinition.TILE_BEACH_ROAD_VERTICAL,
-            TextureDefinition.TILE_BEACH_ROAD_VERTICAL_RIGHT,
-            TextureDefinition.TILE_BEACH_ROAD_VERTICAL_LEFT,
-            TextureDefinition.TILE_BEACH_ROAD_VERTICAL_END_UP,
-            TextureDefinition.TILE_BEACH_ROAD_VERTICAL_END_DOWN,
-            TextureDefinition.TILE_BEACH_ROAD_BOTTOM_RIGHT,
-            TextureDefinition.TILE_BEACH_ROAD_BOTTOM_LEFT,
-            TextureDefinition.TILE_BEACH_ROAD_TOP_LEFT,
-            TextureDefinition.TILE_BEACH_ROAD_TOP_RIGHT,
-            TextureDefinition.TILE_BEACH_ROAD_CROSS,
-            TextureDefinition.TILE_BEACH_GRASS,
-            TextureDefinition.TILE_BEACH_GRASS_TOP,
-            TextureDefinition.TILE_BEACH_GRASS_RIGHT,
-            TextureDefinition.TILE_BEACH_GRASS_BOTTOM,
-            TextureDefinition.TILE_BEACH_GRASS_LEFT,
-            TextureDefinition.TILE_BEACH_GRASS_TOP_RIGHT,
-            TextureDefinition.TILE_BEACH_GRASS_TOP_LEFT,
-            TextureDefinition.TILE_BEACH_GRASS_BOTTOM_RIGHT,
-            TextureDefinition.TILE_BEACH_GRASS_BOTTOM_LEFT,
-            TextureDefinition.TILE_BEACH_GRASS_GULF_TOP_RIGHT,
-            TextureDefinition.TILE_BEACH_GRASS_GULF_TOP_LEFT,
-            TextureDefinition.TILE_BEACH_GRASS_GULF_BOTTOM_RIGHT,
-            TextureDefinition.TILE_BEACH_GRASS_GULF_BOTTOM_LEFT,
-            TextureDefinition.TILE_BEACH_DARK,
-            TextureDefinition.TILE_BEACH_DARK_TOP,
-            TextureDefinition.TILE_BEACH_DARK_RIGHT,
-            TextureDefinition.TILE_BEACH_DARK_BOTTOM,
-            TextureDefinition.TILE_BEACH_DARK_LEFT,
-            TextureDefinition.TILE_BEACH_DARK_TOP_RIGHT,
-            TextureDefinition.TILE_BEACH_DARK_TOP_LEFT,
-            TextureDefinition.TILE_BEACH_DARK_BOTTOM_RIGHT,
-            TextureDefinition.TILE_BEACH_DARK_BOTTOM_LEFT,
-            TextureDefinition.TILE_BEACH_DARK_GULF_TOP_RIGHT,
-            TextureDefinition.TILE_BEACH_DARK_GULF_TOP_LEFT,
-            TextureDefinition.TILE_BEACH_DARK_GULF_BOTTOM_RIGHT,
-            TextureDefinition.TILE_BEACH_DARK_GULF_BOTTOM_LEFT,
-        )
 
     }
 }

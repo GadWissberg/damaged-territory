@@ -63,7 +63,10 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     override fun update(deltaTime: Float) {
-        shadowLight.begin(Vector3.Zero, gameSessionData.camera.direction)
+        shadowLight.begin(
+            auxVector3_1.set(gameSessionData.camera.position).add(-2F, 0F, -4F),
+            gameSessionData.camera.direction
+        )
         renderModels(
             renderSystemBatches.shadowBatch,
             shadowLight.camera,
@@ -101,8 +104,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
         shadowLight = DirectionalShadowLight(
             2056,
             2056,
-            60f,
-            60f,
+            30f,
+            30f,
             .1f,
             150f
         )

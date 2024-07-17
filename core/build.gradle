@@ -7,5 +7,5 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-  implementation("com.google.code.gson:gson:2.10.1")
+  implementation('com.google.code.gson:gson:2.10')
 }

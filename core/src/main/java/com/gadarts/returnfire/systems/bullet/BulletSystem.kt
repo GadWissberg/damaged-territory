@@ -54,19 +54,21 @@ class BulletSystem : GameEntitySystem() {
         modelInstance.modelInstance.transform.trn(
             getDirectionOfModel(bullet).nor().scl(bulletComponent.speed * deltaTime)
         )
-        if (gameSessionData.entitiesAcrossRegions[prevRow][prevCol] != null) {
-            auxSphere.radius = ComponentsMapper.modelInstance.get(bullet).gameModelInstance.getBoundingBox(
-                auxBoundingBox1
-            ).getDimensions(auxVector).len2() / 2F
-            auxSphere.center.set(modelInstance.modelInstance.transform.getTranslation(auxVector))
-            applyCollisionInTheCurrentRegion(prevRow, prevCol, bullet)
+        if (prevRow < gameSessionData.entitiesAcrossRegions.size && prevCol < gameSessionData.entitiesAcrossRegions[0].size) {
+            if (gameSessionData.entitiesAcrossRegions[prevRow][prevCol] != null) {
+                auxSphere.radius = ComponentsMapper.modelInstance.get(bullet).gameModelInstance.getBoundingBox(
+                    auxBoundingBox1
+                ).getDimensions(auxVector).len2() / 2F
+                auxSphere.center.set(modelInstance.modelInstance.transform.getTranslation(auxVector))
+                applyCollisionInTheCurrentRegion(prevRow, prevCol, bullet)
+            }
+            MapUtils.notifyEntityRegionChanged(
+                modelInstance.modelInstance.transform.getTranslation(auxVector),
+                prevRow,
+                prevCol,
+                managers.dispatcher
+            )
         }
-        MapUtils.notifyEntityRegionChanged(
-            modelInstance.modelInstance.transform.getTranslation(auxVector),
-            prevRow,
-            prevCol,
-            managers.dispatcher
-        )
     }
 
     private fun applyCollisionInTheCurrentRegion(prevRow: Int, prevCol: Int, bullet: Entity) {
