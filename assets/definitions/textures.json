@@ -1,0 +1,298 @@
+{
+  "definitions": [
+    {
+      "file_name": "button_up"
+    },
+    {
+      "file_name": "button_down"
+    },
+    {
+      "file_name": "propeller_blurred"
+    },
+    {
+      "file_name": "spark",
+      "frames": 3
+    },
+    {
+      "file_name": "bush",
+      "frames": 3
+    },
+    {
+      "file_name": "tile_beach"
+    },
+    {
+      "file_name": "tile_beach_bottom",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_bottom_special",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_bottom_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_gulf_bottom_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_bottom_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_gulf_bottom_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_top_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_gulf_top_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_top_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_gulf_top_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_top",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow",
+      "frames": 4,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_bottom",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_bottom_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_gulf_bottom_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_bottom_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_gulf_bottom_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_top_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_gulf_top_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_top_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_gulf_top_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_top",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_right",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water_shallow_left",
+      "frames": 2,
+      "animated": true
+    },
+    {
+      "file_name": "tile_water",
+      "frames": 4,
+      "animated": true
+    },
+    {
+      "file_name": "tile_beach_road_horizontal"
+    },
+    {
+      "file_name": "tile_beach_road_horizontal_top"
+    },
+    {
+      "file_name": "tile_beach_road_horizontal_bottom"
+    },
+    {
+      "file_name": "tile_beach_road_horizontal_end_right"
+    },
+    {
+      "file_name": "tile_beach_road_horizontal_end_left"
+    },
+    {
+      "file_name": "tile_beach_road_vertical"
+    },
+    {
+      "file_name": "tile_beach_road_vertical_right"
+    },
+    {
+      "file_name": "tile_beach_road_vertical_left"
+    },
+    {
+      "file_name": "tile_beach_road_vertical_end_up"
+    },
+    {
+      "file_name": "tile_beach_road_vertical_end_down"
+    },
+    {
+      "file_name": "tile_beach_road_bottom_right"
+    },
+    {
+      "file_name": "tile_beach_road_bottom_left"
+    },
+    {
+      "file_name": "tile_beach_road_top_left"
+    },
+    {
+      "file_name": "tile_beach_road_top_right"
+    },
+    {
+      "file_name": "tile_beach_road_cross"
+    },
+    {
+      "file_name": "tile_beach_grass"
+    },
+    {
+      "file_name": "tile_beach_grass_top"
+    },
+    {
+      "file_name": "tile_beach_grass_right"
+    },
+    {
+      "file_name": "tile_beach_grass_bottom"
+    },
+    {
+      "file_name": "tile_beach_grass_left"
+    },
+    {
+      "file_name": "tile_beach_grass_top_left"
+    },
+    {
+      "file_name": "tile_beach_grass_top_right"
+    },
+    {
+      "file_name": "tile_beach_grass_bottom_left"
+    },
+    {
+      "file_name": "tile_beach_grass_bottom_right"
+    },
+    {
+      "file_name": "tile_beach_grass_gulf_top_left"
+    },
+    {
+      "file_name": "tile_beach_grass_gulf_top_right"
+    },
+    {
+      "file_name": "tile_beach_grass_gulf_bottom_left"
+    },
+    {
+      "file_name": "tile_beach_grass_gulf_bottom_right"
+    },
+    {
+      "file_name": "tile_beach_dark"
+    },
+    {
+      "file_name": "tile_beach_dark_top"
+    },
+    {
+      "file_name": "tile_beach_dark_right"
+    },
+    {
+      "file_name": "tile_beach_dark_bottom"
+    },
+    {
+      "file_name": "tile_beach_dark_left"
+    },
+    {
+      "file_name": "tile_beach_dark_top_left"
+    },
+    {
+      "file_name": "tile_beach_dark_top_right"
+    },
+    {
+      "file_name": "tile_beach_dark_bottom_left"
+    },
+    {
+      "file_name": "tile_beach_dark_bottom_right"
+    },
+    {
+      "file_name": "tile_beach_dark_gulf_top_left"
+    },
+    {
+      "file_name": "tile_beach_dark_gulf_top_right"
+    },
+    {
+      "file_name": "tile_beach_dark_gulf_bottom_left"
+    },
+    {
+      "file_name": "tile_beach_dark_gulf_bottom_right"
+    },
+    {
+      "file_name": "joystick"
+    },
+    {
+      "file_name": "joystick_center"
+    },
+    {
+      "file_name": "icon_bullets"
+    },
+    {
+      "file_name": "icon_missiles"
+    },
+    {
+      "file_name": "base_door"
+    }
+  ]
+}
+

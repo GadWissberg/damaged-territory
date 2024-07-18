@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.assets
+package com.gadarts.returnfire.assets.loaders
 
 import com.badlogic.gdx.assets.AssetDescriptor
 import com.badlogic.gdx.assets.AssetLoaderParameters

@@ -15,8 +15,11 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.assets.definitions.AssetDefinition
+import com.gadarts.returnfire.assets.definitions.ExternalDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.loaders.DefinitionsLoader
+import com.gadarts.returnfire.assets.loaders.MapLoader
 import com.gadarts.returnfire.model.GameMap
 import java.util.*
 
@@ -25,7 +28,7 @@ open class GameAssetManager : AssetManager() {
     fun loadAssets() {
         initializeCustomLoaders()
         AssetsTypes.entries.forEach { type ->
-            if (type.isLoadedUsingLoader()) {
+            if (type.loadedUsingLoader) {
                 if (type.assets.isNotEmpty()) {
                     type.assets.forEach { asset ->
                         if (asset.getParameters() != null) {
@@ -38,6 +41,8 @@ open class GameAssetManager : AssetManager() {
                             asset.getPaths().forEach { load(it, asset.getClazz()) }
                         }
                     }
+                } else {
+                    load("definitions/textures", ExternalDefinition::class.java)
                 }
             } else {
                 type.assets.forEach { asset ->
@@ -63,6 +68,8 @@ open class GameAssetManager : AssetManager() {
         setLoader(BitmapFont::class.java, "ttf", loader)
         val mapLoader = MapLoader(resolver)
         setLoader(GameMap::class.java, "json", mapLoader)
+        val definitionsLoader = DefinitionsLoader(resolver)
+        setLoader(ExternalDefinition::class.java, "json", definitionsLoader)
     }
 
     fun getCachedBoundingBox(definition: ModelDefinition): BoundingBox {
