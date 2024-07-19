@@ -17,8 +17,11 @@ import com.badlogic.gdx.math.MathUtils.random
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.assets.AssetsTypes
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
-import com.gadarts.returnfire.assets.definitions.TextureDefinition
+import com.gadarts.returnfire.assets.definitions.external.ExternalDefinitions
+import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
+import com.gadarts.returnfire.assets.definitions.external.TexturesDefinitions
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharactersDefinitions
@@ -187,7 +190,7 @@ class MapSystem : GameEntitySystem() {
 
     private fun createFloorModel(builder: ModelBuilder) {
         builder.begin()
-        val texture = managers.assetsManager.getAssetByDefinition(TextureDefinition.TILE_WATER)
+        val texture = managers.assetsManager.get("tile_water", Texture::class.java)
         GeneralUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
         floorModel = builder.end()
     }
@@ -225,7 +228,9 @@ class MapSystem : GameEntitySystem() {
                 .get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
         gameSessionData.modelCache.add(modelInstance.modelInstance)
-        applyAnimatedTextureComponentToFloor(TextureDefinition.TILE_WATER, entity)
+        val texturesDefinitions =
+            managers.assetsManager.getDefinitions<ExternalDefinitions<TextureDefinition>>(AssetsTypes.TEXTURES)
+        applyAnimatedTextureComponentToFloor(texturesDefinitions.definitions["tile_water"]!!, entity)
     }
 
     private fun initializeExternalSeaTextureAttribute(
@@ -274,20 +279,25 @@ class MapSystem : GameEntitySystem() {
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
+        val texturesDefinitions =
+            managers.assetsManager.getDefinitions<ExternalDefinitions<TextureDefinition>>(AssetsTypes.TEXTURES)
         if (playerPosition.x.toInt() == col && playerPosition.z.toInt() == row) {
-            textureDefinition = TextureDefinition.BASE_DOOR
+            textureDefinition = texturesDefinitions.definitions["base_door"]
         } else if (row >= 0
             && col >= 0
             && row < gameSessionData.currentMap.tilesMapping.size
             && col < gameSessionData.currentMap.tilesMapping[0].size
         ) {
             floors[row][col] = entity
+            val definitions = managers.assetsManager.getDefinitions<TexturesDefinitions>(AssetsTypes.TEXTURES)
+            val indexOfFirst =
+                TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.currentMap.tilesMapping[row][col] == c }
             textureDefinition =
-                TilesMapping.tiles[TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.currentMap.tilesMapping[row][col] == c }]
+                definitions.definitions[TilesMapping.tiles[indexOfFirst]]
         }
         if (textureDefinition != null) {
             val texture =
-                managers.assetsManager.getAssetByDefinition(textureDefinition)
+                managers.assetsManager.getAssetByExternalDefinition(textureDefinition)
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
             (modelInstance.modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute)
                 .set(TextureRegion(texture))
@@ -302,8 +312,8 @@ class MapSystem : GameEntitySystem() {
         entity: Entity
     ) {
         val frames = com.badlogic.gdx.utils.Array<Texture>()
-        for (i in 0 until textureDefinition.fileNames) {
-            frames.add(managers.assetsManager.getAssetByDefinitionAndIndex(textureDefinition, i))
+        for (i in 0 until textureDefinition.frames) {
+            frames.add(managers.assetsManager.get("${textureDefinition.fileName}_$i", Texture::class.java))
         }
         val animation = Animation(0.25F, frames)
         animation.playMode = Animation.PlayMode.NORMAL

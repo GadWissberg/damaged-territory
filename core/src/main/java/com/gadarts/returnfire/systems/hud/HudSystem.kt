@@ -2,6 +2,7 @@ package com.gadarts.returnfire.systems.hud
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
@@ -11,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.assets.definitions.TextureDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -63,12 +63,12 @@ class HudSystem : GameEntitySystem() {
             addJoystick(ui)
             addWeaponButton(
                 ui,
-                TextureDefinition.ICON_BULLETS,
+                "icon_bullets",
                 clickListener = priWeaponButtonClickListener
             )
             addWeaponButton(
                 ui,
-                TextureDefinition.ICON_MISSILES,
+                "icon_missiles",
                 JOYSTICK_PADDING_LEFT,
                 secWeaponButtonClickListener
             )
@@ -78,22 +78,13 @@ class HudSystem : GameEntitySystem() {
 
     private fun addWeaponButton(
         ui: Table,
-        iconDefinition: TextureDefinition,
+        iconDefinition: String,
         rightPadding: Float = 0F,
         clickListener: ClickListener
     ) {
-        val up = TextureRegionDrawable(
-            managers.assetsManager.getAssetByDefinition(
-                TextureDefinition.BUTTON_UP
-            )
-        )
-        val down = TextureRegionDrawable(
-            managers.assetsManager.getAssetByDefinition(
-                TextureDefinition.BUTTON_DOWN
-            )
-        )
-        val icon =
-            TextureRegionDrawable(managers.assetsManager.getAssetByDefinition(iconDefinition))
+        val up = TextureRegionDrawable(managers.assetsManager.get("button_up", Texture::class.java))
+        val down = TextureRegionDrawable(managers.assetsManager.get("button_down", Texture::class.java))
+        val icon = TextureRegionDrawable(managers.assetsManager.get(iconDefinition, Texture::class.java))
         val button = ImageButton(ImageButton.ImageButtonStyle(up, down, null, icon, null, null))
         ui.add(button)
         if (rightPadding != 0F) {
@@ -103,8 +94,7 @@ class HudSystem : GameEntitySystem() {
     }
 
     private fun addJoystick(ui: Table) {
-        val joystickTexture =
-            managers.assetsManager.getAssetByDefinition(TextureDefinition.JOYSTICK)
+        val joystickTexture = managers.assetsManager.get("joystick", Texture::class.java)
         ui.add(gameSessionData.touchpad)
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
             .pad(0F, JOYSTICK_PADDING_LEFT, 64F, 0F)

@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -12,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
-import com.gadarts.returnfire.assets.definitions.TextureDefinition
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.player.BulletsPool
 
@@ -33,11 +33,9 @@ class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean
         15F,
         Touchpad.TouchpadStyle(
             TextureRegionDrawable(
-                assetsManager.getAssetByDefinition(
-                    TextureDefinition.JOYSTICK
-                )
+                assetsManager.get("joystick", Texture::class.java)
             ),
-            TextureRegionDrawable(assetsManager.getAssetByDefinition(TextureDefinition.JOYSTICK_CENTER))
+            TextureRegionDrawable(assetsManager.get("joystick_center", Texture::class.java))
         )
     )
     val priBulletsPool: BulletsPool = BulletsPool(

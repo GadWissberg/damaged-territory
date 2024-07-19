@@ -7,19 +7,17 @@ import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.utils.Array
-import com.gadarts.returnfire.assets.definitions.ExternalDefinition
-import com.gadarts.returnfire.assets.definitions.TextureDefinition
-import com.gadarts.returnfire.assets.definitions.TexturesDefinitions
-import com.gadarts.returnfire.assets.loaders.DefinitionsLoader.DefinitionsLoaderParameter
+import com.gadarts.returnfire.assets.definitions.external.ExternalDefinitions
+import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 
 class DefinitionsLoader(resolver: FileHandleResolver) :
-    AsynchronousAssetLoader<ExternalDefinition, DefinitionsLoaderParameter>(resolver) {
+    AsynchronousAssetLoader<ExternalDefinitions<*>, AssetLoaderParameters<ExternalDefinitions<*>>>(resolver) {
     override fun getDependencies(
         fileName: String?,
         file: FileHandle?,
-        parameter: DefinitionsLoaderParameter?
+        parameter: AssetLoaderParameters<ExternalDefinitions<*>>?
     ): Array<AssetDescriptor<Any>> {
         return Array()
     }
@@ -28,7 +26,7 @@ class DefinitionsLoader(resolver: FileHandleResolver) :
         manager: AssetManager?,
         fileName: String?,
         file: FileHandle?,
-        parameter: DefinitionsLoaderParameter?
+        parameter: AssetLoaderParameters<ExternalDefinitions<*>>?
     ) {
     }
 
@@ -36,22 +34,23 @@ class DefinitionsLoader(resolver: FileHandleResolver) :
         manager: AssetManager?,
         fileName: String?,
         file: FileHandle?,
-        parameter: DefinitionsLoaderParameter?
-    ): ExternalDefinition {
+        parameter: AssetLoaderParameters<ExternalDefinitions<*>>?
+    ): ExternalDefinitions<Any> {
         val jsonObj = gson.fromJson(file!!.reader(), JsonObject::class.java)
         val definitions = jsonObj.getAsJsonArray(KEY_DEFINITIONS)
-            .map { definition ->
+            .associateBy({ definition ->
+                definition.asJsonObject.get(KEY_FILE_NAME).asString
+            }, { definition ->
                 val asJsonObject = definition.asJsonObject
                 TextureDefinition(
                     asJsonObject.get(KEY_FILE_NAME).asString,
                     if (asJsonObject.has(KEY_FRAMES)) asJsonObject.get(KEY_FRAMES).asInt else 1,
                     if (asJsonObject.has(KEY_ANIMATED)) asJsonObject.get(KEY_ANIMATED).asBoolean else false,
                 )
-            }
-        return TexturesDefinitions(definitions)
+            })
+        return ExternalDefinitions(definitions)
     }
 
-    class DefinitionsLoaderParameter : AssetLoaderParameters<ExternalDefinition>()
 
     companion object {
         private val gson = Gson()

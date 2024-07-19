@@ -15,9 +15,11 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.assets.definitions.AssetDefinition
-import com.gadarts.returnfire.assets.definitions.ExternalDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.external.ExternalDefinition
+import com.gadarts.returnfire.assets.definitions.external.ExternalDefinitions
+import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.assets.loaders.DefinitionsLoader
 import com.gadarts.returnfire.assets.loaders.MapLoader
 import com.gadarts.returnfire.model.GameMap
@@ -42,7 +44,7 @@ open class GameAssetManager : AssetManager() {
                         }
                     }
                 } else {
-                    load("definitions/textures", ExternalDefinition::class.java)
+                    load("definitions/textures", ExternalDefinitions::class.java)
                 }
             } else {
                 type.assets.forEach { asset ->
@@ -58,7 +60,12 @@ open class GameAssetManager : AssetManager() {
             }
         }
         finishLoading()
+        val test = getDefinitions<TextureDefinition>(AssetsTypes.TEXTURES)
         generateModelsBoundingBoxes()
+    }
+
+    inline fun <reified T> getDefinitions(type: AssetsTypes): T {
+        return get("definitions/${type.name.lowercase()}", T::class.java)
     }
 
     private fun initializeCustomLoaders() {
@@ -69,7 +76,7 @@ open class GameAssetManager : AssetManager() {
         val mapLoader = MapLoader(resolver)
         setLoader(GameMap::class.java, "json", mapLoader)
         val definitionsLoader = DefinitionsLoader(resolver)
-        setLoader(ExternalDefinition::class.java, "json", definitionsLoader)
+        setLoader(ExternalDefinitions::class.java, "json", definitionsLoader)
     }
 
     fun getCachedBoundingBox(definition: ModelDefinition): BoundingBox {
@@ -117,6 +124,10 @@ open class GameAssetManager : AssetManager() {
 
     inline fun <reified T> getAssetByDefinitionAndIndex(definition: AssetDefinition<T>, i: Int): T {
         return get(definition.getPaths()[i], T::class.java)
+    }
+
+    inline fun <reified T> getAssetByExternalDefinition(externalDefinition: ExternalDefinition<T>): T {
+        return get(externalDefinition.fileName, T::class.java)
     }
 
     companion object {
