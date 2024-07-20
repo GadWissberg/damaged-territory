@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader
@@ -17,12 +18,12 @@ import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.assets.definitions.AssetDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.external.ExternalDefinition
 import com.gadarts.returnfire.assets.definitions.external.ExternalDefinitions
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.assets.loaders.DefinitionsLoader
 import com.gadarts.returnfire.assets.loaders.MapLoader
 import com.gadarts.returnfire.model.GameMap
+import java.io.File
 import java.util.*
 
 open class GameAssetManager : AssetManager() {
@@ -44,7 +45,7 @@ open class GameAssetManager : AssetManager() {
                         }
                     }
                 } else {
-                    load("definitions/textures", ExternalDefinitions::class.java)
+                    load("definitions/textures.json", ExternalDefinitions::class.java)
                 }
             } else {
                 type.assets.forEach { asset ->
@@ -60,12 +61,27 @@ open class GameAssetManager : AssetManager() {
             }
         }
         finishLoading()
-        val test = getDefinitions<TextureDefinition>(AssetsTypes.TEXTURES)
+        getTexturesDefinitions().definitions.forEach {
+            if (it.value.frames == 1) {
+                load(
+                    "${TextureDefinition.FOLDER}${File.separator}${it.value.fileName}.${TextureDefinition.FORMAT}",
+                    Texture::class.java
+                )
+            } else {
+                for (i in 0 until it.value.frames) {
+                    load(
+                        "${TextureDefinition.FOLDER}${File.separator}${it.value.fileName}_$i.${TextureDefinition.FORMAT}",
+                        Texture::class.java
+                    )
+                }
+            }
+        }
+        finishLoading()
         generateModelsBoundingBoxes()
     }
 
-    inline fun <reified T> getDefinitions(type: AssetsTypes): T {
-        return get("definitions/${type.name.lowercase()}", T::class.java)
+    fun getTexturesDefinitions(): ExternalDefinitions<TextureDefinition> {
+        return get("definitions/${AssetsTypes.TEXTURES.name.lowercase()}.${ExternalDefinitions.FORMAT}")
     }
 
     private fun initializeCustomLoaders() {
@@ -122,12 +138,21 @@ open class GameAssetManager : AssetManager() {
         return get(definition.getPaths().random(), T::class.java)
     }
 
-    inline fun <reified T> getAssetByDefinitionAndIndex(definition: AssetDefinition<T>, i: Int): T {
-        return get(definition.getPaths()[i], T::class.java)
+    fun getTexture(name: String): Texture {
+        val definition = getTexturesDefinitions().definitions[name]!!
+        return getTexture(definition)
     }
 
-    inline fun <reified T> getAssetByExternalDefinition(externalDefinition: ExternalDefinition<T>): T {
-        return get(externalDefinition.fileName, T::class.java)
+    fun getTexture(definition: TextureDefinition, frameIndex: Int = 0): Texture {
+        val fileName = if (definition.frames == 1) {
+            "${AssetsTypes.TEXTURES.name.lowercase()}${File.separator}${definition.fileName}.${AssetsTypes.TEXTURES.format}"
+        } else {
+            "${AssetsTypes.TEXTURES.name.lowercase()}${File.separator}${definition.fileName}_${frameIndex}.${AssetsTypes.TEXTURES.format}"
+        }
+        return get(
+            fileName,
+            Texture::class.java
+        )
     }
 
     companion object {

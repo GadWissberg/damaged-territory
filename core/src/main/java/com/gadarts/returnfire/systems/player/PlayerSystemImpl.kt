@@ -11,11 +11,9 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.assets.AssetsTypes
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.external.TexturesDefinitions
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GameModelInstance
@@ -118,9 +116,9 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         if (GameDebugSettings.DISPLAY_PROPELLER) {
             addPropeller(entityBuilder)
         }
-        val definitions = managers.assetsManager.getDefinitions<TexturesDefinitions>(AssetsTypes.TEXTURES)
+        val definitions = managers.assetsManager.getTexturesDefinitions()
         val spark0 =
-            TextureRegion(managers.assetsManager.getAssetByExternalDefinition(definitions.definitions["spark"]!!))
+            TextureRegion(managers.assetsManager.getTexture(definitions.definitions["spark"]!!))
         val sparkFrames = listOf(spark0)
         entityBuilder.addAmbSoundComponent(
             managers.assetsManager.getAssetByDefinition(
@@ -199,9 +197,9 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     private fun addPropeller(
         entityBuilder: EntityBuilder
     ) {
-        val definitions = managers.assetsManager.getDefinitions<TexturesDefinitions>(AssetsTypes.TEXTURES)
+        val definitions = managers.assetsManager.getTexturesDefinitions()
         val propTextureRegion =
-            TextureRegion(managers.assetsManager.getAssetByExternalDefinition(definitions.definitions["propeller_blurred"]!!))
+            TextureRegion(managers.assetsManager.getTexture(definitions.definitions["propeller_blurred"]!!))
         val propDec = newDecal(PROP_SIZE, PROP_SIZE, propTextureRegion, true)
         propDec.rotateX(90F)
         val decals = listOf(ChildDecal(propDec, Vector3.Zero))

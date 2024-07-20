@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -33,9 +32,11 @@ class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean
         15F,
         Touchpad.TouchpadStyle(
             TextureRegionDrawable(
-                assetsManager.get("joystick", Texture::class.java)
+                assetsManager.getTexture(assetsManager.getTexturesDefinitions().definitions["joystick"]!!)
             ),
-            TextureRegionDrawable(assetsManager.get("joystick_center", Texture::class.java))
+            TextureRegionDrawable(
+                assetsManager.getTexture(assetsManager.getTexturesDefinitions().definitions["joystick_center"]!!),
+            )
         )
     )
     val priBulletsPool: BulletsPool = BulletsPool(
