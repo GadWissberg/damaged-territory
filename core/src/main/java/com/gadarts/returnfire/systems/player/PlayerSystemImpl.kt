@@ -20,6 +20,7 @@ import com.gadarts.returnfire.components.GameModelInstance
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.model.CharactersDefinitions
+import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.GameSessionData
@@ -96,44 +97,132 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         playerShootingHandler.update()
     }
 
+    override fun keyDown(keycode: Int): Boolean {
+        when (keycode) {
+            Input.Keys.UP -> {
+                playerMovementHandler.thrust(gameSessionData.player)
+            }
+
+            Input.Keys.DOWN -> {
+                playerMovementHandler.thrust(gameSessionData.player, reverse = true)
+            }
+
+            Input.Keys.LEFT -> {
+                playerMovementHandler.rotate(1)
+            }
+
+            Input.Keys.RIGHT -> {
+                playerMovementHandler.rotate(-1)
+            }
+
+            Input.Keys.CONTROL_LEFT -> {
+                playerShootingHandler.startPrimaryShooting()
+            }
+
+            Input.Keys.SHIFT_LEFT -> {
+                playerShootingHandler.startSecondaryShooting()
+            }
+        }
+        return false
+    }
+
+    override fun keyUp(keycode: Int): Boolean {
+        when (keycode) {
+            Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
+                playerMovementHandler.onTouchUp(keycode)
+            }
+
+            Input.Keys.CONTROL_LEFT -> {
+                playerShootingHandler.stopPrimaryShooting()
+            }
+
+            Input.Keys.SHIFT_LEFT -> {
+                playerShootingHandler.stopSecondaryShooting()
+            }
+        }
+        return false
+    }
+
+    override fun keyTyped(character: Char): Boolean {
+        return false
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        return false
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        return false
+    }
+
+    override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        return false
+    }
+
     private fun addPlayer(): Entity {
         EntityBuilder.initialize(managers.engine)
         val map = managers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
-        val apacheModel = managers.assetsManager.getAssetByDefinition(ModelDefinition.APACHE)
         val placedPlayer =
             map.placedElements.find { placedElement -> placedElement.definition == CharactersDefinitions.PLAYER }
+        val player = createPlayer(placedPlayer!!)
+        engine.addEntity(player)
+        gameSessionData.player = player
+        ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
+        return player
+    }
+
+    private fun createPlayer(
+        placedPlayer: PlacedElement
+    ): Entity {
         val entityBuilder =
             EntityBuilder.begin()
                 .addModelInstanceComponent(
-                    GameModelInstance(
-                        ModelInstance(apacheModel),
-                        ModelDefinition.APACHE,
-                        managers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE),
-                    ),
-                    auxVector3_1.set(placedPlayer!!.col.toFloat(), PLAYER_HEIGHT, placedPlayer.row.toFloat()),
+                    createPlayerModelInstance(),
+                    auxVector3_1.set(placedPlayer.col.toFloat(), PLAYER_HEIGHT, placedPlayer.row.toFloat()),
                     false
                 )
         if (GameDebugSettings.DISPLAY_PROPELLER) {
             addPropeller(entityBuilder)
         }
-        val definitions = managers.assetsManager.getTexturesDefinitions()
-        val spark0 =
-            TextureRegion(managers.assetsManager.getTexture(definitions.definitions["spark"]!!))
-        val sparkFrames = listOf(spark0)
+        val propellerSound = managers.assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER)
         entityBuilder.addAmbSoundComponent(
-            managers.assetsManager.getAssetByDefinition(
-                SoundDefinition.PROPELLER
-            )
+            propellerSound
         )
             .addCharacterComponent(INITIAL_HP)
             .addPlayerComponent()
+        addFirepowerToPlayer(entityBuilder)
+        return entityBuilder.finish()
+    }
+
+    private fun addFirepowerToPlayer(entityBuilder: EntityBuilder) {
+        val apacheModel = managers.assetsManager.getAssetByDefinition(ModelDefinition.APACHE)
+        val definitions = managers.assetsManager.getTexturesDefinitions()
+        val definition = definitions.definitions["spark"]!!
+        val sparkFrames = listOf(TextureRegion(managers.assetsManager.getTexture(definition)))
         addPrimaryArmComponent(entityBuilder, sparkFrames)
-        val player = addSecondaryArmComponent(entityBuilder, sparkFrames)
+        addSecondaryArmComponent(entityBuilder, sparkFrames)
             .addSphereCollisionComponent(apacheModel)
-            .finishAndAddToEngine()
-        gameSessionData.player = player
-        ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
-        return player
+    }
+
+    private fun createPlayerModelInstance(): GameModelInstance {
+        val apacheModel = managers.assetsManager.getAssetByDefinition(ModelDefinition.APACHE)
+        return GameModelInstance(
+            ModelInstance(apacheModel),
+            ModelDefinition.APACHE,
+            managers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE),
+        )
     }
 
     private fun addPrimaryArmComponent(
@@ -206,79 +295,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         entityBuilder.addChildDecalComponent(decals, true)
     }
 
-    override fun keyDown(keycode: Int): Boolean {
-        when (keycode) {
-            Input.Keys.UP -> {
-                playerMovementHandler.thrust(gameSessionData.player)
-            }
-
-            Input.Keys.DOWN -> {
-                playerMovementHandler.thrust(gameSessionData.player, reverse = true)
-            }
-
-            Input.Keys.LEFT -> {
-                playerMovementHandler.rotate(gameSessionData.player, 1)
-            }
-
-            Input.Keys.RIGHT -> {
-                playerMovementHandler.rotate(gameSessionData.player, -1)
-            }
-
-            Input.Keys.CONTROL_LEFT -> {
-                playerShootingHandler.startPrimaryShooting()
-            }
-
-            Input.Keys.SHIFT_LEFT -> {
-                playerShootingHandler.startSecondaryShooting()
-            }
-        }
-        return false
-    }
-
-    override fun keyUp(keycode: Int): Boolean {
-        when (keycode) {
-            Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
-                playerMovementHandler.onTouchUp(keycode)
-            }
-
-            Input.Keys.CONTROL_LEFT -> {
-                playerShootingHandler.stopPrimaryShooting()
-            }
-
-            Input.Keys.SHIFT_LEFT -> {
-                playerShootingHandler.stopSecondaryShooting()
-            }
-        }
-        return false
-    }
-
-    override fun keyTyped(character: Char): Boolean {
-        return false
-    }
-
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        return false
-    }
-
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
-        return false
-    }
-
-    override fun scrolled(amountX: Float, amountY: Float): Boolean {
-        return false
-    }
 
     companion object {
         private const val INITIAL_HP = 100

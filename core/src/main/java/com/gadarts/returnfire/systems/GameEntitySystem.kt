@@ -12,7 +12,7 @@ abstract class GameEntitySystem : Disposable, EntitySystem(), Telegraph {
     protected lateinit var managers: Managers
     protected abstract val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
 
-    open fun addListener(listener: GameEntitySystem) {
+    open fun addListener() {
         subscribedEvents.forEach { managers.dispatcher.addListener(this, it.key.ordinal) }
     }
 

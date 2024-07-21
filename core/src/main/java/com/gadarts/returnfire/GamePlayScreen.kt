@@ -49,9 +49,7 @@ class GamePlayScreen(
             )
         }
         systems.forEach { system ->
-            system.addListener(
-                system
-            )
+            system.addListener()
         }
         engine.systems.forEach {
             (it as GameEntitySystem).onSystemReady()

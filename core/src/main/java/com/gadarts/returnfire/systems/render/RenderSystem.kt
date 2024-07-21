@@ -110,7 +110,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
             150f
         )
         val dirValue = 0.4f
-        shadowLight.set(dirValue, dirValue, dirValue, 40.0f, -35f, -35f)
+        shadowLight.set(dirValue, dirValue, dirValue, 0.4F, -0.6f, -0.35f)
         environment.add(shadowLight)
         environment.shadowMap = shadowLight
     }
@@ -121,8 +121,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(
             GL20.GL_COLOR_BUFFER_BIT
-                or GL20.GL_DEPTH_BUFFER_BIT
-                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+                    or GL20.GL_DEPTH_BUFFER_BIT
+                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
     }
 

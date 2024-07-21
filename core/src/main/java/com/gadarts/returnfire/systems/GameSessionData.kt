@@ -1,55 +1,29 @@
 package com.gadarts.returnfire.systems
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
-import com.badlogic.gdx.math.collision.BoundingBox
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.GameAssetManager
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.model.GameMap
-import com.gadarts.returnfire.systems.player.BulletsPool
+import com.gadarts.returnfire.systems.data.GameSessionDataEntities
+import com.gadarts.returnfire.systems.data.GameSessionDataHud
+import com.gadarts.returnfire.systems.data.GameSessionDataRender
 
 class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean) :
     Disposable {
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
-    lateinit var player: Entity
-    lateinit var entitiesAcrossRegions: Array<Array<MutableList<Entity>?>>
+    val gameSessionDataEntities = GameSessionDataEntities()
     val camera: PerspectiveCamera = PerspectiveCamera(
         FOV,
         Gdx.graphics.width.toFloat(),
         Gdx.graphics.height.toFloat()
     )
-    val stage: Stage = Stage()
-    lateinit var modelCache: ModelCache
-    val touchpad: Touchpad = Touchpad(
-        15F,
-        Touchpad.TouchpadStyle(
-            TextureRegionDrawable(
-                assetsManager.getTexture(assetsManager.getTexturesDefinitions().definitions["joystick"]!!)
-            ),
-            TextureRegionDrawable(
-                assetsManager.getTexture(assetsManager.getTexturesDefinitions().definitions["joystick_center"]!!),
-            )
-        )
-    )
-    val priBulletsPool: BulletsPool = BulletsPool(
-        assetsManager.getAssetByDefinition(ModelDefinition.BULLET),
-        BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.BULLET)),
-        ModelDefinition.BULLET
-    )
-    val secBulletsPool: BulletsPool = BulletsPool(
-        assetsManager.getAssetByDefinition(ModelDefinition.MISSILE),
-        BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE)),
-        ModelDefinition.MISSILE
-    )
-    lateinit var particleSystem: ParticleSystem
+    val gameSessionDataHud = GameSessionDataHud(assetsManager)
+    val gameSessionDataPools = GameSessionDataPools(assetsManager)
+    val gameSessionDataRender = GameSessionDataRender()
 
     companion object {
         const val FOV = 67F
@@ -60,7 +34,8 @@ class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean
     }
 
     override fun dispose() {
+        gameSessionDataRender.dispose()
         modelCache.dispose()
-        stage.dispose()
+        gameSessionDataHud.dispose()
     }
 }

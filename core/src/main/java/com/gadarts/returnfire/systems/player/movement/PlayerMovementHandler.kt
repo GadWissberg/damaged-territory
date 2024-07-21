@@ -60,7 +60,7 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
         dispatcher: MessageDispatcher
     )
 
-    abstract fun rotate(player: Entity, clockwise: Int)
+    abstract fun rotate(clockwise: Int)
 
     private fun clampPosition(
         transform: Matrix4,

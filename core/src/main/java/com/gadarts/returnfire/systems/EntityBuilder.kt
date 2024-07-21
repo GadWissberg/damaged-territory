@@ -171,6 +171,12 @@ class EntityBuilder private constructor() {
         return particleEffectComponent
     }
 
+    fun finish(): Entity {
+        val result = entity
+        entity = null
+        return result!!
+    }
+
     companion object {
 
         private lateinit var instance: EntityBuilder
