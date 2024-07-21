@@ -95,7 +95,7 @@ class HudSystem : GameEntitySystem() {
 
     private fun addJoystick(ui: Table) {
         val joystickTexture = managers.assetsManager.get("joystick", Texture::class.java)
-        ui.add(gameSessionData.touchpad)
+        ui.add(gameSessionData.gameSessionDataHud.touchpad)
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
             .pad(0F, JOYSTICK_PADDING_LEFT, 64F, 0F)
             .growX()
@@ -119,7 +119,7 @@ class HudSystem : GameEntitySystem() {
             debugInput.autoUpdate = true
             Gdx.input.inputProcessor = debugInput
         } else {
-            (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(gameSessionData.stage)
+            (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(gameSessionData.gameSessionDataHud.stage)
         }
     }
 
@@ -130,7 +130,7 @@ class HudSystem : GameEntitySystem() {
         uiTable.setFillParent(true)
         uiTable.setSize(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         uiTable.align(Align.bottom)
-        gameSessionData.stage.addActor(uiTable)
+        gameSessionData.gameSessionDataHud.stage.addActor(uiTable)
         return uiTable
     }
 
@@ -139,8 +139,8 @@ class HudSystem : GameEntitySystem() {
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.update()
         }
-        gameSessionData.stage.act(deltaTime)
-        gameSessionData.stage.draw()
+        gameSessionData.gameSessionDataHud.stage.act(deltaTime)
+        gameSessionData.gameSessionDataHud.stage.draw()
     }
 
     companion object {

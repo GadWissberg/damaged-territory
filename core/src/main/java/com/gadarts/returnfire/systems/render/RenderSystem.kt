@@ -180,12 +180,12 @@ class RenderSystem : GameEntitySystem(), Disposable {
             renderModel(entity, batch, applyEnvironment)
         }
         if (applyEnvironment) {
-            batch.render(gameSessionData.modelCache, environment)
+            batch.render(gameSessionData.gameSessionDataRender.modelCache, environment)
         } else {
-            batch.render(gameSessionData.modelCache)
+            batch.render(gameSessionData.gameSessionDataRender.modelCache)
         }
         if (renderParticleEffects) {
-            renderSystemBatches.modelBatch.render(gameSessionData.particleSystem, environment)
+            renderSystemBatches.modelBatch.render(gameSessionData.gameSessionDataRender.particleSystem, environment)
         }
         batch.end()
     }

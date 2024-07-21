@@ -2,8 +2,6 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
-import com.badlogic.gdx.graphics.g3d.ModelCache
-import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.model.GameMap
@@ -35,7 +33,6 @@ class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean
 
     override fun dispose() {
         gameSessionDataRender.dispose()
-        modelCache.dispose()
         gameSessionDataHud.dispose()
     }
 }

@@ -54,8 +54,8 @@ class BulletSystem : GameEntitySystem() {
         modelInstance.modelInstance.transform.trn(
             getDirectionOfModel(bullet).nor().scl(bulletComponent.speed * deltaTime)
         )
-        if (prevRow < gameSessionData.entitiesAcrossRegions.size && prevCol < gameSessionData.entitiesAcrossRegions[0].size) {
-            if (gameSessionData.entitiesAcrossRegions[prevRow][prevCol] != null) {
+        if (prevRow < gameSessionData.gameSessionDataEntities.entitiesAcrossRegions.size && prevCol < gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[0].size) {
+            if (gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[prevRow][prevCol] != null) {
                 auxSphere.radius = ComponentsMapper.modelInstance.get(bullet).gameModelInstance.getBoundingBox(
                     auxBoundingBox1
                 ).getDimensions(auxVector).len2() / 2F
@@ -72,7 +72,7 @@ class BulletSystem : GameEntitySystem() {
     }
 
     private fun applyCollisionInTheCurrentRegion(prevRow: Int, prevCol: Int, bullet: Entity) {
-        for (entity in gameSessionData.entitiesAcrossRegions[prevRow][prevCol]!!) {
+        for (entity in gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[prevRow][prevCol]!!) {
             val entityBoundingBox =
                 ComponentsMapper.modelInstance.get(entity).gameModelInstance.getBoundingBox(
                     auxBoundingBox2

@@ -111,7 +111,7 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler(0.5F) {
         tiltAnimationHandler.update(player)
     }
 
-    override fun rotate(player: Entity, clockwise: Int) {
+    override fun rotate(clockwise: Int) {
 
     }
 

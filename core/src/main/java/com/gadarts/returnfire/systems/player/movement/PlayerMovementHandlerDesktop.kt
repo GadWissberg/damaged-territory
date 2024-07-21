@@ -133,7 +133,7 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler(0F) {
         transform.setTranslation(position)
     }
 
-    override fun rotate(player: Entity, clockwise: Int) {
+    override fun rotate(clockwise: Int) {
         rotating = clockwise * 3
     }
 

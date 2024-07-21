@@ -62,16 +62,21 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop()
         addPlayer()
         if (gameSessionData.runsOnMobile) {
-            gameSessionData.touchpad.addListener(TouchPadListener(playerMovementHandler, gameSessionData.player))
+            gameSessionData.gameSessionDataHud.touchpad.addListener(
+                TouchPadListener(
+                    playerMovementHandler,
+                    gameSessionData.gameSessionDataEntities.player
+                )
+            )
         } else {
             (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
         }
         playerShootingHandler.initialize(
             managers.dispatcher,
             managers.engine,
-            gameSessionData.priBulletsPool,
-            gameSessionData.secBulletsPool,
-            gameSessionData.player
+            gameSessionData.gameSessionDataPools.priBulletsPool,
+            gameSessionData.gameSessionDataPools.secBulletsPool,
+            gameSessionData.gameSessionDataEntities.player
         )
         playerMovementHandler.initialize(gameSessionData.camera)
     }
@@ -89,7 +94,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         super.update(deltaTime)
         val currentMap = gameSessionData.currentMap
         playerMovementHandler.update(
-            gameSessionData.player,
+            gameSessionData.gameSessionDataEntities.player,
             deltaTime,
             currentMap,
             managers.dispatcher
@@ -100,11 +105,11 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Input.Keys.UP -> {
-                playerMovementHandler.thrust(gameSessionData.player)
+                playerMovementHandler.thrust(gameSessionData.gameSessionDataEntities.player)
             }
 
             Input.Keys.DOWN -> {
-                playerMovementHandler.thrust(gameSessionData.player, reverse = true)
+                playerMovementHandler.thrust(gameSessionData.gameSessionDataEntities.player, reverse = true)
             }
 
             Input.Keys.LEFT -> {
@@ -178,7 +183,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             map.placedElements.find { placedElement -> placedElement.definition == CharactersDefinitions.PLAYER }
         val player = createPlayer(placedPlayer!!)
         engine.addEntity(player)
-        gameSessionData.player = player
+        gameSessionData.gameSessionDataEntities.player = player
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
         return player
     }
@@ -263,7 +268,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 playerShootingHandler.secondaryCreationSide =
                     !playerShootingHandler.secondaryCreationSide
                 val transform =
-                    ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
+                    ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform
                 val pos =
                     auxVector3_1.set(
                         0.2F,

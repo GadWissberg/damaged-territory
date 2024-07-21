@@ -49,7 +49,7 @@ class MapSystem : GameEntitySystem() {
                 moveObjectFromRegionToAnotherRegion(
                     EntityEnteredNewRegionEventData.newRow,
                     EntityEnteredNewRegionEventData.newColumn,
-                    gameSessionData.player,
+                    gameSessionData.gameSessionDataEntities.player,
                     EntityEnteredNewRegionEventData.prevRow,
                     EntityEnteredNewRegionEventData.prevColumn,
                 )
@@ -64,10 +64,10 @@ class MapSystem : GameEntitySystem() {
         val builder = ModelBuilder()
         createFloorModel(builder)
         val tilesMapping = gameSessionData.currentMap.tilesMapping
-        gameSessionData.entitiesAcrossRegions =
+        gameSessionData.gameSessionDataEntities.entitiesAcrossRegions =
             Array(tilesMapping.size / REGION_SIZE) { arrayOfNulls(tilesMapping[0].size / REGION_SIZE) }
         floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
-        gameSessionData.modelCache = ModelCache()
+        gameSessionData.gameSessionDataRender.modelCache = ModelCache()
         addFloor()
         gameSessionData.currentMap.placedElements.forEach {
             if (it.definition != CharactersDefinitions.PLAYER) {
@@ -122,7 +122,7 @@ class MapSystem : GameEntitySystem() {
 
     override fun dispose() {
         floorModel.dispose()
-        gameSessionData.modelCache.dispose()
+        gameSessionData.gameSessionDataRender.modelCache.dispose()
     }
 
     private fun addEntityListener(gameSessionData: GameSessionData) {
@@ -139,9 +139,9 @@ class MapSystem : GameEntitySystem() {
                         )
                     val row = position.z.toInt() / REGION_SIZE
                     val col = position.x.toInt() / REGION_SIZE
-                    if (row < gameSessionData.entitiesAcrossRegions.size && col < gameSessionData.entitiesAcrossRegions[0].size) {
+                    if (row < gameSessionData.gameSessionDataEntities.entitiesAcrossRegions.size && col < gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[0].size) {
 
-                        gameSessionData.entitiesAcrossRegions[row][col]?.remove(
+                        gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[row][col]?.remove(
                             entity
                         )
                         if (ComponentsMapper.amb.has(entity)) {
@@ -171,16 +171,16 @@ class MapSystem : GameEntitySystem() {
         )
             return
 
-        if (gameSessionData.entitiesAcrossRegions[newRow][newColumn] == null) {
-            gameSessionData.entitiesAcrossRegions[newRow][newColumn] =
+        if (gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[newRow][newColumn] == null) {
+            gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[newRow][newColumn] =
                 mutableListOf()
         }
         if (prevRow >= 0 && prevColumn >= 0 && prevRow < maxRow && prevColumn < maxCol) {
-            gameSessionData.entitiesAcrossRegions[prevRow][prevColumn]?.remove(
+            gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[prevRow][prevColumn]?.remove(
                 entity
             )
         }
-        gameSessionData.entitiesAcrossRegions[newRow][newColumn]?.add(
+        gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[newRow][newColumn]?.add(
             entity
         )
     }
@@ -194,13 +194,13 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addFloor() {
-        gameSessionData.modelCache.begin()
+        gameSessionData.gameSessionDataRender.modelCache.begin()
         val tilesMapping = gameSessionData.currentMap.tilesMapping
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
         addFloorRegion(depth, width)
         addAllExternalSea(width, depth)
-        gameSessionData.modelCache.end()
+        gameSessionData.gameSessionDataRender.modelCache.end()
     }
 
     private fun addAllExternalSea(width: Int, depth: Int) {
@@ -225,7 +225,7 @@ class MapSystem : GameEntitySystem() {
             modelInstance.modelInstance.materials.first()
                 .get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
-        gameSessionData.modelCache.add(modelInstance.modelInstance)
+        gameSessionData.gameSessionDataRender.modelCache.add(modelInstance.modelInstance)
         val texturesDefinitions = managers.assetsManager.getTexturesDefinitions()
         applyAnimatedTextureComponentToFloor(texturesDefinitions.definitions["tile_water"]!!, entity)
     }
@@ -270,10 +270,10 @@ class MapSystem : GameEntitySystem() {
             modelInstance,
             auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
         )
-        gameSessionData.modelCache.add(modelInstance.modelInstance)
+        gameSessionData.gameSessionDataRender.modelCache.add(modelInstance.modelInstance)
         var textureDefinition: TextureDefinition? = null
         val playerPosition =
-            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
         val texturesDefinitions =

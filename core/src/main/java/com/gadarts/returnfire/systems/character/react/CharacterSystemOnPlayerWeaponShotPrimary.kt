@@ -11,11 +11,11 @@ class CharacterSystemOnPlayerWeaponShotPrimary(private val characterSystem: Char
     HandlerOnEvent {
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-        val arm = ComponentsMapper.primaryArm.get(gameSessionData.player)
+        val arm = ComponentsMapper.primaryArm.get(gameSessionData.gameSessionDataEntities.player)
         val relativePosition = arm.relativePos
         characterSystem.positionSpark(
             arm,
-            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance,
+            ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance,
             relativePosition
         )
         val armProperties = arm.armProperties
@@ -26,7 +26,7 @@ class CharacterSystemOnPlayerWeaponShotPrimary(private val characterSystem: Char
         managers.soundPlayer.playPositionalSound(
             armProperties.shootingSound,
             randomPitch = false,
-            gameSessionData.player,
+            gameSessionData.gameSessionDataEntities.player,
             gameSessionData.camera
         )
 

@@ -100,7 +100,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     override fun createBullet(speed: Float, relativePosition: Vector3) {
         val transform =
-            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
         position.add(relativePosition)
         val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()

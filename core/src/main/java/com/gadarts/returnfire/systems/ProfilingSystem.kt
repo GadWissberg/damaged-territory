@@ -23,7 +23,7 @@ class ProfilingSystem : GameEntitySystem() {
     }
 
     override fun dispose() {
-        gameSessionData.stage.dispose()
+        gameSessionData.gameSessionDataHud.stage.dispose()
     }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
@@ -39,7 +39,7 @@ class ProfilingSystem : GameEntitySystem() {
         val style = Label.LabelStyle(font, Color.WHITE)
         label = Label(stringBuilder, style)
         label.setPosition(0f, (Gdx.graphics.height - 175).toFloat())
-        gameSessionData.stage.addActor(label)
+        gameSessionData.gameSessionDataHud.stage.addActor(label)
         label.zIndex = 0
     }
 
@@ -63,7 +63,7 @@ class ProfilingSystem : GameEntitySystem() {
     private fun displayBatchCalls() {
         displayLine(
             LABEL_UI_BATCH_RENDER_CALLS,
-            (gameSessionData.stage.batch as SpriteBatch).renderCalls
+            (gameSessionData.gameSessionDataHud.stage.batch as SpriteBatch).renderCalls
         )
     }
 
