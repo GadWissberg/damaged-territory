@@ -1,6 +1,7 @@
-package com.gadarts.returnfire.components
+package com.gadarts.returnfire.components.model
 
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.returnfire.components.GameComponent
 
 class ModelInstanceComponent : GameComponent() {
     var hidden: Boolean = false

@@ -16,6 +16,8 @@ import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.systems.player.BulletsPool
 import kotlin.math.max

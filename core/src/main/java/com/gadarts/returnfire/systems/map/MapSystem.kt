@@ -20,12 +20,13 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.GameSessionData
-import com.gadarts.returnfire.systems.GameSessionData.Companion.REGION_SIZE
+import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionData.Companion.REGION_SIZE
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.EntityEnteredNewRegionEventData

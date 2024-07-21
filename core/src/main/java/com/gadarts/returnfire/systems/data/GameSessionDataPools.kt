@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.systems.data
 
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.assets.GameAssetManager

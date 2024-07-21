@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.GameMap
-import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.map.MapUtils
 import com.gadarts.returnfire.systems.player.TiltAnimationHandler
 import kotlin.math.floor

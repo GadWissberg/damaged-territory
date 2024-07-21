@@ -16,7 +16,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnPlayerWeaponShotPrimary
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnPlayerWeaponShotSecondary

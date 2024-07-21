@@ -1,16 +1,14 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.systems.data
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.model.GameMap
-import com.gadarts.returnfire.systems.data.GameSessionDataEntities
-import com.gadarts.returnfire.systems.data.GameSessionDataHud
-import com.gadarts.returnfire.systems.data.GameSessionDataRender
 
 class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean) :
     Disposable {
+    val gameSessionPhysicsData = GameSessionPhysicsData()
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     val gameSessionDataEntities = GameSessionDataEntities()
@@ -34,5 +32,6 @@ class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean
     override fun dispose() {
         gameSessionDataRender.dispose()
         gameSessionDataHud.dispose()
+        gameSessionPhysicsData.dispose()
     }
 }

@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.events.SystemEvents
 

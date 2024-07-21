@@ -5,6 +5,8 @@ import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.components.physics.PhysicsComponent
 
 object ComponentsMapper {
     val modelInstance: ComponentMapper<ModelInstanceComponent> =
@@ -31,5 +33,7 @@ object ComponentsMapper {
         ComponentMapper.getFor(FollowerParticleEffectComponent::class.java)
     val animatedTexture: ComponentMapper<AnimatedTextureComponent> =
         ComponentMapper.getFor(AnimatedTextureComponent::class.java)
+    val physics: ComponentMapper<PhysicsComponent> =
+        ComponentMapper.getFor(PhysicsComponent::class.java)
 
 }

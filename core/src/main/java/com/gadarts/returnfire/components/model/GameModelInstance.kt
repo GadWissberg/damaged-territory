@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.components
+package com.gadarts.returnfire.components.model
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3

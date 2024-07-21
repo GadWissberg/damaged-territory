@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Pool
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
-import com.gadarts.returnfire.components.GameModelInstance
+import com.gadarts.returnfire.components.model.GameModelInstance
 
 class BulletsPool(
     private val model: Model,

@@ -10,11 +10,11 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.math.collision.Sphere
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GameModelInstance
+import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.MapUtils

@@ -26,8 +26,9 @@ import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.events.SystemEvents
 
