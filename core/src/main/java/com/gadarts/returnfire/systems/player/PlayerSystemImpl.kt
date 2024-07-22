@@ -16,24 +16,21 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.cd.ChildDecal
+import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.GameSessionData.Companion.SPARK_HEIGHT_BIAS
-import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandler
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
+import com.gadarts.returnfire.systems.player.react.*
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
@@ -54,31 +51,12 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
             playerShootingHandler
         ),
+        SystemEvents.PHYSICS_SYSTEM_READY to PlayerSystemOnPhysicsSystemReady()
     )
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
-        playerMovementHandler =
-            if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop()
         addPlayer()
-        if (gameSessionData.runsOnMobile) {
-            gameSessionData.gameSessionDataHud.touchpad.addListener(
-                TouchPadListener(
-                    playerMovementHandler,
-                    gameSessionData.gameSessionDataEntities.player
-                )
-            )
-        } else {
-            (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
-        }
-        playerShootingHandler.initialize(
-            managers.dispatcher,
-            managers.engine,
-            gameSessionData.gameSessionDataPools.priBulletsPool,
-            gameSessionData.gameSessionDataPools.secBulletsPool,
-            gameSessionData.gameSessionDataEntities.player
-        )
-        playerMovementHandler.initialize(gameSessionData.camera)
     }
 
     override fun resume(delta: Long) {
@@ -185,7 +163,31 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         engine.addEntity(player)
         gameSessionData.gameSessionDataEntities.player = player
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
+        playerMovementHandler =
+            if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop()
+        initInputMethod()
+        playerShootingHandler.initialize(
+            managers.dispatcher,
+            managers.engine,
+            gameSessionData.gameSessionDataPools.priBulletsPool,
+            gameSessionData.gameSessionDataPools.secBulletsPool,
+            gameSessionData.gameSessionDataEntities.player
+        )
+        playerMovementHandler.initialize(gameSessionData.camera)
         return player
+    }
+
+    private fun initInputMethod() {
+        if (gameSessionData.runsOnMobile) {
+            gameSessionData.gameSessionDataHud.touchpad.addListener(
+                TouchPadListener(
+                    playerMovementHandler,
+                    gameSessionData.gameSessionDataEntities.player
+                )
+            )
+        } else {
+            (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
+        }
     }
 
     private fun createPlayer(
@@ -208,7 +210,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             .addCharacterComponent(INITIAL_HP)
             .addPlayerComponent()
         addFirepowerToPlayer(entityBuilder)
-        return entityBuilder.finish()
+        val player = entityBuilder.finish()
+        return player
     }
 
     private fun addFirepowerToPlayer(entityBuilder: EntityBuilder) {

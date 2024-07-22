@@ -21,15 +21,20 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.components.IndependentDecalComponent
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class RenderSystem : GameEntitySystem(), Disposable {
@@ -82,7 +87,15 @@ class RenderSystem : GameEntitySystem(), Disposable {
             applyEnvironment = true,
             renderParticleEffects = true
         )
+        renderCollisionShapes()
         renderDecals(deltaTime)
+    }
+
+    private fun renderCollisionShapes() {
+        if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
+
+        val debugDrawingMethod: CollisionShapesDebugDrawing? = gameSessionData.gameSessionPhysicsData.debugDrawingMethod
+        debugDrawingMethod?.drawCollisionShapes(gameSessionData.camera)
     }
 
     override fun resume(delta: Long) {
@@ -122,8 +135,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(
             GL20.GL_COLOR_BUFFER_BIT
-                    or GL20.GL_DEPTH_BUFFER_BIT
-                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+                or GL20.GL_DEPTH_BUFFER_BIT
+                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
     }
 

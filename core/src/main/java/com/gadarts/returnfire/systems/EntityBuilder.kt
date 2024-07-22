@@ -6,8 +6,11 @@ import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
+import com.badlogic.gdx.physics.bullet.collision.btPolyhedralConvexShape
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
@@ -18,6 +21,7 @@ import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.systems.player.BulletsPool
 import kotlin.math.max
@@ -181,10 +185,12 @@ class EntityBuilder private constructor() {
 
     companion object {
 
+        private val auxMatrix: Matrix4 = Matrix4()
         private lateinit var instance: EntityBuilder
         var entity: Entity? = null
         lateinit var engine: PooledEngine
         private val auxBoundingBox = BoundingBox()
+
         fun begin(): EntityBuilder {
             entity = engine.createEntity()
             return instance
@@ -193,6 +199,12 @@ class EntityBuilder private constructor() {
         fun initialize(engine: PooledEngine) {
             this.engine = engine
             this.instance = EntityBuilder()
+        }
+
+        fun addPhysicsComponent(shape: btPolyhedralConvexShape, entity: Entity, transform: Matrix4 = auxMatrix.idt()) {
+            val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
+            physicsComponent.init(shape, 10F, transform, CF_CHARACTER_OBJECT)
+            entity.add(physicsComponent)
         }
     }
 }

@@ -3,50 +3,37 @@ package com.gadarts.returnfire.systems.physics
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.Bullet
 import com.badlogic.gdx.physics.bullet.DebugDrawer
-import com.badlogic.gdx.physics.bullet.collision.*
+import com.badlogic.gdx.physics.bullet.collision.btAxisSweep3
+import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher
+import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration
+import com.badlogic.gdx.physics.bullet.collision.btGhostPairCallback
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.systems.data.GameSessionData
 
-class BulletEngineHandler(private val globalData: GameSessionData, engine: Engine) : Disposable, EntityListener {
+class BulletEngineHandler(
+    private val globalData: GameSessionData,
+    private val engine: Engine,
+    private val messageDispatcher: MessageDispatcher
+) : Disposable, EntityListener {
 
     private lateinit var debugDrawer: DebugDrawer
     private lateinit var broadPhase: btAxisSweep3
     private lateinit var ghostPairCallback: btGhostPairCallback
-    private var solver: btSequentialImpulseConstraintSolver
-    private var dispatcher: btCollisionDispatcher
-    private var collisionConfiguration: btDefaultCollisionConfiguration
+    private lateinit var solver: btSequentialImpulseConstraintSolver
+    private lateinit var dispatcher: btCollisionDispatcher
+    private lateinit var collisionConfiguration: btDefaultCollisionConfiguration
 
-    init {
-        Bullet.init()
-        collisionConfiguration = btDefaultCollisionConfiguration()
-        dispatcher = btCollisionDispatcher(collisionConfiguration)
-        solver = btSequentialImpulseConstraintSolver()
-        initializeBroadPhase()
-        initializeCollisionWorld()
-        initializeDebug()
-        val btRigidBody = createGroundPhysicsBody()
-        globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody)
-        globalData.gameSessionPhysicsData.debugDrawingMethod = object : CollisionShapesDebugDrawing {
-            override fun drawCollisionShapes(camera: PerspectiveCamera) {
-                debugDrawer.begin(camera)
-                globalData.gameSessionPhysicsData.collisionWorld.debugDrawWorld()
-                debugDrawer.end()
-            }
-        }
-        btRigidBody.userData = EntityBuilder.begin().addGroundComponent().finishAndAddToEngine()
-        engine.addEntityListener(this)
-    }
 
     private fun initializeDebug() {
         debugDrawer = DebugDrawer()
@@ -54,20 +41,6 @@ class BulletEngineHandler(private val globalData: GameSessionData, engine: Engin
         globalData.gameSessionPhysicsData.collisionWorld.debugDrawer = debugDrawer
     }
 
-    private fun createGroundPhysicsBody(): btRigidBody {
-        val ground = btStaticPlaneShape(auxVector.set(0F, 1F, 0F), 0F)
-        val info = btRigidBody.btRigidBodyConstructionInfo(
-            0f,
-            null,
-            ground
-        )
-        val btRigidBody = btRigidBody(info)
-        info.dispose()
-        btRigidBody.collisionFlags =
-            btRigidBody.collisionFlags or btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
-        btRigidBody.contactCallbackFlag = btBroadphaseProxy.CollisionFilterGroups.KinematicFilter
-        return btRigidBody
-    }
 
     private fun initializeBroadPhase() {
         ghostPairCallback = btGhostPairCallback()
@@ -78,6 +51,12 @@ class BulletEngineHandler(private val globalData: GameSessionData, engine: Engin
     }
 
     override fun entityAdded(entity: Entity?) {
+        if (entity != null) {
+            addBodyOfEntity(entity)
+        }
+    }
+
+    fun addBodyOfEntity(entity: Entity) {
         if (ComponentsMapper.physics.has(entity)) {
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
             globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody)
@@ -119,6 +98,24 @@ class BulletEngineHandler(private val globalData: GameSessionData, engine: Engin
             5,
             1f / 60F
         )
+    }
+
+    fun initialize() {
+        Bullet.init()
+        collisionConfiguration = btDefaultCollisionConfiguration()
+        dispatcher = btCollisionDispatcher(collisionConfiguration)
+        solver = btSequentialImpulseConstraintSolver()
+        initializeBroadPhase()
+        initializeCollisionWorld()
+        initializeDebug()
+        globalData.gameSessionPhysicsData.debugDrawingMethod = object : CollisionShapesDebugDrawing {
+            override fun drawCollisionShapes(camera: PerspectiveCamera) {
+                debugDrawer.begin(camera)
+                globalData.gameSessionPhysicsData.collisionWorld.debugDrawWorld()
+                debugDrawer.end()
+            }
+        }
+        engine.addEntityListener(this)
     }
 
 
