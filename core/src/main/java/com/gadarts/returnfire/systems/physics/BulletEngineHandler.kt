@@ -80,7 +80,6 @@ class BulletEngineHandler(
             solver,
             collisionConfiguration
         )
-        globalData.gameSessionPhysicsData.collisionWorld.gravity = Vector3(0F, GRAVITY_FORCE, 0F)
     }
 
     override fun dispose() {

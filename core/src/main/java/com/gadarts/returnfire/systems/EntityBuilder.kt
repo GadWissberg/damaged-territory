@@ -201,10 +201,15 @@ class EntityBuilder private constructor() {
             this.instance = EntityBuilder()
         }
 
-        fun addPhysicsComponent(shape: btPolyhedralConvexShape, entity: Entity, transform: Matrix4 = auxMatrix.idt()) {
+        fun addPhysicsComponent(
+            shape: btPolyhedralConvexShape,
+            entity: Entity,
+            transform: Matrix4 = auxMatrix.idt()
+        ): PhysicsComponent {
             val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
             physicsComponent.init(shape, 10F, transform, CF_CHARACTER_OBJECT)
             entity.add(physicsComponent)
+            return physicsComponent
         }
     }
 }
