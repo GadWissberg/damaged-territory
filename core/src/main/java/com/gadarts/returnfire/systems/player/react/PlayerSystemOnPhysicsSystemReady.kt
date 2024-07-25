@@ -27,7 +27,7 @@ class PlayerSystemOnPhysicsSystemReady :
             gameSessionData.gameSessionDataEntities.player,
             ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform
         )
-        physicsComponent.rigidBody.setDamping(0.5F, 0.5F)
+        physicsComponent.rigidBody.setDamping(0.75F, 0.75F)
         managers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal)
     }
 

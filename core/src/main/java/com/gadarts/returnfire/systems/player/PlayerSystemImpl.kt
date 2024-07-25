@@ -87,7 +87,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             }
 
             Input.Keys.DOWN -> {
-                playerMovementHandler.thrust(gameSessionData.gameSessionDataEntities.player, reverse = true)
+                playerMovementHandler.reverse(gameSessionData.gameSessionDataEntities.player)
             }
 
             Input.Keys.LEFT -> {
@@ -164,8 +164,17 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         gameSessionData.gameSessionDataEntities.player = player
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
         playerMovementHandler =
-            if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop()
+            if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop(
+                managers.assetsManager.getCachedBoundingBox(
+                    ModelDefinition.APACHE
+                )
+            )
         initInputMethod()
+        initializePlayerHandlers()
+        return player
+    }
+
+    private fun initializePlayerHandlers() {
         playerShootingHandler.initialize(
             managers.dispatcher,
             managers.engine,
@@ -174,7 +183,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             gameSessionData.gameSessionDataEntities.player
         )
         playerMovementHandler.initialize(gameSessionData.camera)
-        return player
     }
 
     private fun initInputMethod() {

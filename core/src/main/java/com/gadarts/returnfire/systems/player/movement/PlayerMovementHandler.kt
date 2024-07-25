@@ -14,9 +14,8 @@ import com.gadarts.returnfire.systems.map.MapUtils
 import com.gadarts.returnfire.systems.player.TiltAnimationHandler
 import kotlin.math.floor
 
-abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold: Float) {
+abstract class PlayerMovementHandler {
 
-    protected val thrustVelocity: Vector2 = Vector2(desiredVelocitySizeThreshold, 0F)
     protected var tiltAnimationHandler = TiltAnimationHandler()
 
     private val prevPos = Vector3()
@@ -111,6 +110,8 @@ abstract class PlayerMovementHandler(protected val desiredVelocitySizeThreshold:
             dispatcher
         )
     }
+
+    abstract fun reverse(player: Entity)
 
     companion object {
         private val auxVector3_1 = Vector3()
