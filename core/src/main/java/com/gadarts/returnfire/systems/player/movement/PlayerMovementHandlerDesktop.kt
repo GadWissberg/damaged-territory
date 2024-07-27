@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Quaternion
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -17,28 +16,12 @@ class PlayerMovementHandlerDesktop(private val cachedBoundingBox: BoundingBox) :
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
 
-    init {
-
-    }
-
-    override fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2) {
-        val currentVelocity =
-            ComponentsMapper.player.get(player)
-                .getCurrentVelocity(auxVector2_1)
-        if (!desiredVelocity.isZero) {
-            currentVelocity.add(desiredVelocity)
-            if (currentVelocity.len2() > maxSpeed) {
-                currentVelocity.setLength2(maxSpeed)
-            }
-        }
-        ComponentsMapper.player.get(player).setCurrentVelocity(currentVelocity)
-    }
-
     override fun onTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
                     movement = MOVEMENT_IDLE
+                    tiltAnimationHandler.animateDeceleration()
                 }
             }
 
@@ -70,6 +53,7 @@ class PlayerMovementHandlerDesktop(private val cachedBoundingBox: BoundingBox) :
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float, reverse: Boolean) {
         movement = MOVEMENT_FORWARD
+        tiltAnimationHandler.animateForwardAcceleration()
     }
 
     override fun update(
@@ -85,15 +69,24 @@ class PlayerMovementHandlerDesktop(private val cachedBoundingBox: BoundingBox) :
                 val forward =
                     rigidBody.worldTransform.getRotation(auxQuaternion)
                         .transform(auxVector3_2.set(movement * 1F, 0F, 0F))
-                rigidBody.applyCentralForce(forward.scl(if (movement > MOVEMENT_IDLE) 50F else 25F))
+                rigidBody.applyCentralForce(
+                    auxVector3_1.set(forward.x, 0F, forward.z).scl(if (movement > MOVEMENT_IDLE) 50F else 25F)
+                )
             }
         }
         if (rotation != ROTATION_IDLE) {
             val newVelocity = auxVector3_1.set(rigidBody.angularVelocity)
             if (newVelocity.len2() < MAX_ROTATION) {
-                rigidBody.applyTorque(auxVector3_1.set(0F, cachedBoundingBox.centerX + 1F, 0F).scl(rotation * 8F))
+                val scale = rotation * 8F
+                rigidBody.applyTorque(auxVector3_1.set(0F, 1F, 0F).scl(scale))
+                auxVector3_1.set(rigidBody.angularVelocity)
+                auxVector3_1.x = 0F
+                auxVector3_1.z = 0F
+
+                rigidBody.angularVelocity = auxVector3_1
             }
         }
+        tiltAnimationHandler.update(player)
     }
 
 
@@ -106,7 +99,6 @@ class PlayerMovementHandlerDesktop(private val cachedBoundingBox: BoundingBox) :
     }
 
     companion object {
-        private val auxVector2_1 = Vector2()
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
         private const val MAX_VELOCITY = 6F

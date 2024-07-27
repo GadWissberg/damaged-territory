@@ -39,7 +39,6 @@ abstract class PlayerMovementHandler {
         )
     }
 
-    abstract fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2)
 
     abstract fun onTouchUp(keycode: Int = -1)
 

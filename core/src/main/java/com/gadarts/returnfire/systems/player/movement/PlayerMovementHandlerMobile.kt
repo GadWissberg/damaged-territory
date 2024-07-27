@@ -70,12 +70,6 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler() {
 
     }
 
-    override fun handleAcceleration(player: Entity, maxSpeed: Float, desiredVelocity: Vector2) {
-        val currentVelocity =
-            ComponentsMapper.player.get(player)
-                .getCurrentVelocity(auxVector2_1)
-        ComponentsMapper.player.get(player).setCurrentVelocity(currentVelocity)
-    }
 
     override fun onTouchUp(keycode: Int) {
     }

@@ -1,63 +1,43 @@
 package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
-import kotlin.math.max
-import kotlin.math.min
 
 class TiltAnimationHandler {
 
-    private var accelerationTiltDegrees: Float = 0.0f
-    private var rotTiltDegrees: Float = 0.0f
-
-    private fun increaseRotationTilt(rotToAdd: Float) {
-        rotTiltDegrees += if (rotToAdd > 0) -ROT_TILT_STEP_SIZE else ROT_TILT_STEP_SIZE
-        rotTiltDegrees = MathUtils.clamp(rotTiltDegrees, -ROT_TILT_MAX_DEG, ROT_TILT_MAX_DEG)
-    }
-
-    fun lowerRotationTilt() {
-        if (rotTiltDegrees > 0) {
-            rotTiltDegrees = max(rotTiltDegrees - ROT_TILT_DEC_STEP_SIZE, 0F)
-        } else if (rotTiltDegrees < 0) {
-            rotTiltDegrees = min(rotTiltDegrees + ROT_TILT_DEC_STEP_SIZE, 0F)
-        }
-    }
-
-    private fun handleMovementTilt(player: Entity) {
-        val transform =
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
-        if (accelerationTiltDegrees > 0) {
-            transform.rotate(Vector3.Z, -accelerationTiltDegrees)
-        }
-        transform.rotate(Vector3.X, rotTiltDegrees)
-    }
+    private var rotationTarget: Float = ANGLE_IDLE
 
     fun update(player: Entity) {
-        handleMovementTilt(player)
+        val physicsComponent = ComponentsMapper.physics.get(player)
+        physicsComponent.motionState!!.getWorldTransform(auxMatrix)
+        val rotation = auxMatrix.getRotation(auxQuaternion)
+        val roll = if (rotation.roll >= 0) rotation.roll else rotation.roll + 360F
+        if (roll < 45F || roll > (ANGLE_REVERSE + 360F) || roll > (rotationTarget + 360F)) {
+            auxMatrix.rotate(Vector3.Z, -ROTATION_STEP)
+        } else if (roll > 45F && (roll < (ANGLE_THRUST + 360F) || roll < (rotationTarget + 360F))) {
+            auxMatrix.rotate(Vector3.Z, ROTATION_STEP)
+        }
+        ComponentsMapper.physics.get(player).rigidBody.worldTransform = auxMatrix
     }
 
     fun animateForwardAcceleration() {
-        accelerationTiltDegrees = min(
-            accelerationTiltDegrees + ACC_TILT_STEP_SIZE, ACC_TILT_RELATIVE_MAX_DEGREES
-        )
+        rotationTarget = ANGLE_THRUST
     }
 
-    fun onDeceleration() {
-        accelerationTiltDegrees = max(accelerationTiltDegrees - ACC_TILT_STEP_SIZE, 0F)
-    }
-
-    fun onRotation(rotToAdd: Float) {
-        increaseRotationTilt(rotToAdd)
+    fun animateDeceleration() {
+        rotationTarget = ANGLE_IDLE
     }
 
     companion object {
-        private const val ROT_TILT_DEC_STEP_SIZE = 0.5F
-        private const val ACC_TILT_STEP_SIZE = 0.5F
-        private const val ACC_TILT_RELATIVE_MAX_DEGREES = 6F
-        private const val ROT_TILT_MAX_DEG = 20F
-        private const val ROT_TILT_STEP_SIZE = 1F
-
+        private val auxMatrix = Matrix4()
+        private val auxQuaternion = Quaternion()
+        private const val ROTATION_STEP = 1F
+        private const val ANGLE_IDLE = -8F
+        private const val ANGLE_THRUST = -20F
+        private const val ANGLE_REVERSE = -2F
     }
+
 }
