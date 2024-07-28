@@ -204,7 +204,7 @@ class EntityBuilder private constructor() {
         fun addPhysicsComponent(
             shape: btPolyhedralConvexShape,
             entity: Entity,
-            transform: Matrix4 = auxMatrix.idt()
+            transform: Matrix4 = Matrix4()
         ): PhysicsComponent {
             val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
             physicsComponent.init(shape, 10F, transform, CF_CHARACTER_OBJECT)

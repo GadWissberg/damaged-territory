@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.player.react
 
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.gadarts.returnfire.Managers
@@ -25,9 +26,9 @@ class PlayerSystemOnPhysicsSystemReady :
         val physicsComponent = EntityBuilder.addPhysicsComponent(
             boxShape,
             gameSessionData.gameSessionDataEntities.player,
-            ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform
+            Matrix4(ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform)
         )
-        physicsComponent.rigidBody.setDamping(0.75F, 0.75F)
+        physicsComponent.rigidBody.setDamping(0F, 0.75F)
         managers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal)
     }
 
