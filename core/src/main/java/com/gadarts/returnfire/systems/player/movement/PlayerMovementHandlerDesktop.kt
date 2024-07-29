@@ -4,16 +4,14 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.GameMap
 
 
-class PlayerMovementHandlerDesktop(private val cachedBoundingBox: BoundingBox) : PlayerMovementHandler() {
+class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
     private var movement: Int = 0
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
@@ -23,25 +21,28 @@ class PlayerMovementHandlerDesktop(private val cachedBoundingBox: BoundingBox) :
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
                     movement = MOVEMENT_IDLE
-                    tiltAnimationHandler.animateDeceleration()
+                    tiltAnimationHandler.returnToRollIdle()
                 }
             }
 
             Input.Keys.DOWN -> {
                 if (movement == MOVEMENT_REVERSE) {
                     movement = MOVEMENT_IDLE
+                    tiltAnimationHandler.returnToRollIdle()
                 }
             }
 
             Input.Keys.LEFT -> {
                 if (rotation > 0F) {
                     rotation = 0
+                    tiltAnimationHandler.returnToPitchIdle()
                 }
             }
 
             Input.Keys.RIGHT -> {
                 if (rotation < 0F) {
                     rotation = 0
+                    tiltAnimationHandler.returnToPitchIdle()
                 }
             }
 
@@ -55,7 +56,7 @@ class PlayerMovementHandlerDesktop(private val cachedBoundingBox: BoundingBox) :
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float, reverse: Boolean) {
         movement = MOVEMENT_FORWARD
-        tiltAnimationHandler.animateForwardAcceleration()
+        tiltAnimationHandler.tiltForward()
     }
 
     override fun update(
@@ -118,17 +119,17 @@ class PlayerMovementHandlerDesktop(private val cachedBoundingBox: BoundingBox) :
 
     override fun rotate(clockwise: Int) {
         rotation = clockwise
+        tiltAnimationHandler.lateralTilt(clockwise)
     }
 
     override fun reverse(player: Entity) {
         movement = MOVEMENT_REVERSE
+        tiltAnimationHandler.tiltBackwards()
     }
 
     companion object {
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
-        private val auxVector3_3 = Vector3()
-        private val auxMatrix = Matrix4()
         private const val MAX_VELOCITY = 6F
         private const val MAX_ROTATION = 3F
         private const val MOVEMENT_FORWARD = 1

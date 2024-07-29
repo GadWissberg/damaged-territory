@@ -165,9 +165,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
         playerMovementHandler =
             if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop(
-                managers.assetsManager.getCachedBoundingBox(
-                    ModelDefinition.APACHE
-                )
             )
         initInputMethod()
         initializePlayerHandlers()

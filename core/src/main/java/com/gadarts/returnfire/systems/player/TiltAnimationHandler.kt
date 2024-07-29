@@ -1,13 +1,15 @@
 package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
 class TiltAnimationHandler {
 
-    private var rotationTarget: Float = ANGLE_IDLE
+    private var rollTarget: Float = ROLL_IDLE
+    private var pitchTarget: Float = 0F
 
     fun update(player: Entity) {
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
@@ -15,27 +17,49 @@ class TiltAnimationHandler {
             auxQuaternion
         )
         val roll = if (rotation.roll >= 0) rotation.roll else rotation.roll + 360F
-        if (roll < 45F || roll > (ANGLE_REVERSE + 360F) || roll > (rotationTarget + 360F)) {
-            modelInstanceComponent.gameModelInstance.modelInstance.transform.rotate(Vector3.Z, -ROTATION_STEP)
-        } else if (roll > 45F && (roll < (ANGLE_THRUST + 360F) || roll < (rotationTarget + 360F))) {
-            modelInstanceComponent.gameModelInstance.modelInstance.transform.rotate(Vector3.Z, ROTATION_STEP)
+        if (rollTarget != ROLL_IDLE || !MathUtils.isEqual(roll, ROLL_IDLE, 1.5F)) {
+            if (roll < 45F || roll > (ROLL_REVERSE + 360F) || roll > (rollTarget + 360F)) {
+                modelInstanceComponent.gameModelInstance.modelInstance.transform.rotate(Vector3.Z, -ROTATION_STEP)
+            } else if (roll > 45F && (roll < (ROLL_THRUST + 360F) || roll < (rollTarget + 360F))) {
+                modelInstanceComponent.gameModelInstance.modelInstance.transform.rotate(Vector3.Z, ROTATION_STEP)
+            }
+        }
+        if (pitchTarget != 0F || !MathUtils.isEqual(rotation.pitch, 0F, 1.5F)) {
+            if (rotation.pitch > pitchTarget + 360F || rotation.pitch > pitchTarget) {
+                modelInstanceComponent.gameModelInstance.modelInstance.transform.rotate(Vector3.X, -ROTATION_STEP)
+            } else if (rotation.pitch < pitchTarget || rotation.pitch > 315F) {
+                modelInstanceComponent.gameModelInstance.modelInstance.transform.rotate(Vector3.X, ROTATION_STEP)
+            }
         }
     }
 
-    fun animateForwardAcceleration() {
-        rotationTarget = ANGLE_THRUST
+    fun tiltForward() {
+        rollTarget = ROLL_THRUST
     }
 
-    fun animateDeceleration() {
-        rotationTarget = ANGLE_IDLE
+    fun returnToRollIdle() {
+        rollTarget = ROLL_IDLE
+    }
+
+    fun tiltBackwards() {
+        rollTarget = ROLL_REVERSE
+    }
+
+    fun lateralTilt(side: Int) {
+        pitchTarget = (if (side == 0) 0F else (if (side > 0F) -1F else 1F)) * PITCH
+    }
+
+    fun returnToPitchIdle() {
+        pitchTarget = 0F
     }
 
     companion object {
         private val auxQuaternion = Quaternion()
         private const val ROTATION_STEP = 1F
-        private const val ANGLE_IDLE = -8F
-        private const val ANGLE_THRUST = -20F
-        private const val ANGLE_REVERSE = -2F
+        private const val ROLL_IDLE = -10F
+        private const val ROLL_THRUST = -22F
+        private const val ROLL_REVERSE = -2F
+        private const val PITCH = 10F
     }
 
 }
