@@ -5,7 +5,7 @@ import android.view.WindowManager
 
 import com.badlogic.gdx.backends.android.AndroidApplication
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
-import com.gadarts.returnfire.OpenFire
+import com.gadarts.returnfire.DamagedTerritory
 
 class AndroidLauncher : AndroidApplication() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +13,7 @@ class AndroidLauncher : AndroidApplication() {
         val androidApplicationConfiguration = AndroidApplicationConfiguration()
         androidApplicationConfiguration.numSamples = 2
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        initialize(OpenFire(true), androidApplicationConfiguration.apply {
+        initialize(DamagedTerritory(true), androidApplicationConfiguration.apply {
             useImmersiveMode = true
         })
     }

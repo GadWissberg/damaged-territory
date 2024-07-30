@@ -30,7 +30,11 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandler
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.*
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
@@ -91,11 +95,11 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             }
 
             Input.Keys.LEFT -> {
-                playerMovementHandler.rotate(1)
+                playerMovementHandler.applyRotation(1)
             }
 
             Input.Keys.RIGHT -> {
-                playerMovementHandler.rotate(-1)
+                playerMovementHandler.applyRotation(-1)
             }
 
             Input.Keys.CONTROL_LEFT -> {

@@ -69,24 +69,15 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
         if (movement != MOVEMENT_IDLE) {
             val newVelocity = auxVector3_1.set(rigidBody.linearVelocity)
             if (newVelocity.len2() < MAX_VELOCITY) {
-                val forward =
-                    rigidBody.worldTransform.getRotation(auxQuaternion1)
-                        .transform(auxVector3_2.set(movement * 1F, 0F, 0F))
+                val forward = rigidBody.worldTransform.getRotation(auxQuaternion1)
+                    .transform(auxVector3_2.set(movement * 1F, 0F, 0F))
                 rigidBody.applyCentralForce(
                     auxVector3_1.set(forward.x, 0F, forward.z).scl(if (movement > MOVEMENT_IDLE) 50F else 25F)
                 )
             }
         }
         if (rotation != ROTATION_IDLE) {
-            val newVelocity = auxVector3_1.set(rigidBody.angularVelocity)
-            if (newVelocity.len2() < MAX_ROTATION) {
-                val scale = rotation * 8F
-                rigidBody.applyTorque(auxVector3_1.set(0F, 1F, 0F).scl(scale))
-                auxVector3_1.set(rigidBody.angularVelocity)
-                auxVector3_1.x = 0F
-                auxVector3_1.z = 0F
-                rigidBody.angularVelocity = auxVector3_1
-            }
+            rotate(rigidBody, rotation)
         }
         val velocity: Vector3 = rigidBody.linearVelocity
         val lateralVelocity = auxVector3_1.set(velocity.x, 0f, velocity.z)
@@ -95,6 +86,7 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
         syncModelInstanceTransformToRigidBody(player, rigidBody)
         tiltAnimationHandler.update(player)
     }
+
 
     private fun syncModelInstanceTransformToRigidBody(
         player: Entity,
@@ -117,7 +109,7 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
     }
 
 
-    override fun rotate(clockwise: Int) {
+    override fun applyRotation(clockwise: Int) {
         rotation = clockwise
         tiltAnimationHandler.lateralTilt(clockwise)
     }
@@ -131,7 +123,6 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
         private const val MAX_VELOCITY = 6F
-        private const val MAX_ROTATION = 3F
         private const val MOVEMENT_FORWARD = 1
         private const val MOVEMENT_IDLE = 0
         private const val MOVEMENT_REVERSE = -1

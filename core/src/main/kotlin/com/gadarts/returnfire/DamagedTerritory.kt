@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.gadarts.returnfire.assets.GameAssetManager
 
-class OpenFire(private val runsOnMobile: Boolean) : Game() {
+class DamagedTerritory(private val runsOnMobile: Boolean) : Game() {
     private lateinit var assetsManager: GameAssetManager
 
     override fun create() {
