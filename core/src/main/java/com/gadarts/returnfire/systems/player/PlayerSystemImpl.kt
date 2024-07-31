@@ -74,12 +74,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-        val currentMap = gameSessionData.currentMap
         playerMovementHandler.update(
             gameSessionData.gameSessionDataEntities.player,
-            deltaTime,
-            currentMap,
-            managers.dispatcher
         )
         playerShootingHandler.update()
     }

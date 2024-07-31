@@ -1,14 +1,12 @@
 package com.gadarts.returnfire.systems.player.movement
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.model.GameMap
 
 
 class PlayerMovementHandlerMobile : PlayerMovementHandler() {
@@ -17,7 +15,8 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler() {
     private var desiredDirectionChanged: Boolean = false
 
 
-    override fun thrust(player: Entity, directionX: Float, directionY: Float, reverse: Boolean) {
+    override fun thrust(player: Entity, directionX: Float, directionY: Float) {
+        super.thrust(player, directionX, directionY)
         if (directionX != 0F || directionY != 0F) {
             updateDesiredDirection(directionX, directionY)
         }
@@ -30,32 +29,28 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler() {
 
     override fun update(
         player: Entity,
-        deltaTime: Float,
-        currentMap: GameMap,
-        dispatcher: MessageDispatcher
     ) {
+        super.update(player)
         val rigidBody = ComponentsMapper.physics.get(player).rigidBody
-        val forward =
+        if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
                 .transform(auxVector3.set(1F, 0F, 0F))
-
-        if (!desiredDirection.isZero && !MathUtils.isEqual(
-                auxQuaternion.yaw + (if (auxQuaternion.yaw >= 0) 0F else 360F),
-                desiredDirection.angleDeg(),
-                1F
-            )
-        ) {
-            val diff = desiredDirection.angleDeg() - auxQuaternion.yaw
-            val negativeRotation = auxVector2.set(1F, 0F).setAngleDeg(diff).angleDeg() > 180
-            rotate(rigidBody, if (negativeRotation) -1 else 1)
-        } else {
-            desiredDirection.setZero()
-            rigidBody.angularVelocity = auxVector3.setZero()
+            pushForward(rigidBody, 1)
+            if (!MathUtils.isEqual(
+                    auxQuaternion.yaw + (if (auxQuaternion.yaw >= 0) 0F else 360F),
+                    desiredDirection.angleDeg(),
+                    1F
+                )
+            ) {
+                val diff = desiredDirection.angleDeg() - auxQuaternion.yaw
+                val negativeRotation = auxVector2.set(1F, 0F).setAngleDeg(diff).angleDeg() > 180
+                val clockwise = if (negativeRotation) -1 else 1
+                rotate(rigidBody, clockwise)
+                tiltAnimationHandler.lateralTilt(clockwise)
+            } else {
+                rigidBody.angularVelocity = auxVector3.setZero()
+            }
         }
-    }
-
-    override fun applyRotation(clockwise: Int) {
-
     }
 
     override fun reverse(player: Entity) {
@@ -64,7 +59,9 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler() {
 
 
     override fun onTouchUp(keycode: Int) {
-
+        desiredDirection.setZero()
+        tiltAnimationHandler.returnToRollIdle()
+        tiltAnimationHandler.returnToPitchIdle()
     }
 
 
