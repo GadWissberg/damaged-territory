@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.PlayerComponent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
@@ -44,23 +43,17 @@ class CameraSystem : GameEntitySystem() {
         val transform =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)
-        val playerComp = ComponentsMapper.player.get(player)
-        followPlayerRegularMovement(playerComp, playerPosition)
+        followPlayerRegularMovement(playerPosition)
     }
 
     private fun followPlayerRegularMovement(
-        playerComp: PlayerComponent,
         playerPosition: Vector3
     ) {
-        if (gameSessionData.runsOnMobile) {
-            playerComp.getCurrentVelocity(auxVector2).nor().setLength2(5F)
-        } else {
-            auxVector2.set(1F, 0F).setAngleDeg(
-                ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform.getRotation(
-                    auxQuat
-                ).yaw
-            )
-        }
+        auxVector2.set(2F, 0F).setAngleDeg(
+            ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform.getRotation(
+                auxQuat
+            ).yaw
+        )
         cameraTarget =
             playerPosition.add(auxVector2.x, 0F, -auxVector2.y + Z_OFFSET)
         cameraTarget.y = gameSessionData.camera.position.y
@@ -76,7 +69,11 @@ class CameraSystem : GameEntitySystem() {
         val playerPosition = get.gameModelInstance.modelInstance.transform.getTranslation(
             auxVector3_1
         )
-        gameSessionData.camera.position.set(playerPosition.x, INITIAL_Y, playerPosition.z + Z_OFFSET)
+        gameSessionData.camera.position.set(
+            playerPosition.x,
+            INITIAL_Y,
+            playerPosition.z + Z_OFFSET
+        )
         gameSessionData.camera.rotate(Vector3.X, -45F)
         gameSessionData.camera.lookAt(
             playerPosition

@@ -45,8 +45,8 @@ class PhysicsSystem : GameEntitySystem() {
     override fun resume(delta: Long) {
     }
 
-    private fun createGroundPhysicsBody(): btRigidBody {
-        val ground = btStaticPlaneShape(auxVector.set(0F, 1F, 0F), 0F)
+    private fun createBoundaryPhysicsBody(vector: Vector3, planeConstant: Int): btRigidBody {
+        val ground = btStaticPlaneShape(vector, planeConstant.toFloat())
         val info = btRigidBody.btRigidBodyConstructionInfo(
             0f,
             null,
@@ -62,10 +62,18 @@ class PhysicsSystem : GameEntitySystem() {
 
     override fun onSystemReady() {
         super.onSystemReady()
-        val btRigidBody = createGroundPhysicsBody()
+        addBoundary(auxVector.set(0F, 1F, 0F))
+        addBoundary(auxVector.set(1F, 0F, 0F))
+        addBoundary(auxVector.set(0F, 0F, 1F))
+        addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.currentMap.tilesMapping.size)
+        addBoundary(auxVector.set(0F, 0F, -1F), -gameSessionData.currentMap.tilesMapping[0].size)
+        managers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_SYSTEM_READY.ordinal)
+    }
+
+    private fun addBoundary(vector: Vector3, planeConstant: Int = 0) {
+        val btRigidBody = createBoundaryPhysicsBody(vector, planeConstant)
         gameSessionData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody)
         btRigidBody.userData = EntityBuilder.begin().addGroundComponent().finishAndAddToEngine()
-        managers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_SYSTEM_READY.ordinal)
     }
 
     override fun update(deltaTime: Float) {

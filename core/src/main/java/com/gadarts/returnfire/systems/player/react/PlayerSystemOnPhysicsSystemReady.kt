@@ -12,6 +12,7 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
+
 class PlayerSystemOnPhysicsSystemReady :
     HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
@@ -23,12 +24,14 @@ class PlayerSystemOnPhysicsSystemReady :
                 boundingBox.depth / 2F
             )
         )
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player)
         val physicsComponent = EntityBuilder.addPhysicsComponent(
             boxShape,
             gameSessionData.gameSessionDataEntities.player,
-            Matrix4(ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform)
+            Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform)
         )
         physicsComponent.rigidBody.setDamping(0F, 0.75F)
+        physicsComponent.rigidBody.angularFactor = Vector3.Y
         managers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal)
     }
 

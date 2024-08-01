@@ -3,6 +3,9 @@ package com.gadarts.returnfire.systems.player.movement
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Quaternion
+import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
 
@@ -56,7 +59,8 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
 
     override fun update(player: Entity) {
         super.update(player)
-        val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+        val physicsComponent = ComponentsMapper.physics.get(player)
+        val rigidBody = physicsComponent.rigidBody
         if (movement != 0) {
             pushForward(rigidBody, movement)
         }
@@ -80,5 +84,8 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
         private const val MOVEMENT_FORWARD = 1
         private const val MOVEMENT_REVERSE = -1
         private const val ROTATION_IDLE = 0
+        private val auxQuaternion = Quaternion()
+        private val auxVector = Vector3()
+        private val auxMatrix = Matrix4()
     }
 }
