@@ -28,8 +28,8 @@ class PhysicsSystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                bulletEngineHandler.addBodyOfEntity(gameSessionData.gameSessionDataEntities.player)
-                val rigidBody = ComponentsMapper.physics.get(gameSessionData.gameSessionDataEntities.player).rigidBody
+                bulletEngineHandler.addBodyOfEntity(gameSessionData.player)
+                val rigidBody = ComponentsMapper.physics.get(gameSessionData.player).rigidBody
                 rigidBody.gravity =
                     Vector3.Zero
             }

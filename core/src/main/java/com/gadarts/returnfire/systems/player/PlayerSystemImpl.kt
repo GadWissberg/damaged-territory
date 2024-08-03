@@ -30,11 +30,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandler
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
+import com.gadarts.returnfire.systems.player.react.*
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
@@ -75,7 +71,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         playerMovementHandler.update(
-            gameSessionData.gameSessionDataEntities.player,
+            gameSessionData.player,
         )
         playerShootingHandler.update()
     }
@@ -83,11 +79,11 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Input.Keys.UP -> {
-                playerMovementHandler.thrust(gameSessionData.gameSessionDataEntities.player)
+                playerMovementHandler.thrust(gameSessionData.player)
             }
 
             Input.Keys.DOWN -> {
-                playerMovementHandler.reverse(gameSessionData.gameSessionDataEntities.player)
+                playerMovementHandler.reverse(gameSessionData.player)
             }
 
             Input.Keys.LEFT -> {
@@ -161,7 +157,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             map.placedElements.find { placedElement -> placedElement.definition == CharactersDefinitions.PLAYER }
         val player = createPlayer(placedPlayer!!)
         engine.addEntity(player)
-        gameSessionData.gameSessionDataEntities.player = player
+        gameSessionData.player = player
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
         playerMovementHandler =
             if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop(
@@ -177,7 +173,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             managers.engine,
             gameSessionData.gameSessionDataPools.priBulletsPool,
             gameSessionData.gameSessionDataPools.secBulletsPool,
-            gameSessionData.gameSessionDataEntities.player
+            gameSessionData.player
         )
         playerMovementHandler.initialize(gameSessionData.camera)
     }
@@ -187,7 +183,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             gameSessionData.gameSessionDataHud.touchpad.addListener(
                 TouchPadListener(
                     playerMovementHandler,
-                    gameSessionData.gameSessionDataEntities.player
+                    gameSessionData.player
                 )
             )
         } else {
@@ -276,7 +272,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 playerShootingHandler.secondaryCreationSide =
                     !playerShootingHandler.secondaryCreationSide
                 val transform =
-                    ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform
+                    ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
                 val pos =
                     auxVector3_1.set(
                         0.2F,

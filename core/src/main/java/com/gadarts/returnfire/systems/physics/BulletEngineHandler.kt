@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.physics
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Vector3
@@ -95,7 +96,7 @@ class BulletEngineHandler(
         globalData.gameSessionPhysicsData.collisionWorld.stepSimulation(
             deltaTime,
             5,
-            1f / 60F
+            1f / Gdx.graphics.framesPerSecond
         )
     }
 
@@ -107,13 +108,14 @@ class BulletEngineHandler(
         initializeBroadPhase()
         initializeCollisionWorld()
         initializeDebug()
-        globalData.gameSessionPhysicsData.debugDrawingMethod = object : CollisionShapesDebugDrawing {
-            override fun drawCollisionShapes(camera: PerspectiveCamera) {
-                debugDrawer.begin(camera)
-                globalData.gameSessionPhysicsData.collisionWorld.debugDrawWorld()
-                debugDrawer.end()
+        globalData.gameSessionPhysicsData.debugDrawingMethod =
+            object : CollisionShapesDebugDrawing {
+                override fun drawCollisionShapes(camera: PerspectiveCamera) {
+                    debugDrawer.begin(camera)
+                    globalData.gameSessionPhysicsData.collisionWorld.debugDrawWorld()
+                    debugDrawer.end()
+                }
             }
-        }
         engine.addEntityListener(this)
     }
 

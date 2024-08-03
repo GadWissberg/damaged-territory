@@ -24,10 +24,10 @@ class PlayerSystemOnPhysicsSystemReady :
                 boundingBox.depth / 2F
             )
         )
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player)
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.player)
         val physicsComponent = EntityBuilder.addPhysicsComponent(
             boxShape,
-            gameSessionData.gameSessionDataEntities.player,
+            gameSessionData.player,
             Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform)
         )
         physicsComponent.rigidBody.setDamping(0F, 0.75F)

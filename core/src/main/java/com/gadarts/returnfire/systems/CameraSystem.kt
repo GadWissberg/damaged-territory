@@ -39,7 +39,7 @@ class CameraSystem : GameEntitySystem() {
     }
 
     private fun followPlayer() {
-        val player = gameSessionData.gameSessionDataEntities.player
+        val player = gameSessionData.player
         val transform =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)
@@ -50,7 +50,7 @@ class CameraSystem : GameEntitySystem() {
         playerPosition: Vector3
     ) {
         auxVector2.set(2F, 0F).setAngleDeg(
-            ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform.getRotation(
+            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getRotation(
                 auxQuat
             ).yaw
         )
@@ -65,7 +65,7 @@ class CameraSystem : GameEntitySystem() {
         gameSessionData.camera.near = NEAR
         gameSessionData.camera.far = FAR
         gameSessionData.camera.update()
-        val get = ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player)
+        val get = ComponentsMapper.modelInstance.get(gameSessionData.player)
         val playerPosition = get.gameModelInstance.modelInstance.transform.getTranslation(
             auxVector3_1
         )

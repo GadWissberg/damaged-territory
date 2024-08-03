@@ -3,9 +3,6 @@ package com.gadarts.returnfire.systems.player.movement
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.PerspectiveCamera
-import com.badlogic.gdx.math.Matrix4
-import com.badlogic.gdx.math.Quaternion
-import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
 
@@ -84,8 +81,5 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
         private const val MOVEMENT_FORWARD = 1
         private const val MOVEMENT_REVERSE = -1
         private const val ROTATION_IDLE = 0
-        private val auxQuaternion = Quaternion()
-        private val auxVector = Vector3()
-        private val auxMatrix = Matrix4()
     }
 }

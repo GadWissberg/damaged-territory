@@ -16,10 +16,10 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnPlayerWeaponShotPrimary
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnPlayerWeaponShotSecondary
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PlayerWeaponShotEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
@@ -100,7 +100,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     override fun createBullet(speed: Float, relativePosition: Vector3) {
         val transform =
-            ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
         position.add(relativePosition)
         val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()

@@ -1,10 +1,8 @@
 package com.gadarts.returnfire.systems.map
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -19,17 +17,18 @@ import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.AmbComponent
+import com.gadarts.returnfire.components.AnimatedTextureComponent
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.GroundComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.data.GameSessionData.Companion.REGION_SIZE
 import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.EntityEnteredNewRegionEventData
 
 class MapSystem : GameEntitySystem() {
 
@@ -40,33 +39,15 @@ class MapSystem : GameEntitySystem() {
     private lateinit var ambEntities: ImmutableArray<Entity>
     private lateinit var floorModel: Model
 
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
-        mapOf(SystemEvents.ENTITY_ENTERED_NEW_REGION to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                managers: Managers
-            ) {
-                moveObjectFromRegionToAnotherRegion(
-                    EntityEnteredNewRegionEventData.newRow,
-                    EntityEnteredNewRegionEventData.newColumn,
-                    gameSessionData.gameSessionDataEntities.player,
-                    EntityEnteredNewRegionEventData.prevRow,
-                    EntityEnteredNewRegionEventData.prevColumn,
-                )
-            }
-        })
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         animatedFloorsEntities =
             engine.getEntitiesFor(Family.all(GroundComponent::class.java, AnimatedTextureComponent::class.java).get())
-        addEntityListener(gameSessionData)
         val builder = ModelBuilder()
         createFloorModel(builder)
         val tilesMapping = gameSessionData.currentMap.tilesMapping
-        gameSessionData.gameSessionDataEntities.entitiesAcrossRegions =
-            Array(tilesMapping.size / REGION_SIZE) { arrayOfNulls(tilesMapping[0].size / REGION_SIZE) }
         floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.gameSessionDataRender.modelCache = ModelCache()
         addFloor()
@@ -124,66 +105,6 @@ class MapSystem : GameEntitySystem() {
     override fun dispose() {
         floorModel.dispose()
         gameSessionData.gameSessionDataRender.modelCache.dispose()
-    }
-
-    private fun addEntityListener(gameSessionData: GameSessionData) {
-        engine.addEntityListener(object : EntityListener {
-            override fun entityAdded(entity: Entity) {
-
-            }
-
-            override fun entityRemoved(entity: Entity) {
-                if (ComponentsMapper.modelInstance.has(entity)) {
-                    val position =
-                        ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
-                            auxVector1
-                        )
-                    val row = position.z.toInt() / REGION_SIZE
-                    val col = position.x.toInt() / REGION_SIZE
-                    if (row < gameSessionData.gameSessionDataEntities.entitiesAcrossRegions.size && col < gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[0].size) {
-
-                        gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[row][col]?.remove(
-                            entity
-                        )
-                        if (ComponentsMapper.amb.has(entity)) {
-                            if (ComponentsMapper.amb.get(entity).definition == AmbDefinition.BUILDING_FLAG) {
-                                addFlag(position)
-                            }
-                            managers.dispatcher.dispatchMessage(
-                                SystemEvents.BUILDING_DESTROYED.ordinal,
-                                entity
-                            )
-                        }
-                    }
-                }
-            }
-
-        })
-    }
-
-    private fun moveObjectFromRegionToAnotherRegion(
-        newRow: Int, newColumn: Int, entity: Entity, prevRow: Int = -1, prevColumn: Int = -1,
-    ) {
-        val maxRow = gameSessionData.currentMap.tilesMapping.size / REGION_SIZE
-        val maxCol = gameSessionData.currentMap.tilesMapping[0].size / REGION_SIZE
-        if ((prevRow == newRow && prevColumn == newColumn)
-            || newRow >= maxRow
-            || newColumn >= maxCol
-        )
-            return
-
-        if (gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[newRow][newColumn] == null) {
-            gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[newRow][newColumn] =
-                mutableListOf()
-        }
-        if (prevRow >= 0 && prevColumn >= 0 && prevRow < maxRow && prevColumn < maxCol) {
-            gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[prevRow][prevColumn]?.remove(
-                entity
-            )
-        }
-        gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[newRow][newColumn]?.add(
-            entity
-        )
     }
 
     private fun createFloorModel(builder: ModelBuilder) {
@@ -274,7 +195,7 @@ class MapSystem : GameEntitySystem() {
         gameSessionData.gameSessionDataRender.modelCache.add(modelInstance.modelInstance)
         var textureDefinition: TextureDefinition? = null
         val playerPosition =
-            ComponentsMapper.modelInstance.get(gameSessionData.gameSessionDataEntities.player).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
         val texturesDefinitions =
@@ -349,7 +270,7 @@ class MapSystem : GameEntitySystem() {
         val modelDefinition = def.getModelDefinition()
         val model = managers.assetsManager.getAssetByDefinition(modelDefinition)
         val modelInstance = ModelInstance(model)
-        val entity = EntityBuilder.begin()
+        EntityBuilder.begin()
             .addModelInstanceComponent(
                 GameModelInstance(modelInstance, definition = modelDefinition),
                 position,
@@ -358,11 +279,6 @@ class MapSystem : GameEntitySystem() {
             )
             .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F, def)
             .finishAndAddToEngine()
-        moveObjectFromRegionToAnotherRegion(
-            position.z.toInt() / REGION_SIZE,
-            position.x.toInt() / REGION_SIZE,
-            entity
-        )
     }
 
     companion object {

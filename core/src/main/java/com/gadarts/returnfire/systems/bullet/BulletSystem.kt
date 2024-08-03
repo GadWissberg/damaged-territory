@@ -6,20 +6,15 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.math.collision.BoundingBox
-import com.badlogic.gdx.math.collision.Sphere
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
+import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.map.MapUtils
-import kotlin.math.max
-import kotlin.math.min
 
 class BulletSystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
@@ -48,41 +43,9 @@ class BulletSystem : GameEntitySystem() {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
         val modelInstance = ComponentsMapper.modelInstance.get(bullet).gameModelInstance
         handleBulletSpecialMovement(bulletComponent, modelInstance)
-        val prevPosition = modelInstance.modelInstance.transform.getTranslation(auxVector)
-        val prevRow = prevPosition.z.toInt() / GameSessionData.REGION_SIZE
-        val prevCol = prevPosition.x.toInt() / GameSessionData.REGION_SIZE
         modelInstance.modelInstance.transform.trn(
             getDirectionOfModel(bullet).nor().scl(bulletComponent.speed * deltaTime)
         )
-        if (prevRow < gameSessionData.gameSessionDataEntities.entitiesAcrossRegions.size && prevCol < gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[0].size) {
-            if (gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[prevRow][prevCol] != null) {
-                auxSphere.radius = ComponentsMapper.modelInstance.get(bullet).gameModelInstance.getBoundingBox(
-                    auxBoundingBox1
-                ).getDimensions(auxVector).len2() / 2F
-                auxSphere.center.set(modelInstance.modelInstance.transform.getTranslation(auxVector))
-                applyCollisionInTheCurrentRegion(prevRow, prevCol, bullet)
-            }
-            MapUtils.notifyEntityRegionChanged(
-                modelInstance.modelInstance.transform.getTranslation(auxVector),
-                prevRow,
-                prevCol,
-                managers.dispatcher
-            )
-        }
-    }
-
-    private fun applyCollisionInTheCurrentRegion(prevRow: Int, prevCol: Int, bullet: Entity) {
-        for (entity in gameSessionData.gameSessionDataEntities.entitiesAcrossRegions[prevRow][prevCol]!!) {
-            val entityBoundingBox =
-                ComponentsMapper.modelInstance.get(entity).gameModelInstance.getBoundingBox(
-                    auxBoundingBox2
-                )
-            if (intersectBoundingBoxAndSphere(entityBoundingBox, auxSphere)) {
-                engine.removeEntity(bullet)
-                engine.removeEntity(entity)
-                break
-            }
-        }
     }
 
     private fun handleBulletSpecialMovement(
@@ -98,24 +61,6 @@ class BulletSystem : GameEntitySystem() {
         }
     }
 
-    private fun intersectBoundingBoxAndSphere(
-        box: BoundingBox,
-        sphere: Sphere
-    ): Boolean {
-        val closestPoint = Vector3(
-            max(box.min.x, min(sphere.center.x, box.max.x)),
-            max(box.min.y, min(sphere.center.y, box.max.y)),
-            max(box.min.z, min(sphere.center.z, box.max.z))
-        )
-
-
-        // Calculate the distance between the closest point and the sphere's center
-        val distanceSquared = closestPoint.dst2(sphere.center)
-
-
-        // Check if the distance is less than or equal to the sphere's radius squared
-        return distanceSquared * distanceSquared <= (sphere.radius * sphere.radius)
-    }
 
     private fun getDirectionOfModel(entity: Entity): Vector3 {
         val transform =
@@ -141,9 +86,6 @@ class BulletSystem : GameEntitySystem() {
     companion object {
         private val auxVector = Vector3()
         private val auxQuat = Quaternion()
-        private val auxBoundingBox1 = BoundingBox()
-        private val auxBoundingBox2 = BoundingBox()
-        private val auxSphere = Sphere(Vector3(), 0F)
         private const val BULLET_MAX_DISTANCE = 100F
     }
 }
