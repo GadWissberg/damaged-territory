@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
-import com.badlogic.gdx.physics.bullet.collision.btPolyhedralConvexShape
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
@@ -202,7 +202,7 @@ class EntityBuilder private constructor() {
         }
 
         fun addPhysicsComponent(
-            shape: btPolyhedralConvexShape,
+            shape: btCollisionShape,
             entity: Entity,
             transform: Matrix4 = Matrix4()
         ): PhysicsComponent {

@@ -17,7 +17,7 @@ class TiltAnimationHandler {
             auxQuaternion
         )
         val roll = if (rotation.roll >= 0) rotation.roll else rotation.roll + 360F
-        if (rollTarget != ROLL_IDLE || !MathUtils.isEqual(roll, ROLL_IDLE, 1.5F)) {
+        if (rollTarget != ROLL_IDLE || !MathUtils.isEqual(roll, ROLL_IDLE + 360F, 1.5F)) {
             if (roll < 45F || roll > (ROLL_REVERSE + 360F) || roll > (rollTarget + 360F)) {
                 modelInstanceComponent.gameModelInstance.modelInstance.transform.rotate(Vector3.Z, -ROTATION_STEP)
             } else if (roll > 45F && (roll < (ROLL_THRUST + 360F) || roll < (rollTarget + 360F))) {
