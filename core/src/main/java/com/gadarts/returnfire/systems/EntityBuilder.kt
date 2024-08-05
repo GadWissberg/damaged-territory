@@ -2,6 +2,7 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.decals.Decal
@@ -23,6 +24,7 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.AmbDefinition
+import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.BulletsPool
 import kotlin.math.max
 
@@ -204,11 +206,17 @@ class EntityBuilder private constructor() {
         fun addPhysicsComponent(
             shape: btCollisionShape,
             entity: Entity,
-            transform: Matrix4 = Matrix4()
+            dispatcher: MessageDispatcher,
+            transform: Matrix4 = Matrix4(),
+            mass: Float = 0F,
         ): PhysicsComponent {
             val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
-            physicsComponent.init(shape, 10F, transform, CF_CHARACTER_OBJECT)
+            physicsComponent.init(shape, mass, transform, CF_CHARACTER_OBJECT)
             entity.add(physicsComponent)
+            dispatcher.dispatchMessage(
+                SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
+                entity
+            )
             return physicsComponent
         }
     }

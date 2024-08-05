@@ -12,7 +12,11 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils.random
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape
+import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
@@ -51,9 +55,17 @@ class MapSystem : GameEntitySystem() {
         floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.gameSessionDataRender.modelCache = ModelCache()
         addFloor()
+    }
+
+    override fun onSystemReady() {
+        super.onSystemReady()
+        addAmbEntities(gameSessionData)
+    }
+
+    private fun addAmbEntities(gameSessionData: GameSessionData) {
         gameSessionData.currentMap.placedElements.forEach {
             if (it.definition != CharactersDefinitions.PLAYER) {
-                addAmbModelObject(
+                addAmbObject(
                     auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
                     it.definition as AmbDefinition,
                     it.direction
@@ -260,7 +272,7 @@ class MapSystem : GameEntitySystem() {
         }
     }
 
-    private fun addAmbModelObject(
+    private fun addAmbObject(
         position: Vector3,
         def: AmbDefinition,
         direction: Int,
@@ -270,24 +282,44 @@ class MapSystem : GameEntitySystem() {
         val modelDefinition = def.getModelDefinition()
         val model = managers.assetsManager.getAssetByDefinition(modelDefinition)
         val modelInstance = ModelInstance(model)
-        EntityBuilder.begin()
+        managers.assetsManager.getCachedBoundingBox(modelDefinition)
+        val shape = btCompoundShape()
+        val dimensions = auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition)).getDimensions(
+            auxVector3
+        )
+        shape.addChildShape(
+            auxMatrix.idt().translate(0F, dimensions.y / 2F, 0F), btBoxShape(
+                dimensions.scl(0.5F)
+            )
+        )
+        val gameModelInstance = GameModelInstance(modelInstance, definition = modelDefinition)
+        val entity = EntityBuilder.begin()
             .addModelInstanceComponent(
-                GameModelInstance(modelInstance, definition = modelDefinition),
+                gameModelInstance,
                 position,
                 true,
                 direction.toFloat()
             )
             .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F, def)
             .finishAndAddToEngine()
+        EntityBuilder.addPhysicsComponent(
+            shape,
+            entity,
+            managers.dispatcher,
+            Matrix4(gameModelInstance.modelInstance.transform),
+            0F
+        )
     }
 
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
+        private val auxVector3 = Vector3()
         private const val MIN_SCALE = 0.95F
         private const val MAX_SCALE = 1.05F
         private const val EXT_SIZE = 48
         private val TILES_CHARS = CharArray(80) { (it + 48).toChar() }.joinToString("")
-
+        private val auxBoundingBox = BoundingBox()
+        private val auxMatrix = Matrix4()
     }
 }

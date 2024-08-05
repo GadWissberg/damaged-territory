@@ -10,7 +10,6 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
 
 
 class PlayerSystemOnPhysicsSystemReady :
@@ -21,11 +20,13 @@ class PlayerSystemOnPhysicsSystemReady :
         val physicsComponent = EntityBuilder.addPhysicsComponent(
             playerShape,
             gameSessionData.player,
-            Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform)
+            managers.dispatcher,
+            Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform),
+            10F
         )
+        physicsComponent.rigidBody.gravity = Vector3.Zero
         physicsComponent.rigidBody.setDamping(0F, 0.75F)
         physicsComponent.rigidBody.angularFactor = Vector3.Y
-        managers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal)
     }
 
     private fun createCollisionShape(): btCompoundShape {

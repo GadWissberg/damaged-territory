@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.systems.physics
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
@@ -7,7 +8,6 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btStaticPlaneShape
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -28,10 +28,7 @@ class PhysicsSystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                bulletEngineHandler.addBodyOfEntity(gameSessionData.player)
-                val rigidBody = ComponentsMapper.physics.get(gameSessionData.player).rigidBody
-                rigidBody.gravity =
-                    Vector3.Zero
+                bulletEngineHandler.addBodyOfEntity(msg.extraInfo as Entity)
             }
 
         }
