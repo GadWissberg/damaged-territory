@@ -7,5 +7,6 @@ class ArmProperties(
     val sparkFrames: List<TextureRegion>,
     val shootingSound: Sound,
     val reloadDuration: Long,
-    val speed: Float
+    val speed: Float,
+    val radius: Float
 )

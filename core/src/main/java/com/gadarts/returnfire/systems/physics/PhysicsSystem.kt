@@ -21,7 +21,6 @@ class PhysicsSystem : GameEntitySystem() {
         BulletEngineHandler(
             gameSessionData,
             engine,
-            managers.dispatcher
         )
     }
 

@@ -216,13 +216,11 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     private fun addFirepowerToPlayer(entityBuilder: EntityBuilder) {
-        val apacheModel = managers.assetsManager.getAssetByDefinition(ModelDefinition.APACHE)
         val definitions = managers.assetsManager.getTexturesDefinitions()
         val definition = definitions.definitions["spark"]!!
         val sparkFrames = listOf(TextureRegion(managers.assetsManager.getTexture(definition)))
         addPrimaryArmComponent(entityBuilder, sparkFrames)
         addSecondaryArmComponent(entityBuilder, sparkFrames)
-            .addSphereCollisionComponent(apacheModel)
     }
 
     private fun createPlayerModelInstance(): GameModelInstance {
@@ -240,7 +238,13 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     ): EntityBuilder {
         val priSnd = managers.assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN)
         val priDecal = newDecal(PRI_SPARK_SIZE, PRI_SPARK_SIZE, sparkFrames.first(), true)
-        val priArmProperties = ArmProperties(sparkFrames, priSnd, PRI_RELOAD_DUR, PRI_BULLET_SPEED)
+        val priArmProperties = ArmProperties(
+            sparkFrames,
+            priSnd,
+            PRI_RELOAD_DUR,
+            PRI_BULLET_SPEED,
+            managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F
+        )
         val priCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
             override fun calculate(parent: Entity): Vector3 {
                 val transform =
@@ -265,7 +269,13 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         sparkFrames: List<TextureRegion>
     ): EntityBuilder {
         val secSnd = managers.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE)
-        val secArmProperties = ArmProperties(sparkFrames, secSnd, SEC_RELOAD_DUR, SEC_BULLET_SPEED)
+        val secArmProperties = ArmProperties(
+            sparkFrames,
+            secSnd,
+            SEC_RELOAD_DUR,
+            SEC_BULLET_SPEED,
+            managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width
+        )
         val secDecal = newDecal(SEC_SPARK_SIZE, SEC_SPARK_SIZE, sparkFrames.first(), true)
         val secCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
             override fun calculate(parent: Entity): Vector3 {

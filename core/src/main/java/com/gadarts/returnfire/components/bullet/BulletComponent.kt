@@ -5,8 +5,7 @@ import com.gadarts.returnfire.components.GameComponent
 import com.gadarts.returnfire.systems.player.BulletsPool
 
 class BulletComponent : GameComponent() {
-    lateinit var behavior: BulletBehavior
-        private set
+    private lateinit var behavior: BulletBehavior
     var speed: Float = 0.0f
         private set
     val initialPosition = Vector3()

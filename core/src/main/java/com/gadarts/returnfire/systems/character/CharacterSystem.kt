@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ArmComponent
 
 interface CharacterSystem {
-    fun createBullet(speed: Float, relativePosition: Vector3)
+    fun createBullet(speed: Float, relativePosition: Vector3, radius: Float)
     fun positionSpark(
         arm: ArmComponent,
         modelInstance: ModelInstance,

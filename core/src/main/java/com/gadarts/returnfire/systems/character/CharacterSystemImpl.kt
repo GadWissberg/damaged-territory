@@ -6,14 +6,17 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.Decal
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btSphereShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -98,13 +101,13 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     }
 
-    override fun createBullet(speed: Float, relativePosition: Vector3) {
+    override fun createBullet(speed: Float, relativePosition: Vector3, radius: Float) {
         val transform =
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
         position.add(relativePosition)
         val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()
-        EntityBuilder.begin()
+        val bullet = EntityBuilder.begin()
             .addModelInstanceComponent(gameModelInstance, position, false)
             .addBulletComponent(
                 position,
@@ -113,10 +116,31 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 PlayerWeaponShotEventData.behavior
             )
             .finishAndAddToEngine()
+        applyPhysicsToBullet(radius, bullet, gameModelInstance, transform)
+    }
+
+    private fun applyPhysicsToBullet(
+        radius: Float,
+        bullet: Entity,
+        gameModelInstance: GameModelInstance,
+        transform: Matrix4
+    ) {
+        EntityBuilder.addPhysicsComponent(
+            btSphereShape(radius),
+            bullet,
+            managers.dispatcher,
+            gameModelInstance.modelInstance.transform,
+            10F
+        )
         gameModelInstance.modelInstance.transform.rotate(transform.getRotation(auxQuat)).rotate(
             Vector3.Z,
             if (PlayerWeaponShotEventData.behavior == BulletBehavior.REGULAR) -45F else 0F
         )
+        val physicsComponent = ComponentsMapper.physics.get(bullet)
+        physicsComponent.rigidBody.linearVelocity =
+            gameModelInstance.modelInstance.transform.getRotation(auxQuat).transform(auxVector1.set(1F, 0F, 0F))
+                .scl(16F)
+        physicsComponent.rigidBody.gravity = Vector3.Zero
     }
 
     companion object {

@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.Bullet
@@ -25,7 +24,6 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 class BulletEngineHandler(
     private val globalData: GameSessionData,
     private val engine: Engine,
-    private val messageDispatcher: MessageDispatcher
 ) : Disposable, EntityListener {
 
     private lateinit var debugDrawer: DebugDrawer
@@ -52,9 +50,6 @@ class BulletEngineHandler(
     }
 
     override fun entityAdded(entity: Entity?) {
-        if (entity != null) {
-            addBodyOfEntity(entity)
-        }
     }
 
     fun addBodyOfEntity(entity: Entity) {
@@ -121,7 +116,6 @@ class BulletEngineHandler(
 
 
     companion object {
-        const val GRAVITY_FORCE = -9.8f
         val auxVector = Vector3()
     }
 

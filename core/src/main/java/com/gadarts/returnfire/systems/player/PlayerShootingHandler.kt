@@ -55,7 +55,7 @@ class PlayerShootingHandler {
             armComp,
             bulletsPools.priBulletsPool,
             SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY,
-            BulletBehavior.REGULAR
+            BulletBehavior.REGULAR,
         )
         armComp = ComponentsMapper.secondaryArm.get(player)
         handleShooting(

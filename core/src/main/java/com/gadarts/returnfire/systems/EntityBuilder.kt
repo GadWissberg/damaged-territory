@@ -4,12 +4,10 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.audio.Sound
-import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.components.*
@@ -26,7 +24,6 @@ import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.BulletsPool
-import kotlin.math.max
 
 class EntityBuilder private constructor() {
 
@@ -144,14 +141,6 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addSphereCollisionComponent(model: Model): EntityBuilder {
-        val collisionComponent = engine.createComponent(SphereCollisionComponent::class.java)
-        val box = model.calculateBoundingBox(auxBoundingBox)
-        val radius = max(max(box.width / 2F, box.height / 2F), box.depth / 2F)
-        collisionComponent.init(radius)
-        entity!!.add(collisionComponent)
-        return instance
-    }
 
     fun addParticleEffectComponent(
         originalEffect: ParticleEffect,
@@ -179,6 +168,19 @@ class EntityBuilder private constructor() {
         return particleEffectComponent
     }
 
+    fun addPhysicsComponent(
+        shape: btCollisionShape,
+        transform: Matrix4,
+    ): EntityBuilder {
+        Companion.addPhysicsComponent(
+            shape = shape,
+            entity = entity!!,
+            mass = 1F,
+            transform = transform,
+        )
+        return instance
+    }
+
     fun finish(): Entity {
         val result = entity
         entity = null
@@ -187,11 +189,9 @@ class EntityBuilder private constructor() {
 
     companion object {
 
-        private val auxMatrix: Matrix4 = Matrix4()
         private lateinit var instance: EntityBuilder
         var entity: Entity? = null
         lateinit var engine: PooledEngine
-        private val auxBoundingBox = BoundingBox()
 
         fun begin(): EntityBuilder {
             entity = engine.createEntity()
@@ -206,14 +206,14 @@ class EntityBuilder private constructor() {
         fun addPhysicsComponent(
             shape: btCollisionShape,
             entity: Entity,
-            dispatcher: MessageDispatcher,
+            dispatcher: MessageDispatcher? = null,
             transform: Matrix4 = Matrix4(),
             mass: Float = 0F,
         ): PhysicsComponent {
             val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
             physicsComponent.init(shape, mass, transform, CF_CHARACTER_OBJECT)
             entity.add(physicsComponent)
-            dispatcher.dispatchMessage(
+            dispatcher?.dispatchMessage(
                 SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
                 entity
             )
