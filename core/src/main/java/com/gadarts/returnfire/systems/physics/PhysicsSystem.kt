@@ -16,7 +16,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.auxVector
 
 class PhysicsSystem : GameEntitySystem() {
-    private val contactListener: GameContactListener by lazy { GameContactListener() }
+    private lateinit var contactListener: GameContactListener
     private val bulletEngineHandler: BulletEngineHandler by lazy {
         BulletEngineHandler(
             gameSessionData,
@@ -36,6 +36,7 @@ class PhysicsSystem : GameEntitySystem() {
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         bulletEngineHandler.initialize()
+        contactListener = GameContactListener(managers.dispatcher)
     }
 
     override fun resume(delta: Long) {

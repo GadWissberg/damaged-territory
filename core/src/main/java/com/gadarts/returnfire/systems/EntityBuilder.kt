@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -211,7 +210,8 @@ class EntityBuilder private constructor() {
             mass: Float = 0F,
         ): PhysicsComponent {
             val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
-            physicsComponent.init(shape, mass, transform, CF_CHARACTER_OBJECT)
+            physicsComponent.init(shape, mass, transform)
+            physicsComponent.rigidBody.userData = entity
             entity.add(physicsComponent)
             dispatcher?.dispatchMessage(
                 SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,

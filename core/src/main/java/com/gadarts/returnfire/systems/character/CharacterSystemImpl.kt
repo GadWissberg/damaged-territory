@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy.CollisionFilterGroups
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btSphereShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
@@ -125,8 +127,9 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         gameModelInstance: GameModelInstance,
         transform: Matrix4
     ) {
+        val shape = btSphereShape(radius)
         EntityBuilder.addPhysicsComponent(
-            btSphereShape(radius),
+            shape,
             bullet,
             managers.dispatcher,
             gameModelInstance.modelInstance.transform,
@@ -141,6 +144,9 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             gameModelInstance.modelInstance.transform.getRotation(auxQuat).transform(auxVector1.set(1F, 0F, 0F))
                 .scl(16F)
         physicsComponent.rigidBody.gravity = Vector3.Zero
+        physicsComponent.rigidBody.contactCallbackFilter =
+            CollisionFilterGroups.AllFilter
+        physicsComponent.rigidBody.collisionFlags = btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
     }
 
     companion object {

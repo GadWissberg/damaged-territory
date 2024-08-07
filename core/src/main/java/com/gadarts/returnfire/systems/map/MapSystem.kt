@@ -302,13 +302,15 @@ class MapSystem : GameEntitySystem() {
             )
             .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F, def)
             .finishAndAddToEngine()
-        EntityBuilder.addPhysicsComponent(
+        val physicsComponent = EntityBuilder.addPhysicsComponent(
             shape,
             entity,
             managers.dispatcher,
             Matrix4(gameModelInstance.modelInstance.transform),
-            0F
+            1F
         )
+//        physicsComponent.rigidBody.contactCallbackFilter =
+//            btBroadphaseProxy.CollisionFilterGroups.CharacterFilter
     }
 
     companion object {
