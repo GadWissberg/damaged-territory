@@ -19,13 +19,18 @@ class BulletSystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                val bullet = PhysicsCollisionEventData.colObj0.userData as Entity
-                if (ComponentsMapper.bullet.has(bullet)) {
-                    engine.removeEntity(bullet)
-                }
+                handleBulletCollision(PhysicsCollisionEventData.colObj0.userData as Entity)
+                handleBulletCollision(PhysicsCollisionEventData.colObj1.userData as Entity)
             }
+
         }
     )
+
+    private fun handleBulletCollision(entity: Entity) {
+        if (ComponentsMapper.bullet.has(entity)) {
+            engine.removeEntity(entity)
+        }
+    }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)

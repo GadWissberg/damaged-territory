@@ -116,13 +116,11 @@ class EntityBuilder private constructor() {
     }
 
     fun addBulletComponent(
-        position: Vector3,
-        speed: Float,
         pool: BulletsPool,
         behavior: BulletBehavior
     ): EntityBuilder {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
-        bulletComponent.init(position, speed, pool, behavior)
+        bulletComponent.init(pool, behavior)
         entity!!.add(bulletComponent)
         return instance
     }

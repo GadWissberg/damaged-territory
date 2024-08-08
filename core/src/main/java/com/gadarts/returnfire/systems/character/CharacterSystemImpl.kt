@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy.CollisionFilterGroups
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btSphereShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
@@ -112,20 +111,19 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         val bullet = EntityBuilder.begin()
             .addModelInstanceComponent(gameModelInstance, position, false)
             .addBulletComponent(
-                position,
-                speed,
                 PlayerWeaponShotEventData.pool,
                 PlayerWeaponShotEventData.behavior
             )
             .finishAndAddToEngine()
-        applyPhysicsToBullet(radius, bullet, gameModelInstance, transform)
+        applyPhysicsToBullet(radius, bullet, gameModelInstance, transform, speed)
     }
 
     private fun applyPhysicsToBullet(
         radius: Float,
         bullet: Entity,
         gameModelInstance: GameModelInstance,
-        transform: Matrix4
+        transform: Matrix4,
+        speed: Float
     ) {
         val shape = btSphereShape(radius)
         EntityBuilder.addPhysicsComponent(
@@ -142,11 +140,11 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         val physicsComponent = ComponentsMapper.physics.get(bullet)
         physicsComponent.rigidBody.linearVelocity =
             gameModelInstance.modelInstance.transform.getRotation(auxQuat).transform(auxVector1.set(1F, 0F, 0F))
-                .scl(16F)
+                .scl(speed)
+        physicsComponent.rigidBody.worldTransform = gameModelInstance.modelInstance.transform
         physicsComponent.rigidBody.gravity = Vector3.Zero
         physicsComponent.rigidBody.contactCallbackFilter =
             CollisionFilterGroups.AllFilter
-        physicsComponent.rigidBody.collisionFlags = btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
     }
 
     companion object {

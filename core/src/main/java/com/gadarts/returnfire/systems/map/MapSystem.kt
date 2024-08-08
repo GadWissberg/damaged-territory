@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -33,6 +34,7 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class MapSystem : GameEntitySystem() {
 
@@ -43,7 +45,30 @@ class MapSystem : GameEntitySystem() {
     private lateinit var ambEntities: ImmutableArray<Entity>
     private lateinit var floorModel: Model
 
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
+                val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
+                onCollisionAmbAndBullet(
+                    entity0,
+                    entity1
+                ) && onCollisionAmbAndBullet(
+                    entity1,
+                    entity0
+                )
+            }
+
+        }
+    )
+
+    private fun onCollisionAmbAndBullet(entityFirst: Entity, entitySecond: Entity): Boolean {
+        return if (ComponentsMapper.amb.has(entityFirst) && ComponentsMapper.bullet.has(entitySecond)) {
+            engine.removeEntity(entityFirst)
+            true
+        } else false
+    }
+
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
@@ -302,15 +327,13 @@ class MapSystem : GameEntitySystem() {
             )
             .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F, def)
             .finishAndAddToEngine()
-        val physicsComponent = EntityBuilder.addPhysicsComponent(
+        EntityBuilder.addPhysicsComponent(
             shape,
             entity,
             managers.dispatcher,
             Matrix4(gameModelInstance.modelInstance.transform),
             1F
         )
-//        physicsComponent.rigidBody.contactCallbackFilter =
-//            btBroadphaseProxy.CollisionFilterGroups.CharacterFilter
     }
 
     companion object {

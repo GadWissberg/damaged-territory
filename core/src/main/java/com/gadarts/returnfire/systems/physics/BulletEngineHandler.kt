@@ -55,7 +55,13 @@ class BulletEngineHandler(
     fun addBodyOfEntity(entity: Entity) {
         if (ComponentsMapper.physics.has(entity)) {
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
-            globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody)
+            if (ComponentsMapper.bullet.has(entity)) {
+                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, 1, -1)
+            } else if (ComponentsMapper.player.has(entity)) {
+                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, 2, 4)
+            } else {
+                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody)
+            }
         }
     }
 
