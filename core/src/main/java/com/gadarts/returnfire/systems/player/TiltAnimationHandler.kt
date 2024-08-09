@@ -56,9 +56,9 @@ class TiltAnimationHandler {
     companion object {
         private val auxQuaternion = Quaternion()
         private const val ROTATION_STEP = 1F
-        private const val ROLL_IDLE = -10F
-        private const val ROLL_THRUST = -22F
-        private const val ROLL_REVERSE = -2F
+        private const val ROLL_IDLE = -12F
+        private const val ROLL_THRUST = -24F
+        private const val ROLL_REVERSE = -4F
         private const val PITCH = 10F
     }
 

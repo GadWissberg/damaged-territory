@@ -22,7 +22,7 @@ class CharacterSystemOnPlayerWeaponShotPrimary(private val characterSystem: Char
         characterSystem.createBullet(
             armProperties.speed,
             relativePosition,
-            armProperties.radius
+            armProperties.radius,
         )
         managers.soundPlayer.playPositionalSound(
             armProperties.shootingSound,

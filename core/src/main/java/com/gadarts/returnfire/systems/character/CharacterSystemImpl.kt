@@ -112,7 +112,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             .addModelInstanceComponent(gameModelInstance, position, false)
             .addBulletComponent(
                 PlayerWeaponShotEventData.pool,
-                PlayerWeaponShotEventData.behavior
+                PlayerWeaponShotEventData.behavior,
             )
             .finishAndAddToEngine()
         applyPhysicsToBullet(radius, bullet, gameModelInstance, transform, speed)

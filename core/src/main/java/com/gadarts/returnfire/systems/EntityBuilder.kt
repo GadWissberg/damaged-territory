@@ -117,7 +117,7 @@ class EntityBuilder private constructor() {
 
     fun addBulletComponent(
         pool: BulletsPool,
-        behavior: BulletBehavior
+        behavior: BulletBehavior,
     ): EntityBuilder {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
         bulletComponent.init(pool, behavior)
