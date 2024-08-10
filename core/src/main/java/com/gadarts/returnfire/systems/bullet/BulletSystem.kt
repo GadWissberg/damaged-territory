@@ -12,6 +12,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
+import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -32,7 +33,7 @@ class BulletSystem : GameEntitySystem() {
 
     private fun handleBulletCollision(entity: Entity) {
         if (ComponentsMapper.bullet.has(entity)) {
-            engine.removeEntity(entity)
+            destroyBullet(entity)
         }
     }
 
@@ -60,9 +61,19 @@ class BulletSystem : GameEntitySystem() {
                     }
                 }
             } else {
-                engine.removeEntity(bullet)
+                destroyBullet(bullet)
             }
         }
+    }
+
+    private fun destroyBullet(entity: Entity) {
+        val explosion = ComponentsMapper.bullet.get(entity).explosion
+        if (explosion != null) {
+            val position = ComponentsMapper.physics.get(entity).rigidBody.worldTransform.getTranslation(auxVector1)
+            EntityBuilder.begin()
+                .addParticleEffectComponent(explosion, position).finishAndAddToEngine()
+        }
+        engine.removeEntity(entity)
     }
 
     override fun resume(delta: Long) {

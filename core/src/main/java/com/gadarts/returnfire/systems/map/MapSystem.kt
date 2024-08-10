@@ -21,6 +21,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.AnimatedTextureComponent
@@ -64,6 +65,13 @@ class MapSystem : GameEntitySystem() {
 
     private fun onCollisionAmbAndBullet(entityFirst: Entity, entitySecond: Entity): Boolean {
         return if (ComponentsMapper.amb.has(entityFirst) && ComponentsMapper.bullet.has(entitySecond)) {
+            val position =
+                ComponentsMapper.physics.get(entityFirst).rigidBody.worldTransform.getTranslation(auxVector1)
+            EntityBuilder.begin()
+                .addParticleEffectComponent(
+                    managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
+                    position
+                ).finishAndAddToEngine()
             engine.removeEntity(entityFirst)
             true
         } else false

@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.Decal
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -102,7 +103,12 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     }
 
-    override fun createBullet(speed: Float, relativePosition: Vector3, radius: Float) {
+    override fun createBullet(
+        speed: Float,
+        relativePosition: Vector3,
+        radius: Float,
+        explosion: ParticleEffect?
+    ) {
         val transform =
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
@@ -113,6 +119,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             .addBulletComponent(
                 PlayerWeaponShotEventData.pool,
                 PlayerWeaponShotEventData.behavior,
+                explosion
             )
             .finishAndAddToEngine()
         applyPhysicsToBullet(radius, bullet, gameModelInstance, transform, speed)

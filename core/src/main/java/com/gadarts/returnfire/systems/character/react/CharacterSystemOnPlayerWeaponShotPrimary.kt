@@ -23,6 +23,7 @@ class CharacterSystemOnPlayerWeaponShotPrimary(private val characterSystem: Char
             armProperties.speed,
             relativePosition,
             armProperties.radius,
+            armProperties.explosion
         )
         managers.soundPlayer.playPositionalSound(
             armProperties.shootingSound,

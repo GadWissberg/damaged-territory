@@ -13,6 +13,7 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -243,7 +244,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             priSnd,
             PRI_RELOAD_DUR,
             PRI_BULLET_SPEED,
-            managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F
+            managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F,
         )
         val priCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
             override fun calculate(parent: Entity): Vector3 {
@@ -274,7 +275,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             secSnd,
             SEC_RELOAD_DUR,
             SEC_BULLET_SPEED,
-            managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width
+            managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width,
+            managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND)
         )
         val secDecal = newDecal(SEC_SPARK_SIZE, SEC_SPARK_SIZE, sparkFrames.first(), true)
         val secCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
