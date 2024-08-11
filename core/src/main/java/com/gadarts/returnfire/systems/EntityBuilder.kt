@@ -166,19 +166,6 @@ class EntityBuilder private constructor() {
         return particleEffectComponent
     }
 
-    fun addPhysicsComponent(
-        shape: btCollisionShape,
-        transform: Matrix4,
-    ): EntityBuilder {
-        Companion.addPhysicsComponent(
-            shape = shape,
-            entity = entity!!,
-            mass = 1F,
-            transform = transform,
-        )
-        return instance
-    }
-
     fun finish(): Entity {
         val result = entity
         entity = null

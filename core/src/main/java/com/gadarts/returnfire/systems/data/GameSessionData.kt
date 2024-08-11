@@ -27,7 +27,6 @@ class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean
         const val UI_TABLE_NAME = "ui_table"
         const val SPARK_FORWARD_BIAS = 0.55F
         const val SPARK_HEIGHT_BIAS = 0.37F
-        const val REGION_SIZE = 10
     }
 
     override fun dispose() {

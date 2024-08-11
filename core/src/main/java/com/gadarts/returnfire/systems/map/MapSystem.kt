@@ -20,7 +20,6 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AmbComponent
@@ -63,21 +62,6 @@ class MapSystem : GameEntitySystem() {
         }
     )
 
-    private fun onCollisionAmbAndBullet(entityFirst: Entity, entitySecond: Entity): Boolean {
-        return if (ComponentsMapper.amb.has(entityFirst) && ComponentsMapper.bullet.has(entitySecond)) {
-            val position =
-                ComponentsMapper.physics.get(entityFirst).rigidBody.worldTransform.getTranslation(auxVector1)
-            EntityBuilder.begin()
-                .addParticleEffectComponent(
-                    managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
-                    position
-                ).finishAndAddToEngine()
-            engine.removeEntity(entityFirst)
-            true
-        } else false
-    }
-
-
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         animatedFloorsEntities =
@@ -90,46 +74,15 @@ class MapSystem : GameEntitySystem() {
         addFloor()
     }
 
+
     override fun onSystemReady() {
         super.onSystemReady()
         addAmbEntities(gameSessionData)
     }
 
-    private fun addAmbEntities(gameSessionData: GameSessionData) {
-        gameSessionData.currentMap.placedElements.forEach {
-            if (it.definition != CharactersDefinitions.PLAYER) {
-                addAmbObject(
-                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
-                    it.definition as AmbDefinition,
-                    it.direction
-                )
-            }
-        }
-        applyTransformOnAmbEntities()
-    }
-
-    private fun addFlag(position: Vector3) {
-        EntityBuilder.begin()
-            .addAmbComponent(auxVector2.set(0.5F, 0.5F, 0.5F), 0F, AmbDefinition.FLAG)
-            .addModelInstanceComponent(
-                GameModelInstance(
-                    ModelInstance(
-                        managers.assetsManager.getAssetByDefinition(
-                            ModelDefinition.FLAG
-                        )
-                    ),
-                    definition = ModelDefinition.FLAG
-                ),
-                position,
-                false
-            )
-            .finishAndAddToEngine()
-    }
-
     override fun resume(delta: Long) {
         ambSoundsHandler.resume(delta)
     }
-
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
@@ -146,10 +99,38 @@ class MapSystem : GameEntitySystem() {
         }
     }
 
-
     override fun dispose() {
         floorModel.dispose()
         gameSessionData.gameSessionDataRender.modelCache.dispose()
+    }
+
+
+    private fun onCollisionAmbAndBullet(entityFirst: Entity, entitySecond: Entity): Boolean {
+        return if (ComponentsMapper.amb.has(entityFirst) && ComponentsMapper.bullet.has(entitySecond)) {
+            val position =
+                ComponentsMapper.physics.get(entityFirst).rigidBody.worldTransform.getTranslation(auxVector1)
+            EntityBuilder.begin()
+                .addParticleEffectComponent(
+                    managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
+                    position
+                ).finishAndAddToEngine()
+            engine.removeEntity(entityFirst)
+            true
+        } else false
+    }
+
+
+    private fun addAmbEntities(gameSessionData: GameSessionData) {
+        gameSessionData.currentMap.placedElements.forEach {
+            if (it.definition != CharactersDefinitions.PLAYER) {
+                addAmbObject(
+                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
+                    it.definition as AmbDefinition,
+                    it.direction
+                )
+            }
+        }
+        applyTransformOnAmbEntities()
     }
 
     private fun createFloorModel(builder: ModelBuilder) {
@@ -238,6 +219,15 @@ class MapSystem : GameEntitySystem() {
             auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
         )
         gameSessionData.gameSessionDataRender.modelCache.add(modelInstance.modelInstance)
+        applyTextureToFloorTile(col, row, entity, modelInstance)
+    }
+
+    private fun applyTextureToFloorTile(
+        col: Int,
+        row: Int,
+        entity: Entity,
+        modelInstance: GameModelInstance
+    ) {
         var textureDefinition: TextureDefinition? = null
         val playerPosition =
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(

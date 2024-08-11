@@ -4,8 +4,7 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.model.AmbDefinition
 
 class AmbComponent : GameComponent() {
-    lateinit var definition: AmbDefinition
-        private set
+    private lateinit var definition: AmbDefinition
     private val scale = Vector3()
     var rotation: Float = 0F
 

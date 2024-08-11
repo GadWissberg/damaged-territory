@@ -10,8 +10,7 @@ import com.gadarts.returnfire.components.GameComponent
 
 class PhysicsComponent : GameComponent(), Disposable {
     private val localInertia = Vector3()
-    var motionState: MotionState? = null
-        private set
+    private var motionState: MotionState? = null
     lateinit var rigidBody: btRigidBody
 
     override fun reset() {
