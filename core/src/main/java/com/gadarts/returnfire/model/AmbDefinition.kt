@@ -10,7 +10,8 @@ enum class AmbDefinition(
     PALM_TREE(ModelDefinition.PALM_TREE, true, true),
     WATCH_TOWER(ModelDefinition.WATCH_TOWER),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
-    FLAG(ModelDefinition.FLAG);
+    FLAG(ModelDefinition.FLAG),
+    TURRET_CANNON(ModelDefinition.TURRET_BASE);
 
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition

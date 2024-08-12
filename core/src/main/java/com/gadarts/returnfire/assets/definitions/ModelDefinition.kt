@@ -12,7 +12,9 @@ enum class ModelDefinition(fileNames: Int = 1) : AssetDefinition<Model> {
     WATCH_TOWER,
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,
-    FLAG;
+    FLAG,
+    TURRET_CANNON,
+    TURRET_BASE;
 
     private val paths = ArrayList<String>()
 

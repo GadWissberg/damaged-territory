@@ -15,6 +15,7 @@ const ElementsDefinitions = Object.freeze([
   "GUARD_HOUSE",
   "WATCH_TOWER",
   "BUILDING_FLAG",
+  "TURRET_CANNON",
 ]);
 const Directions = Object.freeze({ east: 0, north: 90, west: 180, south: 270 });
 const MAP_SIZES = Object.freeze({ small: 48, medium: 96, large: 192 });
@@ -82,29 +83,77 @@ const tiles = [
   { name: "tile_beach_top_left", animated: true, bit: BIT_GROUND },
   { name: "tile_beach_gulf_top_left", animated: true, bit: BIT_GROUND },
   { name: "tile_beach", animated: false, bit: BIT_GROUND },
-  { name: "tile_water_shallow_bottom_right", animated: true, bit: BIT_SHALLOW_WATER },
-  { name: "tile_water_shallow_gulf_bottom_right", animated: true, bit: BIT_SHALLOW_WATER },
+  {
+    name: "tile_water_shallow_bottom_right",
+    animated: true,
+    bit: BIT_SHALLOW_WATER,
+  },
+  {
+    name: "tile_water_shallow_gulf_bottom_right",
+    animated: true,
+    bit: BIT_SHALLOW_WATER,
+  },
   { name: "tile_water_shallow_bottom", animated: true, bit: BIT_SHALLOW_WATER },
-  { name: "tile_water_shallow_bottom_left", animated: true, bit: BIT_SHALLOW_WATER },
-  { name: "tile_water_shallow_gulf_bottom_left", animated: true, bit: BIT_SHALLOW_WATER },
+  {
+    name: "tile_water_shallow_bottom_left",
+    animated: true,
+    bit: BIT_SHALLOW_WATER,
+  },
+  {
+    name: "tile_water_shallow_gulf_bottom_left",
+    animated: true,
+    bit: BIT_SHALLOW_WATER,
+  },
   { name: "tile_water_shallow_right", animated: true, bit: BIT_SHALLOW_WATER },
   { name: "tile_water_shallow_left", animated: true, bit: BIT_SHALLOW_WATER },
-  { name: "tile_water_shallow_top_right", animated: true, bit: BIT_SHALLOW_WATER },
-  { name: "tile_water_shallow_gulf_top_right", animated: true, bit: BIT_SHALLOW_WATER },
+  {
+    name: "tile_water_shallow_top_right",
+    animated: true,
+    bit: BIT_SHALLOW_WATER,
+  },
+  {
+    name: "tile_water_shallow_gulf_top_right",
+    animated: true,
+    bit: BIT_SHALLOW_WATER,
+  },
   { name: "tile_water_shallow_top", animated: true, bit: BIT_SHALLOW_WATER },
-  { name: "tile_water_shallow_top_left", animated: true, bit: BIT_SHALLOW_WATER },
-  { name: "tile_water_shallow_gulf_top_left", animated: true, bit: BIT_SHALLOW_WATER },
+  {
+    name: "tile_water_shallow_top_left",
+    animated: true,
+    bit: BIT_SHALLOW_WATER,
+  },
+  {
+    name: "tile_water_shallow_gulf_top_left",
+    animated: true,
+    bit: BIT_SHALLOW_WATER,
+  },
   { name: "tile_water_shallow", animated: true, bit: BIT_SHALLOW_WATER },
   { name: "tile_beach_road_horizontal", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_road_horizontal_top", animate: false, bit: BIT_GROUND },
-  { name: "tile_beach_road_horizontal_bottom", animate: false, bit: BIT_GROUND },
-  { name: "tile_beach_road_horizontal_end_right", animate: false, bit: BIT_GROUND },
-  { name: "tile_beach_road_horizontal_end_left", animate: false, bit: BIT_GROUND },
+  {
+    name: "tile_beach_road_horizontal_bottom",
+    animate: false,
+    bit: BIT_GROUND,
+  },
+  {
+    name: "tile_beach_road_horizontal_end_right",
+    animate: false,
+    bit: BIT_GROUND,
+  },
+  {
+    name: "tile_beach_road_horizontal_end_left",
+    animate: false,
+    bit: BIT_GROUND,
+  },
   { name: "tile_beach_road_vertical", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_road_vertical_right", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_road_vertical_left", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_road_vertical_end_up", animate: false, bit: BIT_GROUND },
-  { name: "tile_beach_road_vertical_end_down", animate: false, bit: BIT_GROUND },
+  {
+    name: "tile_beach_road_vertical_end_down",
+    animate: false,
+    bit: BIT_GROUND,
+  },
   { name: "tile_beach_road_bottom_right", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_road_bottom_left", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_road_top_left", animate: false, bit: BIT_GROUND },
@@ -121,8 +170,16 @@ const tiles = [
   { name: "tile_beach_grass_bottom_left", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_grass_gulf_top_right", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_grass_gulf_top_left", animate: false, bit: BIT_GROUND },
-  { name: "tile_beach_grass_gulf_bottom_right", animate: false, bit: BIT_GROUND },
-  { name: "tile_beach_grass_gulf_bottom_left", animate: false, bit: BIT_GROUND },
+  {
+    name: "tile_beach_grass_gulf_bottom_right",
+    animate: false,
+    bit: BIT_GROUND,
+  },
+  {
+    name: "tile_beach_grass_gulf_bottom_left",
+    animate: false,
+    bit: BIT_GROUND,
+  },
   { name: "tile_beach_dark", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_dark_top", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_dark_right", animate: false, bit: BIT_GROUND },
@@ -134,7 +191,11 @@ const tiles = [
   { name: "tile_beach_dark_bottom_left", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_dark_gulf_top_right", animate: false, bit: BIT_GROUND },
   { name: "tile_beach_dark_gulf_top_left", animate: false, bit: BIT_GROUND },
-  { name: "tile_beach_dark_gulf_bottom_right", animate: false, bit: BIT_GROUND },
+  {
+    name: "tile_beach_dark_gulf_bottom_right",
+    animate: false,
+    bit: BIT_GROUND,
+  },
   { name: "tile_beach_dark_gulf_bottom_left", animate: false, bit: BIT_GROUND },
 ];
 class MapEditor {
@@ -730,7 +791,7 @@ function applyTileOnCell(td, selectedTile, bit = -1) {
   td.style.backgroundSize = "cover";
   if (td.cellData) {
     td.cellData.selectedTile = selectedTile;
-    if (bit >= 0){
+    if (bit >= 0) {
       td.cellData.value = bit;
     }
   }

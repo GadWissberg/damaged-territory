@@ -20,6 +20,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AmbComponent
@@ -27,6 +28,7 @@ import com.gadarts.returnfire.components.AnimatedTextureComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -301,11 +303,55 @@ class MapSystem : GameEntitySystem() {
         direction: Int,
     ) {
         val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
-        val scale = auxVector1.set(randomScale, randomScale, randomScale)
         val modelDefinition = def.getModelDefinition()
-        val model = managers.assetsManager.getAssetByDefinition(modelDefinition)
-        val modelInstance = ModelInstance(model)
-        managers.assetsManager.getCachedBoundingBox(modelDefinition)
+        val assetsManager = managers.assetsManager
+        assetsManager.getCachedBoundingBox(modelDefinition)
+        val gameModelInstance = GameModelInstance(
+            ModelInstance(assetsManager.getAssetByDefinition(modelDefinition)),
+            definition = modelDefinition
+        )
+        val physicsComponent = EntityBuilder.addPhysicsComponent(
+            createShapeForAmbObject(modelDefinition),
+            EntityBuilder.begin()
+                .addModelInstanceComponent(
+                    gameModelInstance,
+                    position,
+                    true,
+                    direction.toFloat()
+                )
+                .addAmbComponent(
+                    auxVector1.set(randomScale, randomScale, randomScale),
+                    if (def.isRandomizeRotation()) random(0F, 360F) else 0F,
+                    def
+                )
+                .finishAndAddToEngine(),
+            managers.dispatcher,
+            Matrix4(gameModelInstance.modelInstance.transform),
+            1F
+        )
+        addTurret(def, physicsComponent)
+    }
+
+    private fun addTurret(
+        def: AmbDefinition,
+        physicsComponent: PhysicsComponent
+    ) {
+        if (def == AmbDefinition.TURRET_CANNON) {
+            val assetsManager = managers.assetsManager
+            val modelInstance =
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TURRET_CANNON))
+            EntityBuilder.begin().addEnemyComponent()
+                .addModelInstanceComponent(
+                    GameModelInstance(modelInstance, ModelDefinition.TURRET_CANNON),
+                    physicsComponent.rigidBody.worldTransform.getTranslation(
+                        auxVector1
+                    ).add(0F, assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height, 0F),
+                    true,
+                ).finishAndAddToEngine()
+        }
+    }
+
+    private fun createShapeForAmbObject(modelDefinition: ModelDefinition): btCompoundShape {
         val shape = btCompoundShape()
         val dimensions = auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition)).getDimensions(
             auxVector3
@@ -315,23 +361,7 @@ class MapSystem : GameEntitySystem() {
                 dimensions.scl(0.5F)
             )
         )
-        val gameModelInstance = GameModelInstance(modelInstance, definition = modelDefinition)
-        val entity = EntityBuilder.begin()
-            .addModelInstanceComponent(
-                gameModelInstance,
-                position,
-                true,
-                direction.toFloat()
-            )
-            .addAmbComponent(scale, if (def.isRandomizeRotation()) random(0F, 360F) else 0F, def)
-            .finishAndAddToEngine()
-        EntityBuilder.addPhysicsComponent(
-            shape,
-            entity,
-            managers.dispatcher,
-            Matrix4(gameModelInstance.modelInstance.transform),
-            1F
-        )
+        return shape
     }
 
     companion object {
