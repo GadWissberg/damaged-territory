@@ -13,7 +13,7 @@ abstract class GameEntitySystem : Disposable, EntitySystem(), Telegraph {
     lateinit var player: Entity
     lateinit var gameSessionData: GameSessionData
     protected lateinit var managers: Managers
-    protected abstract val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
+    protected open val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
     open fun addListener() {
         subscribedEvents.forEach { managers.dispatcher.addListener(this, it.key.ordinal) }

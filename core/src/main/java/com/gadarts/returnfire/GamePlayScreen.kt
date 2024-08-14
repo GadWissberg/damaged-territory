@@ -5,10 +5,7 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.GameAssetManager
-import com.gadarts.returnfire.systems.CameraSystem
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.ParticleEffectsSystem
-import com.gadarts.returnfire.systems.ProfilingSystem
+import com.gadarts.returnfire.systems.*
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -38,6 +35,7 @@ class GamePlayScreen(
         HudSystem(),
         ProfilingSystem(),
         MapSystem(),
+        EnemySystem(),
         BulletSystem(),
     )
 
