@@ -3,10 +3,13 @@ package com.gadarts.returnfire.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.EnemyComponent
 import com.gadarts.returnfire.systems.events.SystemEvents
@@ -16,6 +19,7 @@ import kotlin.math.sign
 
 
 class EnemySystem : GameEntitySystem() {
+    private val auxRay by lazy { ClosestRayResultCallback(Vector3(), Vector3()) }
 
     private val enemyEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(Family.all(EnemyComponent::class.java).get())
@@ -68,6 +72,28 @@ class EnemySystem : GameEntitySystem() {
                     } else if (sign < 0 && currentRotation.roll > -25F) {
                         transform.rotate(Vector3.Z, sign)
                     }
+                } else {
+                    val enemyComponent = ComponentsMapper.enemy.get(enemy)
+                    val now = TimeUtils.millis()
+                    if (enemyComponent.attackReady) {
+                        enemyComponent.attackReady = false
+                        enemyComponent.attackReadyTime = now + 3000L
+                        auxRay.setRayFromWorld(position)
+                        auxRay.setRayToWorld(playerPosition)
+                        gameSessionData.gameSessionPhysicsData.collisionWorld.rayTest(position, playerPosition, auxRay)
+                        auxRay.collisionFilterGroup = -1 // Collides with all groups
+                        auxRay.collisionFilterMask = -1  // Collides with all masks
+
+                        Gdx.app.log("!", "SHOOT $now")
+                        if (auxRay.hasHit()) {
+                            val collisionObject = auxRay.collisionObject.userData
+                            if (ComponentsMapper.player.has(collisionObject as Entity)) {
+                                Gdx.app.log("!", "HIT $now")
+                            }
+                        }
+                    } else if (enemyComponent.attackReadyTime <= now) {
+                        enemyComponent.attackReady = true
+                    }
                 }
             }
         }
@@ -77,6 +103,7 @@ class EnemySystem : GameEntitySystem() {
     }
 
     override fun dispose() {
+        auxRay.dispose()
     }
 
     companion object {
@@ -87,9 +114,7 @@ class EnemySystem : GameEntitySystem() {
         private val auxVector5 = Vector3()
         private val auxVector6 = Vector3()
         private val auxQuat = Quaternion()
-        private val auxQuat2 = Quaternion()
         private val auxMatrix = Matrix4()
-        private val auxMatrix2 = Matrix4()
         private const val ROTATION_STEP_SIZE = 40F
     }
 }

@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
@@ -327,7 +328,8 @@ class MapSystem : GameEntitySystem() {
                 .finishAndAddToEngine(),
             managers.dispatcher,
             Matrix4(gameModelInstance.modelInstance.transform),
-            1F
+            1F,
+            btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT
         )
         addTurret(def, physicsComponent)
     }
@@ -340,14 +342,31 @@ class MapSystem : GameEntitySystem() {
             val assetsManager = managers.assetsManager
             val modelInstance =
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TURRET_CANNON))
-            EntityBuilder.begin().addEnemyComponent()
+            val entity = EntityBuilder.begin()
+                .addEnemyComponent()
                 .addModelInstanceComponent(
                     GameModelInstance(modelInstance, ModelDefinition.TURRET_CANNON),
                     physicsComponent.rigidBody.worldTransform.getTranslation(
                         auxVector1
                     ).add(0F, assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height, 0F),
                     true,
-                ).finishAndAddToEngine()
+                )
+                .finishAndAddToEngine()
+            val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
+            EntityBuilder.addPhysicsComponent(
+                btBoxShape(
+                    auxVector1.set(
+                        cachedBoundingBox.width / 2F,
+                        cachedBoundingBox.height / 2F,
+                        cachedBoundingBox.depth / 2F
+                    )
+                ),
+                entity,
+                managers.dispatcher,
+                modelInstance.transform,
+                10F,
+                btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT
+            )
         }
     }
 
@@ -356,10 +375,11 @@ class MapSystem : GameEntitySystem() {
         val dimensions = auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition)).getDimensions(
             auxVector3
         )
+        val btBoxShape = btBoxShape(
+            dimensions.scl(0.5F)
+        )
         shape.addChildShape(
-            auxMatrix.idt().translate(0F, dimensions.y / 2F, 0F), btBoxShape(
-                dimensions.scl(0.5F)
-            )
+            auxMatrix.idt().translate(0F, dimensions.y / 2F, 0F), btBoxShape
         )
         return shape
     }

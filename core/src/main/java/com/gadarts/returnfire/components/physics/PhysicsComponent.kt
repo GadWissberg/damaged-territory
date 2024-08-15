@@ -21,6 +21,7 @@ class PhysicsComponent : GameComponent(), Disposable {
         colShape: btCollisionShape,
         mass: Float,
         transform: Matrix4?,
+        collisionFlag: Int? = null
     ) {
         if (transform != null) {
             motionState = MotionState()
@@ -28,13 +29,14 @@ class PhysicsComponent : GameComponent(), Disposable {
             motionState!!.setWorldTransform(transform)
         }
         calculateLocalInertia(colShape, mass)
-        initializeBody(colShape, mass, transform)
+        initializeBody(colShape, mass, transform, collisionFlag)
     }
 
     private fun initializeBody(
         colShape: btCollisionShape,
         mass: Float,
         transform: Matrix4?,
+        collisionFlag: Int? = null
     ) {
         this.rigidBody = btRigidBody(mass, motionState, colShape, localInertia)
         if (transform != null) {
@@ -43,6 +45,9 @@ class PhysicsComponent : GameComponent(), Disposable {
         activateBody()
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
         rigidBody.friction = 1.5F
+        if (collisionFlag != null) {
+            rigidBody.collisionFlags = collisionFlag
+        }
     }
 
     private fun activateBody() {

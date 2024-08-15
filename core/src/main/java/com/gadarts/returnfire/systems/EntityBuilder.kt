@@ -200,9 +200,10 @@ class EntityBuilder private constructor() {
             dispatcher: MessageDispatcher? = null,
             transform: Matrix4 = Matrix4(),
             mass: Float = 0F,
+            collisionFlag: Int? = null
         ): PhysicsComponent {
             val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
-            physicsComponent.init(shape, mass, transform)
+            physicsComponent.init(shape, mass, transform, collisionFlag)
             physicsComponent.rigidBody.userData = entity
             entity.add(physicsComponent)
             dispatcher?.dispatchMessage(
