@@ -7,5 +7,7 @@ class RenderSystemRelatedEntities(
     val modelInstanceEntities: ImmutableArray<Entity>,
     val armEntities: ImmutableArray<Entity>,
     val childEntities: ImmutableArray<Entity>,
-    val decalEntities: ImmutableArray<Entity>
-)
+    val decalEntities: ImmutableArray<Entity>,
+) {
+    val independentDecalsToRemove: ArrayList<Entity> = ArrayList()
+}

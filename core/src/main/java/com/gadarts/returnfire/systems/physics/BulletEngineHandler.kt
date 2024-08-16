@@ -60,7 +60,7 @@ class BulletEngineHandler(
             } else if (ComponentsMapper.player.has(entity)) {
                 globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, 2, 4)
             } else {
-                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody)
+                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, 3, -1)
             }
         }
     }

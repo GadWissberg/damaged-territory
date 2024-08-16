@@ -153,10 +153,18 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     private fun renderIndependentDecals() {
         for (entity in renderSystemRelatedEntities.decalEntities) {
-            val decal = ComponentsMapper.independentDecal.get(entity).decal
-            faceDecalToCamera(decal)
-            renderSystemBatches.decalBatch.add(decal)
+            val independentDecalsToRemove = renderSystemRelatedEntities.independentDecalsToRemove
+            independentDecalsToRemove.clear()
+            val independentDecalComponent = ComponentsMapper.independentDecal.get(entity)
+            if (independentDecalComponent.ttl <= TimeUtils.millis()) {
+                independentDecalsToRemove.add(entity)
+            } else {
+                val decal = independentDecalComponent.decal
+                faceDecalToCamera(decal)
+                renderSystemBatches.decalBatch.add(decal)
+            }
         }
+
     }
 
     private fun renderSparks() {
@@ -193,10 +201,12 @@ class RenderSystem : GameEntitySystem(), Disposable {
         for (entity in renderSystemRelatedEntities.modelInstanceEntities) {
             renderModel(entity, batch, applyEnvironment)
         }
-        if (applyEnvironment) {
-            batch.render(gameSessionData.gameSessionDataRender.modelCache, environment)
-        } else {
-            batch.render(gameSessionData.gameSessionDataRender.modelCache)
+        if (!GameDebugSettings.HIDE_FLOOR) {
+            if (applyEnvironment) {
+                batch.render(gameSessionData.gameSessionDataRender.modelCache, environment)
+            } else {
+                batch.render(gameSessionData.gameSessionDataRender.modelCache)
+            }
         }
         if (renderParticleEffects) {
             renderSystemBatches.modelBatch.render(gameSessionData.gameSessionDataRender.particleSystem, environment)

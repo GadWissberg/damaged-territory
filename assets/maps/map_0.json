@@ -80,6 +80,12 @@
       "col": 26
     },
     {
+      "definition": "TURRET_CANNON",
+      "direction": 0,
+      "row": 15,
+      "col": 40
+    },
+    {
       "definition": "PALM_TREE",
       "direction": 0,
       "row": 15,
@@ -102,6 +108,12 @@
       "direction": 0,
       "row": 17,
       "col": 24
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "direction": 0,
+      "row": 17,
+      "col": 29
     },
     {
       "definition": "WATCH_TOWER",
@@ -146,6 +158,12 @@
       "col": 40
     },
     {
+      "definition": "TURRET_CANNON",
+      "direction": 0,
+      "row": 23,
+      "col": 17
+    },
+    {
       "definition": "PALM_TREE",
       "direction": 0,
       "row": 23,
@@ -156,6 +174,18 @@
       "direction": 0,
       "row": 25,
       "col": 41
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "direction": 0,
+      "row": 26,
+      "col": 41
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "direction": 0,
+      "row": 27,
+      "col": 23
     },
     {
       "definition": "WATCH_TOWER",
@@ -246,6 +276,24 @@
       "direction": 0,
       "row": 37,
       "col": 7
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "direction": 0,
+      "row": 37,
+      "col": 23
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "direction": 0,
+      "row": 38,
+      "col": 6
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "direction": 0,
+      "row": 39,
+      "col": 40
     }
   ],
   "size": 48

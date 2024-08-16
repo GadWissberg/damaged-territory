@@ -51,9 +51,8 @@ class PhysicsSystem : GameEntitySystem() {
         )
         val btRigidBody = btRigidBody(info)
         info.dispose()
-        btRigidBody.collisionFlags =
-            btRigidBody.collisionFlags or btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
-        btRigidBody.contactCallbackFlag = btBroadphaseProxy.CollisionFilterGroups.KinematicFilter
+        btRigidBody.collisionFlags = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
+        btRigidBody.contactCallbackFlag = btBroadphaseProxy.CollisionFilterGroups.AllFilter
         return btRigidBody
     }
 

@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -37,7 +36,6 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class MapSystem : GameEntitySystem() {
 
@@ -49,20 +47,6 @@ class MapSystem : GameEntitySystem() {
     private lateinit var floorModel: Model
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
-                val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
-                onCollisionAmbAndBullet(
-                    entity0,
-                    entity1
-                ) && onCollisionAmbAndBullet(
-                    entity1,
-                    entity0
-                )
-            }
-
-        }
     )
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
@@ -318,7 +302,7 @@ class MapSystem : GameEntitySystem() {
                     gameModelInstance,
                     position,
                     true,
-                    direction.toFloat()
+                    direction.toFloat(),
                 )
                 .addAmbComponent(
                     auxVector1.set(randomScale, randomScale, randomScale),
@@ -328,8 +312,8 @@ class MapSystem : GameEntitySystem() {
                 .finishAndAddToEngine(),
             managers.dispatcher,
             Matrix4(gameModelInstance.modelInstance.transform),
-            1F,
-            btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT
+            0F,
+            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
         )
         addTurret(def, physicsComponent)
     }

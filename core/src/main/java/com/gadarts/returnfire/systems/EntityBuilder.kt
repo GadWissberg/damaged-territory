@@ -4,12 +4,22 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.AmbComponent
+import com.gadarts.returnfire.components.AmbSoundComponent
+import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.BaseParticleEffectComponent
+import com.gadarts.returnfire.components.CharacterComponent
+import com.gadarts.returnfire.components.EnemyComponent
+import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.components.IndependentDecalComponent
+import com.gadarts.returnfire.components.IndependentParticleEffectComponent
+import com.gadarts.returnfire.components.PlayerComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
@@ -30,10 +40,11 @@ class EntityBuilder private constructor() {
         model: GameModelInstance,
         position: Vector3,
         calculateBoundingBox: Boolean,
-        direction: Float = 0F
+        direction: Float = 0F,
+        hidden: Boolean = false
     ): EntityBuilder {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position, calculateBoundingBox, direction)
+        modelInstanceComponent.init(model, position, calculateBoundingBox, direction, hidden)
         entity!!.add(modelInstanceComponent)
         return instance
     }
@@ -54,6 +65,28 @@ class EntityBuilder private constructor() {
         entity!!.add(component)
         return instance
 
+    }
+
+    fun addIndependentDecalComponent(
+        textureRegion: TextureRegion,
+        lifeInMillis: Long,
+        position: Vector3
+    ): EntityBuilder {
+        val component = engine.createComponent(IndependentDecalComponent::class.java)
+        val decal = createDecal(textureRegion)
+        decal.position = position
+        component.init(decal, lifeInMillis)
+        entity!!.add(component)
+        return instance
+    }
+
+    private fun createDecal(texture: TextureRegion): Decal {
+        return Decal.newDecal(
+            texture.regionWidth * DECAL_SCALE,
+            texture.regionHeight * DECAL_SCALE,
+            texture,
+            true
+        )
     }
 
     fun addAmbSoundComponent(sound: Sound): EntityBuilder {
@@ -179,7 +212,7 @@ class EntityBuilder private constructor() {
     }
 
     companion object {
-
+        private const val DECAL_SCALE = 0.005F
         private lateinit var instance: EntityBuilder
         var entity: Entity? = null
         lateinit var engine: PooledEngine

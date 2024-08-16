@@ -11,7 +11,8 @@ class ModelInstanceComponent : GameComponent() {
         gameModelInstance: GameModelInstance,
         position: Vector3,
         calculateBoundingBox: Boolean,
-        direction: Float
+        direction: Float,
+        hidden: Boolean
     ) {
         gameModelInstance.modelInstance.transform.idt()
         this.gameModelInstance = gameModelInstance
@@ -20,6 +21,7 @@ class ModelInstanceComponent : GameComponent() {
         if (calculateBoundingBox) {
             this.gameModelInstance.calculateBoundingBox()
         }
+        this.hidden = hidden
     }
 
 
