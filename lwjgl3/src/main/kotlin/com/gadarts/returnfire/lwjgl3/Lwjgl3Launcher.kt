@@ -10,7 +10,7 @@ fun main() {
     if (StartupHelper.startNewJvmIfRequired())
         return
     Lwjgl3Application(DamagedTerritory(false), Lwjgl3ApplicationConfiguration().apply {
-        setTitle("open-fire")
+        setTitle("Damaged Territory 0.4")
         setWindowedMode(640, 480)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
     })

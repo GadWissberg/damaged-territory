@@ -96,14 +96,14 @@ class EnemySystem : GameEntitySystem() {
     private fun attack(
         transform: Matrix4,
         deltaTime: Float,
-        enemy: Entity?
+        enemy: Entity
     ) {
         val position = transform.getTranslation(auxVector2)
         val playerPosition =
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        if (position.dst2(playerPosition) > 120F) return
+        if (position.dst2(playerPosition) > 90F) return
 
         val directionToPlayer = auxVector3.set(playerPosition).sub(position).nor()
         val currentRotation = transform.getRotation(auxQuat)
