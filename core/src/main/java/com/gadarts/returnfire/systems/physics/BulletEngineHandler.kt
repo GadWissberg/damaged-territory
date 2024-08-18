@@ -56,11 +56,15 @@ class BulletEngineHandler(
         if (ComponentsMapper.physics.has(entity)) {
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
             if (ComponentsMapper.bullet.has(entity)) {
-                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, 1, -1)
+                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, COLLISION_GROUP_GENERAL, -1)
             } else if (ComponentsMapper.player.has(entity)) {
-                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, 2, 4)
+                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(
+                    btRigidBody,
+                    COLLISION_GROUP_PLAYER,
+                    COLLISION_GROUP_GROUND
+                )
             } else {
-                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, 3, -1)
+                globalData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, COLLISION_GROUP_GENERAL, -1)
             }
         }
     }
@@ -123,6 +127,9 @@ class BulletEngineHandler(
 
     companion object {
         val auxVector = Vector3()
+        const val COLLISION_GROUP_PLAYER = 0x00000001
+        const val COLLISION_GROUP_GENERAL = 0x00000010
+        const val COLLISION_GROUP_GROUND = 0x00000100
     }
 
 }

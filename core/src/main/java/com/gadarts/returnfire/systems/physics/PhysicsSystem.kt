@@ -13,6 +13,7 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GROUND
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.auxVector
 
 class PhysicsSystem : GameEntitySystem() {
@@ -68,7 +69,7 @@ class PhysicsSystem : GameEntitySystem() {
 
     private fun addBoundary(vector: Vector3, planeConstant: Int = 0) {
         val btRigidBody = createBoundaryPhysicsBody(vector, planeConstant)
-        gameSessionData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody)
+        gameSessionData.gameSessionPhysicsData.collisionWorld.addRigidBody(btRigidBody, COLLISION_GROUP_GROUND, -1)
         btRigidBody.userData = EntityBuilder.begin().addGroundComponent().finishAndAddToEngine()
     }
 
