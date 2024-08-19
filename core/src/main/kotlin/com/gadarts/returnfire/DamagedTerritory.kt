@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.gadarts.returnfire.assets.GameAssetManager
 
-class DamagedTerritory(private val runsOnMobile: Boolean) : Game() {
+class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game() {
     private lateinit var assetsManager: GameAssetManager
 
     override fun create() {
@@ -13,8 +13,9 @@ class DamagedTerritory(private val runsOnMobile: Boolean) : Game() {
         loadAssets()
         Gdx.input.inputProcessor = InputMultiplexer()
         val soundPlayer = SoundPlayer()
-        setScreen(GamePlayScreen(assetsManager, soundPlayer, runsOnMobile))
+        setScreen(GamePlayScreen(assetsManager, soundPlayer, runsOnMobile, fpsTarget))
     }
+
 
     private fun loadAssets() {
         assetsManager = GameAssetManager()

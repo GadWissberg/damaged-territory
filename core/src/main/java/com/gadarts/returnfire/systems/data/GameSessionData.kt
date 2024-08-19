@@ -7,7 +7,11 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.model.GameMap
 
-class GameSessionData(assetsManager: GameAssetManager, val runsOnMobile: Boolean) :
+class GameSessionData(
+    assetsManager: GameAssetManager,
+    val runsOnMobile: Boolean,
+    val fpsTarget: Int
+) :
     Disposable {
     lateinit var player: Entity
     val gameSessionPhysicsData = GameSessionPhysicsData()

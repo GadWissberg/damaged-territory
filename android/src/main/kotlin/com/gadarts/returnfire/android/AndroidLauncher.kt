@@ -13,7 +13,7 @@ class AndroidLauncher : AndroidApplication() {
         val androidApplicationConfiguration = AndroidApplicationConfiguration()
         androidApplicationConfiguration.numSamples = 2
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        initialize(DamagedTerritory(true), androidApplicationConfiguration.apply {
+        initialize(DamagedTerritory(true, 120), androidApplicationConfiguration.apply {
             useImmersiveMode = true
         })
     }
