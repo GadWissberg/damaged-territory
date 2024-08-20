@@ -25,26 +25,28 @@ class BulletEngineHandler(
     private val engine: Engine,
 ) : Disposable, EntityListener {
 
-    private lateinit var debugDrawer: DebugDrawer
-    private lateinit var broadPhase: btAxisSweep3
-    private lateinit var ghostPairCallback: btGhostPairCallback
-    private lateinit var solver: btSequentialImpulseConstraintSolver
-    private lateinit var dispatcher: btCollisionDispatcher
-    private lateinit var collisionConfiguration: btDefaultCollisionConfiguration
-
+    private val debugDrawer: DebugDrawer by lazy { DebugDrawer() }
+    private val broadPhase: btAxisSweep3 by lazy {
+        val corner1 = Vector3(-100F, -100F, -100F)
+        val corner2 = Vector3(100F, 100F, 100F)
+        btAxisSweep3(corner1, corner2)
+    }
+    private val ghostPairCallback: btGhostPairCallback by lazy { btGhostPairCallback() }
+    private val solver: btSequentialImpulseConstraintSolver by lazy { btSequentialImpulseConstraintSolver() }
+    private val dispatcher: btCollisionDispatcher by lazy {
+        btCollisionDispatcher(
+            collisionConfiguration
+        )
+    }
+    private val collisionConfiguration: btDefaultCollisionConfiguration by lazy { btDefaultCollisionConfiguration() }
 
     private fun initializeDebug() {
-        debugDrawer = DebugDrawer()
         debugDrawer.debugMode = btIDebugDraw.DebugDrawModes.DBG_DrawWireframe
         gameSessionData.gameSessionDataPhysics.collisionWorld.debugDrawer = debugDrawer
     }
 
 
     private fun initializeBroadPhase() {
-        ghostPairCallback = btGhostPairCallback()
-        val corner1 = Vector3(-100F, -100F, -100F)
-        val corner2 = Vector3(100F, 100F, 100F)
-        broadPhase = btAxisSweep3(corner1, corner2)
         broadPhase.overlappingPairCache.setInternalGhostPairCallback(ghostPairCallback)
     }
 
@@ -116,9 +118,6 @@ class BulletEngineHandler(
 
     fun initialize() {
         Bullet.init()
-        collisionConfiguration = btDefaultCollisionConfiguration()
-        dispatcher = btCollisionDispatcher(collisionConfiguration)
-        solver = btSequentialImpulseConstraintSolver()
         initializeBroadPhase()
         initializeCollisionWorld()
         initializeDebug()

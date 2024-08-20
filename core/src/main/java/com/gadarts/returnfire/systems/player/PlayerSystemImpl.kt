@@ -31,13 +31,19 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandler
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.*
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()
 
-    private lateinit var playerMovementHandler: PlayerMovementHandler
+    private val playerMovementHandler: PlayerMovementHandler by lazy {
+        if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop()
+    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(
@@ -160,9 +166,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         engine.addEntity(player)
         gameSessionData.player = player
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
-        playerMovementHandler =
-            if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop(
-            )
         initInputMethod()
         initializePlayerHandlers()
         return player

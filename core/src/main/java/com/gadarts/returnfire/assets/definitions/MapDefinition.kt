@@ -9,10 +9,11 @@ enum class MapDefinition :
     MAP_0;
 
 
+    private val pathFormat = "maps/%s.json"
     private val paths = ArrayList<String>()
 
     init {
-        initializePaths(MapDefinition.PATH_FORMAT)
+        initializePaths(pathFormat)
     }
 
     override fun getPaths(): ArrayList<String> {
@@ -31,8 +32,5 @@ enum class MapDefinition :
         return name
     }
 
-    companion object {
-        private const val PATH_FORMAT = "maps/%s.json"
-    }
 
 }

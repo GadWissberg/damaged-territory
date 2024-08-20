@@ -39,18 +39,8 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
-    private lateinit var renderSystemRelatedEntities: RenderSystemRelatedEntities
-    private var axisModelHandler = AxisModelHandler()
-    private lateinit var shadowLight: DirectionalShadowLight
-    private lateinit var environment: Environment
-    private lateinit var renderSystemBatches: RenderSystemBatches
-
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
-
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
-        initializeDirectionalLightAndShadows()
-        renderSystemRelatedEntities = RenderSystemRelatedEntities(
+    private val renderSystemRelatedEntities: RenderSystemRelatedEntities by lazy {
+        RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
                 Family.all(ModelInstanceComponent::class.java)
                     .exclude(GroundComponent::class.java)
@@ -60,12 +50,35 @@ class RenderSystem : GameEntitySystem(), Disposable {
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get())
         )
-        renderSystemBatches =
-            RenderSystemBatches(
-                DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.gameSessionDataRender.camera)),
-                ModelBatch(),
-                ModelBatch(DepthShaderProvider())
-            )
+    }
+    private var axisModelHandler = AxisModelHandler()
+    private val shadowLight: DirectionalShadowLight by lazy {
+        DirectionalShadowLight(
+            2056,
+            2056,
+            30f,
+            30f,
+            .1f,
+            150f
+        )
+    }
+    private val environment: Environment by lazy { Environment() }
+    private val renderSystemBatches: RenderSystemBatches by lazy {
+        RenderSystemBatches(
+            DecalBatch(
+                DECALS_POOL_SIZE,
+                CameraGroupStrategy(gameSessionData.gameSessionDataRender.camera)
+            ),
+            ModelBatch(),
+            ModelBatch(DepthShaderProvider())
+        )
+    }
+
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
+        initializeDirectionalLightAndShadows()
     }
 
     override fun update(deltaTime: Float) {
@@ -109,20 +122,11 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     private fun initializeDirectionalLightAndShadows() {
-        environment = Environment()
         environment.set(
             ColorAttribute(
                 ColorAttribute.AmbientLight,
                 Color(0.9F, 0.9F, 0.9F, 1F)
             )
-        )
-        shadowLight = DirectionalShadowLight(
-            2056,
-            2056,
-            30f,
-            30f,
-            .1f,
-            150f
         )
         val dirValue = 0.4f
         shadowLight.set(dirValue, dirValue, dirValue, 0.4F, -0.6f, -0.35f)

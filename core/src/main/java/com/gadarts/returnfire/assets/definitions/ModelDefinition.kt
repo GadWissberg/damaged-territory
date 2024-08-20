@@ -16,10 +16,11 @@ enum class ModelDefinition(fileNames: Int = 1) : AssetDefinition<Model> {
     TURRET_CANNON,
     TURRET_BASE;
 
+    private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
 
     init {
-        initializePaths(ModelDefinition.PATH_FORMAT, fileNames)
+        initializePaths(pathFormat, fileNames)
     }
 
     override fun getPaths(): ArrayList<String> {
@@ -38,7 +39,4 @@ enum class ModelDefinition(fileNames: Int = 1) : AssetDefinition<Model> {
         return name
     }
 
-    companion object {
-        private const val PATH_FORMAT = "models/%s.g3dj"
-    }
 }

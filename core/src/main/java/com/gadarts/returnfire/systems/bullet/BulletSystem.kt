@@ -20,7 +20,11 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class BulletSystem : GameEntitySystem() {
-    private lateinit var bulletEntities: ImmutableArray<Entity>
+    private val bulletEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(BulletComponent::class.java).get()
+        )
+    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
@@ -37,10 +41,6 @@ class BulletSystem : GameEntitySystem() {
         }
     }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
-        bulletEntities = engine.getEntitiesFor(Family.all(BulletComponent::class.java).get())
-    }
 
     override fun update(deltaTime: Float) {
         for (bullet in bulletEntities) {

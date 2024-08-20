@@ -1,6 +1,5 @@
 package com.gadarts.returnfire.systems
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
@@ -10,7 +9,6 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 abstract class GameEntitySystem : Disposable, EntitySystem(), Telegraph {
-    lateinit var player: Entity
     lateinit var gameSessionData: GameSessionData
     protected lateinit var managers: Managers
     protected open val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()

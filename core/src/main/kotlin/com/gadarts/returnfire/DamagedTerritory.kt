@@ -6,7 +6,7 @@ import com.badlogic.gdx.InputMultiplexer
 import com.gadarts.returnfire.assets.GameAssetManager
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game() {
-    private lateinit var assetsManager: GameAssetManager
+    private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
 
     override fun create() {
         Gdx.graphics.setWindowedMode(1920, 1080)
@@ -18,7 +18,6 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
 
 
     private fun loadAssets() {
-        assetsManager = GameAssetManager()
         assetsManager.loadAssets()
     }
 

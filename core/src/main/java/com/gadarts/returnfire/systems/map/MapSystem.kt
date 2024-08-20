@@ -40,22 +40,32 @@ class MapSystem : GameEntitySystem() {
 
     private val ambSoundsHandler = AmbSoundsHandler()
     private var groundTextureAnimationStateTime = 0F
-    private lateinit var animatedFloorsEntities: ImmutableArray<Entity>
-    private lateinit var floors: Array<Array<Entity?>>
-    private lateinit var ambEntities: ImmutableArray<Entity>
-    private lateinit var floorModel: Model
+    private val animatedFloorsEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(
+                GroundComponent::class.java,
+                AnimatedTextureComponent::class.java
+            ).get()
+        )
+    }
+    private val floors: Array<Array<Entity?>> by lazy {
+        val tilesMapping = gameSessionData.currentMap.tilesMapping
+        Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
+    }
+    private val ambEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(AmbComponent::class.java).get()
+        )
+    }
+    private val floorModel: Model by lazy { createFloorModel() }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
     )
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
-        animatedFloorsEntities =
-            engine.getEntitiesFor(Family.all(GroundComponent::class.java, AnimatedTextureComponent::class.java).get())
-        val builder = ModelBuilder()
-        createFloorModel(builder)
-        val tilesMapping = gameSessionData.currentMap.tilesMapping
-        floors = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
+
+
         gameSessionData.gameSessionDataRender.modelCache = ModelCache()
         addFloor()
     }
@@ -103,12 +113,13 @@ class MapSystem : GameEntitySystem() {
         applyTransformOnAmbEntities()
     }
 
-    private fun createFloorModel(builder: ModelBuilder) {
+    private fun createFloorModel(): Model {
+        val builder = ModelBuilder()
         builder.begin()
         val texture =
             managers.assetsManager.getTexture("tile_water")
         GeneralUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
-        floorModel = builder.end()
+        return builder.end()
     }
 
     private fun addFloor() {
@@ -255,7 +266,6 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun applyTransformOnAmbEntities() {
-        ambEntities = engine.getEntitiesFor(Family.all(AmbComponent::class.java).get())
         ambEntities.forEach {
             if (!ComponentsMapper.modelInstance.has(it)) return
             val scale = ComponentsMapper.amb.get(it).getScale(auxVector1)

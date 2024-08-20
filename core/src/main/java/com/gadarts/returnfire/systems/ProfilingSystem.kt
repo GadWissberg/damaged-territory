@@ -11,12 +11,16 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-@Suppress("GDXKotlinProfilingCode")
 class ProfilingSystem : GameEntitySystem() {
 
     private val stringBuilder: StringBuilder = StringBuilder()
-    private lateinit var glProfiler: GLProfiler
-    private lateinit var label: Label
+    private val glProfiler: GLProfiler by lazy { GLProfiler(Gdx.graphics) }
+    private val label: Label by lazy {
+        val font = BitmapFont()
+        font.data.setScale(2f)
+        val style = Label.LabelStyle(font, Color.WHITE)
+        Label(stringBuilder, style)
+    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
     override fun resume(delta: Long) {
@@ -29,16 +33,11 @@ class ProfilingSystem : GameEntitySystem() {
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
-        glProfiler = GLProfiler(Gdx.graphics)
         setGlProfiler()
         addLabel()
     }
 
     private fun addLabel() {
-        val font = BitmapFont()
-        font.data.setScale(2f)
-        val style = Label.LabelStyle(font, Color.WHITE)
-        label = Label(stringBuilder, style)
         label.setPosition(0f, (Gdx.graphics.height - 175).toFloat())
         gameSessionData.gameSessionDataHud.stage.addActor(label)
         label.zIndex = 0
@@ -46,6 +45,7 @@ class ProfilingSystem : GameEntitySystem() {
 
     private fun setGlProfiler() {
         if (GameDebugSettings.SHOW_GL_PROFILING) {
+            @Suppress("GDXKotlinProfilingCode")
             glProfiler.enable()
         }
     }

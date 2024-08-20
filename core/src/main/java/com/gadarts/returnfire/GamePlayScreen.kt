@@ -5,7 +5,11 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.GameAssetManager
-import com.gadarts.returnfire.systems.*
+import com.gadarts.returnfire.systems.CameraSystem
+import com.gadarts.returnfire.systems.EnemySystem
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.ParticleEffectsSystem
+import com.gadarts.returnfire.systems.ProfilingSystem
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -24,8 +28,14 @@ class GamePlayScreen(
 
 
     private var pauseTime: Long = 0
-    private lateinit var gameSessionData: GameSessionData
-    private lateinit var engine: PooledEngine
+    private val gameSessionData: GameSessionData by lazy {
+        GameSessionData(
+            assetsManager,
+            runsOnMobile,
+            fpsTarget
+        )
+    }
+    private val engine: PooledEngine by lazy { PooledEngine() }
     private val systems: List<GameEntitySystem> = listOf(
         PhysicsSystem(),
         CharacterSystemImpl(),
@@ -41,8 +51,6 @@ class GamePlayScreen(
     )
 
     override fun show() {
-        this.engine = PooledEngine()
-        gameSessionData = GameSessionData(assetsManager, runsOnMobile, fpsTarget)
         val dispatcher = MessageDispatcher()
         systems.forEach {
             engine.addSystem(it)

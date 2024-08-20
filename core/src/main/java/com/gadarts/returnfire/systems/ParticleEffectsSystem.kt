@@ -23,9 +23,16 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 
 class ParticleEffectsSystem : GameEntitySystem() {
-    private lateinit var particleEffectsEntities: ImmutableArray<Entity>
+    private val particleEffectsEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.one(
+                IndependentParticleEffectComponent::class.java,
+                FollowerParticleEffectComponent::class.java
+            ).get()
+        )
+    }
 
-    private lateinit var billboardParticleBatch: BillboardParticleBatch
+    private val billboardParticleBatch: BillboardParticleBatch by lazy { BillboardParticleBatch() }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(SystemEvents.BUILDING_DESTROYED to object :
@@ -60,16 +67,9 @@ class ParticleEffectsSystem : GameEntitySystem() {
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         this.gameSessionData.gameSessionDataRender.particleSystem = ParticleSystem()
-        billboardParticleBatch = BillboardParticleBatch()
         billboardParticleBatch.blendingAttribute.sourceFunction = GL20.GL_SRC_ALPHA
         billboardParticleBatch.blendingAttribute.destFunction = GL20.GL_ONE_MINUS_SRC_ALPHA
         managers.assetsManager.loadParticleEffects(billboardParticleBatch)
-        particleEffectsEntities = engine.getEntitiesFor(
-            Family.one(
-                IndependentParticleEffectComponent::class.java,
-                FollowerParticleEffectComponent::class.java
-            ).get()
-        )
         engine.addEntityListener(createEntityListener())
     }
 

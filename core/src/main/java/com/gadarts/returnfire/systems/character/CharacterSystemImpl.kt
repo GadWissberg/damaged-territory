@@ -32,7 +32,11 @@ import com.gadarts.returnfire.systems.render.RenderSystem
 class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
 
-    private lateinit var ambSoundEntities: ImmutableArray<Entity>
+    private val ambSoundEntities: ImmutableArray<Entity> by lazy {
+        engine!!.getEntitiesFor(
+            Family.all(AmbSoundComponent::class.java).get()
+        )
+    }
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY to CharacterSystemOnPlayerWeaponShotPrimary(this),
         SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY to CharacterSystemOnPlayerWeaponShotSecondary(this),
@@ -40,7 +44,6 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
-        ambSoundEntities = engine!!.getEntitiesFor(Family.all(AmbSoundComponent::class.java).get())
         engine.addEntityListener(object : EntityListener {
             override fun entityAdded(entity: Entity?) {
                 if (ComponentsMapper.ambSound.has(entity)) {
