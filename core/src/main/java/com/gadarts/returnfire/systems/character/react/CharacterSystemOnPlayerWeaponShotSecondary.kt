@@ -29,7 +29,7 @@ class CharacterSystemOnPlayerWeaponShotSecondary(private val characterSystem: Ch
             armProperties.shootingSound,
             randomPitch = false,
             gameSessionData.player,
-            gameSessionData.camera
+            gameSessionData.gameSessionDataRender.camera
         )
     }
 

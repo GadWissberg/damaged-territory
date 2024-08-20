@@ -37,7 +37,5 @@ object ComponentsMapper {
         ComponentMapper.getFor(PhysicsComponent::class.java)
     val enemy: ComponentMapper<EnemyComponent> =
         ComponentMapper.getFor(EnemyComponent::class.java)
-    val ground: ComponentMapper<GroundComponent> =
-        ComponentMapper.getFor(GroundComponent::class.java)
 
 }

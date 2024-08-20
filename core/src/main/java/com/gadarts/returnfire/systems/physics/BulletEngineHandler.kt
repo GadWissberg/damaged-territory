@@ -36,7 +36,7 @@ class BulletEngineHandler(
     private fun initializeDebug() {
         debugDrawer = DebugDrawer()
         debugDrawer.debugMode = btIDebugDraw.DebugDrawModes.DBG_DrawWireframe
-        gameSessionData.gameSessionPhysicsData.collisionWorld.debugDrawer = debugDrawer
+        gameSessionData.gameSessionDataPhysics.collisionWorld.debugDrawer = debugDrawer
     }
 
 
@@ -55,19 +55,19 @@ class BulletEngineHandler(
         if (ComponentsMapper.physics.has(entity)) {
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
             if (ComponentsMapper.bullet.has(entity)) {
-                gameSessionData.gameSessionPhysicsData.collisionWorld.addRigidBody(
+                gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_GENERAL,
                     -1
                 )
             } else if (ComponentsMapper.player.has(entity)) {
-                gameSessionData.gameSessionPhysicsData.collisionWorld.addRigidBody(
+                gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_PLAYER,
                     COLLISION_GROUP_GROUND
                 )
             } else {
-                gameSessionData.gameSessionPhysicsData.collisionWorld.addRigidBody(
+                gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_GENERAL,
                     -1
@@ -80,7 +80,7 @@ class BulletEngineHandler(
         if (ComponentsMapper.physics.has(entity)) {
             val physicsComponent = ComponentsMapper.physics[entity]
             physicsComponent.rigidBody.activationState = 0
-            gameSessionData.gameSessionPhysicsData.collisionWorld.removeCollisionObject(
+            gameSessionData.gameSessionDataPhysics.collisionWorld.removeCollisionObject(
                 physicsComponent.rigidBody
             )
             physicsComponent.dispose()
@@ -89,7 +89,7 @@ class BulletEngineHandler(
 
 
     private fun initializeCollisionWorld() {
-        gameSessionData.gameSessionPhysicsData.collisionWorld = btDiscreteDynamicsWorld(
+        gameSessionData.gameSessionDataPhysics.collisionWorld = btDiscreteDynamicsWorld(
             dispatcher,
             broadPhase,
             solver,
@@ -107,7 +107,7 @@ class BulletEngineHandler(
     }
 
     fun update(deltaTime: Float) {
-        gameSessionData.gameSessionPhysicsData.collisionWorld.stepSimulation(
+        gameSessionData.gameSessionDataPhysics.collisionWorld.stepSimulation(
             deltaTime,
             20,
             1f / gameSessionData.fpsTarget
@@ -122,11 +122,11 @@ class BulletEngineHandler(
         initializeBroadPhase()
         initializeCollisionWorld()
         initializeDebug()
-        gameSessionData.gameSessionPhysicsData.debugDrawingMethod =
+        gameSessionData.gameSessionDataPhysics.debugDrawingMethod =
             object : CollisionShapesDebugDrawing {
                 override fun drawCollisionShapes(camera: PerspectiveCamera) {
                     debugDrawer.begin(camera)
-                    gameSessionData.gameSessionPhysicsData.collisionWorld.debugDrawWorld()
+                    gameSessionData.gameSessionDataPhysics.collisionWorld.debugDrawWorld()
                     debugDrawer.end()
                 }
             }

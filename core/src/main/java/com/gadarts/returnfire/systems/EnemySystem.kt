@@ -134,7 +134,7 @@ class EnemySystem : GameEntitySystem() {
             if (enemyComponent.attackReady) {
                 enemyComponent.attackReady = false
                 enemyComponent.attackReadyTime = now + 3000L
-                gameSessionData.gameSessionPhysicsData.collisionWorld.rayTest(
+                gameSessionData.gameSessionDataPhysics.collisionWorld.rayTest(
                     position,
                     playerPosition,
                     auxRay

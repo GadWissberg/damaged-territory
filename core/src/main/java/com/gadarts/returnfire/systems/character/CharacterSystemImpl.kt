@@ -86,7 +86,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     private fun updateEntity3dSound(entity: Entity) {
         val distance =
-            GeneralUtils.calculateVolumeAccordingToPosition(entity, gameSessionData.camera)
+            GeneralUtils.calculateVolumeAccordingToPosition(entity, gameSessionData.gameSessionDataRender.camera)
         val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
         ambSoundComponent.sound.setVolume(ambSoundComponent.soundId, distance)
         if (distance <= 0F) {

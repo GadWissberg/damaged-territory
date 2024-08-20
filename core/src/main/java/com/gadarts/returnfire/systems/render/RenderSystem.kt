@@ -62,16 +62,17 @@ class RenderSystem : GameEntitySystem(), Disposable {
         )
         renderSystemBatches =
             RenderSystemBatches(
-                DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.camera)),
+                DecalBatch(DECALS_POOL_SIZE, CameraGroupStrategy(gameSessionData.gameSessionDataRender.camera)),
                 ModelBatch(),
                 ModelBatch(DepthShaderProvider())
             )
     }
 
     override fun update(deltaTime: Float) {
+        val camera = gameSessionData.gameSessionDataRender.camera
         shadowLight.begin(
-            auxVector3_1.set(gameSessionData.camera.position).add(-2F, 0F, -4F),
-            gameSessionData.camera.direction
+            auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
+            camera.direction
         )
         renderModels(
             renderSystemBatches.shadowBatch,
@@ -83,7 +84,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         resetDisplay()
         renderModels(
             renderSystemBatches.modelBatch,
-            gameSessionData.camera,
+            camera,
             applyEnvironment = true,
             renderParticleEffects = true
         )
@@ -94,8 +95,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
     private fun renderCollisionShapes() {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
 
-        val debugDrawingMethod: CollisionShapesDebugDrawing? = gameSessionData.gameSessionPhysicsData.debugDrawingMethod
-        debugDrawingMethod?.drawCollisionShapes(gameSessionData.camera)
+        val debugDrawingMethod: CollisionShapesDebugDrawing? = gameSessionData.gameSessionDataPhysics.debugDrawingMethod
+        debugDrawingMethod?.drawCollisionShapes(gameSessionData.gameSessionDataRender.camera)
     }
 
     override fun resume(delta: Long) {
@@ -182,12 +183,12 @@ class RenderSystem : GameEntitySystem(), Disposable {
         val center: Vector3 =
             modelInsComp.gameModelInstance.getBoundingBox(auxBox).getCenter(auxVector3_1)
         val dims: Vector3 = auxBox.getDimensions(auxVector3_2).scl(4.7F)
-        return if (modelInsComp.gameModelInstance.isSphere) gameSessionData.camera.frustum.sphereInFrustum(
+        return if (modelInsComp.gameModelInstance.isSphere) gameSessionData.gameSessionDataRender.camera.frustum.sphereInFrustum(
             modelInsComp.gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_3
             ), dims.len2() / 2F
         )
-        else gameSessionData.camera.frustum.boundsInFrustum(center, dims)
+        else gameSessionData.gameSessionDataRender.camera.frustum.boundsInFrustum(center, dims)
     }
 
     private fun renderModels(
@@ -227,7 +228,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     private fun faceDecalToCamera(decal: Decal) {
-        val camera = gameSessionData.camera
+        val camera = gameSessionData.gameSessionDataRender.camera
         decal.lookAt(auxVector3_1.set(decal.position).sub(camera.direction), camera.up)
     }
 

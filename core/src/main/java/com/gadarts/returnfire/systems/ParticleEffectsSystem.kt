@@ -53,7 +53,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     override fun onSystemReady() {
-        billboardParticleBatch.setCamera(gameSessionData.camera)
+        billboardParticleBatch.setCamera(gameSessionData.gameSessionDataRender.camera)
         gameSessionData.gameSessionDataRender.particleSystem.add(billboardParticleBatch)
     }
 

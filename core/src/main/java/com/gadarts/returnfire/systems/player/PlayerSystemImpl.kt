@@ -31,11 +31,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandler
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
+import com.gadarts.returnfire.systems.player.react.*
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
@@ -180,7 +176,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             gameSessionData.gameSessionDataPools.secBulletsPool,
             gameSessionData.player
         )
-        playerMovementHandler.initialize(gameSessionData.camera)
+        playerMovementHandler.initialize(gameSessionData.gameSessionDataRender.camera)
     }
 
     private fun initInputMethod() {

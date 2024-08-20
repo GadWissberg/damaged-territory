@@ -116,7 +116,7 @@ class HudSystem : GameEntitySystem() {
 
     private fun initializeInput() {
         if (GameDebugSettings.DEBUG_INPUT) {
-            debugInput = CameraInputController(gameSessionData.camera)
+            debugInput = CameraInputController(gameSessionData.gameSessionDataRender.camera)
             debugInput.autoUpdate = true
             Gdx.input.inputProcessor = debugInput
         } else {

@@ -21,7 +21,6 @@ import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.AnimatedTextureComponent
@@ -90,22 +89,6 @@ class MapSystem : GameEntitySystem() {
         floorModel.dispose()
         gameSessionData.gameSessionDataRender.modelCache.dispose()
     }
-
-
-    private fun onCollisionAmbAndBullet(entityFirst: Entity, entitySecond: Entity): Boolean {
-        return if (ComponentsMapper.amb.has(entityFirst) && ComponentsMapper.bullet.has(entitySecond)) {
-            val position =
-                ComponentsMapper.physics.get(entityFirst).rigidBody.worldTransform.getTranslation(auxVector1)
-            EntityBuilder.begin()
-                .addParticleEffectComponent(
-                    managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
-                    position
-                ).finishAndAddToEngine()
-            engine.removeEntity(entityFirst)
-            true
-        } else false
-    }
-
 
     private fun addAmbEntities(gameSessionData: GameSessionData) {
         gameSessionData.currentMap.placedElements.forEach {
@@ -295,28 +278,37 @@ class MapSystem : GameEntitySystem() {
             ModelInstance(assetsManager.getAssetByDefinition(modelDefinition)),
             definition = modelDefinition
         )
-        val physicsComponent = EntityBuilder.addPhysicsComponent(
-            createShapeForAmbObject(modelDefinition),
-            EntityBuilder.begin()
-                .addModelInstanceComponent(
-                    gameModelInstance,
-                    position,
-                    true,
-                    direction.toFloat(),
-                )
-                .addAmbComponent(
-                    auxVector1.set(randomScale, randomScale, randomScale),
-                    if (def.isRandomizeRotation()) random(0F, 360F) else 0F,
-                    def
-                )
-                .finishAndAddToEngine(),
-            managers.dispatcher,
-            Matrix4(gameModelInstance.modelInstance.transform),
-            0F,
-            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
+        val entity = EntityBuilder.begin()
+            .addModelInstanceComponent(
+                gameModelInstance,
+                position,
+                true,
+                direction.toFloat(),
+            )
+            .addAmbComponent(
+                auxVector1.set(randomScale, randomScale, randomScale),
+                if (def.isRandomizeRotation()) random(0F, 360F) else 0F,
+                def
+            )
+            .finishAndAddToEngine()
+        val physicsComponent = addPhysicsToAmbObject(modelDefinition, entity, gameModelInstance)
+        addTurret(
+            def, physicsComponent
         )
-        addTurret(def, physicsComponent)
     }
+
+    private fun addPhysicsToAmbObject(
+        modelDefinition: ModelDefinition,
+        entity: Entity,
+        gameModelInstance: GameModelInstance
+    ) = EntityBuilder.addPhysicsComponent(
+        createShapeForAmbObject(modelDefinition),
+        entity,
+        managers.dispatcher,
+        Matrix4(gameModelInstance.modelInstance.transform),
+        0F,
+        btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
+    )
 
     private fun addTurret(
         def: AmbDefinition,
