@@ -77,7 +77,6 @@ class PlayerShootingHandler {
         if (!shooting) return
         val now = TimeUtils.millis()
         if (armComp.loaded <= now) {
-            armComp.calculateRelativePosition(player)
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
             PlayerWeaponShotEventData.set(pool, bulletBehavior)

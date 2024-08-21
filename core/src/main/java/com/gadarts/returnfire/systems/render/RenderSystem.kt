@@ -14,7 +14,6 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -23,7 +22,6 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundComponent
 import com.gadarts.returnfire.components.IndependentDecalComponent
@@ -147,7 +145,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     private fun renderDecals(deltaTime: Float) {
         Gdx.gl.glDepthMask(false)
-        renderSparks()
         for (entity in renderSystemRelatedEntities.childEntities) {
             renderChildren(entity, deltaTime)
         }
@@ -172,23 +169,17 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     }
 
-    private fun renderSparks() {
-        for (entity in renderSystemRelatedEntities.armEntities) {
-            renderSpark(ComponentsMapper.primaryArm.get(entity))
-            renderSpark(ComponentsMapper.secondaryArm.get(entity))
-        }
-    }
-
     private fun isVisible(entity: Entity): Boolean {
         val modelInsComp = ComponentsMapper.modelInstance[entity]
         if (modelInsComp.hidden) return false
         if (ComponentsMapper.player.has(entity)) return true
 
+        val gameModelInstance = modelInsComp.gameModelInstance
         val center: Vector3 =
-            modelInsComp.gameModelInstance.getBoundingBox(auxBox).getCenter(auxVector3_1)
+            gameModelInstance.getBoundingBox(auxBox).getCenter(auxVector3_1)
         val dims: Vector3 = auxBox.getDimensions(auxVector3_2).scl(4.7F)
-        return if (modelInsComp.gameModelInstance.isSphere) gameSessionData.gameSessionDataRender.camera.frustum.sphereInFrustum(
-            modelInsComp.gameModelInstance.modelInstance.transform.getTranslation(
+        return if (gameModelInstance.isSphere) gameSessionData.gameSessionDataRender.camera.frustum.sphereInFrustum(
+            gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_3
             ), dims.len2() / 2F
         )
@@ -219,18 +210,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
         batch.end()
     }
 
-    private fun renderSpark(armComp: ArmComponent) {
-        if (TimeUtils.timeSinceMillis(armComp.displaySpark) <= SPARK_DURATION) {
-            val sparkFrames = armComp.armProperties.sparkFrames
-            val frame = sparkFrames[MathUtils.random(sparkFrames.size - 1)]
-            if (armComp.sparkDecal.textureRegion != frame) {
-                armComp.sparkDecal.textureRegion = frame
-            }
-            faceDecalToCamera(armComp.sparkDecal)
-            renderSystemBatches.decalBatch.add(armComp.sparkDecal)
-        }
-    }
-
     private fun faceDecalToCamera(decal: Decal) {
         val camera = gameSessionData.gameSessionDataRender.camera
         decal.lookAt(auxVector3_1.set(decal.position).sub(camera.direction), camera.up)
@@ -244,6 +223,10 @@ class RenderSystem : GameEntitySystem(), Disposable {
                 batch.render(modelInstance.modelInstance, environment)
             } else {
                 batch.render(modelInstance.modelInstance)
+            }
+            if (modelInstanceComponent.hideAt != -1L && modelInstanceComponent.hideAt <= TimeUtils.millis()) {
+                modelInstanceComponent.hidden = true
+                modelInstanceComponent.hideAt = -1L
             }
         }
     }
@@ -283,7 +266,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
         val auxQuat = Quaternion()
         val auxBox = BoundingBox()
         const val ROT_STEP = 1600F
-        const val SPARK_DURATION = 40L
         const val DECALS_POOL_SIZE = 200
     }
 

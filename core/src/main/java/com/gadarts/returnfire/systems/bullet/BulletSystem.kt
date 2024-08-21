@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.SparkComponent
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -23,6 +24,12 @@ class BulletSystem : GameEntitySystem() {
     private val bulletEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(BulletComponent::class.java).get()
+        )
+    }
+
+    private val sparkEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(SparkComponent::class.java).get()
         )
     }
 

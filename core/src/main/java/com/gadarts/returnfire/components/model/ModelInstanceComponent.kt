@@ -5,6 +5,7 @@ import com.gadarts.returnfire.components.GameComponent
 
 class ModelInstanceComponent : GameComponent() {
     var hidden: Boolean = false
+    var hideAt: Long = -1
     lateinit var gameModelInstance: GameModelInstance
 
     fun init(

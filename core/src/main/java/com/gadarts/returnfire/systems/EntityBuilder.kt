@@ -10,16 +10,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.components.AmbComponent
-import com.gadarts.returnfire.components.AmbSoundComponent
-import com.gadarts.returnfire.components.ArmComponent
-import com.gadarts.returnfire.components.BaseParticleEffectComponent
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.EnemyComponent
-import com.gadarts.returnfire.components.GroundComponent
-import com.gadarts.returnfire.components.IndependentDecalComponent
-import com.gadarts.returnfire.components.IndependentParticleEffectComponent
-import com.gadarts.returnfire.components.PlayerComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
@@ -111,39 +102,34 @@ class EntityBuilder private constructor() {
     }
 
     fun addPrimaryArmComponent(
-        decal: Decal,
+        spark: Entity,
         armProperties: ArmProperties,
-        priCalculateRelativePosition: ArmComponent.CalculateRelativePosition
     ): EntityBuilder {
         return addArmComponent(
             PrimaryArmComponent::class.java,
-            decal,
+            spark,
             armProperties,
-            priCalculateRelativePosition
         )
     }
 
     fun addSecondaryArmComponent(
-        decal: Decal,
+        spark: Entity,
         armProperties: ArmProperties,
-        secCalculateRelativePosition: ArmComponent.CalculateRelativePosition
     ): EntityBuilder {
         return addArmComponent(
             SecondaryArmComponent::class.java,
-            decal,
+            spark,
             armProperties,
-            secCalculateRelativePosition
         )
     }
 
     private fun addArmComponent(
         armComponentType: Class<out ArmComponent>,
-        decal: Decal,
+        spark: Entity,
         armProperties: ArmProperties,
-        calculateRelativePosition: ArmComponent.CalculateRelativePosition,
     ): EntityBuilder {
         val armComponent = engine.createComponent(armComponentType)
-        armComponent.init(decal, armProperties, calculateRelativePosition)
+        armComponent.init(spark, armProperties)
         entity!!.add(armComponent)
         return instance
     }
@@ -182,6 +168,13 @@ class EntityBuilder private constructor() {
             engine
         )
         entity!!.add(particleEffectComponent)
+        return instance
+    }
+
+    fun addSparkComponent(relativePositionCalculator: ArmComponent.RelativePositionCalculator): EntityBuilder {
+        val sparkComponent = engine.createComponent(SparkComponent::class.java)
+        sparkComponent.init(relativePositionCalculator)
+        entity!!.add(sparkComponent)
         return instance
     }
 

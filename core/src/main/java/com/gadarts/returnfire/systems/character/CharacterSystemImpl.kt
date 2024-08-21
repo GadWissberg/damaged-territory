@@ -5,13 +5,13 @@ import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g3d.ModelInstance
-import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy.CollisionFilterGroups
 import com.badlogic.gdx.physics.bullet.collision.btSphereShape
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.AmbSoundComponent
@@ -65,11 +65,12 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         arm: ArmComponent,
         modelInstance: ModelInstance,
         relativePosition: Vector3
-    ): Decal {
-        val decal = arm.sparkDecal
-        decal.position = modelInstance.transform.getTranslation(RenderSystem.auxVector3_1)
-        decal.position.add(relativePosition)
-        return decal
+    ): Entity {
+        val spark = arm.spark
+        ComponentsMapper.modelInstance.get(spark).gameModelInstance.modelInstance.transform.setTranslation(
+            modelInstance.transform.getTranslation(RenderSystem.auxVector3_1).add(relativePosition)
+        )
+        return spark
     }
 
     override fun resume(delta: Long) {
@@ -110,8 +111,23 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         speed: Float,
         relativePosition: Vector3,
         radius: Float,
-        explosion: ParticleEffect?
+        explosion: ParticleEffect?,
+        spark: Entity
     ) {
+        val sparkComponent = ComponentsMapper.spark.get(spark)
+        val sparkModelInstanceComponent = ComponentsMapper.modelInstance.get(spark)
+        sparkModelInstanceComponent.gameModelInstance.modelInstance.transform.setTranslation(
+            sparkComponent.relativePositionCalculator.calculate(
+                sparkComponent.parent,
+                auxVector1
+            ).add(
+                ComponentsMapper.modelInstance.get(sparkComponent.parent).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector2
+                )
+            )
+        )
+        sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 500L
+        sparkModelInstanceComponent.hidden = false
         val transform =
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
@@ -159,6 +175,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     companion object {
         private val auxVector1 = Vector3()
+        private val auxVector2 = Vector3()
         private val auxQuat = Quaternion()
     }
 

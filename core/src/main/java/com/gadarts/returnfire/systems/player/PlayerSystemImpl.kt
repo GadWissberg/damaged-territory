@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
@@ -31,11 +32,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandler
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
+import com.gadarts.returnfire.systems.player.react.*
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
@@ -198,6 +195,10 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     private fun createPlayer(
         placedPlayer: PlacedElement
     ): Entity {
+        val assetsManager = managers.assetsManager
+        val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
+        val primarySpark = addSpark(machineGunSparkModel, primaryRelativePositionCalculator)
+        val secondarySpark = addSpark(machineGunSparkModel, secRelativePositionCalculator)
         val entityBuilder =
             EntityBuilder.begin()
                 .addModelInstanceComponent(
@@ -208,23 +209,22 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         if (GameDebugSettings.DISPLAY_PROPELLER) {
             addPropeller(entityBuilder)
         }
-        val propellerSound = managers.assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER)
+        val propellerSound = assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER)
         entityBuilder.addAmbSoundComponent(
             propellerSound
         )
             .addCharacterComponent(INITIAL_HP)
             .addPlayerComponent()
-        addFirepowerToPlayer(entityBuilder)
+        addFirepowerToPlayer(entityBuilder, primarySpark, secondarySpark)
         val player = entityBuilder.finish()
+        ComponentsMapper.spark.get(primarySpark).parent = player
+        ComponentsMapper.spark.get(secondarySpark).parent = player
         return player
     }
 
-    private fun addFirepowerToPlayer(entityBuilder: EntityBuilder) {
-        val definitions = managers.assetsManager.getTexturesDefinitions()
-        val definition = definitions.definitions["spark"]!!
-        val sparkFrames = listOf(TextureRegion(managers.assetsManager.getTexture(definition)))
-        addPrimaryArmComponent(entityBuilder, sparkFrames)
-        addSecondaryArmComponent(entityBuilder, sparkFrames)
+    private fun addFirepowerToPlayer(entityBuilder: EntityBuilder, primarySpark: Entity, secondarySpark: Entity) {
+        addPrimaryArmComponent(entityBuilder, primarySpark)
+        addSecondaryArmComponent(entityBuilder, secondarySpark)
     }
 
     private fun createPlayerModelInstance(): GameModelInstance {
@@ -236,73 +236,79 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         )
     }
 
+    private val primaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
+        override fun calculate(parent: Entity, output: Vector3): Vector3 {
+            val transform =
+                ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
+            val pos = output.set(1F, 0F, 0F).rot(transform).scl(
+                GameSessionData.SPARK_FORWARD_BIAS
+            )
+            pos.y -= SPARK_HEIGHT_BIAS
+            return pos
+        }
+    }
+
     private fun addPrimaryArmComponent(
         entityBuilder: EntityBuilder,
-        sparkFrames: List<TextureRegion>
+        primarySpark: Entity,
     ): EntityBuilder {
-        val priSnd = managers.assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN)
-        val priDecal = newDecal(PRI_SPARK_SIZE, PRI_SPARK_SIZE, sparkFrames.first(), true)
-        val priArmProperties = ArmProperties(
-            sparkFrames,
-            priSnd,
-            PRI_RELOAD_DUR,
-            PRI_BULLET_SPEED,
-            managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F,
-        )
-        val priCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
-            override fun calculate(parent: Entity): Vector3 {
-                val transform =
-                    ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
-                val pos = auxVector3_1.set(1F, 0F, 0F).rot(transform).scl(
-                    GameSessionData.SPARK_FORWARD_BIAS
-                )
-                pos.y -= SPARK_HEIGHT_BIAS
-                return pos
-            }
-        }
+        val assetsManager = managers.assetsManager
         entityBuilder.addPrimaryArmComponent(
-            priDecal,
-            priArmProperties,
-            priCalculateRelativePosition
+            primarySpark,
+            ArmProperties(
+                assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN),
+                PRI_RELOAD_DUR,
+                PRI_BULLET_SPEED,
+                assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F,
+            ),
         )
         return entityBuilder
     }
 
+    private fun addSpark(
+        machineGunSparkModel: Model,
+        relativePositionCalculator: ArmComponent.RelativePositionCalculator
+    ) =
+        EntityBuilder.begin()
+            .addModelInstanceComponent(
+                GameModelInstance(ModelInstance(machineGunSparkModel), ModelDefinition.MACHINE_GUN_SPARK),
+                Vector3(),
+                false, hidden = true
+            )
+            .addSparkComponent(relativePositionCalculator)
+            .finishAndAddToEngine()
+
+    private val secRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
+        override fun calculate(parent: Entity, output: Vector3): Vector3 {
+            playerShootingHandler.secondaryCreationSide =
+                !playerShootingHandler.secondaryCreationSide
+            val transform =
+                ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
+            val pos =
+                output.set(
+                    0.2F,
+                    0F,
+                    if (playerShootingHandler.secondaryCreationSide) 1F else -1F
+                )
+                    .rot(transform).scl(SECONDARY_POSITION_BIAS)
+            pos.y -= SPARK_HEIGHT_BIAS
+            return pos
+        }
+    }
+
     private fun addSecondaryArmComponent(
         entityBuilder: EntityBuilder,
-        sparkFrames: List<TextureRegion>
+        secondarySpark: Entity,
     ): EntityBuilder {
-        val secSnd = managers.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE)
-        val secArmProperties = ArmProperties(
-            sparkFrames,
-            secSnd,
-            SEC_RELOAD_DUR,
-            SEC_BULLET_SPEED,
-            managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width,
-            managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND)
-        )
-        val secDecal = newDecal(SEC_SPARK_SIZE, SEC_SPARK_SIZE, sparkFrames.first(), true)
-        val secCalculateRelativePosition = object : ArmComponent.CalculateRelativePosition {
-            override fun calculate(parent: Entity): Vector3 {
-                playerShootingHandler.secondaryCreationSide =
-                    !playerShootingHandler.secondaryCreationSide
-                val transform =
-                    ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
-                val pos =
-                    auxVector3_1.set(
-                        0.2F,
-                        0F,
-                        if (playerShootingHandler.secondaryCreationSide) 1F else -1F
-                    )
-                        .rot(transform).scl(SECONDARY_POSITION_BIAS)
-                pos.y -= SPARK_HEIGHT_BIAS
-                return pos
-            }
-        }
         entityBuilder.addSecondaryArmComponent(
-            secDecal,
-            secArmProperties,
-            secCalculateRelativePosition
+            secondarySpark,
+            ArmProperties(
+                managers.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
+                SEC_RELOAD_DUR,
+                SEC_BULLET_SPEED,
+                managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width,
+                managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND)
+            ),
         )
         return entityBuilder
     }
@@ -326,8 +332,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         private const val PRI_RELOAD_DUR = 125L
         private const val SEC_RELOAD_DUR = 2000L
         private const val PROP_SIZE = 1.5F
-        private const val PRI_SPARK_SIZE = 0.3F
-        private const val SEC_SPARK_SIZE = 0.6F
         private const val PRI_BULLET_SPEED = 16F
         private const val SEC_BULLET_SPEED = 5F
         private const val SECONDARY_POSITION_BIAS = 0.3F
