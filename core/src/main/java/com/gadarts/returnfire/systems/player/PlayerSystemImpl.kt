@@ -240,9 +240,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         override fun calculate(parent: Entity, output: Vector3): Vector3 {
             val transform =
                 ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
-            val pos = output.set(1F, 0F, 0F).rot(transform).scl(
-                GameSessionData.SPARK_FORWARD_BIAS
-            )
+            val pos = output.set(0.3F, 0F, 0F).rot(transform)
             pos.y -= SPARK_HEIGHT_BIAS
             return pos
         }
@@ -273,7 +271,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             .addModelInstanceComponent(
                 GameModelInstance(ModelInstance(machineGunSparkModel), ModelDefinition.MACHINE_GUN_SPARK),
                 Vector3(),
-                false, hidden = true
+                true, hidden = true
             )
             .addSparkComponent(relativePositionCalculator)
             .finishAndAddToEngine()

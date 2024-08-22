@@ -116,22 +116,14 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     ) {
         val sparkComponent = ComponentsMapper.spark.get(spark)
         val sparkModelInstanceComponent = ComponentsMapper.modelInstance.get(spark)
-        sparkModelInstanceComponent.gameModelInstance.modelInstance.transform.setTranslation(
-            sparkComponent.relativePositionCalculator.calculate(
-                sparkComponent.parent,
-                auxVector1
-            ).add(
-                ComponentsMapper.modelInstance.get(sparkComponent.parent).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector2
-                )
-            )
-        )
-        sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 500L
-        sparkModelInstanceComponent.hidden = false
-        val transform =
-            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
-        val position = transform.getTranslation(auxVector1)
+        val sparkTransform = sparkModelInstanceComponent.gameModelInstance.modelInstance.transform
+        val parentTransform =
+            ComponentsMapper.modelInstance.get(sparkComponent.parent).gameModelInstance.modelInstance.transform
+        val position = parentTransform.getTranslation(auxVector1)
         position.add(relativePosition)
+        sparkTransform.setToTranslation(position).rotate(parentTransform.getRotation(auxQuat)).rotate(Vector3.Z, -30F)
+        sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 25L
+        sparkModelInstanceComponent.hidden = false
         val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()
         val bullet = EntityBuilder.begin()
             .addModelInstanceComponent(gameModelInstance, position, false)
@@ -141,7 +133,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 explosion
             )
             .finishAndAddToEngine()
-        applyPhysicsToBullet(radius, bullet, gameModelInstance, transform, speed)
+        applyPhysicsToBullet(radius, bullet, gameModelInstance, parentTransform, speed)
     }
 
     private fun applyPhysicsToBullet(
@@ -175,7 +167,6 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     companion object {
         private val auxVector1 = Vector3()
-        private val auxVector2 = Vector3()
         private val auxQuat = Quaternion()
     }
 

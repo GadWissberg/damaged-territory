@@ -12,7 +12,11 @@ class CharacterSystemOnPlayerWeaponShotPrimary(private val characterSystem: Char
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
         val arm = ComponentsMapper.primaryArm.get(gameSessionData.player)
-        val relativePosition = arm.relativePos
+        val sparkComponent = ComponentsMapper.spark.get(arm.spark)
+        val relativePosition = sparkComponent.relativePositionCalculator.calculate(
+            sparkComponent.parent,
+            arm.relativePos
+        )
         characterSystem.positionSpark(
             arm,
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance,
@@ -34,6 +38,5 @@ class CharacterSystemOnPlayerWeaponShotPrimary(private val characterSystem: Char
         )
 
     }
-
 
 }

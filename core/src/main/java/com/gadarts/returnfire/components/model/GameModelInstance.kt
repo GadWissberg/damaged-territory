@@ -10,15 +10,14 @@ class GameModelInstance(
     val modelInstance: ModelInstance,
     val definition: ModelDefinition?,
     boundingBox: BoundingBox? = null,
+    var sphere: Boolean = false
 ) {
-    var isSphere: Boolean = false
-        private set
     private val boundingBox = BoundingBox()
 
     init {
         if (boundingBox != null) {
             this.boundingBox.set(boundingBox)
-            isSphere = true
+            sphere = true
         }
     }
 

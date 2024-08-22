@@ -176,9 +176,9 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
         val gameModelInstance = modelInsComp.gameModelInstance
         val center: Vector3 =
-            gameModelInstance.getBoundingBox(auxBox).getCenter(auxVector3_1)
+            gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
         val dims: Vector3 = auxBox.getDimensions(auxVector3_2).scl(4.7F)
-        return if (gameModelInstance.isSphere) gameSessionData.gameSessionDataRender.camera.frustum.sphereInFrustum(
+        return if (gameModelInstance.sphere) gameSessionData.gameSessionDataRender.camera.frustum.sphereInFrustum(
             gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_3
             ), dims.len2() / 2F
@@ -224,7 +224,10 @@ class RenderSystem : GameEntitySystem(), Disposable {
             } else {
                 batch.render(modelInstance.modelInstance)
             }
-            if (modelInstanceComponent.hideAt != -1L && modelInstanceComponent.hideAt <= TimeUtils.millis()) {
+            if (!modelInstanceComponent.hidden
+                && modelInstanceComponent.hideAt != -1L
+                && modelInstanceComponent.hideAt <= TimeUtils.millis()
+            ) {
                 modelInstanceComponent.hidden = true
                 modelInstanceComponent.hideAt = -1L
             }
