@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -122,7 +123,10 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         val position = parentTransform.getTranslation(auxVector1)
         position.add(relativePosition)
         sparkTransform.setToTranslation(position).rotate(parentTransform.getRotation(auxQuat)).rotate(Vector3.Z, -30F)
-        sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 25L
+        sparkTransform.rotate(
+            Vector3.X, MathUtils.random(360F)
+        )
+        sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 50L
         sparkModelInstanceComponent.hidden = false
         val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()
         val bullet = EntityBuilder.begin()
