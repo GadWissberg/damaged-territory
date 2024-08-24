@@ -112,7 +112,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         speed: Float,
         relativePosition: Vector3,
         radius: Float,
-        explosion: ParticleEffect?,
+        explosion: ParticleEffect,
         spark: Entity
     ) {
         val sparkComponent = ComponentsMapper.spark.get(spark)

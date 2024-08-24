@@ -11,7 +11,7 @@ interface CharacterSystem {
         speed: Float,
         relativePosition: Vector3,
         radius: Float,
-        explosion: ParticleEffect? = null,
+        explosion: ParticleEffect,
         spark: Entity
     )
     fun positionSpark(

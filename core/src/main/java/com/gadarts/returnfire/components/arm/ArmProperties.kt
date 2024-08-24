@@ -8,5 +8,5 @@ class ArmProperties(
     val reloadDuration: Long,
     val speed: Float,
     val radius: Float,
-    val explosion: ParticleEffect? = null
+    val explosion: ParticleEffect
 )

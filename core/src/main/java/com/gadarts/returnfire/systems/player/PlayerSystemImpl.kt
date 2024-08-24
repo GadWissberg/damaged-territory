@@ -258,6 +258,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 PRI_RELOAD_DUR,
                 PRI_BULLET_SPEED,
                 assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F,
+                assetsManager.getAssetByDefinition(ParticleEffectDefinition.SMOKE_SMALL)
             ),
         )
         return entityBuilder

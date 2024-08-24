@@ -6,7 +6,7 @@ import com.gadarts.returnfire.components.GameComponent
 import com.gadarts.returnfire.systems.player.BulletsPool
 
 class BulletComponent : GameComponent() {
-    var explosion: ParticleEffect? = null
+    lateinit var explosion: ParticleEffect
     var createdTime: Long = 0
         private set
     lateinit var behavior: BulletBehavior
@@ -18,7 +18,7 @@ class BulletComponent : GameComponent() {
 
     }
 
-    fun init(pool: BulletsPool, behavior: BulletBehavior, explosion: ParticleEffect? = null) {
+    fun init(pool: BulletsPool, behavior: BulletBehavior, explosion: ParticleEffect) {
         this.relatedPool = pool
         this.behavior = behavior
         this.createdTime = TimeUtils.millis()

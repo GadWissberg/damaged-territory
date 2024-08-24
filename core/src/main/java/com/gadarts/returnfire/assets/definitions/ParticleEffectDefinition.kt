@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 
 enum class ParticleEffectDefinition(fileNames: Int = 1) : AssetDefinition<ParticleEffect> {
 
-    EXPLOSION_GROUND;
+    EXPLOSION_GROUND,
+    SMOKE,
+    SMOKE_SMALL;
 
     private val paths = ArrayList<String>()
     private val pathFormat = "particles/%s.pfx"
