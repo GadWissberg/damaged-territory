@@ -1,11 +1,11 @@
 {
   "textures": [
     {
-      "image": "smoke.png",
+      "image": "particles.png",
       "format": "RGBA8888",
       "size": {
         "w": 63,
-        "h": 195
+        "h": 243
       },
       "scale": 1,
       "frames": [
@@ -61,15 +61,36 @@
           },
           "spriteSourceSize": {
             "x": 3,
-            "y": 2,
+            "y": 3,
             "w": 53,
-            "h": 61
+            "h": 60
           },
           "frame": {
             "x": 1,
             "y": 133,
             "w": 53,
-            "h": 61
+            "h": 60
+          }
+        },
+        {
+          "filename": "water_splash.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 29,
+            "h": 47
+          },
+          "spriteSourceSize": {
+            "x": 0,
+            "y": 0,
+            "w": 28,
+            "h": 47
+          },
+          "frame": {
+            "x": 1,
+            "y": 195,
+            "w": 28,
+            "h": 47
           }
         }
       ]
@@ -78,6 +99,6 @@
   "meta": {
     "app": "https://www.codeandweb.com/texturepacker",
     "version": "3.0",
-    "smartupdate": "$TexturePacker:SmartUpdate:4424f11be116544290633cdf90f33bf7:dcbfd5aa3562bda61f7537134f2316b8:557cac7724a8d29be5c43a56587d549b$"
+    "smartupdate": "$TexturePacker:SmartUpdate:2cb21053466fc0386c49b4a62751e914:71ff7ff05471a44ef6a49fac6e576dd9:767f0aa26e08023d62afa20c0c952bea$"
   }
 }

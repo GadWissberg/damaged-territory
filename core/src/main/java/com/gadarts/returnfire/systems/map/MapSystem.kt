@@ -3,13 +3,16 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils.random
 import com.badlogic.gdx.math.Matrix4
@@ -18,14 +21,13 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.components.AmbComponent
-import com.gadarts.returnfire.components.AnimatedTextureComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.AmbDefinition
@@ -35,9 +37,17 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class MapSystem : GameEntitySystem() {
 
+    private val waterSplashFloorTexture: Texture by lazy { managers.assetsManager.getTexture("water_splash_floor") }
+    private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
+    private val waterSplash: ParticleEffect by lazy {
+        managers.assetsManager.getAssetByDefinition(
+            ParticleEffectDefinition.WATER_SPLASH
+        )
+    }
     private val ambSoundsHandler = AmbSoundsHandler()
     private var groundTextureAnimationStateTime = 0F
     private val animatedFloorsEntities: ImmutableArray<Entity> by lazy {
@@ -45,6 +55,13 @@ class MapSystem : GameEntitySystem() {
             Family.all(
                 GroundComponent::class.java,
                 AnimatedTextureComponent::class.java
+            ).get()
+        )
+    }
+    private val waterSplashEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(
+                WaterSplashComponent::class.java,
             ).get()
         )
     }
@@ -59,8 +76,48 @@ class MapSystem : GameEntitySystem() {
     }
     private val floorModel: Model by lazy { createFloorModel() }
 
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-    )
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
+        mapOf(SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                handleCollisionBulletAndGround(PhysicsCollisionEventData.colObj0, PhysicsCollisionEventData.colObj1)
+            }
+        }
+
+        )
+
+    private fun handleCollisionBulletAndGround(
+        collisionObject0: btCollisionObject, collisionObject1: btCollisionObject
+    ) {
+        val bullet = collisionObject0.userData as Entity
+        if (ComponentsMapper.bullet.has(bullet) && ComponentsMapper.ground.has(
+                collisionObject1.userData as Entity
+            )
+        ) {
+            val position =
+                ComponentsMapper.modelInstance.get(bullet).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+            val floorEntity = floors[position.z.toInt()][position.x.toInt()]
+            if (ComponentsMapper.ground.get(floorEntity).water
+            ) {
+                EntityBuilder.begin()
+                    .addParticleEffectComponent(waterSplash, position).finishAndAddToEngine()
+                val gameModelInstance = GameModelInstance(ModelInstance(floorModel), null)
+                val material = gameModelInstance.modelInstance.materials.get(0)
+                val textureAttribute =
+                    material.get(TextureAttribute.Diffuse) as TextureAttribute
+                textureAttribute.textureDescription.texture = waterSplashFloorTexture
+                EntityBuilder.begin().addModelInstanceComponent(gameModelInstance, position, false)
+                    .addWaterSplashComponent()
+                    .finishAndAddToEngine()
+                gameModelInstance.modelInstance.transform.scl(0.5F)
+            } else {
+                val explosion = ComponentsMapper.bullet.get(bullet).explosion
+                EntityBuilder.begin()
+                    .addParticleEffectComponent(explosion, position).finishAndAddToEngine()
+            }
+        }
+    }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
@@ -92,6 +149,20 @@ class MapSystem : GameEntitySystem() {
             (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(0)
                 .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
                 keyFrame
+        }
+        waterSplashEntitiesToRemove.clear()
+        for (entity in waterSplashEntities) {
+            if (TimeUtils.timeSinceMillis(ComponentsMapper.waterSplash.get(entity).creationTime) > 1000L) {
+                waterSplashEntitiesToRemove.add(entity)
+            } else {
+                val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance
+                modelInstance.transform.scl(1.005F, 1.005F, 1.005F)
+                val blendAttribute = modelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
+                blendAttribute.opacity -= 0.01F
+            }
+        }
+        while (!waterSplashEntitiesToRemove.isEmpty) {
+            engine.removeEntity(waterSplashEntitiesToRemove.removeIndex(0))
         }
     }
 
@@ -218,11 +289,7 @@ class MapSystem : GameEntitySystem() {
             managers.assetsManager.getTexturesDefinitions()
         if (playerPosition.x.toInt() == col && playerPosition.z.toInt() == row) {
             textureDefinition = texturesDefinitions.definitions["base_door"]
-        } else if (row >= 0
-            && col >= 0
-            && row < gameSessionData.currentMap.tilesMapping.size
-            && col < gameSessionData.currentMap.tilesMapping[0].size
-        ) {
+        } else if (isPositionInsideBoundaries(row, col)) {
             floors[row][col] = entity
             val definitions = managers.assetsManager.getTexturesDefinitions()
             val indexOfFirst =
@@ -239,8 +306,16 @@ class MapSystem : GameEntitySystem() {
             if (textureDefinition.animated) {
                 applyAnimatedTextureComponentToFloor(textureDefinition, entity)
             }
+            if (textureDefinition.fileName.contains("water")) {
+                ComponentsMapper.ground.get(entity).water = true
+            }
         }
     }
+
+    private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
+        && col >= 0
+        && row < gameSessionData.currentMap.tilesMapping.size
+        && col < gameSessionData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

@@ -178,6 +178,13 @@ class EntityBuilder private constructor() {
         return instance
     }
 
+    fun addWaterSplashComponent(): EntityBuilder {
+        val waterSplashComponent = engine.createComponent(WaterSplashComponent::class.java)
+        waterSplashComponent.init()
+        entity!!.add(waterSplashComponent)
+        return instance
+    }
+
     fun addEnemyComponent(): EntityBuilder {
         val enemyComponent = engine.createComponent(EnemyComponent::class.java)
         entity!!.add(enemyComponent)

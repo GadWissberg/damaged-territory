@@ -284,6 +284,9 @@
     },
     {
       "file_name": "base_door"
+    },
+    {
+      "file_name": "water_splash_floor"
     }
   ]
 }
