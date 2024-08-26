@@ -1,8 +1,6 @@
 package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ArmComponent
@@ -20,28 +18,10 @@ class PlayerShootingHandler {
 
     fun initialize(
         dispatcher: MessageDispatcher,
-        engine: PooledEngine,
         player: Entity
     ) {
 
         this.player = player
-        engine.addEntityListener(object : EntityListener {
-            override fun entityAdded(entity: Entity) {
-
-            }
-
-            override fun entityRemoved(entity: Entity) {
-                if (ComponentsMapper.bullet.has(entity)) {
-                    ComponentsMapper.bullet.get(entity).relatedPool.free(
-                        ComponentsMapper.modelInstance.get(
-                            entity
-                        ).gameModelInstance
-                    )
-
-                }
-            }
-
-        })
         this.dispatcher = dispatcher
     }
 

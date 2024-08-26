@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
-import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils.random
 import com.badlogic.gdx.math.Matrix4
@@ -43,11 +42,6 @@ class MapSystem : GameEntitySystem() {
 
     private val waterSplashFloorTexture: Texture by lazy { managers.assetsManager.getTexture("water_splash_floor") }
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
-    private val waterSplash: ParticleEffect by lazy {
-        managers.assetsManager.getAssetByDefinition(
-            ParticleEffectDefinition.WATER_SPLASH
-        )
-    }
     private val ambSoundsHandler = AmbSoundsHandler()
     private var groundTextureAnimationStateTime = 0F
     private val animatedFloorsEntities: ImmutableArray<Entity> by lazy {
@@ -61,7 +55,7 @@ class MapSystem : GameEntitySystem() {
     private val waterSplashEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(
-                WaterSplashComponent::class.java,
+                WaterWaveComponent::class.java,
             ).get()
         )
     }
@@ -74,7 +68,6 @@ class MapSystem : GameEntitySystem() {
             Family.all(AmbComponent::class.java).get()
         )
     }
-    private val floorModel: Model by lazy { createFloorModel() }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
@@ -89,40 +82,51 @@ class MapSystem : GameEntitySystem() {
         collisionObject0: btCollisionObject, collisionObject1: btCollisionObject
     ) {
         val bullet = collisionObject0.userData as Entity
-        if (ComponentsMapper.bullet.has(bullet) && ComponentsMapper.ground.has(
-                collisionObject1.userData as Entity
-            )
-        ) {
+        if (ComponentsMapper.bullet.has(bullet) && ComponentsMapper.ground.has(collisionObject1.userData as Entity)) {
             val position =
                 ComponentsMapper.modelInstance.get(bullet).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
                 )
-            val floorEntity = floors[position.z.toInt()][position.x.toInt()]
-            if (ComponentsMapper.ground.get(floorEntity).water
-            ) {
-                EntityBuilder.begin()
-                    .addParticleEffectComponent(waterSplash, position).finishAndAddToEngine()
-                val gameModelInstance = GameModelInstance(ModelInstance(floorModel), null)
-                val material = gameModelInstance.modelInstance.materials.get(0)
-                val textureAttribute =
-                    material.get(TextureAttribute.Diffuse) as TextureAttribute
-                textureAttribute.textureDescription.texture = waterSplashFloorTexture
-                EntityBuilder.begin().addModelInstanceComponent(gameModelInstance, position, false)
-                    .addWaterSplashComponent()
-                    .finishAndAddToEngine()
-                gameModelInstance.modelInstance.transform.scl(0.5F)
+            if (ComponentsMapper.ground.get(floors[position.z.toInt()][position.x.toInt()]).water) {
+                addWaterSplash(position)
             } else {
                 val explosion = ComponentsMapper.bullet.get(bullet).explosion
                 EntityBuilder.begin()
-                    .addParticleEffectComponent(explosion, position).finishAndAddToEngine()
+                    .addParticleEffectComponent(
+                        position,
+                        gameSessionData.pools.particleEffectsPools.obtain(
+                            explosion,
+                        )
+                    ).finishAndAddToEngine()
             }
         }
     }
 
+    private fun addWaterSplash(position: Vector3) {
+        EntityBuilder.begin()
+            .addParticleEffectComponent(
+                position,
+                gameSessionData.pools.particleEffectsPools.obtain(
+                    ParticleEffectDefinition.WATER_SPLASH
+                )
+            ).finishAndAddToEngine()
+        val gameModelInstance = gameSessionData.waterWavePool.obtain()
+        val material = gameModelInstance.modelInstance.materials.get(0)
+        val blendingAttribute = material.get(BlendingAttribute.Type) as BlendingAttribute
+        blendingAttribute.opacity = 1F
+        val textureAttribute =
+            material.get(TextureAttribute.Diffuse) as TextureAttribute
+        textureAttribute.textureDescription.texture = waterSplashFloorTexture
+        EntityBuilder.begin()
+            .addModelInstanceComponent(gameModelInstance, position, false)
+            .addWaterWaveComponent()
+            .finishAndAddToEngine()
+        gameModelInstance.modelInstance.transform.scl(0.5F)
+    }
+
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
-
-
+        gameSessionData.floorModel = createFloorModel()
         gameSessionData.gameSessionDataRender.modelCache = ModelCache()
         addFloor()
     }
@@ -152,7 +156,7 @@ class MapSystem : GameEntitySystem() {
         }
         waterSplashEntitiesToRemove.clear()
         for (entity in waterSplashEntities) {
-            if (TimeUtils.timeSinceMillis(ComponentsMapper.waterSplash.get(entity).creationTime) > 1000L) {
+            if (TimeUtils.timeSinceMillis(ComponentsMapper.waterWave.get(entity).creationTime) > 1000L) {
                 waterSplashEntitiesToRemove.add(entity)
             } else {
                 val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance
@@ -162,12 +166,13 @@ class MapSystem : GameEntitySystem() {
             }
         }
         while (!waterSplashEntitiesToRemove.isEmpty) {
-            engine.removeEntity(waterSplashEntitiesToRemove.removeIndex(0))
+            val entity = waterSplashEntitiesToRemove.removeIndex(0)
+            gameSessionData.waterWavePool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
+            engine.removeEntity(entity)
         }
     }
 
     override fun dispose() {
-        floorModel.dispose()
         gameSessionData.gameSessionDataRender.modelCache.dispose()
     }
 
@@ -215,7 +220,7 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addExtSea(width: Int, depth: Int, x: Float, z: Float) {
-        val modelInstance = GameModelInstance(ModelInstance(floorModel), definition = null)
+        val modelInstance = GameModelInstance(ModelInstance(gameSessionData.floorModel), definition = null)
         val entity = createAndAddGroundTileEntity(
             modelInstance,
             auxVector1.set(x, 0F, z)
@@ -253,7 +258,7 @@ class MapSystem : GameEntitySystem() {
                     row,
                     col,
                     GameModelInstance(
-                        ModelInstance(floorModel),
+                        ModelInstance(gameSessionData.floorModel),
                         definition = null
                     )
                 )

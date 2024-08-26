@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
@@ -22,6 +23,7 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.AmbDefinition
+import com.gadarts.returnfire.systems.data.GameParticleEffectPool
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class EntityBuilder private constructor() {
@@ -135,7 +137,7 @@ class EntityBuilder private constructor() {
 
     fun addBulletComponent(
         behavior: BulletBehavior,
-        explosion: ParticleEffect
+        explosion: ParticleEffectDefinition
     ): EntityBuilder {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
         bulletComponent.init(behavior, explosion)
@@ -158,12 +160,13 @@ class EntityBuilder private constructor() {
 
 
     fun addParticleEffectComponent(
-        originalEffect: ParticleEffect,
-        position: Vector3
+        position: Vector3,
+        pool: GameParticleEffectPool
     ): EntityBuilder {
         val particleEffectComponent = createIndependentParticleEffectComponent(
-            originalEffect, position,
-            engine
+            position,
+            engine,
+            pool
         )
         entity!!.add(particleEffectComponent)
         return instance
@@ -176,10 +179,10 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addWaterSplashComponent(): EntityBuilder {
-        val waterSplashComponent = engine.createComponent(WaterSplashComponent::class.java)
-        waterSplashComponent.init()
-        entity!!.add(waterSplashComponent)
+    fun addWaterWaveComponent(): EntityBuilder {
+        val waterWaveComponent = engine.createComponent(WaterWaveComponent::class.java)
+        waterWaveComponent.init()
+        entity!!.add(waterWaveComponent)
         return instance
     }
 
@@ -190,16 +193,20 @@ class EntityBuilder private constructor() {
     }
 
     private fun createIndependentParticleEffectComponent(
-        originalEffect: ParticleEffect,
         position: Vector3,
-        engine: PooledEngine
+        engine: PooledEngine,
+        pool: GameParticleEffectPool
     ): BaseParticleEffectComponent {
-        val effect: ParticleEffect = originalEffect.copy()
+        val effect: ParticleEffect = pool.obtain()
         val particleEffectComponent = engine.createComponent(
             IndependentParticleEffectComponent::class.java
         )
-        particleEffectComponent.init(effect)
-        effect.translate(position)
+        particleEffectComponent.init(effect, pool.definition)
+        val controllers = effect.controllers
+        for (i in 0 until controllers.size) {
+            val transform = controllers[i].transform
+            transform.setTranslation(position)
+        }
         return particleEffectComponent
     }
 

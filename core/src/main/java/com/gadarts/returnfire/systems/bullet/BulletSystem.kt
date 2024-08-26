@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.bullet
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
@@ -33,6 +34,27 @@ class BulletSystem : GameEntitySystem() {
             }
         }
     )
+
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
+        engine.addEntityListener(object : EntityListener {
+            override fun entityAdded(entity: Entity) {
+
+            }
+
+            override fun entityRemoved(entity: Entity) {
+                if (ComponentsMapper.bullet.has(entity)) {
+                    gameSessionData.pools.gameModelInstancePools[ComponentsMapper.modelInstance.get(entity).gameModelInstance.definition]
+                        ?.free(
+                            ComponentsMapper.modelInstance.get(
+                                entity
+                            ).gameModelInstance
+                        )
+                }
+            }
+
+        })
+    }
 
     private fun handleBulletCollision(entity: Entity) {
         if (ComponentsMapper.bullet.has(entity)) {

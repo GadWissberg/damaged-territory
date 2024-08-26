@@ -57,6 +57,13 @@ class ProfilingSystem : GameEntitySystem() {
             displayGlProfiling()
             displayBatchCalls()
             displayLine("Version: ", "0.5")
+            displayLine("Water wave pool:", "${gameSessionData.waterWavePool.free}")
+            gameSessionData.pools.gameModelInstancePools.forEach { pair ->
+                displayLine("${pair.key} pool:", "${pair.value.free}")
+            }
+            gameSessionData.pools.particleEffectsPools.pools.forEach { pair ->
+                displayLine("${pair.key} pool:", "${pair.value.free}")
+            }
             label.setText(stringBuilder)
         }
     }

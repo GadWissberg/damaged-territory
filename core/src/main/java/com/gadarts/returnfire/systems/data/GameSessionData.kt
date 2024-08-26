@@ -1,8 +1,12 @@
 package com.gadarts.returnfire.systems.data
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.graphics.g3d.Model
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.Pool
 import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.GameMap
 
 class GameSessionData(
@@ -16,8 +20,14 @@ class GameSessionData(
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     val gameSessionDataHud = GameSessionDataHud(assetsManager)
-    val gameSessionDataPools = GameSessionDataPools(assetsManager)
+    val pools = GameSessionDataPools(assetsManager)
     val gameSessionDataRender = GameSessionDataRender()
+    val waterWavePool = object : Pool<GameModelInstance>() {
+        override fun newObject(): GameModelInstance {
+            return GameModelInstance(ModelInstance(floorModel), null)
+        }
+    }
+    lateinit var floorModel: Model
 
     companion object {
         const val FOV = 67F
@@ -26,6 +36,7 @@ class GameSessionData(
     }
 
     override fun dispose() {
+        floorModel.dispose()
         gameSessionDataRender.dispose()
         gameSessionDataHud.dispose()
         gameSessionDataPhysics.dispose()

@@ -18,6 +18,7 @@ class GameSessionDataPools(assetsManager: GameAssetManager) {
             assetsManager.getAssetByDefinition(ModelDefinition.MISSILE),
             BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE)),
             ModelDefinition.MISSILE
-        )
+        ),
     )
+    val particleEffectsPools = ParticleEffectsPools(assetsManager)
 }

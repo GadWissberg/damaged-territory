@@ -171,7 +171,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     private fun initializePlayerHandlers() {
         playerShootingHandler.initialize(
             managers.dispatcher,
-            managers.engine,
             gameSessionData.player
         )
         playerMovementHandler.initialize(gameSessionData.gameSessionDataRender.camera)
@@ -256,7 +255,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 PRI_RELOAD_DUR,
                 PRI_BULLET_SPEED,
                 assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F,
-                assetsManager.getAssetByDefinition(ParticleEffectDefinition.SMOKE_SMALL),
+                ParticleEffectDefinition.SMOKE_SMALL,
                 ModelDefinition.BULLET
             ),
         )
@@ -305,7 +304,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 SEC_RELOAD_DUR,
                 SEC_BULLET_SPEED,
                 managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width,
-                managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
+                ParticleEffectDefinition.EXPLOSION_GROUND,
                 ModelDefinition.BULLET
             ),
         )

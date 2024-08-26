@@ -109,7 +109,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     }
 
     override fun createBullet(
-        arm: ArmProperties,
+        armProperties: ArmProperties,
         relativePosition: Vector3,
         spark: Entity,
     ) {
@@ -127,15 +127,15 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 50L
         sparkModelInstanceComponent.hidden = false
         val gameModelInstance =
-            gameSessionData.gameSessionDataPools.gameModelInstancePools[arm.modelDefinition]!!.obtain()
+            gameSessionData.pools.gameModelInstancePools[armProperties.modelDefinition]!!.obtain()
         val bullet = EntityBuilder.begin()
             .addModelInstanceComponent(gameModelInstance, position, false)
             .addBulletComponent(
                 PlayerWeaponShotEventData.behavior,
-                arm.explosion
+                armProperties.explosion
             )
             .finishAndAddToEngine()
-        applyPhysicsToBullet(arm.radius, bullet, gameModelInstance, parentTransform, arm.speed)
+        applyPhysicsToBullet(armProperties.radius, bullet, gameModelInstance, parentTransform, armProperties.speed)
     }
 
     private fun applyPhysicsToBullet(

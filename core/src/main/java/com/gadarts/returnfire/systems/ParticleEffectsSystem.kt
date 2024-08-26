@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
@@ -12,8 +11,6 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.BaseParticleEffectComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.FollowerParticleEffectComponent
@@ -35,26 +32,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     private val billboardParticleBatch: BillboardParticleBatch by lazy { BillboardParticleBatch() }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
-        mapOf(SystemEvents.BUILDING_DESTROYED to object :
-            HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                managers: Managers
-            ) {
-                managers.soundPlayer.play(
-                    managers.assetsManager.getAssetByDefinition(
-                        SoundDefinition.EXPLOSION
-                    )
-                )
-                EntityBuilder.begin().addParticleEffectComponent(
-                    managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND),
-                    ComponentsMapper.modelInstance.get(msg.extraInfo as Entity).gameModelInstance.modelInstance.transform.getTranslation(
-                        auxVector1
-                    )
-                ).finishAndAddToEngine()
-            }
-        })
+        mapOf()
 
     override fun resume(delta: Long) {
     }
@@ -90,7 +68,6 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
     private fun playParticleEffect(effect: ParticleEffect) {
         gameSessionData.gameSessionDataRender.particleSystem.add(effect)
-        effect.init()
         effect.start()
     }
 
@@ -138,8 +115,16 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
     private fun removeParticleEffectsMarkedToBeRemoved() {
         for (entity in particleEntitiesToRemove) {
-            gameSessionData.gameSessionDataRender.particleSystem.remove(fetchParticleEffect(entity).effect)
-            entity.remove(BaseParticleEffectComponent::class.java)
+            val particleEffect = fetchParticleEffect(entity).effect
+            particleEffect.reset()
+            gameSessionData.gameSessionDataRender.particleSystem.remove(particleEffect)
+            gameSessionData.pools.particleEffectsPools.obtain(ComponentsMapper.independentParticleEffect.get(entity).definition)
+                .free(particleEffect)
+            if (ComponentsMapper.independentParticleEffect.has(entity)) {
+                entity.remove(IndependentParticleEffectComponent::class.java)
+            } else {
+                entity.remove(FollowerParticleEffectComponent::class.java)
+            }
         }
     }
 

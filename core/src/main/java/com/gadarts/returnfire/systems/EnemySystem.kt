@@ -70,9 +70,6 @@ class EnemySystem : GameEntitySystem() {
         closestRayResultCallback.collisionFilterMask = -1
         closestRayResultCallback
     }
-    private val explosionParticleEffect by lazy {
-        managers.assetsManager.getAssetByDefinition(ParticleEffectDefinition.EXPLOSION_GROUND)
-    }
     private val sparkDecalTextureRegion by lazy {
         TextureRegion(managers.assetsManager.getTexture("spark"))
     }
@@ -147,7 +144,12 @@ class EnemySystem : GameEntitySystem() {
                     val collisionEntity = collisionObject.userData as Entity
                     if (ComponentsMapper.player.has(collisionEntity)) {
                         EntityBuilder.begin()
-                            .addParticleEffectComponent(explosionParticleEffect, playerPosition)
+                            .addParticleEffectComponent(
+                                playerPosition,
+                                gameSessionData.pools.particleEffectsPools.obtain(
+                                    ParticleEffectDefinition.WATER_SPLASH,
+                                )
+                            )
                             .finishAndAddToEngine()
                     }
                 }
