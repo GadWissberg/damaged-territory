@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g3d.ModelInstance
-import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -18,6 +17,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -109,11 +109,9 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     }
 
     override fun createBullet(
-        speed: Float,
+        arm: ArmProperties,
         relativePosition: Vector3,
-        radius: Float,
-        explosion: ParticleEffect,
-        spark: Entity
+        spark: Entity,
     ) {
         val sparkComponent = ComponentsMapper.spark.get(spark)
         val sparkModelInstanceComponent = ComponentsMapper.modelInstance.get(spark)
@@ -128,16 +126,16 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         )
         sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 50L
         sparkModelInstanceComponent.hidden = false
-        val gameModelInstance = PlayerWeaponShotEventData.pool.obtain()
+        val gameModelInstance =
+            gameSessionData.gameSessionDataPools.gameModelInstancePools[arm.modelDefinition]!!.obtain()
         val bullet = EntityBuilder.begin()
             .addModelInstanceComponent(gameModelInstance, position, false)
             .addBulletComponent(
-                PlayerWeaponShotEventData.pool,
                 PlayerWeaponShotEventData.behavior,
-                explosion
+                arm.explosion
             )
             .finishAndAddToEngine()
-        applyPhysicsToBullet(radius, bullet, gameModelInstance, parentTransform, speed)
+        applyPhysicsToBullet(arm.radius, bullet, gameModelInstance, parentTransform, arm.speed)
     }
 
     private fun applyPhysicsToBullet(

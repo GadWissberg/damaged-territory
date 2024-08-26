@@ -13,7 +13,6 @@ import com.gadarts.returnfire.systems.events.data.PlayerWeaponShotEventData
 
 class PlayerShootingHandler {
     private lateinit var player: Entity
-    private lateinit var bulletsPools: BulletsPools
     private lateinit var dispatcher: MessageDispatcher
     var secondaryCreationSide = false
     private var priShooting: Boolean = false
@@ -22,11 +21,9 @@ class PlayerShootingHandler {
     fun initialize(
         dispatcher: MessageDispatcher,
         engine: PooledEngine,
-        priBulletsPool: BulletsPool,
-        secBulletsPool: BulletsPool,
         player: Entity
     ) {
-        this.bulletsPools = BulletsPools(priBulletsPool, secBulletsPool)
+
         this.player = player
         engine.addEntityListener(object : EntityListener {
             override fun entityAdded(entity: Entity) {
@@ -53,7 +50,6 @@ class PlayerShootingHandler {
         handleShooting(
             priShooting,
             armComp,
-            bulletsPools.priBulletsPool,
             SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY,
             BulletBehavior.REGULAR,
         )
@@ -61,7 +57,6 @@ class PlayerShootingHandler {
         handleShooting(
             secShooting,
             armComp,
-            bulletsPools.secBulletsPool,
             SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY,
             BulletBehavior.CURVE
         )
@@ -70,7 +65,6 @@ class PlayerShootingHandler {
     private fun handleShooting(
         shooting: Boolean,
         armComp: ArmComponent,
-        pool: BulletsPool,
         event: SystemEvents,
         bulletBehavior: BulletBehavior,
     ) {
@@ -79,7 +73,7 @@ class PlayerShootingHandler {
         if (armComp.loaded <= now) {
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
-            PlayerWeaponShotEventData.set(pool, bulletBehavior)
+            PlayerWeaponShotEventData.set(bulletBehavior)
             dispatcher.dispatchMessage(event.ordinal)
         }
     }

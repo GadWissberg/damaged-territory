@@ -23,7 +23,6 @@ import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.player.BulletsPool
 
 class EntityBuilder private constructor() {
 
@@ -135,12 +134,11 @@ class EntityBuilder private constructor() {
     }
 
     fun addBulletComponent(
-        pool: BulletsPool,
         behavior: BulletBehavior,
         explosion: ParticleEffect
     ): EntityBuilder {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
-        bulletComponent.init(pool, behavior, explosion)
+        bulletComponent.init(behavior, explosion)
         entity!!.add(bulletComponent)
         return instance
     }

@@ -66,6 +66,7 @@ class BulletSystem : GameEntitySystem() {
     }
 
     private fun destroyBullet(entity: Entity) {
+        ComponentsMapper.modelInstance.get(entity).gameModelInstance
         engine.removeEntity(entity)
     }
 
