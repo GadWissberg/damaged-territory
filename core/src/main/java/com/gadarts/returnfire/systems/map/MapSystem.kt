@@ -25,6 +25,7 @@ import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -40,6 +41,7 @@ import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class MapSystem : GameEntitySystem() {
 
+    private val waterSplashSounds by lazy { managers.assetsManager.getAllAssetsByDefinition(SoundDefinition.WATER_SPLASH) }
     private val waterSplashFloorTexture: Texture by lazy { managers.assetsManager.getTexture("water_splash_floor") }
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
     private val ambSoundsHandler = AmbSoundsHandler()
@@ -111,6 +113,9 @@ class MapSystem : GameEntitySystem() {
                 )
             ).finishAndAddToEngine()
         val gameModelInstance = gameSessionData.waterWavePool.obtain()
+        managers.soundPlayer.play(
+            waterSplashSounds.random(),
+        )
         val material = gameModelInstance.modelInstance.materials.get(0)
         val blendingAttribute = material.get(BlendingAttribute.Type) as BlendingAttribute
         blendingAttribute.opacity = 1F
@@ -127,7 +132,7 @@ class MapSystem : GameEntitySystem() {
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         gameSessionData.floorModel = createFloorModel()
-        gameSessionData.gameSessionDataRender.modelCache = ModelCache()
+        gameSessionData.renderData.modelCache = ModelCache()
         addFloor()
     }
 
@@ -160,7 +165,7 @@ class MapSystem : GameEntitySystem() {
                 waterSplashEntitiesToRemove.add(entity)
             } else {
                 val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance
-                modelInstance.transform.scl(1.005F, 1.005F, 1.005F)
+                modelInstance.transform.scl(1.01F, 1.01F, 1.01F)
                 val blendAttribute = modelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
                 blendAttribute.opacity -= 0.01F
             }
@@ -173,7 +178,7 @@ class MapSystem : GameEntitySystem() {
     }
 
     override fun dispose() {
-        gameSessionData.gameSessionDataRender.modelCache.dispose()
+        gameSessionData.renderData.modelCache.dispose()
     }
 
     private fun addAmbEntities(gameSessionData: GameSessionData) {
@@ -199,13 +204,13 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addFloor() {
-        gameSessionData.gameSessionDataRender.modelCache.begin()
+        gameSessionData.renderData.modelCache.begin()
         val tilesMapping = gameSessionData.currentMap.tilesMapping
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
         addFloorRegion(depth, width)
         addAllExternalSea(width, depth)
-        gameSessionData.gameSessionDataRender.modelCache.end()
+        gameSessionData.renderData.modelCache.end()
     }
 
     private fun addAllExternalSea(width: Int, depth: Int) {
@@ -230,7 +235,7 @@ class MapSystem : GameEntitySystem() {
             modelInstance.modelInstance.materials.first()
                 .get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
-        gameSessionData.gameSessionDataRender.modelCache.add(modelInstance.modelInstance)
+        gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
         val texturesDefinitions = managers.assetsManager.getTexturesDefinitions()
         applyAnimatedTextureComponentToFloor(texturesDefinitions.definitions["tile_water"]!!, entity)
     }
@@ -275,7 +280,7 @@ class MapSystem : GameEntitySystem() {
             modelInstance,
             auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
         )
-        gameSessionData.gameSessionDataRender.modelCache.add(modelInstance.modelInstance)
+        gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
         applyTextureToFloorTile(col, row, entity, modelInstance)
     }
 

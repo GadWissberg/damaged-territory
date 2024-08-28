@@ -19,7 +19,7 @@ class CameraSystem : GameEntitySystem() {
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-        gameSessionData.gameSessionDataRender.camera.update()
+        gameSessionData.renderData.camera.update()
         followPlayer()
     }
 
@@ -56,14 +56,14 @@ class CameraSystem : GameEntitySystem() {
         )
         cameraTarget =
             playerPosition.add(auxVector2.x, 0F, -auxVector2.y + Z_OFFSET)
-        val camera = gameSessionData.gameSessionDataRender.camera
+        val camera = gameSessionData.renderData.camera
         cameraTarget.y = camera.position.y
         camera.position.interpolate(cameraTarget, 0.2F, Interpolation.exp5)
     }
 
 
     private fun initializeCamera() {
-        val camera = gameSessionData.gameSessionDataRender.camera
+        val camera = gameSessionData.renderData.camera
         camera.near = NEAR
         camera.far = FAR
         camera.update()

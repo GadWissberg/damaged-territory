@@ -38,13 +38,13 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     override fun onSystemReady() {
-        billboardParticleBatch.setCamera(gameSessionData.gameSessionDataRender.camera)
-        gameSessionData.gameSessionDataRender.particleSystem.add(billboardParticleBatch)
+        billboardParticleBatch.setCamera(gameSessionData.renderData.camera)
+        gameSessionData.renderData.particleSystem.add(billboardParticleBatch)
     }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
-        this.gameSessionData.gameSessionDataRender.particleSystem = ParticleSystem()
+        this.gameSessionData.renderData.particleSystem = ParticleSystem()
         billboardParticleBatch.blendingAttribute.sourceFunction = GL20.GL_SRC_ALPHA
         billboardParticleBatch.blendingAttribute.destFunction = GL20.GL_ONE_MINUS_SRC_ALPHA
         managers.assetsManager.loadParticleEffects(billboardParticleBatch)
@@ -67,7 +67,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     private fun playParticleEffect(effect: ParticleEffect) {
-        gameSessionData.gameSessionDataRender.particleSystem.add(effect)
+        gameSessionData.renderData.particleSystem.add(effect)
         effect.start()
     }
 
@@ -117,7 +117,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
         for (entity in particleEntitiesToRemove) {
             val particleEffect = fetchParticleEffect(entity).effect
             particleEffect.reset()
-            gameSessionData.gameSessionDataRender.particleSystem.remove(particleEffect)
+            gameSessionData.renderData.particleSystem.remove(particleEffect)
             gameSessionData.pools.particleEffectsPools.obtain(ComponentsMapper.independentParticleEffect.get(entity).definition)
                 .free(particleEffect)
             if (ComponentsMapper.independentParticleEffect.has(entity)) {
@@ -129,10 +129,10 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     private fun updateSystem(deltaTime: Float) {
-        gameSessionData.gameSessionDataRender.particleSystem.update(deltaTime)
-        gameSessionData.gameSessionDataRender.particleSystem.begin()
-        gameSessionData.gameSessionDataRender.particleSystem.draw()
-        gameSessionData.gameSessionDataRender.particleSystem.end()
+        gameSessionData.renderData.particleSystem.update(deltaTime)
+        gameSessionData.renderData.particleSystem.begin()
+        gameSessionData.renderData.particleSystem.draw()
+        gameSessionData.renderData.particleSystem.end()
     }
 
     override fun dispose() {

@@ -17,7 +17,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem : GameEntitySystem() {
-    private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.gameSessionDataRender.camera) }
+    private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
 
     private val priWeaponButtonClickListener = object : ClickListener() {

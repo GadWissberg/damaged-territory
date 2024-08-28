@@ -21,7 +21,7 @@ class GameSessionData(
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     val gameSessionDataHud = GameSessionDataHud(assetsManager)
     val pools = GameSessionDataPools(assetsManager)
-    val gameSessionDataRender = GameSessionDataRender()
+    val renderData = GameSessionDataRender()
     val waterWavePool = object : Pool<GameModelInstance>() {
         override fun newObject(): GameModelInstance {
             return GameModelInstance(ModelInstance(floorModel), null)
@@ -37,7 +37,7 @@ class GameSessionData(
 
     override fun dispose() {
         floorModel.dispose()
-        gameSessionDataRender.dispose()
+        renderData.dispose()
         gameSessionDataHud.dispose()
         gameSessionDataPhysics.dispose()
     }

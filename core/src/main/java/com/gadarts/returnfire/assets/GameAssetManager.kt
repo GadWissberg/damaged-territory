@@ -137,6 +137,9 @@ open class GameAssetManager : AssetManager() {
     inline fun <reified T> getAssetByDefinition(definition: AssetDefinition<T>): T {
         return get(definition.getPaths().random(), T::class.java)
     }
+    inline fun <reified T> getAllAssetsByDefinition(definition: AssetDefinition<T>): List<T> {
+        return definition.getPaths().map { get(it, T::class.java) }
+    }
 
     fun getTexture(name: String): Texture {
         val definition = getTexturesDefinitions().definitions[name]!!

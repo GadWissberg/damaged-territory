@@ -13,7 +13,8 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
     AMB_OUD(3),
     CRASH(2),
     EXPLOSION,
-    CANNON;
+    CANNON,
+    WATER_SPLASH(3);
 
     private val paths = ArrayList<String>()
 

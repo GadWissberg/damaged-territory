@@ -25,7 +25,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundComponent
 import com.gadarts.returnfire.components.IndependentDecalComponent
-import com.gadarts.returnfire.components.arm.PrimaryArmComponent
+import com.gadarts.returnfire.components.WaterWaveComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
@@ -37,16 +37,16 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
-    private val renderSystemRelatedEntities: RenderSystemRelatedEntities by lazy {
+    private val relatedEntities: RenderSystemRelatedEntities by lazy {
         RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
                 Family.all(ModelInstanceComponent::class.java)
-                    .exclude(GroundComponent::class.java)
+                    .exclude(GroundComponent::class.java, WaterWaveComponent::class.java)
                     .get()
             ),
-            engine.getEntitiesFor(Family.all(PrimaryArmComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
-            engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get())
+            engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get()),
+            engine.getEntitiesFor(Family.all(WaterWaveComponent::class.java).get())
         )
     }
     private var axisModelHandler = AxisModelHandler()
@@ -61,11 +61,11 @@ class RenderSystem : GameEntitySystem(), Disposable {
         )
     }
     private val environment: Environment by lazy { Environment() }
-    private val renderSystemBatches: RenderSystemBatches by lazy {
+    private val batches: RenderSystemBatches by lazy {
         RenderSystemBatches(
             DecalBatch(
                 DECALS_POOL_SIZE,
-                CameraGroupStrategy(gameSessionData.gameSessionDataRender.camera)
+                CameraGroupStrategy(gameSessionData.renderData.camera)
             ),
             ModelBatch(),
             ModelBatch(DepthShaderProvider())
@@ -80,13 +80,13 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     override fun update(deltaTime: Float) {
-        val camera = gameSessionData.gameSessionDataRender.camera
+        val camera = gameSessionData.renderData.camera
         shadowLight.begin(
             auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
             camera.direction
         )
         renderModels(
-            renderSystemBatches.shadowBatch,
+            batches.shadowBatch,
             shadowLight.camera,
             applyEnvironment = false,
             renderParticleEffects = false
@@ -94,11 +94,18 @@ class RenderSystem : GameEntitySystem(), Disposable {
         shadowLight.end()
         resetDisplay()
         renderModels(
-            renderSystemBatches.modelBatch,
+            batches.modelBatch,
             camera,
             applyEnvironment = true,
             renderParticleEffects = true
         )
+        batches.modelBatch.begin(camera)
+        Gdx.gl.glDepthMask(false)
+        for (entity in relatedEntities.waterWaveEntities) {
+            renderModel(entity, batches.modelBatch, true)
+        }
+        batches.modelBatch.end()
+        Gdx.gl.glDepthMask(true)
         renderCollisionShapes()
         renderDecals(deltaTime)
     }
@@ -107,7 +114,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
 
         val debugDrawingMethod: CollisionShapesDebugDrawing? = gameSessionData.gameSessionDataPhysics.debugDrawingMethod
-        debugDrawingMethod?.drawCollisionShapes(gameSessionData.gameSessionDataRender.camera)
+        debugDrawingMethod?.drawCollisionShapes(gameSessionData.renderData.camera)
     }
 
     override fun resume(delta: Long) {
@@ -115,7 +122,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     override fun dispose() {
-        renderSystemBatches.dispose()
+        batches.dispose()
         shadowLight.dispose()
     }
 
@@ -145,17 +152,17 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     private fun renderDecals(deltaTime: Float) {
         Gdx.gl.glDepthMask(false)
-        for (entity in renderSystemRelatedEntities.childEntities) {
+        for (entity in relatedEntities.childEntities) {
             renderChildren(entity, deltaTime)
         }
         renderIndependentDecals()
-        renderSystemBatches.decalBatch.flush()
+        batches.decalBatch.flush()
         Gdx.gl.glDepthMask(true)
     }
 
     private fun renderIndependentDecals() {
-        for (entity in renderSystemRelatedEntities.decalEntities) {
-            val independentDecalsToRemove = renderSystemRelatedEntities.independentDecalsToRemove
+        for (entity in relatedEntities.decalEntities) {
+            val independentDecalsToRemove = relatedEntities.independentDecalsToRemove
             independentDecalsToRemove.clear()
             val independentDecalComponent = ComponentsMapper.independentDecal.get(entity)
             if (independentDecalComponent.ttl <= TimeUtils.millis()) {
@@ -163,7 +170,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
             } else {
                 val decal = independentDecalComponent.decal
                 faceDecalToCamera(decal)
-                renderSystemBatches.decalBatch.add(decal)
+                batches.decalBatch.add(decal)
             }
         }
 
@@ -178,12 +185,12 @@ class RenderSystem : GameEntitySystem(), Disposable {
         val center: Vector3 =
             gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
         val dims: Vector3 = auxBox.getDimensions(auxVector3_2).scl(4.7F)
-        return if (gameModelInstance.sphere) gameSessionData.gameSessionDataRender.camera.frustum.sphereInFrustum(
+        return if (gameModelInstance.sphere) gameSessionData.renderData.camera.frustum.sphereInFrustum(
             gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_3
             ), dims.len2() / 2F
         )
-        else gameSessionData.gameSessionDataRender.camera.frustum.boundsInFrustum(center, dims)
+        else gameSessionData.renderData.camera.frustum.boundsInFrustum(center, dims)
     }
 
     private fun renderModels(
@@ -194,24 +201,24 @@ class RenderSystem : GameEntitySystem(), Disposable {
     ) {
         batch.begin(camera)
         axisModelHandler.render(batch)
-        for (entity in renderSystemRelatedEntities.modelInstanceEntities) {
+        for (entity in relatedEntities.modelInstanceEntities) {
             renderModel(entity, batch, applyEnvironment)
         }
         if (!GameDebugSettings.HIDE_FLOOR) {
             if (applyEnvironment) {
-                batch.render(gameSessionData.gameSessionDataRender.modelCache, environment)
+                batch.render(gameSessionData.renderData.modelCache, environment)
             } else {
-                batch.render(gameSessionData.gameSessionDataRender.modelCache)
+                batch.render(gameSessionData.renderData.modelCache)
             }
         }
         if (renderParticleEffects) {
-            renderSystemBatches.modelBatch.render(gameSessionData.gameSessionDataRender.particleSystem, environment)
+            batches.modelBatch.render(gameSessionData.renderData.particleSystem, environment)
         }
         batch.end()
     }
 
     private fun faceDecalToCamera(decal: Decal) {
-        val camera = gameSessionData.gameSessionDataRender.camera
+        val camera = gameSessionData.renderData.camera
         decal.lookAt(auxVector3_1.set(decal.position).sub(camera.direction), camera.up)
     }
 
@@ -259,7 +266,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         child.decal.rotateZ(child.rotationStep.angleDeg())
         child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
         child.decal.position = parentPosition
-        renderSystemBatches.decalBatch.add(child.decal)
+        batches.decalBatch.add(child.decal)
     }
 
     companion object {

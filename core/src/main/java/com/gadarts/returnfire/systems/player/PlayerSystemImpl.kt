@@ -173,7 +173,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             managers.dispatcher,
             gameSessionData.player
         )
-        playerMovementHandler.initialize(gameSessionData.gameSessionDataRender.camera)
+        playerMovementHandler.initialize(gameSessionData.renderData.camera)
     }
 
     private fun initInputMethod() {
@@ -303,9 +303,9 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 managers.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
                 SEC_RELOAD_DUR,
                 SEC_BULLET_SPEED,
-                managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width,
+                managers.assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE).width,
                 ParticleEffectDefinition.EXPLOSION_GROUND,
-                ModelDefinition.BULLET
+                ModelDefinition.MISSILE
             ),
         )
         return entityBuilder
@@ -332,7 +332,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         private const val PROP_SIZE = 1.5F
         private const val PRI_BULLET_SPEED = 16F
         private const val SEC_BULLET_SPEED = 5F
-        private const val SECONDARY_POSITION_BIAS = 0.3F
+        private const val SECONDARY_POSITION_BIAS = 0.2F
         private const val PLAYER_HEIGHT = 3.9F
     }
 
