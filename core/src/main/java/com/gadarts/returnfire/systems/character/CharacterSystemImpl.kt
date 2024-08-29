@@ -17,7 +17,6 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -109,23 +108,16 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     }
 
     override fun createBullet(
-        armProperties: ArmProperties,
+        arm: ArmComponent,
         relativePosition: Vector3,
-        spark: Entity,
     ) {
-        val sparkComponent = ComponentsMapper.spark.get(spark)
-        val sparkModelInstanceComponent = ComponentsMapper.modelInstance.get(spark)
-        val sparkTransform = sparkModelInstanceComponent.gameModelInstance.modelInstance.transform
+        val armProperties = arm.armProperties
+        val spark = arm.spark
         val parentTransform =
-            ComponentsMapper.modelInstance.get(sparkComponent.parent).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(ComponentsMapper.spark.get(spark).parent).gameModelInstance.modelInstance.transform
         val position = parentTransform.getTranslation(auxVector1)
         position.add(relativePosition)
-        sparkTransform.setToTranslation(position).rotate(parentTransform.getRotation(auxQuat)).rotate(Vector3.Z, -30F)
-        sparkTransform.rotate(
-            Vector3.X, MathUtils.random(360F)
-        )
-        sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 50L
-        sparkModelInstanceComponent.hidden = false
+        showSpark(spark, position, parentTransform)
         val gameModelInstance =
             gameSessionData.pools.gameModelInstancePools[armProperties.modelDefinition]!!.obtain()
         val bullet = EntityBuilder.begin()
@@ -136,6 +128,34 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             )
             .finishAndAddToEngine()
         applyPhysicsToBullet(armProperties.radius, bullet, gameModelInstance, parentTransform, armProperties.speed)
+        if (armProperties.smokeEmit != null) {
+            EntityBuilder.begin().addParticleEffectComponent(
+                position.sub(
+                    auxVector2.set(Vector3.X).rotate(
+                        Vector3.Y,
+                        gameModelInstance.modelInstance.transform.getRotation(
+                            auxQuat
+                        ).yaw
+                    ).scl(0.25F)
+                ),
+                armProperties.smokeEmit
+            ).finishAndAddToEngine()
+        }
+    }
+
+    private fun showSpark(
+        spark: Entity,
+        position: Vector3?,
+        parentTransform: Matrix4
+    ) {
+        val sparkModelInstanceComponent = ComponentsMapper.modelInstance.get(spark)
+        val sparkTransform = sparkModelInstanceComponent.gameModelInstance.modelInstance.transform
+        sparkTransform.setToTranslation(position).rotate(parentTransform.getRotation(auxQuat)).rotate(Vector3.Z, -30F)
+        sparkTransform.rotate(
+            Vector3.X, MathUtils.random(360F)
+        )
+        sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 50L
+        sparkModelInstanceComponent.hidden = false
     }
 
     private fun applyPhysicsToBullet(
@@ -159,7 +179,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         )
         val physicsComponent = ComponentsMapper.physics.get(bullet)
         physicsComponent.rigidBody.linearVelocity =
-            gameModelInstance.modelInstance.transform.getRotation(auxQuat).transform(auxVector1.set(1F, 0F, 0F))
+            gameModelInstance.modelInstance.transform.getRotation(auxQuat).transform(auxVector2.set(1F, 0F, 0F))
                 .scl(speed)
         physicsComponent.rigidBody.worldTransform = gameModelInstance.modelInstance.transform
         physicsComponent.rigidBody.gravity = Vector3.Zero
@@ -169,6 +189,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     companion object {
         private val auxVector1 = Vector3()
+        private val auxVector2 = Vector3()
         private val auxQuat = Quaternion()
     }
 

@@ -27,9 +27,8 @@ abstract class CharacterSystemOnPlayerWeaponShot(private val characterSystem: Ch
         )
         val armProperties = arm.armProperties
         characterSystem.createBullet(
-            armProperties,
+            arm,
             relativePosition,
-            arm.spark
         )
         managers.soundPlayer.playPositionalSound(
             armProperties.shootingSound,
