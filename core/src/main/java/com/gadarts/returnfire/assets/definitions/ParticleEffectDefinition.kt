@@ -9,7 +9,8 @@ enum class ParticleEffectDefinition(fileNames: Int = 1) : AssetDefinition<Partic
     SMOKE,
     SMOKE_SMALL,
     SMOKE_EMIT,
-    WATER_SPLASH;
+    WATER_SPLASH,
+    SPARK_SMALL;
 
     private val paths = ArrayList<String>()
     private val pathFormat = "particles/%s.pfx"

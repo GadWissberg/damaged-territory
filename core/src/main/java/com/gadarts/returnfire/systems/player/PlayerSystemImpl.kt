@@ -257,7 +257,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F,
                 ParticleEffectDefinition.SMOKE_SMALL,
                 ModelDefinition.BULLET,
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT)
+                null,
+                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL)
             ),
         )
         return entityBuilder
@@ -284,7 +285,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
             val pos =
                 output.set(
-                    0.2F,
+                    0.5F,
                     0F,
                     if (playerShootingHandler.secondaryCreationSide) 1F else -1F
                 )
@@ -307,7 +308,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 managers.assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE).width,
                 ParticleEffectDefinition.EXPLOSION_GROUND,
                 ModelDefinition.MISSILE,
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT)
+                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
+                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL)
             ),
         )
         return entityBuilder

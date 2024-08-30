@@ -12,5 +12,6 @@ class ArmProperties(
     val radius: Float,
     val explosion: ParticleEffectDefinition,
     val modelDefinition: ModelDefinition,
-    val smokeEmit: GameParticleEffectPool?
+    val smokeEmit: GameParticleEffectPool?,
+    val creationSmoke: GameParticleEffectPool
 )

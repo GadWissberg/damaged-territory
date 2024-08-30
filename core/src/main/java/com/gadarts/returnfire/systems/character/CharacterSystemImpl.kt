@@ -17,6 +17,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -120,26 +121,44 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         showSpark(spark, position, parentTransform)
         val gameModelInstance =
             gameSessionData.pools.gameModelInstancePools[armProperties.modelDefinition]!!.obtain()
-        val bullet = EntityBuilder.begin()
-            .addModelInstanceComponent(gameModelInstance, position, false)
-            .addBulletComponent(
-                PlayerWeaponShotEventData.behavior,
-                armProperties.explosion
+        applyPhysicsToBullet(
+            armProperties.radius, EntityBuilder.begin()
+                .addModelInstanceComponent(gameModelInstance, position, false)
+                .addBulletComponent(
+                    PlayerWeaponShotEventData.behavior,
+                    armProperties.explosion
+                )
+                .finishAndAddToEngine(), gameModelInstance, parentTransform, armProperties.speed
+        )
+        addSmokeEmission(armProperties, gameModelInstance, position)
+        EntityBuilder.begin()
+            .addParticleEffectComponent(
+                position,
+                arm.armProperties.creationSmoke
             )
             .finishAndAddToEngine()
-        applyPhysicsToBullet(armProperties.radius, bullet, gameModelInstance, parentTransform, armProperties.speed)
+    }
+
+    private fun addSmokeEmission(
+        armProperties: ArmProperties,
+        gameModelInstance: GameModelInstance,
+        position: Vector3
+    ) {
         if (armProperties.smokeEmit != null) {
-            EntityBuilder.begin().addParticleEffectComponent(
-                position.sub(
-                    auxVector2.set(Vector3.X).rotate(
-                        Vector3.Y,
-                        gameModelInstance.modelInstance.transform.getRotation(
-                            auxQuat
-                        ).yaw
-                    ).scl(0.25F)
-                ),
-                armProperties.smokeEmit
-            ).finishAndAddToEngine()
+            val yaw = gameModelInstance.modelInstance.transform.getRotation(
+                auxQuat
+            ).yaw
+            EntityBuilder.begin()
+                .addParticleEffectComponent(
+                    auxVector3.set(position).sub(
+                        auxVector2.set(Vector3.X).rotate(
+                            Vector3.Y,
+                            yaw
+                        ).scl(0.25F)
+                    ),
+                    armProperties.smokeEmit,
+                    yaw
+                ).finishAndAddToEngine()
         }
     }
 
@@ -190,6 +209,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
+        private val auxVector3 = Vector3()
         private val auxQuat = Quaternion()
     }
 

@@ -184,6 +184,9 @@
             <key type="filename">../sprites/smoke_0.png</key>
             <key type="filename">../sprites/smoke_1.png</key>
             <key type="filename">../sprites/smoke_2.png</key>
+            <key type="filename">../sprites/spark_0.png</key>
+            <key type="filename">../sprites/spark_1.png</key>
+            <key type="filename">../sprites/spark_2.png</key>
             <key type="filename">../sprites/water_splash.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
@@ -206,6 +209,9 @@
             <filename>../sprites/smoke_1.png</filename>
             <filename>../sprites/smoke_2.png</filename>
             <filename>../sprites/water_splash.png</filename>
+            <filename>../sprites/spark_0.png</filename>
+            <filename>../sprites/spark_1.png</filename>
+            <filename>../sprites/spark_2.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
