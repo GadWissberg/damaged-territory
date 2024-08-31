@@ -162,15 +162,23 @@ class EntityBuilder private constructor() {
     fun addParticleEffectComponent(
         position: Vector3,
         pool: GameParticleEffectPool,
-        rotationAroundY: Float = 0F
+        rotationAroundY: Float = 0F,
+        thisEntityAsParent: Boolean = false
     ): EntityBuilder {
-        val particleEffectComponent = createIndependentParticleEffectComponent(
-            position,
-            engine,
-            pool,
-            rotationAroundY
-
+        val effect: ParticleEffect = pool.obtain()
+        val particleEffectComponent = engine.createComponent(
+            ParticleEffectComponent::class.java
         )
+        particleEffectComponent.init(effect, pool.definition, if (thisEntityAsParent) entity else null)
+        val controllers = effect.controllers
+        for (i in 0 until controllers.size) {
+            val transform = controllers[i].transform
+            transform.idt()
+            transform.setTranslation(position)
+            if (rotationAroundY != 0F) {
+                transform.rotate(Vector3.Y, rotationAroundY)
+            }
+        }
         entity!!.add(particleEffectComponent)
         return instance
     }
@@ -195,28 +203,6 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    private fun createIndependentParticleEffectComponent(
-        position: Vector3,
-        engine: PooledEngine,
-        pool: GameParticleEffectPool,
-        rotationAroundY: Float
-    ): BaseParticleEffectComponent {
-        val effect: ParticleEffect = pool.obtain()
-        val particleEffectComponent = engine.createComponent(
-            IndependentParticleEffectComponent::class.java
-        )
-        particleEffectComponent.init(effect, pool.definition)
-        val controllers = effect.controllers
-        for (i in 0 until controllers.size) {
-            val transform = controllers[i].transform
-            transform.idt()
-            transform.setTranslation(position)
-            if (rotationAroundY != 0F) {
-                transform.rotate(Vector3.Y, rotationAroundY)
-            }
-        }
-        return particleEffectComponent
-    }
 
     fun finish(): Entity {
         val result = entity

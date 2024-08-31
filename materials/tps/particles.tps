@@ -132,7 +132,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename></filename>
+                <filename>particles.txt</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -181,6 +181,12 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
+            <key type="filename">../sprites/explosion_0.png</key>
+            <key type="filename">../sprites/explosion_1.png</key>
+            <key type="filename">../sprites/explosion_2.png</key>
+            <key type="filename">../sprites/explosion_3.png</key>
+            <key type="filename">../sprites/explosion_4.png</key>
+            <key type="filename">../sprites/particle.png</key>
             <key type="filename">../sprites/smoke_0.png</key>
             <key type="filename">../sprites/smoke_1.png</key>
             <key type="filename">../sprites/smoke_2.png</key>
@@ -212,6 +218,12 @@
             <filename>../sprites/spark_0.png</filename>
             <filename>../sprites/spark_1.png</filename>
             <filename>../sprites/spark_2.png</filename>
+            <filename>../sprites/explosion_0.png</filename>
+            <filename>../sprites/explosion_1.png</filename>
+            <filename>../sprites/explosion_2.png</filename>
+            <filename>../sprites/explosion_3.png</filename>
+            <filename>../sprites/explosion_4.png</filename>
+            <filename>../sprites/particle.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

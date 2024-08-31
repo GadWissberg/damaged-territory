@@ -13,5 +13,6 @@ class ArmProperties(
     val explosion: ParticleEffectDefinition,
     val modelDefinition: ModelDefinition,
     val smokeEmit: GameParticleEffectPool?,
-    val creationSmoke: GameParticleEffectPool
+    val sparkParticleEffect: GameParticleEffectPool,
+    val smokeTrail: GameParticleEffectPool?
 )

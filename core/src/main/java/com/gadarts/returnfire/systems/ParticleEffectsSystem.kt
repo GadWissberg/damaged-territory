@@ -11,10 +11,8 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.components.BaseParticleEffectComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.FollowerParticleEffectComponent
-import com.gadarts.returnfire.components.IndependentParticleEffectComponent
+import com.gadarts.returnfire.components.ParticleEffectComponent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
@@ -22,9 +20,8 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 class ParticleEffectsSystem : GameEntitySystem() {
     private val particleEffectsEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
-            Family.one(
-                IndependentParticleEffectComponent::class.java,
-                FollowerParticleEffectComponent::class.java
+            Family.all(
+                ParticleEffectComponent::class.java,
             ).get()
         )
     }
@@ -53,15 +50,21 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
     private fun createEntityListener(): EntityListener {
         return object : EntityListener {
-            override fun entityAdded(entity: Entity?) {
-                if (ComponentsMapper.independentParticleEffect.has(entity)) {
+            override fun entityAdded(entity: Entity) {
+                if (ComponentsMapper.particleEffect.has(entity)) {
                     val effect: ParticleEffect =
-                        ComponentsMapper.independentParticleEffect.get(entity).effect
+                        ComponentsMapper.particleEffect.get(entity).effect
                     playParticleEffect(effect)
                 }
             }
 
-            override fun entityRemoved(entity: Entity?) {
+            override fun entityRemoved(entity: Entity) {
+                if (ComponentsMapper.particleEffect.has(entity)) {
+                    val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
+                    if (particleEffectComponent.parent != null) {
+                        removeParticleEffect(entity)
+                    }
+                }
             }
         }
     }
@@ -86,46 +89,36 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
     private fun updateParticleEffectsComponents() {
         for (entity in particleEffectsEntities) {
-            val particleEffectComponent = fetchParticleEffect(entity)
+            val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
             val particleEffect: ParticleEffect =
                 particleEffectComponent.effect
             if (particleEffect.isComplete) {
                 particleEntitiesToRemove.add(entity)
-            } else if (ComponentsMapper.followerParticleEffect.has(entity)) {
-                updateFollower(entity, particleEffectComponent)
+            } else if (particleEffectComponent.parent != null) {
+                ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+                auxMatrix.setToTranslation(auxVector1)
+                particleEffectComponent.effect.setTransform(auxMatrix)
             }
         }
     }
 
-    private fun updateFollower(
-        entity: Entity,
-        particleEffectComponent: BaseParticleEffectComponent
-    ) {
-        ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
-            auxVector1
-        )
-        auxMatrix.setToTranslation(auxVector1)
-        particleEffectComponent.effect.setTransform(auxMatrix)
-    }
-
-    private fun fetchParticleEffect(entity: Entity): BaseParticleEffectComponent =
-        if (ComponentsMapper.independentParticleEffect.has(entity)) ComponentsMapper.independentParticleEffect.get(
-            entity
-        ) else ComponentsMapper.followerParticleEffect.get(entity)
 
     private fun removeParticleEffectsMarkedToBeRemoved() {
         for (entity in particleEntitiesToRemove) {
-            val particleEffect = fetchParticleEffect(entity).effect
-            particleEffect.reset()
-            gameSessionData.renderData.particleSystem.remove(particleEffect)
-            gameSessionData.pools.particleEffectsPools.obtain(ComponentsMapper.independentParticleEffect.get(entity).definition)
-                .free(particleEffect)
-            if (ComponentsMapper.independentParticleEffect.has(entity)) {
-                entity.remove(IndependentParticleEffectComponent::class.java)
-            } else {
-                entity.remove(FollowerParticleEffectComponent::class.java)
-            }
+            removeParticleEffect(entity)
+            engine.removeEntity(entity)
         }
+    }
+
+    private fun removeParticleEffect(entity: Entity) {
+        val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
+        val particleEffect = particleEffectComponent.effect
+        particleEffect.reset()
+        gameSessionData.renderData.particleSystem.remove(particleEffect)
+        gameSessionData.pools.particleEffectsPools.obtain(particleEffectComponent.definition)
+            .free(particleEffect)
     }
 
     private fun updateSystem(deltaTime: Float) {

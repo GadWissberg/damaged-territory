@@ -6,8 +6,10 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 enum class ParticleEffectDefinition(fileNames: Int = 1) : AssetDefinition<ParticleEffect> {
 
     EXPLOSION_GROUND,
+    EXPLOSION_SMALL,
     SMOKE,
     SMOKE_SMALL,
+    SMOKE_SMALL_LOOP,
     SMOKE_EMIT,
     WATER_SPLASH,
     SPARK_SMALL;

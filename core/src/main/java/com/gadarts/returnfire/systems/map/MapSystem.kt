@@ -161,11 +161,12 @@ class MapSystem : GameEntitySystem() {
         }
         waterSplashEntitiesToRemove.clear()
         for (entity in waterSplashEntities) {
-            if (TimeUtils.timeSinceMillis(ComponentsMapper.waterWave.get(entity).creationTime) > 1000L) {
+            val waterWaveComponent = ComponentsMapper.waterWave.get(entity)
+            if (TimeUtils.timeSinceMillis(waterWaveComponent.creationTime) > 2000L) {
                 waterSplashEntitiesToRemove.add(entity)
             } else {
                 val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance
-                modelInstance.transform.scl(1.01F, 1.01F, 1.01F)
+                modelInstance.transform.scl(waterWaveComponent.scalePace)
                 val blendAttribute = modelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
                 blendAttribute.opacity -= 0.01F
             }

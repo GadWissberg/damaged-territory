@@ -121,20 +121,45 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         showSpark(spark, position, parentTransform)
         val gameModelInstance =
             gameSessionData.pools.gameModelInstancePools[armProperties.modelDefinition]!!.obtain()
+        val entityBuilder = EntityBuilder.begin()
+            .addModelInstanceComponent(gameModelInstance, position, false)
+            .addBulletComponent(
+                PlayerWeaponShotEventData.behavior,
+                armProperties.explosion
+            )
+        addSmokeTrail(arm, entityBuilder, position)
+        val bullet = entityBuilder.finishAndAddToEngine()
         applyPhysicsToBullet(
-            armProperties.radius, EntityBuilder.begin()
-                .addModelInstanceComponent(gameModelInstance, position, false)
-                .addBulletComponent(
-                    PlayerWeaponShotEventData.behavior,
-                    armProperties.explosion
-                )
-                .finishAndAddToEngine(), gameModelInstance, parentTransform, armProperties.speed
+            armProperties.radius,
+            bullet,
+            gameModelInstance,
+            parentTransform,
+            armProperties.speed
         )
         addSmokeEmission(armProperties, gameModelInstance, position)
+        addSparkParticleEffect(position, arm)
+    }
+
+    private fun addSmokeTrail(
+        arm: ArmComponent,
+        entityBuilder: EntityBuilder,
+        position: Vector3
+    ) {
+        if (arm.armProperties.smokeTrail != null) {
+            entityBuilder
+                .addParticleEffectComponent(
+                    position = position,
+                    pool = arm.armProperties.smokeTrail!!,
+                    thisEntityAsParent = true
+                )
+        }
+    }
+
+    private fun addSparkParticleEffect(position: Vector3, arm: ArmComponent) {
         EntityBuilder.begin()
             .addParticleEffectComponent(
                 position,
-                arm.armProperties.creationSmoke
+                arm.armProperties.sparkParticleEffect
             )
             .finishAndAddToEngine()
     }

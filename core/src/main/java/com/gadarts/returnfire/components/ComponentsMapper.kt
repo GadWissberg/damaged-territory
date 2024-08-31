@@ -27,10 +27,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(AmbComponent::class.java)
     val independentDecal: ComponentMapper<IndependentDecalComponent> =
         ComponentMapper.getFor(IndependentDecalComponent::class.java)
-    val independentParticleEffect: ComponentMapper<IndependentParticleEffectComponent> =
-        ComponentMapper.getFor(IndependentParticleEffectComponent::class.java)
-    val followerParticleEffect: ComponentMapper<FollowerParticleEffectComponent> =
-        ComponentMapper.getFor(FollowerParticleEffectComponent::class.java)
+    val particleEffect: ComponentMapper<ParticleEffectComponent> =
+        ComponentMapper.getFor(ParticleEffectComponent::class.java)
     val animatedTexture: ComponentMapper<AnimatedTextureComponent> =
         ComponentMapper.getFor(AnimatedTextureComponent::class.java)
     val physics: ComponentMapper<PhysicsComponent> =
