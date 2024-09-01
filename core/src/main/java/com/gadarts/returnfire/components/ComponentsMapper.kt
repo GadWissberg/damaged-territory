@@ -39,7 +39,7 @@ object ComponentsMapper {
         ComponentMapper.getFor(SparkComponent::class.java)
     val ground: ComponentMapper<GroundComponent> =
         ComponentMapper.getFor(GroundComponent::class.java)
-    val waterWave: ComponentMapper<WaterWaveComponent> =
-        ComponentMapper.getFor(WaterWaveComponent::class.java)
+    val waterWave: ComponentMapper<GroundBlastComponent> =
+        ComponentMapper.getFor(GroundBlastComponent::class.java)
 
 }

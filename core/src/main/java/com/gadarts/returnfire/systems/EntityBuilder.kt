@@ -190,10 +190,10 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addWaterWaveComponent(): EntityBuilder {
-        val waterWaveComponent = engine.createComponent(WaterWaveComponent::class.java)
-        waterWaveComponent.init()
-        entity!!.add(waterWaveComponent)
+    fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilder {
+        val groundBlastComponent = engine.createComponent(GroundBlastComponent::class.java)
+        groundBlastComponent.init(scalePace, duration, fadeOutPace)
+        entity!!.add(groundBlastComponent)
         return instance
     }
 

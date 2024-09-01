@@ -4,9 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.VertexAttributes.Usage.Normal
-import com.badlogic.gdx.graphics.VertexAttributes.Usage.Position
-import com.badlogic.gdx.graphics.VertexAttributes.Usage.TextureCoordinates
+import com.badlogic.gdx.graphics.VertexAttributes.Usage.*
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute

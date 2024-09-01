@@ -23,9 +23,9 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.GroundBlastComponent
 import com.gadarts.returnfire.components.GroundComponent
 import com.gadarts.returnfire.components.IndependentDecalComponent
-import com.gadarts.returnfire.components.WaterWaveComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
@@ -41,12 +41,12 @@ class RenderSystem : GameEntitySystem(), Disposable {
         RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
                 Family.all(ModelInstanceComponent::class.java)
-                    .exclude(GroundComponent::class.java, WaterWaveComponent::class.java)
+                    .exclude(GroundComponent::class.java, GroundBlastComponent::class.java)
                     .get()
             ),
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get()),
-            engine.getEntitiesFor(Family.all(WaterWaveComponent::class.java).get())
+            engine.getEntitiesFor(Family.all(GroundBlastComponent::class.java).get())
         )
     }
     private var axisModelHandler = AxisModelHandler()

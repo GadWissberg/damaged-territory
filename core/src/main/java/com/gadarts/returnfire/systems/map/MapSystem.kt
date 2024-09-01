@@ -43,6 +43,7 @@ class MapSystem : GameEntitySystem() {
 
     private val waterSplashSounds by lazy { managers.assetsManager.getAllAssetsByDefinition(SoundDefinition.WATER_SPLASH) }
     private val waterSplashFloorTexture: Texture by lazy { managers.assetsManager.getTexture("water_splash_floor") }
+    private val blastRingTexture: Texture by lazy { managers.assetsManager.getTexture("blast_ring") }
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
     private val ambSoundsHandler = AmbSoundsHandler()
     private var groundTextureAnimationStateTime = 0F
@@ -57,7 +58,7 @@ class MapSystem : GameEntitySystem() {
     private val waterSplashEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(
-                WaterWaveComponent::class.java,
+                GroundBlastComponent::class.java,
             ).get()
         )
     }
@@ -100,6 +101,9 @@ class MapSystem : GameEntitySystem() {
                             explosion,
                         )
                     ).finishAndAddToEngine()
+                if (explosion.hasBlastRing) {
+                    addGroundBlast(position, blastRingTexture, 0.1F, 1.2F, 250, 0.03F)
+                }
             }
         }
     }
@@ -112,21 +116,32 @@ class MapSystem : GameEntitySystem() {
                     ParticleEffectDefinition.WATER_SPLASH
                 )
             ).finishAndAddToEngine()
-        val gameModelInstance = gameSessionData.waterWavePool.obtain()
         managers.soundPlayer.play(
             waterSplashSounds.random(),
         )
+        addGroundBlast(position, waterSplashFloorTexture, 0.5F, 1.01F, 2000, 0.01F)
+    }
+
+    private fun addGroundBlast(
+        position: Vector3,
+        texture: Texture,
+        startingScale: Float,
+        scalePace: Float,
+        duration: Int,
+        fadeOutPace: Float
+    ) {
+        val gameModelInstance = gameSessionData.groundBlastPool.obtain()
         val material = gameModelInstance.modelInstance.materials.get(0)
         val blendingAttribute = material.get(BlendingAttribute.Type) as BlendingAttribute
         blendingAttribute.opacity = 1F
         val textureAttribute =
             material.get(TextureAttribute.Diffuse) as TextureAttribute
-        textureAttribute.textureDescription.texture = waterSplashFloorTexture
+        textureAttribute.textureDescription.texture = texture
         EntityBuilder.begin()
             .addModelInstanceComponent(gameModelInstance, position, false)
-            .addWaterWaveComponent()
+            .addGroundBlastComponent(scalePace, duration, fadeOutPace)
             .finishAndAddToEngine()
-        gameModelInstance.modelInstance.transform.scl(0.5F)
+        gameModelInstance.modelInstance.transform.scl(startingScale)
     }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
@@ -161,19 +176,19 @@ class MapSystem : GameEntitySystem() {
         }
         waterSplashEntitiesToRemove.clear()
         for (entity in waterSplashEntities) {
-            val waterWaveComponent = ComponentsMapper.waterWave.get(entity)
-            if (TimeUtils.timeSinceMillis(waterWaveComponent.creationTime) > 2000L) {
+            val groundBlastComponent = ComponentsMapper.waterWave.get(entity)
+            if (TimeUtils.timeSinceMillis(groundBlastComponent.creationTime) > groundBlastComponent.duration) {
                 waterSplashEntitiesToRemove.add(entity)
             } else {
                 val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance
-                modelInstance.transform.scl(waterWaveComponent.scalePace)
+                modelInstance.transform.scl(groundBlastComponent.scalePace)
                 val blendAttribute = modelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
-                blendAttribute.opacity -= 0.01F
+                blendAttribute.opacity -= groundBlastComponent.fadeOutPace
             }
         }
         while (!waterSplashEntitiesToRemove.isEmpty) {
             val entity = waterSplashEntitiesToRemove.removeIndex(0)
-            gameSessionData.waterWavePool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
+            gameSessionData.groundBlastPool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
             engine.removeEntity(entity)
         }
     }

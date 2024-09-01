@@ -22,7 +22,7 @@ class GameSessionData(
     val gameSessionDataHud = GameSessionDataHud(assetsManager)
     val pools = GameSessionDataPools(assetsManager)
     val renderData = GameSessionDataRender()
-    val waterWavePool = object : Pool<GameModelInstance>() {
+    val groundBlastPool = object : Pool<GameModelInstance>() {
         override fun newObject(): GameModelInstance {
             return GameModelInstance(ModelInstance(floorModel), null)
         }

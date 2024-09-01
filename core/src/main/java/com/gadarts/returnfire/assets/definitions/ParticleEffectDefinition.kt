@@ -3,10 +3,11 @@ package com.gadarts.returnfire.assets.definitions
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 
-enum class ParticleEffectDefinition(fileNames: Int = 1) : AssetDefinition<ParticleEffect> {
+enum class ParticleEffectDefinition(fileNames: Int = 1, val hasBlastRing: Boolean = false) :
+    AssetDefinition<ParticleEffect> {
 
-    EXPLOSION_GROUND,
-    EXPLOSION_SMALL,
+    EXPLOSION_GROUND(hasBlastRing = true),
+    EXPLOSION_SMALL(hasBlastRing = true),
     SMOKE,
     SMOKE_SMALL,
     SMOKE_SMALL_LOOP,
