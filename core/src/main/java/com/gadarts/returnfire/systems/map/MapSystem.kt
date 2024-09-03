@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -24,8 +23,6 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -37,13 +34,9 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class MapSystem : GameEntitySystem() {
 
-    private val waterSplashSounds by lazy { managers.assetsManager.getAllAssetsByDefinition(SoundDefinition.WATER_SPLASH) }
-    private val waterSplashFloorTexture: Texture by lazy { managers.assetsManager.getTexture("water_splash_floor") }
-    private val blastRingTexture: Texture by lazy { managers.assetsManager.getTexture("blast_ring") }
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
     private val ambSoundsHandler = AmbSoundsHandler()
     private var groundTextureAnimationStateTime = 0F
@@ -62,10 +55,6 @@ class MapSystem : GameEntitySystem() {
             ).get()
         )
     }
-    private val floors: Array<Array<Entity?>> by lazy {
-        val tilesMapping = gameSessionData.currentMap.tilesMapping
-        Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
-    }
     private val ambEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(AmbComponent::class.java).get()
@@ -73,79 +62,13 @@ class MapSystem : GameEntitySystem() {
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
-        mapOf(SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                handleCollisionBulletAndGround(PhysicsCollisionEventData.colObj0, PhysicsCollisionEventData.colObj1)
-            }
-        }
+        mapOf()
 
-        )
-
-    private fun handleCollisionBulletAndGround(
-        collisionObject0: btCollisionObject, collisionObject1: btCollisionObject
-    ) {
-        val bullet = collisionObject0.userData as Entity
-        if (ComponentsMapper.bullet.has(bullet) && ComponentsMapper.ground.has(collisionObject1.userData as Entity)) {
-            val position =
-                ComponentsMapper.modelInstance.get(bullet).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector1
-                )
-            if (ComponentsMapper.ground.get(floors[position.z.toInt()][position.x.toInt()]).water) {
-                addWaterSplash(position)
-            } else {
-                val explosion = ComponentsMapper.bullet.get(bullet).explosion
-                EntityBuilder.begin()
-                    .addParticleEffectComponent(
-                        position,
-                        gameSessionData.pools.particleEffectsPools.obtain(
-                            explosion,
-                        )
-                    ).finishAndAddToEngine()
-                if (explosion.hasBlastRing) {
-                    addGroundBlast(position, blastRingTexture, 0.1F, 1.2F, 250, 0.03F)
-                }
-            }
-        }
-    }
-
-    private fun addWaterSplash(position: Vector3) {
-        EntityBuilder.begin()
-            .addParticleEffectComponent(
-                position,
-                gameSessionData.pools.particleEffectsPools.obtain(
-                    ParticleEffectDefinition.WATER_SPLASH
-                )
-            ).finishAndAddToEngine()
-        managers.soundPlayer.play(
-            waterSplashSounds.random(),
-        )
-        addGroundBlast(position, waterSplashFloorTexture, 0.5F, 1.01F, 2000, 0.01F)
-    }
-
-    private fun addGroundBlast(
-        position: Vector3,
-        texture: Texture,
-        startingScale: Float,
-        scalePace: Float,
-        duration: Int,
-        fadeOutPace: Float
-    ) {
-        val gameModelInstance = gameSessionData.groundBlastPool.obtain()
-        val material = gameModelInstance.modelInstance.materials.get(0)
-        val blendingAttribute = material.get(BlendingAttribute.Type) as BlendingAttribute
-        blendingAttribute.opacity = 1F
-        val textureAttribute =
-            material.get(TextureAttribute.Diffuse) as TextureAttribute
-        textureAttribute.textureDescription.texture = texture
-        EntityBuilder.begin()
-            .addModelInstanceComponent(gameModelInstance, position, false)
-            .addGroundBlastComponent(scalePace, duration, fadeOutPace)
-            .finishAndAddToEngine()
-        gameModelInstance.modelInstance.transform.scl(startingScale)
-    }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
+        val tilesMapping = gameSessionData.currentMap.tilesMapping
+        gameSessionData.tilesEntities = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.floorModel = createFloorModel()
         gameSessionData.renderData.modelCache = ModelCache()
         addFloor()
@@ -316,7 +239,7 @@ class MapSystem : GameEntitySystem() {
         if (playerPosition.x.toInt() == col && playerPosition.z.toInt() == row) {
             textureDefinition = texturesDefinitions.definitions["base_door"]
         } else if (isPositionInsideBoundaries(row, col)) {
-            floors[row][col] = entity
+            gameSessionData.tilesEntities[row][col] = entity
             val definitions = managers.assetsManager.getTexturesDefinitions()
             val indexOfFirst =
                 TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.currentMap.tilesMapping[row][col] == c }
@@ -440,14 +363,18 @@ class MapSystem : GameEntitySystem() {
                 )
                 .finishAndAddToEngine()
             val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
-            EntityBuilder.addPhysicsComponent(
-                btBoxShape(
+            val shape = btCompoundShape()
+            shape.addChildShape(
+                auxMatrix.idt().translate(ModelDefinition.TURRET_CANNON.boundingBoxBias), btBoxShape(
                     auxVector1.set(
                         cachedBoundingBox.width / 2F,
                         cachedBoundingBox.height / 2F,
                         cachedBoundingBox.depth / 2F
                     )
-                ),
+                )
+            )
+            EntityBuilder.addPhysicsComponent(
+                shape,
                 entity,
                 managers.dispatcher,
                 modelInstance.transform,

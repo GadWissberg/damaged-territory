@@ -3,8 +3,6 @@ package com.gadarts.returnfire.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -12,14 +10,11 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.EnemyComponent
-import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -28,24 +23,24 @@ class EnemySystem : GameEntitySystem() {
     private val explosionSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION) }
     private val cannonSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                managers: Managers
-            ) {
-                val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
-                val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
-                onCollisionEnemyAndBullet(
-                    entity0,
-                    entity1
-                ) || onCollisionEnemyAndBullet(
-                    entity1,
-                    entity0
-                )
-            }
-
-        }
+//        SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
+//            override fun react(
+//                msg: Telegram,
+//                gameSessionData: GameSessionData,
+//                managers: Managers
+//            ) {
+//                val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
+//                val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
+//                onCollisionEnemyAndBullet(
+//                    entity0,
+//                    entity1
+//                ) || onCollisionEnemyAndBullet(
+//                    entity1,
+//                    entity0
+//                )
+//            }
+//
+//        }
     )
 
     private fun onCollisionEnemyAndBullet(entity0: Entity, entity1: Entity): Boolean {
@@ -69,9 +64,6 @@ class EnemySystem : GameEntitySystem() {
         closestRayResultCallback.collisionFilterGroup = -1
         closestRayResultCallback.collisionFilterMask = -1
         closestRayResultCallback
-    }
-    private val sparkDecalTextureRegion by lazy {
-        TextureRegion(managers.assetsManager.getTexture("spark"))
     }
 
     private val enemyEntities: ImmutableArray<Entity> by lazy {
@@ -140,7 +132,7 @@ class EnemySystem : GameEntitySystem() {
                 createSpark(transform, position, -1F)
                 managers.soundPlayer.play(cannonSound)
                 val collisionObject = auxRay.collisionObject
-                if (collisionObject != null) {
+                if (collisionObject != null && collisionObject.userData != null) {
                     val collisionEntity = collisionObject.userData as Entity
                     if (ComponentsMapper.player.has(collisionEntity)) {
                         EntityBuilder.begin()
@@ -160,11 +152,11 @@ class EnemySystem : GameEntitySystem() {
     }
 
     private fun createSpark(transform: Matrix4, position: Vector3, side: Float) {
-        EntityBuilder.begin().addIndependentDecalComponent(
-            sparkDecalTextureRegion,
-            100L,
-            auxVector4.setZero().add(0.7F, 0F, side * 0.3F).rot(transform).add(position)
-        ).finishAndAddToEngine()
+//        EntityBuilder.begin().addIndependentDecalComponent(
+//            sparkDecalTextureRegion,
+//            100L,
+//            auxVector4.setZero().add(0.7F, 0F, side * 0.3F).rot(transform).add(position)
+//        ).finishAndAddToEngine()
     }
 
     override fun resume(delta: Long) {

@@ -137,10 +137,11 @@ class EntityBuilder private constructor() {
 
     fun addBulletComponent(
         behavior: BulletBehavior,
-        explosion: ParticleEffectDefinition
+        explosion: ParticleEffectDefinition?,
+        explosive: Boolean
     ): EntityBuilder {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
-        bulletComponent.init(behavior, explosion)
+        bulletComponent.init(behavior, explosion, explosive)
         entity!!.add(bulletComponent)
         return instance
     }

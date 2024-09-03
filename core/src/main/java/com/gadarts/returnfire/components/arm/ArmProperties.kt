@@ -10,9 +10,10 @@ class ArmProperties(
     val reloadDuration: Long,
     val speed: Float,
     val radius: Float,
-    val explosion: ParticleEffectDefinition,
+    val explosion: ParticleEffectDefinition?,
     val modelDefinition: ModelDefinition,
     val smokeEmit: GameParticleEffectPool?,
     val sparkParticleEffect: GameParticleEffectPool,
-    val smokeTrail: GameParticleEffectPool?
+    val smokeTrail: GameParticleEffectPool?,
+    val explosive: Boolean
 )

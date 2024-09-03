@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
@@ -14,6 +15,7 @@ import com.badlogic.gdx.physics.bullet.collision.btSphereShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -27,6 +29,7 @@ import com.gadarts.returnfire.systems.character.react.CharacterSystemOnPlayerWea
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnPlayerWeaponShotSecondary
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.events.data.PlayerWeaponShotEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
 
@@ -41,7 +44,31 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY to CharacterSystemOnPlayerWeaponShotPrimary(this),
         SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY to CharacterSystemOnPlayerWeaponShotSecondary(this),
+        SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                handleBulletCharacterCollision(
+                    PhysicsCollisionEventData.colObj0.userData as Entity,
+                    PhysicsCollisionEventData.colObj1.userData as Entity
+                ) || handleBulletCharacterCollision(
+                    PhysicsCollisionEventData.colObj1.userData as Entity,
+                    PhysicsCollisionEventData.colObj0.userData as Entity
+                )
+            }
+        }
+
     )
+
+    private fun handleBulletCharacterCollision(entity0: Entity, entity1: Entity): Boolean {
+        if (ComponentsMapper.bullet.has(entity0) && ComponentsMapper.enemy.has(entity1)) {
+            EntityBuilder.begin().addParticleEffectComponent(
+                ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                ), gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.RICOCHET)
+            ).finishAndAddToEngine()
+            return true
+        }
+        return false
+    }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
@@ -125,7 +152,8 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             .addModelInstanceComponent(gameModelInstance, position, false)
             .addBulletComponent(
                 PlayerWeaponShotEventData.behavior,
-                armProperties.explosion
+                armProperties.explosion,
+                armProperties.explosive
             )
         addSmokeTrail(arm, entityBuilder, position)
         val bullet = entityBuilder.finishAndAddToEngine()

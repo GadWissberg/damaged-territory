@@ -255,11 +255,12 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 PRI_RELOAD_DUR,
                 PRI_BULLET_SPEED,
                 assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F,
-                ParticleEffectDefinition.SMOKE_SMALL,
+                null,
                 ModelDefinition.BULLET,
                 null,
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
-                null
+                null,
+                false
             ),
         )
         return entityBuilder
@@ -311,7 +312,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 ModelDefinition.MISSILE,
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP)
+                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
+                true
             ),
         )
         return entityBuilder

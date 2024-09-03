@@ -13,6 +13,8 @@ import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.assets.definitions.AssetDefinition
@@ -126,10 +128,14 @@ open class GameAssetManager : AssetManager() {
             .forEach { def ->
                 val definitionName = def.getDefinitionName()
                 val model: Model = getAssetByDefinition(def)
+                val boundingBox = model.calculateBoundingBox(BoundingBox())
+                if (!def.boundingBoxScale.epsilonEquals(Vector3(1F, 1F, 1F))) {
+                    boundingBox.mul(auxMatrix.idt().scl(def.boundingBoxScale))
+                }
                 addAsset(
                     BOUNDING_BOX_PREFIX + definitionName,
                     BoundingBox::class.java,
-                    model.calculateBoundingBox(BoundingBox())
+                    boundingBox
                 )
             }
     }
@@ -137,6 +143,7 @@ open class GameAssetManager : AssetManager() {
     inline fun <reified T> getAssetByDefinition(definition: AssetDefinition<T>): T {
         return get(definition.getPaths().random(), T::class.java)
     }
+
     inline fun <reified T> getAllAssetsByDefinition(definition: AssetDefinition<T>): List<T> {
         return definition.getPaths().map { get(it, T::class.java) }
     }
@@ -160,6 +167,7 @@ open class GameAssetManager : AssetManager() {
 
     companion object {
         private val auxBoundingBox = BoundingBox()
+        private val auxMatrix = Matrix4()
         private const val BOUNDING_BOX_PREFIX = "box_"
     }
 }

@@ -22,6 +22,8 @@ class GameSessionData(
     val gameSessionDataHud = GameSessionDataHud(assetsManager)
     val pools = GameSessionDataPools(assetsManager)
     val renderData = GameSessionDataRender()
+    lateinit var tilesEntities: Array<Array<Entity?>>
+
     val groundBlastPool = object : Pool<GameModelInstance>() {
         override fun newObject(): GameModelInstance {
             return GameModelInstance(ModelInstance(floorModel), null)
