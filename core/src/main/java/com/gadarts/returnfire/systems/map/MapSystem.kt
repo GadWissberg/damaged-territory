@@ -27,8 +27,7 @@ import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
-import com.gadarts.returnfire.model.AmbDefinition
-import com.gadarts.returnfire.model.CharactersDefinitions
+import com.gadarts.returnfire.model.*
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -77,7 +76,38 @@ class MapSystem : GameEntitySystem() {
 
     override fun onSystemReady() {
         super.onSystemReady()
-        addAmbEntities(gameSessionData)
+        addAmbEntities()
+        addCharacters()
+    }
+
+    private fun addCharacters() {
+        gameSessionData.currentMap.placedElements.filter {
+            val definition = it.definition
+            definition.getType() == ElementType.CHARACTER && definition != SimpleCharacterDefinition.PLAYER
+        }
+            .forEach {
+                addCharacter(
+                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
+                    it.definition as CharacterDefinition,
+                    it.direction
+                )
+            }
+    }
+
+    private fun addCharacter(position: Vector3, characterDefinition: CharacterDefinition, direction: Int) {
+        val gameModelInstance = createGameModelInstance(characterDefinition.getModelDefinition())
+        val baseEntity = EntityBuilder.begin()
+            .addModelInstanceComponent(
+                gameModelInstance,
+                position,
+                true,
+                direction.toFloat(),
+            )
+            .addCharacterComponent(1).finishAndAddToEngine()
+        val physicsComponent = addPhysicsToStaticObject(baseEntity, gameModelInstance)
+        if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
+            addTurret(physicsComponent)
+        }
     }
 
     override fun resume(delta: Long) {
@@ -120,15 +150,13 @@ class MapSystem : GameEntitySystem() {
         gameSessionData.renderData.modelCache.dispose()
     }
 
-    private fun addAmbEntities(gameSessionData: GameSessionData) {
-        gameSessionData.currentMap.placedElements.forEach {
-            if (it.definition != CharactersDefinitions.PLAYER) {
-                addAmbObject(
-                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
-                    it.definition as AmbDefinition,
-                    it.direction
-                )
-            }
+    private fun addAmbEntities() {
+        gameSessionData.currentMap.placedElements.filter { it.definition.getType() == ElementType.AMB }.forEach {
+            addAmbObject(
+                auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
+                it.definition as AmbDefinition,
+                it.direction
+            )
         }
         applyTransformOnAmbEntities()
     }
@@ -304,14 +332,8 @@ class MapSystem : GameEntitySystem() {
         def: AmbDefinition,
         direction: Int,
     ) {
+        val gameModelInstance = createGameModelInstance(def.getModelDefinition())
         val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
-        val modelDefinition = def.getModelDefinition()
-        val assetsManager = managers.assetsManager
-        assetsManager.getCachedBoundingBox(modelDefinition)
-        val gameModelInstance = GameModelInstance(
-            ModelInstance(assetsManager.getAssetByDefinition(modelDefinition)),
-            definition = modelDefinition
-        )
         val entity = EntityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
@@ -325,66 +347,72 @@ class MapSystem : GameEntitySystem() {
                 def
             )
             .finishAndAddToEngine()
-        val physicsComponent = addPhysicsToAmbObject(modelDefinition, entity, gameModelInstance)
-        addTurret(
-            def, physicsComponent
+        addPhysicsToStaticObject(entity, gameModelInstance)
+    }
+
+    private fun createGameModelInstance(modelDefinition: ModelDefinition): GameModelInstance {
+        val assetsManager = managers.assetsManager
+        assetsManager.getCachedBoundingBox(modelDefinition)
+        val gameModelInstance = GameModelInstance(
+            ModelInstance(assetsManager.getAssetByDefinition(modelDefinition)),
+            definition = modelDefinition
+        )
+        return gameModelInstance
+    }
+
+    private fun addPhysicsToStaticObject(
+        entity: Entity,
+        gameModelInstance: GameModelInstance
+    ): PhysicsComponent {
+        return EntityBuilder.addPhysicsComponent(
+            createShapeForStaticObject(gameModelInstance.definition!!),
+            entity,
+            managers.dispatcher,
+            Matrix4(gameModelInstance.modelInstance.transform),
+            0F,
+            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
         )
     }
 
-    private fun addPhysicsToAmbObject(
-        modelDefinition: ModelDefinition,
-        entity: Entity,
-        gameModelInstance: GameModelInstance
-    ) = EntityBuilder.addPhysicsComponent(
-        createShapeForAmbObject(modelDefinition),
-        entity,
-        managers.dispatcher,
-        Matrix4(gameModelInstance.modelInstance.transform),
-        0F,
-        btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
-    )
-
     private fun addTurret(
-        def: AmbDefinition,
         physicsComponent: PhysicsComponent
     ) {
-        if (def == AmbDefinition.TURRET_CANNON) {
-            val assetsManager = managers.assetsManager
-            val modelInstance =
-                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TURRET_CANNON))
-            val entity = EntityBuilder.begin()
-                .addEnemyComponent()
-                .addModelInstanceComponent(
-                    GameModelInstance(modelInstance, ModelDefinition.TURRET_CANNON),
-                    physicsComponent.rigidBody.worldTransform.getTranslation(
-                        auxVector1
-                    ).add(0F, assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height, 0F),
-                    true,
-                )
-                .finishAndAddToEngine()
-            val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
-            val shape = btCompoundShape()
-            shape.addChildShape(
-                auxMatrix.idt().translate(ModelDefinition.TURRET_CANNON.boundingBoxBias), btBoxShape(
-                    auxVector1.set(
-                        cachedBoundingBox.width / 2F,
-                        cachedBoundingBox.height / 2F,
-                        cachedBoundingBox.depth / 2F
-                    )
+        val assetsManager = managers.assetsManager
+        val modelInstance =
+            ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TURRET_CANNON))
+        val entity = EntityBuilder.begin()
+            .addEnemyComponent()
+            .addModelInstanceComponent(
+                GameModelInstance(modelInstance, ModelDefinition.TURRET_CANNON),
+                physicsComponent.rigidBody.worldTransform.getTranslation(
+                    auxVector1
+                ).add(0F, assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height, 0F),
+                true,
+            )
+            .finishAndAddToEngine()
+        val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
+        val shape = btCompoundShape()
+        shape.addChildShape(
+            auxMatrix.idt().translate(ModelDefinition.TURRET_CANNON.boundingBoxBias), btBoxShape(
+                auxVector1.set(
+                    cachedBoundingBox.width / 2F,
+                    cachedBoundingBox.height / 2F,
+                    cachedBoundingBox.depth / 2F
                 )
             )
-            EntityBuilder.addPhysicsComponent(
-                shape,
-                entity,
-                managers.dispatcher,
-                modelInstance.transform,
-                10F,
-                btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT
-            )
-        }
+        )
+        EntityBuilder.addPhysicsComponent(
+            shape,
+            entity,
+            managers.dispatcher,
+            modelInstance.transform,
+            10F,
+            btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT
+        )
     }
 
-    private fun createShapeForAmbObject(modelDefinition: ModelDefinition): btCompoundShape {
+
+    private fun createShapeForStaticObject(modelDefinition: ModelDefinition): btCompoundShape {
         val shape = btCompoundShape()
         val dimensions = auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition)).getDimensions(
             auxVector3

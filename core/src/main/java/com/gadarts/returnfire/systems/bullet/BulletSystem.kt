@@ -45,6 +45,7 @@ class BulletSystem : GameEntitySystem() {
                     PhysicsCollisionEventData.colObj1.userData as Entity,
                     PhysicsCollisionEventData.colObj0.userData as Entity
                 )
+
             }
         }
     )
@@ -77,9 +78,8 @@ class BulletSystem : GameEntitySystem() {
                 ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
                 )
-            val isTileWater =
-                ComponentsMapper.ground.get(gameSessionData.tilesEntities[position.z.toInt()][position.x.toInt()]).water
-            if (ComponentsMapper.ground.has(entity1) && isTileWater) {
+            val tileEntity = gameSessionData.tilesEntities[position.z.toInt()][position.x.toInt()]
+            if (ComponentsMapper.ground.has(entity1) && ComponentsMapper.ground.get(tileEntity).water) {
                 addWaterSplash(position)
             } else {
                 addBulletExplosion(entity0, position)

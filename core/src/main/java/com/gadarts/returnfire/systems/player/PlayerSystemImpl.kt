@@ -21,8 +21,8 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.model.CharactersDefinitions
 import com.gadarts.returnfire.model.PlacedElement
+import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -155,10 +155,9 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     private fun addPlayer(): Entity {
-        EntityBuilder.initialize(managers.engine)
         val map = managers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
         val placedPlayer =
-            map.placedElements.find { placedElement -> placedElement.definition == CharactersDefinitions.PLAYER }
+            map.placedElements.find { placedElement -> placedElement.definition == SimpleCharacterDefinition.PLAYER }
         val player = createPlayer(placedPlayer!!)
         engine.addEntity(player)
         gameSessionData.player = player

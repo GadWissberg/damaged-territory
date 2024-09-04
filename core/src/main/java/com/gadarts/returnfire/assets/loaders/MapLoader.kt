@@ -56,9 +56,10 @@ class MapLoader(resolver: FileHandleResolver) :
         return elementsJsonArray.map {
             val asJsonObject = it.asJsonObject
             val definitionName = asJsonObject.get(KEY_DEFINITION).asString
-            var definition: ElementsDefinitions? = null
+            var definition: ElementDefinition? = null
+            val allDefinitions = ElementType.entries.flatMap { elementType -> elementType.definitions.toList() }
             try {
-                definition = CharactersDefinitions.valueOf(definitionName)
+                definition = allDefinitions.find { def -> def.getName() == definitionName }
             } catch (e: IllegalArgumentException) {
                 try {
                     definition = AmbDefinition.valueOf(definitionName.uppercase(Locale.ROOT))

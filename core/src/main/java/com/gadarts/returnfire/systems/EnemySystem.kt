@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -20,45 +19,8 @@ import kotlin.math.min
 
 
 class EnemySystem : GameEntitySystem() {
-    private val explosionSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION) }
     private val cannonSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-//        SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
-//            override fun react(
-//                msg: Telegram,
-//                gameSessionData: GameSessionData,
-//                managers: Managers
-//            ) {
-//                val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
-//                val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
-//                onCollisionEnemyAndBullet(
-//                    entity0,
-//                    entity1
-//                ) || onCollisionEnemyAndBullet(
-//                    entity1,
-//                    entity0
-//                )
-//            }
-//
-//        }
-    )
-
-    private fun onCollisionEnemyAndBullet(entity0: Entity, entity1: Entity): Boolean {
-        if (ComponentsMapper.bullet.has(entity0) && ComponentsMapper.enemy.has(entity1)) {
-            ComponentsMapper.enemy.get(entity1).dead = true
-            val rigidBody = ComponentsMapper.physics.get(entity1).rigidBody
-            rigidBody.gravity = auxVector1.set(0F, -9.8F, 0F)
-            rigidBody.collisionFlags = CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK
-            rigidBody.applyCentralImpulse(
-                auxVector1.set(Vector3.X).rotate(Vector3.Z, 90F)
-                    .rotate(Vector3.Y, MathUtils.random(360F)).nor().scl(64F),
-            )
-            managers.soundPlayer.play(explosionSound)
-            return true
-        }
-        return false
-    }
-
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf()
     private val auxRay by lazy {
         val closestRayResultCallback = ClosestRayResultCallback(Vector3(), Vector3())
         closestRayResultCallback.collisionFilterGroup = -1

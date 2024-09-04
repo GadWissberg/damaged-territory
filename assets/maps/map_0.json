@@ -3,297 +3,304 @@
   "elements": [
     {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 8,
       "col": 10
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 9,
       "col": 8
     },
     {
       "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
       "direction": 0,
       "row": 10,
       "col": 21
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 10,
       "col": 24
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 11,
       "col": 11
     },
     {
       "definition": "PLAYER",
+      "type": "CHARACTER",
       "direction": 0,
       "row": 11,
       "col": 12
     },
     {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 11,
+      "col": 13
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 11,
+      "col": 18
+    },
+    {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 11,
       "col": 19
     },
     {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 12,
       "col": 25
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 13,
       "col": 21
     },
     {
       "definition": "BUILDING_FLAG",
+      "type": "AMB",
       "direction": 270,
       "row": 14,
       "col": 25
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 14,
       "col": 39
     },
     {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 15,
       "col": 22
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 15,
       "col": 26
     },
     {
-      "definition": "TURRET_CANNON",
-      "direction": 0,
-      "row": 15,
-      "col": 40
-    },
-    {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 15,
       "col": 41
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 15,
       "col": 43
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 17,
       "col": 23
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 17,
       "col": 24
     },
     {
-      "definition": "TURRET_CANNON",
-      "direction": 0,
-      "row": 17,
-      "col": 29
-    },
-    {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 17,
       "col": 42
     },
     {
       "definition": "BUILDING_FLAG",
+      "type": "AMB",
       "direction": 0,
       "row": 18,
       "col": 23
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 18,
       "col": 27
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 18,
       "col": 28
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 19,
       "col": 27
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 19,
       "col": 44
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 22,
       "col": 40
     },
     {
-      "definition": "TURRET_CANNON",
-      "direction": 0,
-      "row": 23,
-      "col": 17
-    },
-    {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 23,
       "col": 39
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 25,
       "col": 41
     },
     {
-      "definition": "TURRET_CANNON",
-      "direction": 0,
-      "row": 26,
-      "col": 41
-    },
-    {
-      "definition": "TURRET_CANNON",
-      "direction": 0,
-      "row": 27,
-      "col": 23
-    },
-    {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 29,
       "col": 22
     },
     {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 29,
       "col": 26
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 30,
       "col": 41
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 31,
       "col": 39
     },
     {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 32,
       "col": 39
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 32,
       "col": 40
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 33,
       "col": 40
     },
     {
       "definition": "BUILDING_FLAG",
+      "type": "AMB",
       "direction": 180,
       "row": 33,
       "col": 44
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 34,
       "col": 38
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 35,
       "col": 8
     },
     {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 35,
       "col": 12
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 36,
       "col": 6
     },
     {
       "definition": "WATCH_TOWER",
+      "type": "AMB",
       "direction": 0,
       "row": 36,
       "col": 13
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 36,
       "col": 38
     },
     {
       "definition": "PALM_TREE",
+      "type": "AMB",
       "direction": 0,
       "row": 37,
       "col": 7
-    },
-    {
-      "definition": "TURRET_CANNON",
-      "direction": 0,
-      "row": 37,
-      "col": 23
-    },
-    {
-      "definition": "TURRET_CANNON",
-      "direction": 0,
-      "row": 38,
-      "col": 6
-    },
-    {
-      "definition": "TURRET_CANNON",
-      "direction": 0,
-      "row": 39,
-      "col": 40
     }
   ],
   "size": 48

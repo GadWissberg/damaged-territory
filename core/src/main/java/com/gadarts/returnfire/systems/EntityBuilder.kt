@@ -198,12 +198,16 @@ class EntityBuilder private constructor() {
         return instance
     }
 
+    fun addTurretComponent(gameModelInstance: GameModelInstance): EntityBuilder {
+        entity!!.add(TurretComponent())
+        return instance
+    }
+
     fun addEnemyComponent(): EntityBuilder {
         val enemyComponent = engine.createComponent(EnemyComponent::class.java)
         entity!!.add(enemyComponent)
         return instance
     }
-
 
     fun finish(): Entity {
         val result = entity

@@ -9,13 +9,13 @@ const Modes = Object.freeze({
   TILES: Symbol("tiles"),
   OBJECTS: Symbol("objects"),
 });
-const ElementsDefinitions = Object.freeze([
-  "PLAYER",
-  "PALM_TREE",
-  "GUARD_HOUSE",
-  "WATCH_TOWER",
-  "BUILDING_FLAG",
-  "TURRET_CANNON",
+const elementsDefinitions = Object.freeze([
+  { name: "PLAYER", type: "CHARACTER" },
+  { name: "PALM_TREE", type: "AMB" },
+  { name: "GUARD_HOUSE", type: "AMB" },
+  { name: "WATCH_TOWER", type: "AMB" },
+  { name: "BUILDING_FLAG", type: "AMB" },
+  { name: "TURRET_CANNON", type: "CHARACTER" },
 ]);
 const Directions = Object.freeze({ east: 0, north: 90, west: 180, south: 270 });
 const MAP_SIZES = Object.freeze({ small: 48, medium: 96, large: 192 });
@@ -329,6 +329,9 @@ class MapEditor {
               var elementObject = {};
               var object = table.rows[row].cells[col].cellData.object;
               elementObject.definition = object.definition;
+              elementObject.type = elementsDefinitions.find(
+                (obj) => obj.name === object.definition
+              ).type;
               elementObject.direction = object.direction;
               elementObject.row = parseInt(row);
               elementObject.col = parseInt(col);
@@ -373,13 +376,13 @@ class MapEditor {
 
   inflateElementsLeftMenu() {
     var leftMenu = document.getElementById(DIV_ID_LEFT_MENU);
-    ElementsDefinitions.forEach((element) => {
+    elementsDefinitions.forEach((element) => {
       var div = document.createElement("div");
       var radioButton = addRadioButtonForElement(div);
       div.className = CLASS_NAME_GAME_OBJECT_SELECTION;
       var label = document.createElement("label");
       label.for = radioButton.id;
-      label.appendChild(document.createTextNode(element));
+      label.appendChild(document.createTextNode(element.name));
       div.appendChild(label);
       leftMenu.appendChild(div);
 
@@ -388,7 +391,8 @@ class MapEditor {
         radioButton.type = "radio";
         radioButton.className = CLASS_NAME_GAME_OBJECT_RADIO;
         radioButton.name = RADIO_GROUP_NAME_GAME_OBJECT_SELECTIONS;
-        radioButton.value = element;
+        radioButton.value = element.name;
+        radioButton.valueObject = element;
         radioButton.id = "element_selection_" + element;
         div.appendChild(radioButton);
         return radioButton;
@@ -450,7 +454,7 @@ class MapEditor {
           'input[name="' +
             RADIO_GROUP_NAME_GAME_OBJECT_SELECTIONS +
             '"]:checked'
-        ).value;
+        ).valueObject.name;
         self.placeElementObject(cell, selection);
       } else {
         removeElementObject(editor, cell);
