@@ -21,6 +21,7 @@ import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.bullet.react.BulletSystemOnBulletCreationRequest
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
@@ -47,8 +48,10 @@ class BulletSystem : GameEntitySystem() {
                 )
 
             }
-        }
+        },
+        SystemEvents.BULLET_CREATION_REQUEST to BulletSystemOnBulletCreationRequest()
     )
+
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)

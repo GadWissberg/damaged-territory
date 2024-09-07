@@ -19,6 +19,7 @@ import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmProperties
+import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.PlacedElement
@@ -259,8 +260,10 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 null,
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
                 null,
-                false
+                false,
+                -45F,
             ),
+            BulletBehavior.REGULAR
         )
         return entityBuilder
     }
@@ -314,6 +317,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
                 true
             ),
+            BulletBehavior.CURVE
         )
         return entityBuilder
     }

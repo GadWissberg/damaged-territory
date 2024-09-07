@@ -6,12 +6,13 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.CharacterSystem
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 
-class CharacterSystemOnPlayerWeaponShotPrimary(characterSystem: CharacterSystem) :
-    CharacterSystemOnPlayerWeaponShot(characterSystem),
+class CharacterSystemOnCharacterWeaponShotSecondary(characterSystem: CharacterSystem) :
+    CharacterSystemOnCharacterWeaponShot(characterSystem),
     HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-        shoot(gameSessionData, managers, ComponentsMapper.primaryArm.get(gameSessionData.player))
+        shoot(gameSessionData, managers, ComponentsMapper.secondaryArm.get(CharacterWeaponShotEventData.shooter))
     }
 
 

@@ -23,8 +23,12 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.arm.ArmProperties
+import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.*
@@ -103,7 +107,9 @@ class MapSystem : GameEntitySystem() {
                 true,
                 direction.toFloat(),
             )
-            .addCharacterComponent(1).finishAndAddToEngine()
+            .addCharacterComponent(1)
+            .addEnemyComponent()
+            .finishAndAddToEngine()
         val physicsComponent = addPhysicsToStaticObject(baseEntity, gameModelInstance)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
             addTurret(physicsComponent)
@@ -380,7 +386,24 @@ class MapSystem : GameEntitySystem() {
         val assetsManager = managers.assetsManager
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TURRET_CANNON))
-        val entity = EntityBuilder.begin()
+        val relativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
+            override fun calculate(parent: Entity, output: Vector3): Vector3 {
+                return output.setZero().add(0.7F, 0F, 1F * 0.3F).rot(modelInstance.transform)
+            }
+        }
+        val spark = EntityBuilder.begin()
+            .addModelInstanceComponent(
+                GameModelInstance(
+                    ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)),
+                    ModelDefinition.MACHINE_GUN_SPARK
+                ),
+                Vector3(),
+                true,
+                hidden = true
+            )
+            .addSparkComponent(relativePositionCalculator)
+            .finishAndAddToEngine()
+        val turret = EntityBuilder.begin()
             .addEnemyComponent()
             .addModelInstanceComponent(
                 GameModelInstance(modelInstance, ModelDefinition.TURRET_CANNON),
@@ -388,6 +411,23 @@ class MapSystem : GameEntitySystem() {
                     auxVector1
                 ).add(0F, assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height, 0F),
                 true,
+            )
+            .addTurretComponent()
+            .addPrimaryArmComponent(
+                spark,
+                ArmProperties(
+                    assetsManager.getAssetByDefinition(SoundDefinition.CANNON),
+                    3000L,
+                    10F,
+                    0.5F,
+                    null,
+                    ModelDefinition.MISSILE,
+                    null,
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
+                    null,
+                    true
+                ),
+                BulletBehavior.REGULAR
             )
             .finishAndAddToEngine()
         val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
@@ -403,12 +443,13 @@ class MapSystem : GameEntitySystem() {
         )
         EntityBuilder.addPhysicsComponent(
             shape,
-            entity,
+            turret,
             managers.dispatcher,
             modelInstance.transform,
             10F,
             btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT
         )
+
     }
 
 

@@ -59,14 +59,20 @@ class BulletEngineHandler(
             if (ComponentsMapper.bullet.has(entity)) {
                 gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
                     btRigidBody,
-                    COLLISION_GROUP_GENERAL,
+                    if (ComponentsMapper.bullet.get(entity).friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET,
                     -1
                 )
             } else if (ComponentsMapper.player.has(entity)) {
                 gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_PLAYER,
-                    COLLISION_GROUP_GROUND
+                    COLLISION_GROUP_ENEMY_BULLET
+                )
+            } else if (ComponentsMapper.enemy.has(entity)) {
+                gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
+                    btRigidBody,
+                    COLLISION_GROUP_ENEMY,
+                    COLLISION_GROUP_PLAYER_BULLET
                 )
             } else {
                 gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
@@ -136,8 +142,11 @@ class BulletEngineHandler(
     companion object {
         val auxVector = Vector3()
         const val COLLISION_GROUP_PLAYER = 0x00000001
-        const val COLLISION_GROUP_GENERAL = 0x00000010
-        const val COLLISION_GROUP_GROUND = 0x00000100
+        const val COLLISION_GROUP_ENEMY = 0x00000010
+        const val COLLISION_GROUP_PLAYER_BULLET = 0x00000100
+        const val COLLISION_GROUP_ENEMY_BULLET = 0x00001000
+        const val COLLISION_GROUP_GENERAL = 0x00010000
+        const val COLLISION_GROUP_GROUND = 0x00100000
     }
 
 }

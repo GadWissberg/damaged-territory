@@ -15,5 +15,6 @@ class ArmProperties(
     val smokeEmit: GameParticleEffectPool?,
     val sparkParticleEffect: GameParticleEffectPool,
     val smokeTrail: GameParticleEffectPool?,
-    val explosive: Boolean
+    val explosive: Boolean,
+    val initialRotationAroundZ: Float = 0F
 )

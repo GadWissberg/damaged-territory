@@ -6,14 +6,17 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.CharacterSystem
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
+import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 
-abstract class CharacterSystemOnPlayerWeaponShot(private val characterSystem: CharacterSystem) :
+abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem: CharacterSystem) :
     HandlerOnEvent {
 
     protected fun shoot(
         gameSessionData: GameSessionData,
         managers: Managers,
-        arm: ArmComponent
+        arm: ArmComponent,
     ) {
         val sparkComponent = ComponentsMapper.spark.get(arm.spark)
         val relativePosition = sparkComponent.relativePositionCalculator.calculate(
@@ -25,17 +28,13 @@ abstract class CharacterSystemOnPlayerWeaponShot(private val characterSystem: Ch
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance,
             relativePosition
         )
-        val armProperties = arm.armProperties
-        characterSystem.createBullet(
+        BulletCreationRequestEventData.set(
             arm,
+            ComponentsMapper.player.has(CharacterWeaponShotEventData.shooter),
             relativePosition,
+            CharacterWeaponShotEventData.direction
         )
-        managers.soundPlayer.playPositionalSound(
-            armProperties.shootingSound,
-            randomPitch = false,
-            gameSessionData.player,
-            gameSessionData.renderData.camera
-        )
+        managers.dispatcher.dispatchMessage(SystemEvents.BULLET_CREATION_REQUEST.ordinal)
     }
 
 }

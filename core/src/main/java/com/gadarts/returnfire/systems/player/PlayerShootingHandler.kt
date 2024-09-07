@@ -5,9 +5,8 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.PlayerWeaponShotEventData
+import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 
 class PlayerShootingHandler {
     private lateinit var player: Entity
@@ -30,15 +29,13 @@ class PlayerShootingHandler {
         handleShooting(
             priShooting,
             armComp,
-            SystemEvents.PLAYER_WEAPON_SHOT_PRIMARY,
-            BulletBehavior.REGULAR,
+            SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY,
         )
         armComp = ComponentsMapper.secondaryArm.get(player)
         handleShooting(
             secShooting,
             armComp,
-            SystemEvents.PLAYER_WEAPON_SHOT_SECONDARY,
-            BulletBehavior.CURVE
+            SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY,
         )
     }
 
@@ -46,14 +43,16 @@ class PlayerShootingHandler {
         shooting: Boolean,
         armComp: ArmComponent,
         event: SystemEvents,
-        bulletBehavior: BulletBehavior,
     ) {
         if (!shooting) return
         val now = TimeUtils.millis()
         if (armComp.loaded <= now) {
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
-            PlayerWeaponShotEventData.set(bulletBehavior)
+            CharacterWeaponShotEventData.set(
+                player,
+                ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+            )
             dispatcher.dispatchMessage(event.ordinal)
         }
     }

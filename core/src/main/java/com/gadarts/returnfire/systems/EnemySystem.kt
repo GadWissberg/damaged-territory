@@ -7,13 +7,12 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.EnemyComponent
+import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -21,20 +20,14 @@ import kotlin.math.min
 class EnemySystem : GameEntitySystem() {
     private val cannonSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf()
-    private val auxRay by lazy {
-        val closestRayResultCallback = ClosestRayResultCallback(Vector3(), Vector3())
-        closestRayResultCallback.collisionFilterGroup = -1
-        closestRayResultCallback.collisionFilterMask = -1
-        closestRayResultCallback
-    }
 
-    private val enemyEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(Family.all(EnemyComponent::class.java).get())
+    private val turretEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(Family.all(TurretComponent::class.java).get())
     }
 
 
     override fun update(deltaTime: Float) {
-        for (enemy in enemyEntities) {
+        for (enemy in turretEntities) {
             if (ComponentsMapper.enemy.get(enemy).dead) continue
 
             val transform =
@@ -50,8 +43,9 @@ class EnemySystem : GameEntitySystem() {
         enemy: Entity
     ) {
         val position = transform.getTranslation(auxVector2)
+        val player = gameSessionData.player
         val playerPosition =
-            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
         if (position.dst2(playerPosition) > 90F) return
@@ -85,47 +79,29 @@ class EnemySystem : GameEntitySystem() {
             if (enemyComponent.attackReady) {
                 enemyComponent.attackReady = false
                 enemyComponent.attackReadyTime = now + 3000L
-                gameSessionData.gameSessionDataPhysics.collisionWorld.rayTest(
-                    position,
-                    playerPosition,
-                    auxRay
-                )
-                createSpark(transform, position, 1F)
-                createSpark(transform, position, -1F)
                 managers.soundPlayer.play(cannonSound)
-                val collisionObject = auxRay.collisionObject
-                if (collisionObject != null && collisionObject.userData != null) {
-                    val collisionEntity = collisionObject.userData as Entity
-                    if (ComponentsMapper.player.has(collisionEntity)) {
-                        EntityBuilder.begin()
-                            .addParticleEffectComponent(
-                                playerPosition,
-                                gameSessionData.pools.particleEffectsPools.obtain(
-                                    ParticleEffectDefinition.WATER_SPLASH,
-                                )
-                            )
-                            .finishAndAddToEngine()
-                    }
-                }
+                CharacterWeaponShotEventData.set(
+                    enemy,
+                    auxMatrix.idt().set(
+                        auxQuat.setFromCross(
+                            Vector3.X,
+                            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
+                                auxVector1
+                            ).sub(position).nor()
+                        )
+                    ),
+                )
+                managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY.ordinal)
             } else if (enemyComponent.attackReadyTime <= now) {
                 enemyComponent.attackReady = true
             }
         }
     }
 
-    private fun createSpark(transform: Matrix4, position: Vector3, side: Float) {
-//        EntityBuilder.begin().addIndependentDecalComponent(
-//            sparkDecalTextureRegion,
-//            100L,
-//            auxVector4.setZero().add(0.7F, 0F, side * 0.3F).rot(transform).add(position)
-//        ).finishAndAddToEngine()
-    }
-
     override fun resume(delta: Long) {
     }
 
     override fun dispose() {
-        auxRay.dispose()
     }
 
     companion object {

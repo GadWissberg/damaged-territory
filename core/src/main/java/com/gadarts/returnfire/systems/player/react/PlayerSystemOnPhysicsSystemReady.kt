@@ -24,10 +24,11 @@ class PlayerSystemOnPhysicsSystemReady :
             Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform),
             10F,
 
-        )
+            )
         physicsComponent.rigidBody.gravity = Vector3.Zero
         physicsComponent.rigidBody.setDamping(0F, 0.75F)
         physicsComponent.rigidBody.angularFactor = Vector3.Y
+        physicsComponent.rigidBody.linearFactor = Vector3(1F, 0F, 1F)
     }
 
     private fun createCollisionShape(): btCompoundShape {

@@ -9,7 +9,9 @@ interface CharacterSystem {
     fun createBullet(
         arm: ArmComponent,
         relativePosition: Vector3,
+        friendly: Boolean
     )
+
     fun positionSpark(
         arm: ArmComponent,
         modelInstance: ModelInstance,

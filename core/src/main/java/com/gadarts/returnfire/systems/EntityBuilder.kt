@@ -105,22 +105,26 @@ class EntityBuilder private constructor() {
     fun addPrimaryArmComponent(
         spark: Entity,
         armProperties: ArmProperties,
+        bulletBehavior: BulletBehavior
     ): EntityBuilder {
         return addArmComponent(
             PrimaryArmComponent::class.java,
             spark,
             armProperties,
+            bulletBehavior
         )
     }
 
     fun addSecondaryArmComponent(
         spark: Entity,
         armProperties: ArmProperties,
+        bulletBehavior: BulletBehavior
     ): EntityBuilder {
         return addArmComponent(
             SecondaryArmComponent::class.java,
             spark,
             armProperties,
+            bulletBehavior
         )
     }
 
@@ -128,9 +132,11 @@ class EntityBuilder private constructor() {
         armComponentType: Class<out ArmComponent>,
         spark: Entity,
         armProperties: ArmProperties,
+        bulletBehavior: BulletBehavior
     ): EntityBuilder {
+        ComponentsMapper.spark.get(spark).parent = entity!!
         val armComponent = engine.createComponent(armComponentType)
-        armComponent.init(spark, armProperties)
+        armComponent.init(spark, armProperties, bulletBehavior)
         entity!!.add(armComponent)
         return instance
     }
@@ -138,10 +144,11 @@ class EntityBuilder private constructor() {
     fun addBulletComponent(
         behavior: BulletBehavior,
         explosion: ParticleEffectDefinition?,
-        explosive: Boolean
+        explosive: Boolean,
+        friendly: Boolean
     ): EntityBuilder {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
-        bulletComponent.init(behavior, explosion, explosive)
+        bulletComponent.init(behavior, explosion, explosive, friendly)
         entity!!.add(bulletComponent)
         return instance
     }
@@ -184,7 +191,9 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addSparkComponent(relativePositionCalculator: ArmComponent.RelativePositionCalculator): EntityBuilder {
+    fun addSparkComponent(
+        relativePositionCalculator: ArmComponent.RelativePositionCalculator,
+    ): EntityBuilder {
         val sparkComponent = engine.createComponent(SparkComponent::class.java)
         sparkComponent.init(relativePositionCalculator)
         entity!!.add(sparkComponent)
@@ -198,7 +207,7 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addTurretComponent(gameModelInstance: GameModelInstance): EntityBuilder {
+    fun addTurretComponent(): EntityBuilder {
         entity!!.add(TurretComponent())
         return instance
     }
