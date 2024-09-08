@@ -27,21 +27,20 @@ class EnemySystem : GameEntitySystem() {
 
 
     override fun update(deltaTime: Float) {
-        for (enemy in turretEntities) {
-            if (ComponentsMapper.enemy.get(enemy).dead) continue
+        for (turret in turretEntities) {
+            if (ComponentsMapper.enemy.get(turret).dead) continue
 
-            val transform =
-                ComponentsMapper.modelInstance.get(enemy).gameModelInstance.modelInstance.transform
-
-            attack(transform, deltaTime, enemy)
+            attack(deltaTime, turret)
         }
     }
 
     private fun attack(
-        transform: Matrix4,
         deltaTime: Float,
         enemy: Entity
     ) {
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(enemy)
+        val transform =
+            modelInstanceComponent.gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector2)
         val player = gameSessionData.player
         val playerPosition =

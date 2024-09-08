@@ -13,6 +13,7 @@ enum class ModelDefinition(
 
     APACHE,
     BULLET,
+    CANNON_BULLET,
     MISSILE,
     PALM_TREE(3),
     WATCH_TOWER,
@@ -21,7 +22,8 @@ enum class ModelDefinition(
     FLAG,
     TURRET_CANNON(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
     TURRET_BASE,
-    MACHINE_GUN_SPARK;
+    MACHINE_GUN_SPARK,
+    CANNON_SPARK;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()

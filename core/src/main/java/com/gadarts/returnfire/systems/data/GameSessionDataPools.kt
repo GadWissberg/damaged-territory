@@ -7,18 +7,19 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.systems.player.GameModelInstancePool
 
-class GameSessionDataPools(assetsManager: GameAssetManager) {
+class GameSessionDataPools(private val assetsManager: GameAssetManager) {
     val gameModelInstancePools = mapOf<ModelDefinition, Pool<GameModelInstance>>(
-        ModelDefinition.BULLET to GameModelInstancePool(
-            assetsManager.getAssetByDefinition(ModelDefinition.BULLET),
-            BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.BULLET)),
-            ModelDefinition.BULLET
-        ),
-        ModelDefinition.MISSILE to GameModelInstancePool(
-            assetsManager.getAssetByDefinition(ModelDefinition.MISSILE),
-            BoundingBox(assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE)),
-            ModelDefinition.MISSILE
-        ),
+        ModelDefinition.BULLET to createPool(ModelDefinition.BULLET),
+        ModelDefinition.MISSILE to createPool(ModelDefinition.MISSILE),
+        ModelDefinition.CANNON_BULLET to createPool(ModelDefinition.CANNON_BULLET),
     )
+
     val particleEffectsPools = ParticleEffectsPools(assetsManager)
+
+    private fun createPool(modelDefinition: ModelDefinition) =
+        GameModelInstancePool(
+            assetsManager.getAssetByDefinition(modelDefinition),
+            BoundingBox(assetsManager.getCachedBoundingBox(modelDefinition)),
+            modelDefinition
+        )
 }

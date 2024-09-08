@@ -120,7 +120,7 @@ class BulletSystemOnBulletCreationRequest : HandlerOnEvent {
             bullet,
             dispatcher,
             gameModelInstance.modelInstance.transform,
-            1F
+            0.5F
         )
         gameModelInstance.modelInstance.transform.rotate(aimingTransform.getRotation(auxQuat)).rotate(
             Vector3.Z,

@@ -388,15 +388,18 @@ class MapSystem : GameEntitySystem() {
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TURRET_CANNON))
         val relativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
             override fun calculate(parent: Entity, output: Vector3): Vector3 {
-                return output.setZero().add(0.7F, 0F, 1F * 0.3F).rot(modelInstance.transform)
+                return output.setZero()
+                    .add(0.7F, 0F, ComponentsMapper.turret.get(parent).updateCurrentShootingArm() * 0.3F)
+                    .rot(modelInstance.transform)
             }
         }
+        val model = GameModelInstance(
+            ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK)),
+            ModelDefinition.CANNON_SPARK
+        )
         val spark = EntityBuilder.begin()
             .addModelInstanceComponent(
-                GameModelInstance(
-                    ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)),
-                    ModelDefinition.MACHINE_GUN_SPARK
-                ),
+                model,
                 Vector3(),
                 true,
                 hidden = true
@@ -418,10 +421,10 @@ class MapSystem : GameEntitySystem() {
                 ArmProperties(
                     assetsManager.getAssetByDefinition(SoundDefinition.CANNON),
                     3000L,
-                    10F,
+                    20F,
                     0.5F,
                     null,
-                    ModelDefinition.MISSILE,
+                    ModelDefinition.CANNON_BULLET,
                     null,
                     gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
                     null,
