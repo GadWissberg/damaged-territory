@@ -35,6 +35,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(PhysicsComponent::class.java)
     val enemy: ComponentMapper<EnemyComponent> =
         ComponentMapper.getFor(EnemyComponent::class.java)
+    val character: ComponentMapper<CharacterComponent> =
+        ComponentMapper.getFor(CharacterComponent::class.java)
     val spark: ComponentMapper<SparkComponent> =
         ComponentMapper.getFor(SparkComponent::class.java)
     val ground: ComponentMapper<GroundComponent> =

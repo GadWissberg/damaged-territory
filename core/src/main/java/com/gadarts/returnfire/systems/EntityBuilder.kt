@@ -23,6 +23,7 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.AmbDefinition
+import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.systems.data.GameParticleEffectPool
 import com.gadarts.returnfire.systems.events.SystemEvents
 
@@ -88,9 +89,9 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addCharacterComponent(hp: Int): EntityBuilder {
+    fun addCharacterComponent(definition: CharacterDefinition): EntityBuilder {
         val characterComponent = engine.createComponent(CharacterComponent::class.java)
-        characterComponent.init(hp)
+        characterComponent.init(definition)
         entity!!.add(characterComponent)
         return instance
     }
@@ -145,10 +146,11 @@ class EntityBuilder private constructor() {
         behavior: BulletBehavior,
         explosion: ParticleEffectDefinition?,
         explosive: Boolean,
-        friendly: Boolean
+        friendly: Boolean,
+        damage: Int
     ): EntityBuilder {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
-        bulletComponent.init(behavior, explosion, explosive, friendly)
+        bulletComponent.init(behavior, explosion, explosive, friendly, damage)
         entity!!.add(bulletComponent)
         return instance
     }
@@ -171,13 +173,19 @@ class EntityBuilder private constructor() {
         position: Vector3,
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,
-        thisEntityAsParent: Boolean = false
+        thisEntityAsParent: Boolean = false,
+        parentRelativePosition: Vector3 = Vector3.Zero
     ): EntityBuilder {
         val effect: ParticleEffect = pool.obtain()
         val particleEffectComponent = engine.createComponent(
             ParticleEffectComponent::class.java
         )
-        particleEffectComponent.init(effect, pool.definition, if (thisEntityAsParent) entity else null)
+        particleEffectComponent.init(
+            effect,
+            pool.definition,
+            if (thisEntityAsParent) entity else null,
+            parentRelativePosition
+        )
         val controllers = effect.controllers
         for (i in 0 until controllers.size) {
             val transform = controllers[i].transform
@@ -207,8 +215,10 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addTurretComponent(): EntityBuilder {
-        entity!!.add(TurretComponent())
+    fun addTurretComponent(base: Entity): EntityBuilder {
+        val turretComponent = TurretComponent()
+        turretComponent.init(base)
+        entity!!.add(turretComponent)
         return instance
     }
 

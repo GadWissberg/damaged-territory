@@ -95,10 +95,12 @@ class ParticleEffectsSystem : GameEntitySystem() {
             if (particleEffect.isComplete) {
                 particleEntitiesToRemove.add(entity)
             } else if (particleEffectComponent.parent != null) {
-                ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                val parentTransform =
+                    ComponentsMapper.modelInstance.get(particleEffectComponent.parent).gameModelInstance.modelInstance.transform
+                parentTransform.getTranslation(
                     auxVector1
                 )
-                auxMatrix.setToTranslation(auxVector1)
+                auxMatrix.setToTranslation(auxVector1).trn(particleEffectComponent.parentRelativePosition)
                 particleEffectComponent.effect.setTransform(auxMatrix)
             }
         }

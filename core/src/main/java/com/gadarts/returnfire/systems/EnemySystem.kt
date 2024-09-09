@@ -28,7 +28,7 @@ class EnemySystem : GameEntitySystem() {
 
     override fun update(deltaTime: Float) {
         for (turret in turretEntities) {
-            if (ComponentsMapper.enemy.get(turret).dead) continue
+            if (ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base).dead) continue
 
             attack(deltaTime, turret)
         }

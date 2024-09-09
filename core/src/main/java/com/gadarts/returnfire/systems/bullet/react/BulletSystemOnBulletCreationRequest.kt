@@ -44,7 +44,8 @@ class BulletSystemOnBulletCreationRequest : HandlerOnEvent {
                 armComponent.behavior,
                 armProperties.explosion,
                 armProperties.explosive,
-                BulletCreationRequestEventData.friendly
+                BulletCreationRequestEventData.friendly,
+                armProperties.damage
             )
         addSmokeTrail(armComponent, entityBuilder, position)
         val bullet = entityBuilder.finishAndAddToEngine()

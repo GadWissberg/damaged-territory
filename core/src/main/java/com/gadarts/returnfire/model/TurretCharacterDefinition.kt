@@ -1,15 +1,26 @@
 package com.gadarts.returnfire.model
 
+import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 
 enum class TurretCharacterDefinition(
+    private val hp: Int,
     private val baseModelDefinition: ModelDefinition,
     val turretModelDefinition: ModelDefinition,
+    val smokeEmissionRelativePosition: Vector3,
 ) : CharacterDefinition {
-    TURRET_CANNON(ModelDefinition.TURRET_BASE, ModelDefinition.TURRET_CANNON);
+    TURRET_CANNON(20, ModelDefinition.TURRET_BASE, ModelDefinition.TURRET_CANNON, Vector3(0F, 2F, 0F));
 
     override fun getModelDefinition(): ModelDefinition {
         return baseModelDefinition
+    }
+
+    override fun getSmokeEmissionRelativePosition(output: Vector3): Vector3 {
+        return smokeEmissionRelativePosition
+    }
+
+    override fun getHP(): Int {
+        return hp
     }
 
     override fun getName(): String {

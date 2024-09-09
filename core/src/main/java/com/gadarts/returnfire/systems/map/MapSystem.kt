@@ -107,12 +107,12 @@ class MapSystem : GameEntitySystem() {
                 true,
                 direction.toFloat(),
             )
-            .addCharacterComponent(1)
+            .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON)
             .addEnemyComponent()
             .finishAndAddToEngine()
-        val physicsComponent = addPhysicsToStaticObject(baseEntity, gameModelInstance)
+        addPhysicsToStaticObject(baseEntity, gameModelInstance)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
-            addTurret(physicsComponent)
+            addTurret(baseEntity)
         }
     }
 
@@ -381,7 +381,7 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addTurret(
-        physicsComponent: PhysicsComponent
+        baseEntity: Entity
     ) {
         val assetsManager = managers.assetsManager
         val modelInstance =
@@ -410,15 +410,16 @@ class MapSystem : GameEntitySystem() {
             .addEnemyComponent()
             .addModelInstanceComponent(
                 GameModelInstance(modelInstance, ModelDefinition.TURRET_CANNON),
-                physicsComponent.rigidBody.worldTransform.getTranslation(
+                ComponentsMapper.physics.get(baseEntity).rigidBody.worldTransform.getTranslation(
                     auxVector1
                 ).add(0F, assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height, 0F),
                 true,
             )
-            .addTurretComponent()
+            .addTurretComponent(baseEntity)
             .addPrimaryArmComponent(
                 spark,
                 ArmProperties(
+                    5,
                     assetsManager.getAssetByDefinition(SoundDefinition.CANNON),
                     3000L,
                     20F,

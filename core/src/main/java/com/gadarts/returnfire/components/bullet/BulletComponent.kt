@@ -5,9 +5,14 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.GameComponent
 
 class BulletComponent : GameComponent() {
+    var damage: Int = 0
+        private set
     var friendly: Boolean = false
+        private set
     var explosive: Boolean = false
+        private set
     var explosion: ParticleEffectDefinition? = null
+        private set
     var createdTime: Long = 0
         private set
     lateinit var behavior: BulletBehavior
@@ -17,12 +22,19 @@ class BulletComponent : GameComponent() {
 
     }
 
-    fun init(behavior: BulletBehavior, explosion: ParticleEffectDefinition?, explosive: Boolean, friendly: Boolean) {
+    fun init(
+        behavior: BulletBehavior,
+        explosion: ParticleEffectDefinition?,
+        explosive: Boolean,
+        friendly: Boolean,
+        damage: Int
+    ) {
         this.behavior = behavior
         this.createdTime = TimeUtils.millis()
         this.explosion = explosion
         this.explosive = explosive
         this.friendly = friendly
+        this.damage = damage
     }
 
 }

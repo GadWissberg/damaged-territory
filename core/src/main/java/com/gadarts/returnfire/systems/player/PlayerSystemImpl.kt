@@ -210,7 +210,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         entityBuilder.addAmbSoundComponent(
             propellerSound
         )
-            .addCharacterComponent(INITIAL_HP)
+            .addCharacterComponent(SimpleCharacterDefinition.PLAYER)
             .addPlayerComponent()
         addFirepowerToPlayer(entityBuilder, primarySpark, secondarySpark)
         val player = entityBuilder.finish()
@@ -251,6 +251,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         entityBuilder.addPrimaryArmComponent(
             primarySpark,
             ArmProperties(
+                1,
                 assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN),
                 PRI_RELOAD_DUR,
                 PRI_BULLET_SPEED,
@@ -306,6 +307,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         entityBuilder.addSecondaryArmComponent(
             secondarySpark,
             ArmProperties(
+                10,
                 managers.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
                 SEC_RELOAD_DUR,
                 SEC_BULLET_SPEED,
@@ -336,7 +338,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
 
     companion object {
-        private const val INITIAL_HP = 100
         private val auxVector3_1 = Vector3()
         private const val PRI_RELOAD_DUR = 125L
         private const val SEC_RELOAD_DUR = 2000L

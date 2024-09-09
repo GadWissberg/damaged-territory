@@ -6,6 +6,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.systems.data.GameParticleEffectPool
 
 class ArmProperties(
+    val damage: Int,
     val shootingSound: Sound,
     val reloadDuration: Long,
     val speed: Float,

@@ -6,13 +6,13 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
-import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -30,6 +30,11 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
         engine!!.getEntitiesFor(
             Family.all(AmbSoundComponent::class.java).get()
+        )
+    }
+    private val charactersEntities: ImmutableArray<Entity> by lazy {
+        engine!!.getEntitiesFor(
+            Family.all(CharacterComponent::class.java).get()
         )
     }
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
@@ -50,12 +55,15 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     )
 
     private fun handleBulletCharacterCollision(entity0: Entity, entity1: Entity): Boolean {
-        if (ComponentsMapper.bullet.has(entity0) && ComponentsMapper.enemy.has(entity1)) {
-            EntityBuilder.begin().addParticleEffectComponent(
-                ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector1
-                ), gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.RICOCHET)
-            ).finishAndAddToEngine()
+        if (ComponentsMapper.bullet.has(entity0) && ComponentsMapper.character.has(entity1)) {
+            ComponentsMapper.character.get(entity1).takeDamage(ComponentsMapper.bullet.get(entity0).damage)
+            EntityBuilder.begin()
+                .addParticleEffectComponent(
+                    ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector1
+                    ), gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.RICOCHET)
+                )
+                .finishAndAddToEngine()
             return true
         }
         return false
@@ -99,6 +107,30 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         update3dSound()
+        for (character in charactersEntities) {
+            val characterComponent = ComponentsMapper.character.get(character)
+            val hp = characterComponent.hp
+            if (!characterComponent.dead) {
+                if (hp <= 0) {
+                    characterComponent.die()
+                    if (characterComponent.emitsSmoke != null) {
+                        ComponentsMapper.particleEffect.get(characterComponent.emitsSmoke).parent = null
+                    }
+                } else if (hp <= characterComponent.definition.getHP() / 2F && characterComponent.emitsSmoke == null) {
+                    val smoke = EntityBuilder.begin().addParticleEffectComponent(
+                        position = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                            auxVector1
+                        ),
+                        pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
+                        parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
+                            auxVector2
+                        )
+                    ).finishAndAddToEngine()
+                    ComponentsMapper.particleEffect.get(smoke).parent = character
+                    characterComponent.emitsSmoke = smoke
+                }
+            }
+        }
     }
 
     private fun update3dSound() {
@@ -136,8 +168,6 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
-        private val auxVector3 = Vector3()
-        private val auxQuat = Quaternion()
     }
 
 }
