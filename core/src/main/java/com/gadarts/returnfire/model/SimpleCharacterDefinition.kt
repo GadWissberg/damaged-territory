@@ -7,7 +7,7 @@ enum class SimpleCharacterDefinition(
     private val hp: Int,
     private val modelDefinition: ModelDefinition,
 ) : CharacterDefinition {
-    PLAYER(100, ModelDefinition.APACHE);
+    PLAYER(50, ModelDefinition.APACHE);
 
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition

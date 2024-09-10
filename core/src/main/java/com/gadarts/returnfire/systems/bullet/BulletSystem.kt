@@ -82,7 +82,7 @@ class BulletSystem : GameEntitySystem() {
                     auxVector1
                 )
             val tileEntity = gameSessionData.tilesEntities[position.z.toInt()][position.x.toInt()]
-            if (ComponentsMapper.ground.has(entity1) && ComponentsMapper.ground.get(tileEntity).water) {
+            if (ComponentsMapper.ground.has(entity1) && tileEntity != null && ComponentsMapper.ground.get(tileEntity).water) {
                 addWaterSplash(position)
             } else {
                 addBulletExplosion(entity0, position)
@@ -181,7 +181,6 @@ class BulletSystem : GameEntitySystem() {
     }
 
     private fun destroyBullet(entity: Entity) {
-        ComponentsMapper.modelInstance.get(entity).gameModelInstance
         engine.removeEntity(entity)
     }
 

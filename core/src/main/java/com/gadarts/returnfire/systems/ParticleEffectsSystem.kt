@@ -92,11 +92,16 @@ class ParticleEffectsSystem : GameEntitySystem() {
             val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
             val particleEffect: ParticleEffect =
                 particleEffectComponent.effect
-            if (particleEffect.isComplete) {
+            val parent = particleEffectComponent.parent
+            if ((!particleEffectComponent.definition.loop && particleEffect.isComplete)
+                || (parent != null
+                    && ComponentsMapper.character.has(parent)
+                    && ComponentsMapper.character.get(parent).dead)
+            ) {
                 particleEntitiesToRemove.add(entity)
-            } else if (particleEffectComponent.parent != null) {
+            } else if (parent != null) {
                 val parentTransform =
-                    ComponentsMapper.modelInstance.get(particleEffectComponent.parent).gameModelInstance.modelInstance.transform
+                    ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
                 parentTransform.getTranslation(
                     auxVector1
                 )

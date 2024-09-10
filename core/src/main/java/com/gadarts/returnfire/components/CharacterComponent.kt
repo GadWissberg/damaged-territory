@@ -8,7 +8,7 @@ class CharacterComponent : GameComponent() {
         private set
     lateinit var definition: CharacterDefinition
         private set
-    var emitsSmoke: Entity? = null
+    var smokeEmission: Entity? = null
     var dead: Boolean = false
         private set
 
@@ -18,7 +18,7 @@ class CharacterComponent : GameComponent() {
     fun init(definition: CharacterDefinition) {
         this.hp = definition.getHP()
         this.definition = definition
-        this.emitsSmoke = null
+        this.smokeEmission = null
         this.dead = false
     }
 

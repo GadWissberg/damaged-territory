@@ -111,12 +111,10 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             val characterComponent = ComponentsMapper.character.get(character)
             val hp = characterComponent.hp
             if (!characterComponent.dead) {
+                val smokeEmission = characterComponent.smokeEmission
                 if (hp <= 0) {
                     characterComponent.die()
-                    if (characterComponent.emitsSmoke != null) {
-                        ComponentsMapper.particleEffect.get(characterComponent.emitsSmoke).parent = null
-                    }
-                } else if (hp <= characterComponent.definition.getHP() / 2F && characterComponent.emitsSmoke == null) {
+                } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
                     val smoke = EntityBuilder.begin().addParticleEffectComponent(
                         position = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector1
@@ -127,7 +125,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                         )
                     ).finishAndAddToEngine()
                     ComponentsMapper.particleEffect.get(smoke).parent = character
-                    characterComponent.emitsSmoke = smoke
+                    characterComponent.smokeEmission = smoke
                 }
             }
         }
