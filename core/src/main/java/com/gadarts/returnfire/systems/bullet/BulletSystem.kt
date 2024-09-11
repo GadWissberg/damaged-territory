@@ -88,6 +88,9 @@ class BulletSystem : GameEntitySystem() {
                 addBulletExplosion(entity0, position)
             }
             destroyBullet(entity0)
+            if (ComponentsMapper.bullet.has(entity1)) {
+                destroyBullet(entity1)
+            }
             return true
         }
         return false

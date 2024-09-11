@@ -54,12 +54,19 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     )
 
-    private fun handleBulletCharacterCollision(entity0: Entity, entity1: Entity): Boolean {
-        if (ComponentsMapper.bullet.has(entity0) && ComponentsMapper.character.has(entity1)) {
-            ComponentsMapper.character.get(entity1).takeDamage(ComponentsMapper.bullet.get(entity0).damage)
+    private fun handleBulletCharacterCollision(first: Entity, second: Entity): Boolean {
+        val isSecondCharacter = ComponentsMapper.character.has(second)
+        val isSecondTurret = if (!isSecondCharacter) ComponentsMapper.turret.has(second) else false
+        if (ComponentsMapper.bullet.has(first) && (isSecondCharacter || isSecondTurret)) {
+            val damage = ComponentsMapper.bullet.get(first).damage
+            if (isSecondCharacter) {
+                ComponentsMapper.character.get(second).takeDamage(damage)
+            } else {
+                ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base).takeDamage(damage)
+            }
             EntityBuilder.begin()
                 .addParticleEffectComponent(
-                    ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
+                    ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
                     ), gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.RICOCHET)
                 )
