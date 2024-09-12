@@ -3,14 +3,21 @@ package com.gadarts.returnfire.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.TurretComponent
+import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.model.CharacterType
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 import kotlin.math.abs
@@ -19,7 +26,27 @@ import kotlin.math.min
 
 class EnemySystem : GameEntitySystem() {
     private val cannonSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf()
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                val entity = msg.extraInfo as Entity
+                val characterComponent = ComponentsMapper.character.get(entity)
+                if (characterComponent.definition.getCharacterType() == CharacterType.TURRET) {
+                    val turret = characterComponent.child
+                    val modelInstanceComponent = ComponentsMapper.modelInstance.get(turret)
+                    auxMatrix.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
+                    val randomDeadModel =
+                        if (MathUtils.randomBoolean()) ModelDefinition.TURRET_CANNON_DEAD_0 else ModelDefinition.TURRET_CANNON_DEAD_1
+                    modelInstanceComponent.gameModelInstance = GameModelInstance(
+                        ModelInstance(managers.assetsManager.getAssetByDefinition(randomDeadModel)),
+                        ModelDefinition.TURRET_CANNON_DEAD_0
+                    )
+                    modelInstanceComponent.gameModelInstance.modelInstance.transform.set(auxMatrix)
+                }
+            }
+
+        }
+    )
 
     private val turretEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(Family.all(TurretComponent::class.java).get())

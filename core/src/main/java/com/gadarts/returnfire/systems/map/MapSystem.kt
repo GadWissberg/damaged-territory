@@ -434,6 +434,7 @@ class MapSystem : GameEntitySystem() {
                 BulletBehavior.REGULAR
             )
             .finishAndAddToEngine()
+        ComponentsMapper.character.get(baseEntity).child = turret
         val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
         val shape = btCompoundShape()
         shape.addChildShape(

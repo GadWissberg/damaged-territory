@@ -21,6 +21,8 @@ enum class ModelDefinition(
     BUILDING_FLAG_DESTROYED,
     FLAG,
     TURRET_CANNON(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
+    TURRET_CANNON_DEAD_0(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
+    TURRET_CANNON_DEAD_1(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
     TURRET_BASE,
     MACHINE_GUN_SPARK,
     CANNON_SPARK;

@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.gadarts.returnfire.model.CharacterDefinition
 
 class CharacterComponent : GameComponent() {
+    lateinit var child: Entity
     var hp: Int = 0
         private set
     lateinit var definition: CharacterDefinition

@@ -121,6 +121,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 val smokeEmission = characterComponent.smokeEmission
                 if (hp <= 0) {
                     characterComponent.die()
+                    managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
                 } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
                     val smoke = EntityBuilder.begin().addParticleEffectComponent(
                         position = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
