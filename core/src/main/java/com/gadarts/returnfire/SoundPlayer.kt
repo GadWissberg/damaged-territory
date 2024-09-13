@@ -9,9 +9,9 @@ class SoundPlayer {
 
     fun playPositionalSound(
         sound: Sound,
-        randomPitch: Boolean = false,
         entity: Entity,
-        camera: PerspectiveCamera
+        camera: PerspectiveCamera,
+        randomPitch: Boolean = false,
     ): Long {
         if (!GameDebugSettings.SFX) return -1
         val pitch = if (randomPitch) MathUtils.random(PITCH_MIN, PITCH_MAX) else 1F

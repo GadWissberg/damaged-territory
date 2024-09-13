@@ -6,7 +6,6 @@ class TurretComponent : GameComponent() {
     lateinit var base: Entity
         private set
     private var currentShootingArm: Int = 1
-
     override fun reset() {
 
     }

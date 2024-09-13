@@ -9,6 +9,7 @@ import com.gadarts.returnfire.systems.*
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.enemy.EnemySystem
 import com.gadarts.returnfire.systems.hud.HudSystem
 import com.gadarts.returnfire.systems.map.MapSystem
 import com.gadarts.returnfire.systems.physics.PhysicsSystem

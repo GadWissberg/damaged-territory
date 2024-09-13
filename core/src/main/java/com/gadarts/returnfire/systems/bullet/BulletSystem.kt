@@ -121,7 +121,11 @@ class BulletSystem : GameEntitySystem() {
     private fun addBulletExplosion(bullet: Entity, position: Vector3) {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
         val explosion = bulletComponent.explosion
+        val explosive = bulletComponent.explosive
         if (explosion != null) {
+            if (explosive) {
+                managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL))
+            }
             EntityBuilder.begin()
                 .addParticleEffectComponent(
                     position,
@@ -133,7 +137,7 @@ class BulletSystem : GameEntitySystem() {
                 addGroundBlast(position, blastRingTexture, 0.1F, 1.2F, 250, 0.03F)
             }
         } else {
-            if (!bulletComponent.explosive) {
+            if (!explosive) {
                 EntityBuilder.begin()
                     .addParticleEffectComponent(
                         position,

@@ -317,7 +317,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
-                true
+                true,
+                -5F
             ),
             BulletBehavior.CURVE
         )

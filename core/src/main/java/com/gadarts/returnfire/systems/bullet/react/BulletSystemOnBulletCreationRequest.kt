@@ -26,9 +26,9 @@ class BulletSystemOnBulletCreationRequest : HandlerOnEvent {
         val armProperties = armComponent.armProperties
         managers.soundPlayer.playPositionalSound(
             armProperties.shootingSound,
-            randomPitch = false,
             gameSessionData.player,
-            gameSessionData.renderData.camera
+            gameSessionData.renderData.camera,
+            randomPitch = false,
         )
         val spark = armComponent.spark
         val parentTransform =

@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.systems.enemy
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
@@ -12,11 +12,15 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.CharacterType
+import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
@@ -26,6 +30,7 @@ import kotlin.math.min
 
 class EnemySystem : GameEntitySystem() {
     private val cannonSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
+
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
@@ -35,13 +40,23 @@ class EnemySystem : GameEntitySystem() {
                     val turret = characterComponent.child
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(turret)
                     auxMatrix.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
+                    val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
+                    val position = transform.getTranslation(
+                        auxVector1
+                    )
                     val randomDeadModel =
                         if (MathUtils.randomBoolean()) ModelDefinition.TURRET_CANNON_DEAD_0 else ModelDefinition.TURRET_CANNON_DEAD_1
                     modelInstanceComponent.gameModelInstance = GameModelInstance(
                         ModelInstance(managers.assetsManager.getAssetByDefinition(randomDeadModel)),
                         ModelDefinition.TURRET_CANNON_DEAD_0
                     )
-                    modelInstanceComponent.gameModelInstance.modelInstance.transform.set(auxMatrix)
+                    EntityBuilder.begin()
+                        .addParticleEffectComponent(
+                            position,
+                            gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
+                        )
+                        .finishAndAddToEngine()
+                    modelInstanceComponent.gameModelInstance.modelInstance.transform.set(transform)
                 }
             }
 

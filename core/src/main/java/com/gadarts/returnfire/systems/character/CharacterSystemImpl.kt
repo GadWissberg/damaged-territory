@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.AmbSoundComponent
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.CharacterComponent
@@ -120,13 +121,14 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             if (!characterComponent.dead) {
                 val smokeEmission = characterComponent.smokeEmission
                 if (hp <= 0) {
-                    characterComponent.die()
-                    managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+                    characterDies(characterComponent, character)
                 } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
-                    val smoke = EntityBuilder.begin().addParticleEffectComponent(
-                        position = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                    val position =
+                        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector1
-                        ),
+                        )
+                    val smoke = EntityBuilder.begin().addParticleEffectComponent(
+                        position = position,
                         pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
                         parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
                             auxVector2
@@ -137,6 +139,17 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 }
             }
         }
+    }
+
+    private fun characterDies(
+        characterComponent: CharacterComponent,
+        character: Entity
+    ) {
+        characterComponent.die()
+        managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+        managers.soundPlayer.play(
+            managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+        )
     }
 
     private fun update3dSound() {
