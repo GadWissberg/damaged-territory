@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.*
@@ -58,19 +59,6 @@ class EntityBuilder private constructor() {
         entity!!.add(component)
         return instance
 
-    }
-
-    fun addIndependentDecalComponent(
-        textureRegion: TextureRegion,
-        lifeInMillis: Long,
-        position: Vector3
-    ): EntityBuilder {
-        val component = engine.createComponent(IndependentDecalComponent::class.java)
-        val decal = createDecal(textureRegion)
-        decal.position = position
-        component.init(decal, lifeInMillis)
-        entity!!.add(component)
-        return instance
     }
 
     private fun createDecal(texture: TextureRegion): Decal {
@@ -174,7 +162,8 @@ class EntityBuilder private constructor() {
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,
         thisEntityAsParent: Boolean = false,
-        parentRelativePosition: Vector3 = Vector3.Zero
+        parentRelativePosition: Vector3 = Vector3.Zero,
+        ttlInSeconds: Int = 0
     ): EntityBuilder {
         val effect: ParticleEffect = pool.obtain()
         val particleEffectComponent = engine.createComponent(
@@ -184,7 +173,8 @@ class EntityBuilder private constructor() {
             effect,
             pool.definition,
             if (thisEntityAsParent) entity else null,
-            parentRelativePosition
+            ttlInSeconds,
+            parentRelativePosition,
         )
         val controllers = effect.controllers
         for (i in 0 until controllers.size) {
@@ -228,6 +218,25 @@ class EntityBuilder private constructor() {
         return instance
     }
 
+    fun addPhysicsComponent(
+        shape: btCollisionShape,
+        transform: Matrix4,
+        applyGravity: Boolean,
+        dispatcher: MessageDispatcher
+    ): EntityBuilder {
+        val physicsComponent = Companion.addPhysicsComponent(
+            shape = shape,
+            entity!!,
+            transform = transform,
+            collisionFlag = btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT,
+            applyGravity = applyGravity,
+            mass = 1F,
+            dispatcher = dispatcher
+        )
+        entity!!.add(physicsComponent)
+        return instance
+    }
+
     fun finish(): Entity {
         val result = entity
         entity = null
@@ -236,6 +245,7 @@ class EntityBuilder private constructor() {
 
     companion object {
         private const val DECAL_SCALE = 0.005F
+        private val auxVector = Vector3()
         private lateinit var instance: EntityBuilder
         var entity: Entity? = null
         lateinit var engine: PooledEngine
@@ -253,16 +263,20 @@ class EntityBuilder private constructor() {
         fun addPhysicsComponent(
             shape: btCollisionShape,
             entity: Entity,
-            dispatcher: MessageDispatcher? = null,
             transform: Matrix4 = Matrix4(),
-            mass: Float = 0F,
-            collisionFlag: Int? = null
+            mass: Float,
+            dispatcher: MessageDispatcher,
+            collisionFlag: Int? = null,
+            applyGravity: Boolean = false
         ): PhysicsComponent {
             val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
             physicsComponent.init(shape, mass, transform, collisionFlag)
             physicsComponent.rigidBody.userData = entity
             entity.add(physicsComponent)
-            dispatcher?.dispatchMessage(
+            if (applyGravity) {
+                physicsComponent.rigidBody.gravity = auxVector.set(0F, -10F, 0F)
+            }
+            dispatcher.dispatchMessage(
                 SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
                 entity
             )

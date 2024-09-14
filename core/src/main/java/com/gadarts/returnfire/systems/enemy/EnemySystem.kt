@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
@@ -34,11 +35,9 @@ class EnemySystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                val entity = msg.extraInfo as Entity
-                val characterComponent = ComponentsMapper.character.get(entity)
+                val characterComponent = ComponentsMapper.character.get(msg.extraInfo as Entity)
                 if (characterComponent.definition.getCharacterType() == CharacterType.TURRET) {
-                    val turret = characterComponent.child
-                    val modelInstanceComponent = ComponentsMapper.modelInstance.get(turret)
+                    val modelInstanceComponent = ComponentsMapper.modelInstance.get(characterComponent.child)
                     auxMatrix.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
                     val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
                     val position = transform.getTranslation(
@@ -57,11 +56,62 @@ class EnemySystem : GameEntitySystem() {
                         )
                         .finishAndAddToEngine()
                     modelInstanceComponent.gameModelInstance.modelInstance.transform.set(transform)
+                    val numberOfFlyingParts = MathUtils.random(2, 4)
+                    auxVector2.set(position)
+                    for (i in 0 until numberOfFlyingParts) {
+                        addFlyingPart(auxVector2)
+                    }
                 }
             }
 
         }
     )
+
+    private fun addFlyingPart(
+        position: Vector3,
+    ) {
+        val modelInstance = ModelInstance(
+            managers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
+        )
+        val flyingPart = EntityBuilder.begin()
+            .addModelInstanceComponent(
+                GameModelInstance(modelInstance, ModelDefinition.FLYING_PART),
+                position,
+                false
+            )
+            .addPhysicsComponent(
+                btBoxShape(
+                    managers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART).getDimensions(
+                        auxVector1
+                    ).scl(0.4F)
+                ),
+                modelInstance.transform,
+                true,
+                managers.dispatcher
+            )
+            .addParticleEffectComponent(
+                modelInstance.transform.getTranslation(auxVector1),
+                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
+                thisEntityAsParent = true,
+                ttlInSeconds = MathUtils.random(10, 15)
+            )
+            .finishAndAddToEngine()
+        ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.2F, 0.5F)
+        makeFlyingPartFlyAway(flyingPart)
+    }
+
+    private fun makeFlyingPartFlyAway(flyingPart: Entity) {
+        val rigidBody = ComponentsMapper.physics.get(flyingPart).rigidBody
+        rigidBody.applyCentralImpulse(
+            createRandomDirectionUpwards()
+        )
+        rigidBody.applyTorque(createRandomDirectionUpwards())
+    }
+
+    private fun createRandomDirectionUpwards(): Vector3 = auxVector1.set(1F, 0F, 0F).mul(
+        auxQuat.idt()
+            .setEulerAngles(MathUtils.random(360F), MathUtils.random(360F), MathUtils.random(45F, 135F))
+    ).scl(MathUtils.random(4F, 6F))
 
     private val turretEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(Family.all(TurretComponent::class.java).get())

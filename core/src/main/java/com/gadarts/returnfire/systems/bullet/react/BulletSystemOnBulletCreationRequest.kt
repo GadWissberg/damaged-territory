@@ -119,9 +119,9 @@ class BulletSystemOnBulletCreationRequest : HandlerOnEvent {
         EntityBuilder.addPhysicsComponent(
             shape,
             bullet,
-            dispatcher,
             gameModelInstance.modelInstance.transform,
-            0.5F
+            0.5F,
+            dispatcher,
         )
         gameModelInstance.modelInstance.transform.rotate(aimingTransform.getRotation(auxQuat)).rotate(
             Vector3.Z,

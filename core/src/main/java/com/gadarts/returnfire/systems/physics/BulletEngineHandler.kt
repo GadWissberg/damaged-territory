@@ -50,7 +50,7 @@ class BulletEngineHandler(
         broadPhase.overlappingPairCache.setInternalGhostPairCallback(ghostPairCallback)
     }
 
-    override fun entityAdded(entity: Entity?) {
+    override fun entityAdded(entity: Entity) {
     }
 
     fun addBodyOfEntity(entity: Entity) {
@@ -103,6 +103,7 @@ class BulletEngineHandler(
             solver,
             collisionConfiguration
         )
+        gameSessionData.gameSessionDataPhysics.collisionWorld.gravity = Vector3(0F, -10F, 0F)
     }
 
     override fun dispose() {

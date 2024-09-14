@@ -20,11 +20,10 @@ class PlayerSystemOnPhysicsSystemReady :
         val physicsComponent = EntityBuilder.addPhysicsComponent(
             playerShape,
             gameSessionData.player,
-            managers.dispatcher,
             Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform),
             10F,
-
-            )
+            managers.dispatcher,
+        )
         physicsComponent.rigidBody.gravity = Vector3.Zero
         physicsComponent.rigidBody.setDamping(0F, 0.75F)
         physicsComponent.rigidBody.angularFactor = Vector3.Y

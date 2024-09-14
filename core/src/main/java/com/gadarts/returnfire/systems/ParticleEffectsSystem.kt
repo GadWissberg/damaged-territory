@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ParticleEffectComponent
@@ -93,12 +94,17 @@ class ParticleEffectsSystem : GameEntitySystem() {
             val particleEffect: ParticleEffect =
                 particleEffectComponent.effect
             val parent = particleEffectComponent.parent
+            val ttlInMillis = particleEffectComponent.ttlInSeconds * 1000L
+            val timeToLeave =
+                ttlInMillis > 0F && TimeUtils.timeSinceMillis(particleEffectComponent.createdAt) >= ttlInMillis
             if ((!particleEffectComponent.definition.loop && particleEffect.isComplete)
                 || (parent != null
                     && ComponentsMapper.character.has(parent)
                     && ComponentsMapper.character.get(parent).dead)
+                || timeToLeave
             ) {
                 particleEntitiesToRemove.add(entity)
+                return
             } else if (parent != null) {
                 val parentTransform =
                     ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
@@ -123,6 +129,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
         val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
         val particleEffect = particleEffectComponent.effect
         particleEffect.reset()
+        particleEffectComponent.parent = null
         gameSessionData.renderData.particleSystem.remove(particleEffect)
         gameSessionData.pools.particleEffectsPools.obtain(particleEffectComponent.definition)
             .free(particleEffect)

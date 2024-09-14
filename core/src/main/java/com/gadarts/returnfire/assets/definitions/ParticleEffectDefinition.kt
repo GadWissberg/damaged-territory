@@ -13,6 +13,7 @@ enum class ParticleEffectDefinition(fileNames: Int = 1, val hasBlastRing: Boolea
     SMOKE_SMALL,
     SMOKE_SMALL_LOOP(loop = true),
     SMOKE_LOOP(loop = true),
+    SMOKE_UP_LOOP(loop = true),
     SMOKE_EMIT,
     WATER_SPLASH,
     SPARK_SMALL,
