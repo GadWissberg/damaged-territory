@@ -9,17 +9,10 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 class GameModelInstance(
     val modelInstance: ModelInstance,
     val definition: ModelDefinition?,
-    boundingBox: BoundingBox? = null,
-    var sphere: Boolean = false
 ) {
+    var sphere: Boolean = false
+        private set
     private val boundingBox = BoundingBox()
-
-    init {
-        if (boundingBox != null) {
-            this.boundingBox.set(boundingBox)
-            sphere = true
-        }
-    }
 
     fun getBoundingBox(auxBox: BoundingBox): BoundingBox {
         return auxBox.set(boundingBox)
@@ -36,6 +29,11 @@ class GameModelInstance(
         this.boundingBox.min.set(position).sub(dimensions)
         this.boundingBox.max.set(position).add(dimensions)
         this.boundingBox.update()
+    }
+
+    fun setBoundingSphere(boundingBox: BoundingBox) {
+        this.boundingBox.set(boundingBox)
+        this.sphere = true
     }
 
     companion object {

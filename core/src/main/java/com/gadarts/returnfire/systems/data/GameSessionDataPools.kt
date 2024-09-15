@@ -1,6 +1,5 @@
 package com.gadarts.returnfire.systems.data
 
-import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Pool
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
@@ -19,7 +18,6 @@ class GameSessionDataPools(private val assetsManager: GameAssetManager) {
     private fun createPool(modelDefinition: ModelDefinition) =
         GameModelInstancePool(
             assetsManager.getAssetByDefinition(modelDefinition),
-            BoundingBox(assetsManager.getCachedBoundingBox(modelDefinition)),
             modelDefinition
         )
 }

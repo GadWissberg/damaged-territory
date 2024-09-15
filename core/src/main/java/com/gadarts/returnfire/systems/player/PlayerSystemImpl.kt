@@ -201,7 +201,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 .addModelInstanceComponent(
                     createPlayerModelInstance(),
                     auxVector3_1.set(placedPlayer.col.toFloat(), PLAYER_HEIGHT, placedPlayer.row.toFloat()),
-                    false,
+                    null,
                 )
         if (GameDebugSettings.DISPLAY_PROPELLER) {
             addPropeller(entityBuilder)
@@ -229,7 +229,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         return GameModelInstance(
             ModelInstance(apacheModel),
             ModelDefinition.APACHE,
-            managers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE),
         )
     }
 
@@ -262,6 +261,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
                 null,
                 false,
+                managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
                 -45F,
             ),
             BulletBehavior.REGULAR
@@ -277,7 +277,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             .addModelInstanceComponent(
                 GameModelInstance(ModelInstance(machineGunSparkModel), ModelDefinition.MACHINE_GUN_SPARK),
                 Vector3(),
-                true, hidden = true
+                null,
+                hidden = true
             )
             .addSparkComponent(relativePositionCalculator)
             .finishAndAddToEngine()
@@ -318,6 +319,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
                 true,
+                managers.assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE),
                 -5F
             ),
             BulletBehavior.CURVE

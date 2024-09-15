@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -33,12 +34,12 @@ class EntityBuilder private constructor() {
     fun addModelInstanceComponent(
         model: GameModelInstance,
         position: Vector3,
-        calculateBoundingBox: Boolean,
+        boundingBox: BoundingBox?,
         direction: Float = 0F,
         hidden: Boolean = false
     ): EntityBuilder {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position, calculateBoundingBox, direction, hidden)
+        modelInstanceComponent.init(model, position, boundingBox, direction, hidden)
         entity!!.add(modelInstanceComponent)
         return instance
     }

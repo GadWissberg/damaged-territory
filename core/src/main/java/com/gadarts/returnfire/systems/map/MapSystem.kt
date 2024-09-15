@@ -104,7 +104,7 @@ class MapSystem : GameEntitySystem() {
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
-                true,
+                null,
                 direction.toFloat(),
             )
             .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON)
@@ -318,7 +318,7 @@ class MapSystem : GameEntitySystem() {
         position: Vector3
     ): Entity {
         return EntityBuilder.begin()
-            .addModelInstanceComponent(modelInstance, position, true)
+            .addModelInstanceComponent(modelInstance, position, null)
             .addGroundComponent()
             .finishAndAddToEngine()
     }
@@ -344,7 +344,7 @@ class MapSystem : GameEntitySystem() {
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
-                true,
+                null,
                 direction.toFloat(),
             )
             .addAmbComponent(
@@ -401,7 +401,7 @@ class MapSystem : GameEntitySystem() {
             .addModelInstanceComponent(
                 model,
                 Vector3(),
-                true,
+                null,
                 hidden = true
             )
             .addSparkComponent(relativePositionCalculator)
@@ -413,7 +413,7 @@ class MapSystem : GameEntitySystem() {
                 ComponentsMapper.physics.get(baseEntity).rigidBody.worldTransform.getTranslation(
                     auxVector1
                 ).add(0F, assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height, 0F),
-                true,
+                null,
             )
             .addTurretComponent(baseEntity)
             .addPrimaryArmComponent(
@@ -429,7 +429,8 @@ class MapSystem : GameEntitySystem() {
                     null,
                     gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
                     null,
-                    true
+                    true,
+                    managers.assetsManager.getCachedBoundingBox(ModelDefinition.CANNON_BULLET)
                 ),
                 BulletBehavior.REGULAR
             )

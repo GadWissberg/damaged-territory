@@ -32,6 +32,8 @@ import kotlin.math.min
 class EnemySystem : GameEntitySystem() {
     private val cannonSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
 
+    private val flyingPartBoundingBox by lazy { managers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART) }
+
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
@@ -77,11 +79,11 @@ class EnemySystem : GameEntitySystem() {
             .addModelInstanceComponent(
                 GameModelInstance(modelInstance, ModelDefinition.FLYING_PART),
                 position,
-                false
+                flyingPartBoundingBox
             )
             .addPhysicsComponent(
                 btBoxShape(
-                    managers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART).getDimensions(
+                    flyingPartBoundingBox.getDimensions(
                         auxVector1
                     ).scl(0.4F)
                 ),

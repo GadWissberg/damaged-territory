@@ -39,7 +39,7 @@ class BulletSystemOnBulletCreationRequest : HandlerOnEvent {
         val gameModelInstance =
             gameSessionData.pools.gameModelInstancePools[armProperties.modelDefinition]!!.obtain()
         val entityBuilder = EntityBuilder.begin()
-            .addModelInstanceComponent(gameModelInstance, position, false)
+            .addModelInstanceComponent(gameModelInstance, position, armProperties.boundingBox)
             .addBulletComponent(
                 armComponent.behavior,
                 armProperties.explosion,

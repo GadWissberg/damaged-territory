@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -112,7 +113,7 @@ class BulletSystem : GameEntitySystem() {
             material.get(TextureAttribute.Diffuse) as TextureAttribute
         textureAttribute.textureDescription.texture = texture
         EntityBuilder.begin()
-            .addModelInstanceComponent(gameModelInstance, position, false)
+            .addModelInstanceComponent(gameModelInstance, position, auxBoundingBox.ext(Vector3.Zero, 1F))
             .addGroundBlastComponent(scalePace, duration, fadeOutPace)
             .finishAndAddToEngine()
         gameModelInstance.modelInstance.transform.scl(startingScale)
@@ -198,6 +199,7 @@ class BulletSystem : GameEntitySystem() {
     }
 
     companion object {
+        val auxBoundingBox = BoundingBox()
         private val auxMatrix = Matrix4()
         private val auxVector1 = Vector3()
         private val auxQuat = Quaternion()

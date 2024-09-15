@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.components.model
 
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.components.GameComponent
 
 class ModelInstanceComponent : GameComponent() {
@@ -11,7 +12,7 @@ class ModelInstanceComponent : GameComponent() {
     fun init(
         gameModelInstance: GameModelInstance,
         position: Vector3,
-        calculateBoundingBox: Boolean,
+        boundingBox: BoundingBox?,
         direction: Float,
         hidden: Boolean
     ) {
@@ -19,8 +20,10 @@ class ModelInstanceComponent : GameComponent() {
         this.gameModelInstance = gameModelInstance
         this.gameModelInstance.modelInstance.transform.translate(position)
         this.gameModelInstance.modelInstance.transform.rotate(Vector3.Y, direction)
-        if (calculateBoundingBox) {
+        if (boundingBox == null) {
             this.gameModelInstance.calculateBoundingBox()
+        } else {
+            this.gameModelInstance.setBoundingSphere(boundingBox)
         }
         this.hidden = hidden
     }

@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.components.arm
 
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.systems.data.GameParticleEffectPool
@@ -17,5 +18,6 @@ class ArmProperties(
     val sparkParticleEffect: GameParticleEffectPool,
     val smokeTrail: GameParticleEffectPool?,
     val explosive: Boolean,
-    val initialRotationAroundZ: Float = 0F
+    val boundingBox: BoundingBox,
+    val initialRotationAroundZ: Float = 0F,
 )

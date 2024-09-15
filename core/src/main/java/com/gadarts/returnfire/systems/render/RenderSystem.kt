@@ -86,18 +86,20 @@ class RenderSystem : GameEntitySystem(), Disposable {
             camera.direction
         )
         renderModels(
-            batches.shadowBatch,
-            shadowLight.camera,
+            batch = batches.shadowBatch,
+            camera = shadowLight.camera,
             applyEnvironment = false,
-            renderParticleEffects = false
+            renderParticleEffects = false,
+            forShadow = true
         )
         shadowLight.end()
         resetDisplay()
         renderModels(
-            batches.modelBatch,
-            camera,
+            batch = batches.modelBatch,
+            camera = camera,
             applyEnvironment = true,
-            renderParticleEffects = true
+            renderParticleEffects = true,
+            forShadow = false
         )
         batches.modelBatch.begin(camera)
         Gdx.gl.glDepthMask(false)
@@ -176,33 +178,41 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     }
 
-    private fun isVisible(entity: Entity): Boolean {
+    private fun isVisible(entity: Entity, extendBoundingBoxSize: Boolean): Boolean {
         val modelInsComp = ComponentsMapper.modelInstance[entity]
+        val gameModelInstance = modelInsComp.gameModelInstance
+        val boundingBox = gameModelInstance.getBoundingBox(auxBox)
+        val dims: Vector3 = boundingBox.getDimensions(auxVector3_2)
+
         if (modelInsComp.hidden) return false
         if (ComponentsMapper.player.has(entity)) return true
+        if (dims.isZero) return false
 
-        val gameModelInstance = modelInsComp.gameModelInstance
         val center: Vector3 =
             gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
-        val dims: Vector3 = auxBox.getDimensions(auxVector3_2).scl(4.7F)
-        return if (gameModelInstance.sphere) gameSessionData.renderData.camera.frustum.sphereInFrustum(
+        if (extendBoundingBoxSize) {
+            dims.scl(6F)
+        }
+        val frustum = gameSessionData.renderData.camera.frustum
+        return if (gameModelInstance.sphere) frustum.sphereInFrustum(
             gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_3
             ), dims.len2() / 2F
         )
-        else gameSessionData.renderData.camera.frustum.boundsInFrustum(center, dims)
+        else frustum.boundsInFrustum(center, dims)
     }
 
     private fun renderModels(
         batch: ModelBatch,
         camera: Camera,
         applyEnvironment: Boolean,
-        renderParticleEffects: Boolean
+        renderParticleEffects: Boolean,
+        forShadow: Boolean
     ) {
         batch.begin(camera)
         axisModelHandler.render(batch)
         for (entity in relatedEntities.modelInstanceEntities) {
-            renderModel(entity, batch, applyEnvironment)
+            renderModel(entity, batch, applyEnvironment, forShadow)
         }
         if (!GameDebugSettings.HIDE_FLOOR) {
             if (applyEnvironment) {
@@ -222,8 +232,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
         decal.lookAt(auxVector3_1.set(decal.position).sub(camera.direction), camera.up)
     }
 
-    private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean) {
-        if (isVisible(entity)) {
+    private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean, forShadow: Boolean = false) {
+        if (isVisible(entity, forShadow)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val modelInstance = modelInstanceComponent.gameModelInstance
             if (applyEnvironment) {
