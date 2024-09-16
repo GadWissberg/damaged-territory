@@ -16,11 +16,11 @@
       "col": 8
     },
     {
-      "definition": "TURRET_CANNON",
+      "definition": "PLAYER",
       "type": "CHARACTER",
       "direction": 0,
-      "row": 10,
-      "col": 21
+      "row": 11,
+      "col": 12
     },
     {
       "definition": "PALM_TREE",
@@ -35,13 +35,6 @@
       "direction": 0,
       "row": 11,
       "col": 11
-    },
-    {
-      "definition": "PLAYER",
-      "type": "CHARACTER",
-      "direction": 0,
-      "row": 11,
-      "col": 12
     },
     {
       "definition": "TURRET_CANNON",
@@ -121,6 +114,13 @@
       "col": 43
     },
     {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 17,
+      "col": 22
+    },
+    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
@@ -133,6 +133,13 @@
       "direction": 0,
       "row": 17,
       "col": 24
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 17,
+      "col": 40
     },
     {
       "definition": "WATCH_TOWER",
@@ -184,6 +191,13 @@
       "col": 40
     },
     {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 23,
+      "col": 9
+    },
+    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
@@ -196,6 +210,20 @@
       "direction": 0,
       "row": 25,
       "col": 41
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 26,
+      "col": 41
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 28,
+      "col": 25
     },
     {
       "definition": "WATCH_TOWER",
@@ -282,6 +310,13 @@
       "col": 6
     },
     {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 36,
+      "col": 12
+    },
+    {
       "definition": "WATCH_TOWER",
       "type": "AMB",
       "direction": 0,
@@ -301,6 +336,20 @@
       "direction": 0,
       "row": 37,
       "col": 7
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 37,
+      "col": 24
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 37,
+      "col": 38
     }
   ],
   "size": 48

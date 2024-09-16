@@ -42,14 +42,15 @@ class EnemySystem : GameEntitySystem() {
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(characterComponent.child)
                     auxMatrix.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
                     val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
-                    val position = transform.getTranslation(
-                        auxVector1
-                    )
+                    val position = transform.getTranslation(auxVector1)
                     val randomDeadModel =
                         if (MathUtils.randomBoolean()) ModelDefinition.TURRET_CANNON_DEAD_0 else ModelDefinition.TURRET_CANNON_DEAD_1
                     modelInstanceComponent.gameModelInstance = GameModelInstance(
                         ModelInstance(managers.assetsManager.getAssetByDefinition(randomDeadModel)),
-                        ModelDefinition.TURRET_CANNON_DEAD_0
+                        ModelDefinition.TURRET_CANNON_DEAD_0,
+                    )
+                    modelInstanceComponent.gameModelInstance.setBoundingBox(
+                        managers.assetsManager.getCachedBoundingBox(randomDeadModel)
                     )
                     EntityBuilder.begin()
                         .addParticleEffectComponent(
@@ -58,19 +59,23 @@ class EnemySystem : GameEntitySystem() {
                         )
                         .finishAndAddToEngine()
                     modelInstanceComponent.gameModelInstance.modelInstance.transform.set(transform)
-                    val numberOfFlyingParts = MathUtils.random(2, 4)
-                    auxVector2.set(position)
-                    for (i in 0 until numberOfFlyingParts) {
-                        addFlyingPart(auxVector2)
-                    }
+                    addFlyingParts(position)
                 }
             }
 
         }
     )
 
+    private fun addFlyingParts(position: Vector3?) {
+        val numberOfFlyingParts = MathUtils.random(2, 4)
+        auxVector2.set(position)
+        for (i in 0 until numberOfFlyingParts) {
+            addFlyingPart(auxVector2)
+        }
+    }
+
     private fun addFlyingPart(
-        position: Vector3,
+        @Suppress("SameParameterValue") position: Vector3,
     ) {
         val modelInstance = ModelInstance(
             managers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)

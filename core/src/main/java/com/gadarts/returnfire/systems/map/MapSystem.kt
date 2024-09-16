@@ -198,7 +198,7 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addExtSea(width: Int, depth: Int, x: Float, z: Float) {
-        val modelInstance = GameModelInstance(ModelInstance(gameSessionData.floorModel), definition = null)
+        val modelInstance = GameModelInstance(ModelInstance(gameSessionData.floorModel), null)
         val entity = createAndAddGroundTileEntity(
             modelInstance,
             auxVector1.set(x, 0F, z)
@@ -237,7 +237,7 @@ class MapSystem : GameEntitySystem() {
                     col,
                     GameModelInstance(
                         ModelInstance(gameSessionData.floorModel),
-                        definition = null
+                        null,
                     )
                 )
             }
@@ -361,7 +361,7 @@ class MapSystem : GameEntitySystem() {
         assetsManager.getCachedBoundingBox(modelDefinition)
         val gameModelInstance = GameModelInstance(
             ModelInstance(assetsManager.getAssetByDefinition(modelDefinition)),
-            definition = modelDefinition
+            modelDefinition,
         )
         return gameModelInstance
     }
@@ -395,13 +395,13 @@ class MapSystem : GameEntitySystem() {
         }
         val model = GameModelInstance(
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK)),
-            ModelDefinition.CANNON_SPARK
+            ModelDefinition.CANNON_SPARK,
         )
         val spark = EntityBuilder.begin()
             .addModelInstanceComponent(
                 model,
                 Vector3(),
-                null,
+                managers.assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON),
                 hidden = true
             )
             .addSparkComponent(relativePositionCalculator)

@@ -12,6 +12,7 @@ class GameModelInstance(
 ) {
     var sphere: Boolean = false
         private set
+
     private val boundingBox = BoundingBox()
 
     fun getBoundingBox(auxBox: BoundingBox): BoundingBox {
@@ -34,6 +35,11 @@ class GameModelInstance(
     fun setBoundingSphere(boundingBox: BoundingBox) {
         this.boundingBox.set(boundingBox)
         this.sphere = true
+    }
+
+    fun setBoundingBox(boundingBox: BoundingBox) {
+        this.boundingBox.set(boundingBox)
+        this.sphere = false
     }
 
     companion object {
