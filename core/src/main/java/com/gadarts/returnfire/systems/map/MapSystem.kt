@@ -71,7 +71,8 @@ class MapSystem : GameEntitySystem() {
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         val tilesMapping = gameSessionData.currentMap.tilesMapping
-        gameSessionData.tilesEntities = Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
+        gameSessionData.tilesEntities =
+            Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.floorModel = createFloorModel()
         gameSessionData.renderData.modelCache = ModelCache()
         addFloor()
@@ -98,7 +99,11 @@ class MapSystem : GameEntitySystem() {
             }
     }
 
-    private fun addCharacter(position: Vector3, characterDefinition: CharacterDefinition, direction: Int) {
+    private fun addCharacter(
+        position: Vector3,
+        characterDefinition: CharacterDefinition,
+        direction: Int
+    ) {
         val gameModelInstance = createGameModelInstance(characterDefinition.getModelDefinition())
         val baseEntity = EntityBuilder.begin()
             .addModelInstanceComponent(
@@ -129,7 +134,9 @@ class MapSystem : GameEntitySystem() {
                 groundTextureAnimationStateTime,
                 true
             )
-            (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(0)
+            (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(
+                0
+            )
                 .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
                 keyFrame
         }
@@ -139,10 +146,12 @@ class MapSystem : GameEntitySystem() {
             if (TimeUtils.timeSinceMillis(groundBlastComponent.creationTime) > groundBlastComponent.duration) {
                 waterSplashEntitiesToRemove.add(entity)
             } else {
-                val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance
-                modelInstance.transform.scl(groundBlastComponent.scalePace)
-                val blendAttribute = modelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
-                blendAttribute.opacity -= groundBlastComponent.fadeOutPace
+                val modelInstance =
+                    ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance
+                modelInstance.transform.scl(1 + groundBlastComponent.scalePace * deltaTime)
+                val blendAttribute =
+                    modelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
+                blendAttribute.opacity -= groundBlastComponent.fadeOutPace * deltaTime * 60F
             }
         }
         while (!waterSplashEntitiesToRemove.isEmpty) {
@@ -157,13 +166,14 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun addAmbEntities() {
-        gameSessionData.currentMap.placedElements.filter { it.definition.getType() == ElementType.AMB }.forEach {
-            addAmbObject(
-                auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
-                it.definition as AmbDefinition,
-                it.direction
-            )
-        }
+        gameSessionData.currentMap.placedElements.filter { it.definition.getType() == ElementType.AMB }
+            .forEach {
+                addAmbObject(
+                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
+                    it.definition as AmbDefinition,
+                    it.direction
+                )
+            }
         applyTransformOnAmbEntities()
     }
 
@@ -210,7 +220,10 @@ class MapSystem : GameEntitySystem() {
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
         gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
         val texturesDefinitions = managers.assetsManager.getTexturesDefinitions()
-        applyAnimatedTextureComponentToFloor(texturesDefinitions.definitions["tile_water"]!!, entity)
+        applyAnimatedTextureComponentToFloor(
+            texturesDefinitions.definitions["tile_water"]!!,
+            entity
+        )
     }
 
     private fun initializeExternalSeaTextureAttribute(
@@ -284,7 +297,8 @@ class MapSystem : GameEntitySystem() {
             val texture =
                 managers.assetsManager.getTexture(textureDefinition)
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-            (modelInstance.modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute)
+            (modelInstance.modelInstance.materials.get(0)
+                .get(TextureAttribute.Diffuse) as TextureAttribute)
                 .set(TextureRegion(texture))
             if (textureDefinition.animated) {
                 applyAnimatedTextureComponentToFloor(textureDefinition, entity)
@@ -389,7 +403,11 @@ class MapSystem : GameEntitySystem() {
         val relativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
             override fun calculate(parent: Entity, output: Vector3): Vector3 {
                 return output.setZero()
-                    .add(0.7F, 0F, ComponentsMapper.turret.get(parent).updateCurrentShootingArm() * 0.3F)
+                    .add(
+                        0.7F,
+                        0F,
+                        ComponentsMapper.turret.get(parent).updateCurrentShootingArm() * 0.3F
+                    )
                     .rot(modelInstance.transform)
             }
         }
@@ -412,7 +430,11 @@ class MapSystem : GameEntitySystem() {
                 GameModelInstance(modelInstance, ModelDefinition.TURRET_CANNON),
                 ComponentsMapper.physics.get(baseEntity).rigidBody.worldTransform.getTranslation(
                     auxVector1
-                ).add(0F, assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height, 0F),
+                ).add(
+                    0F,
+                    assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_BASE).height,
+                    0F
+                ),
                 null,
             )
             .addTurretComponent(baseEntity)
@@ -461,9 +483,11 @@ class MapSystem : GameEntitySystem() {
 
     private fun createShapeForStaticObject(modelDefinition: ModelDefinition): btCompoundShape {
         val shape = btCompoundShape()
-        val dimensions = auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition)).getDimensions(
-            auxVector3
-        )
+        val dimensions =
+            auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition))
+                .getDimensions(
+                    auxVector3
+                )
         val btBoxShape = btBoxShape(
             dimensions.scl(0.5F)
         )
