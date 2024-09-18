@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.data
+package com.gadarts.returnfire.systems.data.pools
 
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.utils.Pool

@@ -18,11 +18,11 @@ class PlayerSystemOnPhysicsSystemReady :
         val playerShape = createCollisionShape()
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.player)
         val physicsComponent = EntityBuilder.addPhysicsComponent(
-            playerShape,
             gameSessionData.player,
+            playerShape,
             Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform),
             10F,
-            managers.dispatcher,
+            managers,
         )
         physicsComponent.rigidBody.gravity = Vector3.Zero
         physicsComponent.rigidBody.setDamping(0F, 0.75F)

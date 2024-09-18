@@ -65,6 +65,9 @@ class ProfilingSystem : GameEntitySystem() {
                 gameSessionData.pools.particleEffectsPools.pools.forEach { pair ->
                     displayLine("${pair.key} pool:", "${pair.value.free}")
                 }
+                gameSessionData.pools.rigidBodyPools.pools.forEach { pair ->
+                    displayLine("${pair.key} pool:", "${pair.value.free}")
+                }
             }
             label.setText(stringBuilder)
         }

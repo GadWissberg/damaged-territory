@@ -8,9 +8,12 @@ import com.badlogic.gdx.utils.Pool
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.GameMap
+import com.gadarts.returnfire.systems.data.pools.GameSessionDataPools
+import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class GameSessionData(
     assetsManager: GameAssetManager,
+    rigidBodyFactory: RigidBodyFactory,
     val runsOnMobile: Boolean,
     val fpsTarget: Int
 ) :
@@ -20,7 +23,7 @@ class GameSessionData(
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     val gameSessionDataHud = GameSessionDataHud(assetsManager)
-    val pools = GameSessionDataPools(assetsManager)
+    val pools = GameSessionDataPools(assetsManager, rigidBodyFactory)
     val renderData = GameSessionDataRender()
     lateinit var tilesEntities: Array<Array<Entity?>>
 

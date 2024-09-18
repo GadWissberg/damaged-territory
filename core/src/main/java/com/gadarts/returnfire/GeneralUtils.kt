@@ -15,7 +15,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 
 object GeneralUtils {
 
-    private val auxVector = Vector3()
+    val auxVector = Vector3()
 
     fun calculateVolumeAccordingToPosition(entity: Entity, camera: PerspectiveCamera): Float {
         val transform =

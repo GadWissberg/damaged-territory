@@ -9,6 +9,7 @@ import com.gadarts.returnfire.systems.*
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.systems.enemy.EnemySystem
 import com.gadarts.returnfire.systems.hud.HudSystem
 import com.gadarts.returnfire.systems.map.MapSystem
@@ -18,6 +19,7 @@ import com.gadarts.returnfire.systems.render.RenderSystem
 
 class GamePlayScreen(
     private val assetsManager: GameAssetManager,
+    private val rigidBodyFactory: RigidBodyFactory,
     private val soundPlayer: SoundPlayer,
     private val runsOnMobile: Boolean,
     private val fpsTarget: Int
@@ -28,6 +30,7 @@ class GamePlayScreen(
     private val gameSessionData: GameSessionData by lazy {
         GameSessionData(
             assetsManager,
+            rigidBodyFactory,
             runsOnMobile,
             fpsTarget
         )
@@ -52,7 +55,7 @@ class GamePlayScreen(
         systems.forEach {
             engine.addSystem(it)
         }
-        val managers = Managers(engine, soundPlayer, assetsManager, dispatcher)
+        val managers = Managers(engine, soundPlayer, assetsManager, dispatcher, RigidBodyFactory())
         EntityBuilder.initialize(managers.engine)
         engine.systems.forEach {
             (it as GameEntitySystem).initialize(

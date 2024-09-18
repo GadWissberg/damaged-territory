@@ -3,18 +3,20 @@ package com.gadarts.returnfire.assets.definitions
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.returnfire.model.PhysicalDefinition
 
 enum class ModelDefinition(
     fileNames: Int = 1,
     val boundingBoxScale: Vector3 = Vector3(1F, 1F, 1F),
-    val boundingBoxBias: Vector3 = Vector3.Zero
+    val boundingBoxBias: Vector3 = Vector3.Zero,
+    val physicalDefinition: PhysicalDefinition? = null,
 ) :
     AssetDefinition<Model> {
 
     APACHE,
-    BULLET,
-    CANNON_BULLET,
-    MISSILE,
+    BULLET(physicalDefinition = PhysicalDefinition.BULLET),
+    CANNON_BULLET(physicalDefinition = PhysicalDefinition.BULLET),
+    MISSILE(physicalDefinition = PhysicalDefinition.BULLET),
     PALM_TREE(3),
     WATCH_TOWER,
     BUILDING_FLAG,

@@ -94,7 +94,7 @@ class EnemySystem : GameEntitySystem() {
                 ),
                 modelInstance.transform,
                 true,
-                managers.dispatcher
+                managers
             )
             .addParticleEffectComponent(
                 modelInstance.transform.getTranslation(auxVector1),

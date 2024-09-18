@@ -385,11 +385,11 @@ class MapSystem : GameEntitySystem() {
         gameModelInstance: GameModelInstance
     ): PhysicsComponent {
         return EntityBuilder.addPhysicsComponent(
-            createShapeForStaticObject(gameModelInstance.definition!!),
             entity,
+            createShapeForStaticObject(gameModelInstance.definition!!),
             Matrix4(gameModelInstance.modelInstance.transform),
             0F,
-            managers.dispatcher,
+            managers,
             btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
         )
     }
@@ -445,14 +445,14 @@ class MapSystem : GameEntitySystem() {
                     assetsManager.getAssetByDefinition(SoundDefinition.CANNON),
                     3000L,
                     20F,
-                    0.5F,
                     null,
                     ModelDefinition.CANNON_BULLET,
                     null,
                     gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
                     null,
                     true,
-                    managers.assetsManager.getCachedBoundingBox(ModelDefinition.CANNON_BULLET)
+                    managers.assetsManager.getCachedBoundingBox(ModelDefinition.CANNON_BULLET),
+                    gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.CANNON_BULLET)
                 ),
                 BulletBehavior.REGULAR
             )
@@ -470,11 +470,11 @@ class MapSystem : GameEntitySystem() {
             )
         )
         EntityBuilder.addPhysicsComponent(
-            shape,
             turret,
+            shape,
             modelInstance.transform,
             10F,
-            managers.dispatcher,
+            managers,
             btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT,
         )
 

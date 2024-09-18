@@ -254,7 +254,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN),
                 PRI_RELOAD_DUR,
                 PRI_BULLET_SPEED,
-                assetsManager.getCachedBoundingBox(ModelDefinition.BULLET).width / 2F,
                 null,
                 ModelDefinition.BULLET,
                 null,
@@ -262,6 +261,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 null,
                 false,
                 managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
+                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.BULLET),
                 -45F,
             ),
             BulletBehavior.REGULAR
@@ -312,7 +312,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 managers.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
                 SEC_RELOAD_DUR,
                 SEC_BULLET_SPEED,
-                managers.assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE).width,
                 ParticleEffectDefinition.EXPLOSION_SMALL,
                 ModelDefinition.MISSILE,
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
@@ -320,6 +319,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
                 true,
                 managers.assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE),
+                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
                 -5F
             ),
             BulletBehavior.CURVE
