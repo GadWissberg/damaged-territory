@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -160,21 +161,24 @@ class BulletSystem : GameEntitySystem() {
         aimingTransform: Matrix4,
         armProperties: ArmProperties,
     ) {
+        val transform = gameModelInstance.modelInstance.transform
         EntityBuilder.addPhysicsComponentPooled(
             bullet,
             armProperties.rigidBodyPool,
             managers.dispatcher,
+            CollisionFlags.CF_CHARACTER_OBJECT,
+            transform,
         )
-        gameModelInstance.modelInstance.transform.rotate(aimingTransform.getRotation(auxQuat)).rotate(
+        transform.rotate(aimingTransform.getRotation(auxQuat)).rotate(
             Vector3.Z,
             armProperties.initialRotationAroundZ
         )
         val physicsComponent = ComponentsMapper.physics.get(bullet)
         physicsComponent.rigidBody.linearVelocity =
-            gameModelInstance.modelInstance.transform.getRotation(auxQuat)
+            transform.getRotation(auxQuat)
                 .transform(auxVector2.set(1F, 0F, 0F))
                 .scl(armProperties.speed)
-        physicsComponent.rigidBody.worldTransform = gameModelInstance.modelInstance.transform
+        physicsComponent.rigidBody.worldTransform = transform
         physicsComponent.rigidBody.gravity = Vector3.Zero
         physicsComponent.rigidBody.contactCallbackFilter =
             btBroadphaseProxy.CollisionFilterGroups.AllFilter
@@ -212,6 +216,8 @@ class BulletSystem : GameEntitySystem() {
                                 entity
                             ).gameModelInstance
                         )
+                    val rigidBody = ComponentsMapper.physics.get(entity).rigidBody
+                    rigidBody.rigidBodyPool?.free(rigidBody)
                 }
             }
 

@@ -12,7 +12,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.*
@@ -25,7 +24,9 @@ import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
+import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
@@ -244,12 +245,16 @@ class EntityBuilder private constructor() {
     fun addPhysicsComponentPooled(
         rigidBodyPool: RigidBodyPool,
         dispatcher: MessageDispatcher,
+        collisionFlag: Int,
+        transform: Matrix4,
         applyGravity: Boolean,
     ): EntityBuilder {
         val physicsComponent = Companion.addPhysicsComponentPooled(
             entity!!,
             rigidBodyPool,
             dispatcher,
+            collisionFlag,
+            transform,
             applyGravity
         )
         entity!!.add(physicsComponent)
@@ -288,25 +293,42 @@ class EntityBuilder private constructor() {
             collisionFlag: Int? = null,
             applyGravity: Boolean = false
         ): PhysicsComponent {
-            val rigidBody = managers.rigidBodyFactory.create(mass, transform, shape, collisionFlag)
-            return addPhysicsComponent(entity, rigidBody, managers.dispatcher, applyGravity)
+            val rigidBody = managers.rigidBodyFactory.create(mass, shape, collisionFlag, null, transform)
+            return addPhysicsComponent(entity, rigidBody, managers.dispatcher, null, null, applyGravity)
         }
 
         fun addPhysicsComponentPooled(
             entity: Entity,
             rigidBodyPool: RigidBodyPool,
             dispatcher: MessageDispatcher,
+            collisionFlag: Int,
+            transform: Matrix4,
             applyGravity: Boolean = false
         ): PhysicsComponent {
-            return addPhysicsComponent(entity, rigidBodyPool.obtain(), dispatcher, applyGravity)
+            return addPhysicsComponent(
+                entity,
+                rigidBodyPool.obtain(),
+                dispatcher,
+                collisionFlag,
+                transform,
+                applyGravity
+            )
         }
 
         private fun addPhysicsComponent(
             entity: Entity,
-            rigidBody: btRigidBody,
+            rigidBody: RigidBody,
             dispatcher: MessageDispatcher,
+            collisionFlag: Int?,
+            transform: Matrix4?,
             applyGravity: Boolean,
         ): PhysicsComponent {
+            if (collisionFlag != null) {
+                rigidBody.collisionFlags = collisionFlag
+            }
+            if (transform != null) {
+                (rigidBody.motionState as MotionState).transformObject = transform
+            }
             val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
             physicsComponent.init(rigidBody)
             physicsComponent.rigidBody.userData = entity
