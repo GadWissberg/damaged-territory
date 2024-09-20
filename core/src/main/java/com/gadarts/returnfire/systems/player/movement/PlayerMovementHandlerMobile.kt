@@ -22,11 +22,6 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler() {
         }
     }
 
-    private fun updateDesiredDirection(directionX: Float, directionY: Float) {
-        desiredDirectionChanged = true
-        desiredDirection.set(directionX, directionY)
-    }
-
     override fun update(
         player: Entity,
     ) {
@@ -53,10 +48,9 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler() {
         }
     }
 
-    override fun reverse(player: Entity) {
+    override fun reverse() {
 
     }
-
 
     override fun onTouchUp(keycode: Int) {
         desiredDirection.setZero()
@@ -67,6 +61,12 @@ class PlayerMovementHandlerMobile : PlayerMovementHandler() {
 
     override fun initialize(camera: PerspectiveCamera) {
         this.camera = camera
+    }
+
+
+    private fun updateDesiredDirection(directionX: Float, directionY: Float) {
+        desiredDirectionChanged = true
+        desiredDirection.set(directionX, directionY)
     }
 
     companion object {

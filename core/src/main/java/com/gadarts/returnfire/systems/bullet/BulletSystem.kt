@@ -84,13 +84,14 @@ class BulletSystem : GameEntitySystem() {
         val position = parentTransform.getTranslation(auxVector1)
         position.add(BulletCreationRequestEventData.relativePosition)
         showSpark(spark, position, parentTransform)
+        val renderData = armProperties.renderData
         val gameModelInstance =
-            gameSessionData.pools.gameModelInstancePools[armProperties.modelDefinition]!!.obtain()
+            gameSessionData.pools.gameModelInstancePools[renderData.modelDefinition]!!.obtain()
         val entityBuilder = EntityBuilder.begin()
-            .addModelInstanceComponent(gameModelInstance, position, armProperties.boundingBox)
+            .addModelInstanceComponent(gameModelInstance, position, renderData.boundingBox)
             .addBulletComponent(
                 armComponent.behavior,
-                armProperties.explosion,
+                armProperties.effectsData.explosion,
                 armProperties.explosive,
                 BulletCreationRequestEventData.friendly,
                 armProperties.damage
@@ -111,7 +112,7 @@ class BulletSystem : GameEntitySystem() {
         EntityBuilder.begin()
             .addParticleEffectComponent(
                 position,
-                arm.armProperties.sparkParticleEffect
+                arm.armProperties.effectsData.sparkParticleEffect
             )
             .finishAndAddToEngine()
     }
@@ -137,7 +138,8 @@ class BulletSystem : GameEntitySystem() {
         gameModelInstance: GameModelInstance,
         position: Vector3
     ) {
-        if (armProperties.smokeEmit != null) {
+        val effectsData = armProperties.effectsData
+        if (effectsData.smokeEmit != null) {
             val yaw = gameModelInstance.modelInstance.transform.getRotation(
                 auxQuat
             ).yaw
@@ -149,7 +151,7 @@ class BulletSystem : GameEntitySystem() {
                             yaw
                         ).scl(0.25F)
                     ),
-                    armProperties.smokeEmit,
+                    effectsData.smokeEmit,
                     yaw
                 ).finishAndAddToEngine()
         }
@@ -171,7 +173,7 @@ class BulletSystem : GameEntitySystem() {
         )
         transform.rotate(aimingTransform.getRotation(auxQuat)).rotate(
             Vector3.Z,
-            armProperties.initialRotationAroundZ
+            armProperties.renderData.initialRotationAroundZ
         )
         val physicsComponent = ComponentsMapper.physics.get(bullet)
         physicsComponent.rigidBody.linearVelocity =
@@ -189,11 +191,12 @@ class BulletSystem : GameEntitySystem() {
         entityBuilder: EntityBuilder,
         position: Vector3
     ) {
-        if (arm.armProperties.smokeTrail != null) {
+        val effectsData = arm.armProperties.effectsData
+        if (effectsData.smokeTrail != null) {
             entityBuilder
                 .addParticleEffectComponent(
                     position = position,
-                    pool = arm.armProperties.smokeTrail!!,
+                    pool = effectsData.smokeTrail,
                     thisEntityAsParent = true
                 )
         }

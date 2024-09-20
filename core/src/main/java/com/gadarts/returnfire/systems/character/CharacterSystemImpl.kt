@@ -177,13 +177,6 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     }
 
-    override fun createBullet(
-        arm: ArmComponent,
-        relativePosition: Vector3,
-        friendly: Boolean
-    ) {
-    }
-
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()

@@ -60,7 +60,7 @@ configure(subprojects - project(':android')) {
 }
 
 subprojects {
-  version = '0.5.0'
+  version = '0.6.0'
   ext.appName = 'damaged-territory'
   repositories {
     mavenCentral()

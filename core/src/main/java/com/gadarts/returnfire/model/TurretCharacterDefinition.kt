@@ -6,10 +6,9 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 enum class TurretCharacterDefinition(
     private val hp: Int,
     private val baseModelDefinition: ModelDefinition,
-    val turretModelDefinition: ModelDefinition,
-    val smokeEmissionRelativePosition: Vector3,
+    private val smokeEmissionRelativePosition: Vector3,
 ) : CharacterDefinition {
-    TURRET_CANNON(20, ModelDefinition.TURRET_BASE, ModelDefinition.TURRET_CANNON, Vector3(0F, 2F, 0F));
+    TURRET_CANNON(20, ModelDefinition.TURRET_BASE, Vector3(0F, 2F, 0F));
 
     override fun getModelDefinition(): ModelDefinition {
         return baseModelDefinition

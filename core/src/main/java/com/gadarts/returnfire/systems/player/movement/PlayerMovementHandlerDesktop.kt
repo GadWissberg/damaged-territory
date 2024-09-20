@@ -72,7 +72,7 @@ class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
         rotation = clockwise
     }
 
-    override fun reverse(player: Entity) {
+    override fun reverse() {
         movement = MOVEMENT_REVERSE
         tiltAnimationHandler.tiltBackwards()
     }

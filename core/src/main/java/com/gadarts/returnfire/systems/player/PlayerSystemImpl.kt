@@ -18,7 +18,9 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
+import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -88,7 +90,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             }
 
             Input.Keys.DOWN -> {
-                playerMovementHandler.reverse(gameSessionData.player)
+                playerMovementHandler.reverse()
             }
 
             Input.Keys.LEFT -> {
@@ -254,15 +256,19 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN),
                 PRI_RELOAD_DUR,
                 PRI_BULLET_SPEED,
-                null,
-                ModelDefinition.BULLET,
-                null,
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
-                null,
+                ArmEffectsData(
+                    null,
+                    null,
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
+                    null
+                ),
+                ArmRenderData(
+                    ModelDefinition.BULLET,
+                    managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
+                    -45F,
+                ),
                 false,
-                managers.assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
                 gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.BULLET),
-                -45F,
             ),
             BulletBehavior.REGULAR
         )
@@ -272,8 +278,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     private fun addSpark(
         machineGunSparkModel: Model,
         relativePositionCalculator: ArmComponent.RelativePositionCalculator
-    ) =
-        EntityBuilder.begin()
+    ): Entity {
+        return EntityBuilder.begin()
             .addModelInstanceComponent(
                 GameModelInstance(ModelInstance(machineGunSparkModel), ModelDefinition.MACHINE_GUN_SPARK),
                 Vector3(),
@@ -282,6 +288,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             )
             .addSparkComponent(relativePositionCalculator)
             .finishAndAddToEngine()
+    }
 
     private val secRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
         override fun calculate(parent: Entity, output: Vector3): Vector3 {
@@ -312,15 +319,19 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 managers.assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
                 SEC_RELOAD_DUR,
                 SEC_BULLET_SPEED,
-                ParticleEffectDefinition.EXPLOSION_SMALL,
-                ModelDefinition.MISSILE,
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
+                ArmEffectsData(
+                    ParticleEffectDefinition.EXPLOSION_SMALL,
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
+                ),
+                ArmRenderData(
+                    ModelDefinition.MISSILE,
+                    managers.assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE),
+                    -5F
+                ),
                 true,
-                managers.assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE),
                 gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
-                -5F
             ),
             BulletBehavior.CURVE
         )

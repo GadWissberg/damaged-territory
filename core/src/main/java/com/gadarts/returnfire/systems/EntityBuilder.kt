@@ -4,8 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.audio.Sound
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
@@ -64,15 +62,6 @@ class EntityBuilder private constructor() {
         entity!!.add(component)
         return instance
 
-    }
-
-    private fun createDecal(texture: TextureRegion): Decal {
-        return Decal.newDecal(
-            texture.regionWidth * DECAL_SCALE,
-            texture.regionHeight * DECAL_SCALE,
-            texture,
-            true
-        )
     }
 
     fun addAmbSoundComponent(sound: Sound): EntityBuilder {
@@ -269,7 +258,6 @@ class EntityBuilder private constructor() {
     }
 
     companion object {
-        private const val DECAL_SCALE = 0.005F
         private val auxVector = Vector3()
         private lateinit var instance: EntityBuilder
         var entity: Entity? = null

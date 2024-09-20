@@ -1,23 +1,9 @@
 package com.gadarts.returnfire
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.audio.Sound
-import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 
 class SoundPlayer {
-
-    fun playPositionalSound(
-        sound: Sound,
-        entity: Entity,
-        camera: PerspectiveCamera,
-        randomPitch: Boolean = false,
-    ): Long {
-        if (!GameDebugSettings.SFX) return -1
-        val pitch = if (randomPitch) MathUtils.random(PITCH_MIN, PITCH_MAX) else 1F
-        val volume = GeneralUtils.calculateVolumeAccordingToPosition(entity, camera)
-        return sound.play(volume, pitch, 0F)
-    }
 
     fun loopSound(sound: Sound): Long {
         if (!GameDebugSettings.SFX) return -1

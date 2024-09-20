@@ -88,7 +88,7 @@ abstract class PlayerMovementHandler {
         tiltAnimationHandler.lateralTilt(clockwise)
     }
 
-    abstract fun reverse(player: Entity)
+    abstract fun reverse()
 
     companion object {
         private val auxVector3_1 = Vector3()

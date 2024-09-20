@@ -5,7 +5,10 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
-import com.badlogic.gdx.math.*
+import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Quaternion
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
@@ -219,7 +222,6 @@ class EnemySystem : GameEntitySystem() {
     }
 
     companion object {
-        private val auxVector2 = Vector2()
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
         private val auxVector3_3 = Vector3()

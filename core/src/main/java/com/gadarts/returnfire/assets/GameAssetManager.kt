@@ -32,6 +32,28 @@ open class GameAssetManager : AssetManager() {
 
     fun loadAssets() {
         initializeCustomLoaders()
+        loadAllAssets()
+        finishLoading()
+        getTexturesDefinitions().definitions.forEach {
+            if (it.value.frames == 1) {
+                load(
+                    "${TextureDefinition.FOLDER}${File.separator}${it.value.fileName}.${TextureDefinition.FORMAT}",
+                    Texture::class.java
+                )
+            } else {
+                for (i in 0 until it.value.frames) {
+                    load(
+                        "${TextureDefinition.FOLDER}${File.separator}${it.value.fileName}_$i.${TextureDefinition.FORMAT}",
+                        Texture::class.java
+                    )
+                }
+            }
+        }
+        finishLoading()
+        generateModelsBoundingBoxes()
+    }
+
+    private fun loadAllAssets() {
         AssetsTypes.entries.forEach { type ->
             if (type.loadedUsingLoader) {
                 if (type.assets.isNotEmpty()) {
@@ -62,24 +84,6 @@ open class GameAssetManager : AssetManager() {
                 }
             }
         }
-        finishLoading()
-        getTexturesDefinitions().definitions.forEach {
-            if (it.value.frames == 1) {
-                load(
-                    "${TextureDefinition.FOLDER}${File.separator}${it.value.fileName}.${TextureDefinition.FORMAT}",
-                    Texture::class.java
-                )
-            } else {
-                for (i in 0 until it.value.frames) {
-                    load(
-                        "${TextureDefinition.FOLDER}${File.separator}${it.value.fileName}_$i.${TextureDefinition.FORMAT}",
-                        Texture::class.java
-                    )
-                }
-            }
-        }
-        finishLoading()
-        generateModelsBoundingBoxes()
     }
 
     fun getTexturesDefinitions(): ExternalDefinitions<TextureDefinition> {

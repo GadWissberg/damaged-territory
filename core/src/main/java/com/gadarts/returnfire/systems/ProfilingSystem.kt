@@ -56,7 +56,7 @@ class ProfilingSystem : GameEntitySystem() {
             displayLine(LABEL_FPS, Gdx.graphics.framesPerSecond)
             displayGlProfiling()
             displayBatchCalls()
-            displayLine("Version: ", "0.5")
+            displayLine("Version: ", "0.6")
             if (GameDebugSettings.SHOW_OBJECT_POOL_PROFILING) {
                 displayLine("Ground blast pool:", "${gameSessionData.groundBlastPool.free}")
                 gameSessionData.pools.gameModelInstancePools.forEach { pair ->
