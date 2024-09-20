@@ -387,10 +387,10 @@ class MapSystem : GameEntitySystem() {
         return EntityBuilder.addPhysicsComponent(
             entity,
             createShapeForStaticObject(gameModelInstance.definition!!),
-            Matrix4(gameModelInstance.modelInstance.transform),
             0F,
             managers,
             btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
+            Matrix4(gameModelInstance.modelInstance.transform),
         )
     }
 
@@ -472,10 +472,10 @@ class MapSystem : GameEntitySystem() {
         EntityBuilder.addPhysicsComponent(
             turret,
             shape,
-            modelInstance.transform,
             10F,
             managers,
             btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT,
+            modelInstance.transform,
         )
 
     }

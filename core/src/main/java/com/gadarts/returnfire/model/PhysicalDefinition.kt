@@ -15,7 +15,7 @@ enum class PhysicalDefinition(
             override fun create(boundingBox: BoundingBox): btCollisionShape {
                 val auxVector = GeneralUtils.auxVector
                 val halfExtents = boundingBox.getDimensions(auxVector).scl(0.5F)
-                val shape = btBoxShape(auxVector.set(halfExtents.z, halfExtents.y / 2F, halfExtents.x / 2F))
+                val shape = btBoxShape(halfExtents)
                 return shape
             }
 

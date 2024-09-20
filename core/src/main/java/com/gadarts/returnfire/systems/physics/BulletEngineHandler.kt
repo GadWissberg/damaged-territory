@@ -85,7 +85,7 @@ class BulletEngineHandler(
         }
     }
 
-    override fun entityRemoved(entity: Entity?) {
+    override fun entityRemoved(entity: Entity) {
         if (ComponentsMapper.physics.has(entity)) {
             val physicsComponent = ComponentsMapper.physics[entity]
             physicsComponent.rigidBody.activationState = 0

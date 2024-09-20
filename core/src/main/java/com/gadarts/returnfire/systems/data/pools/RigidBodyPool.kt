@@ -16,8 +16,7 @@ class RigidBodyPool(
         return rigidBodyFactory.create(
             physicalDefinition.mass,
             physicalDefinition.shapeCreator.create(assetsManager.getCachedBoundingBox(definition)),
-            null,
-            this
+            this,
         )
     }
 
