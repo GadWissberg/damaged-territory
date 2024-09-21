@@ -1,10 +1,11 @@
 package com.gadarts.returnfire.components.bullet
 
+import com.badlogic.ashley.core.Component
+import com.badlogic.gdx.utils.Pool.Poolable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.components.GameComponent
 
-class BulletComponent : GameComponent() {
+class BulletComponent : Component, Poolable {
     var damage: Int = 0
         private set
     var friendly: Boolean = false

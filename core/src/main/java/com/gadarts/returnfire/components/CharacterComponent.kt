@@ -1,27 +1,21 @@
 package com.gadarts.returnfire.components
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.gadarts.returnfire.model.CharacterDefinition
 
-class CharacterComponent : GameComponent() {
+class CharacterComponent(val definition: CharacterDefinition) : Component {
+    var smokeEmission: Entity? = null
     lateinit var child: Entity
     var hp: Int = 0
         private set
-    lateinit var definition: CharacterDefinition
-        private set
-    var smokeEmission: Entity? = null
     var dead: Boolean = false
         private set
 
-    override fun reset() {
+    init {
+        this.hp = definition.getHP()
     }
 
-    fun init(definition: CharacterDefinition) {
-        this.hp = definition.getHP()
-        this.definition = definition
-        this.smokeEmission = null
-        this.dead = false
-    }
 
     fun takeDamage(damage: Int) {
         hp -= damage

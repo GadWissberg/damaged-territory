@@ -1,25 +1,18 @@
 package com.gadarts.returnfire.components
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.model.AmbDefinition
 
-class AmbComponent : GameComponent() {
-    private lateinit var definition: AmbDefinition
+class AmbComponent(scale: Vector3, val rotation: Float, val def: AmbDefinition) : Component {
     private val scale = Vector3()
-    var rotation: Float = 0F
 
-    override fun reset() {
-
+    init {
+        this.scale.set(scale)
     }
 
     fun getScale(output: Vector3): Vector3 {
         return output.set(scale)
-    }
-
-    fun init(scale: Vector3, rotation: Float, def: AmbDefinition) {
-        this.scale.set(scale)
-        this.rotation = rotation
-        this.definition = def
     }
 
 }

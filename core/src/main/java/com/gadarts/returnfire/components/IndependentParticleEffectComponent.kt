@@ -1,12 +1,14 @@
 package com.gadarts.returnfire.components
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.Pool.Poolable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 
-class ParticleEffectComponent : GameComponent() {
+class ParticleEffectComponent : Component, Poolable {
 
     var createdAt: Long = 0
         private set

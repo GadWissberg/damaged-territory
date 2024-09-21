@@ -1,18 +1,11 @@
 package com.gadarts.returnfire.components
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 
-class SparkComponent : GameComponent() {
+class SparkComponent(val relativePositionCalculator: ArmComponent.RelativePositionCalculator) : Component {
 
-    lateinit var relativePositionCalculator: ArmComponent.RelativePositionCalculator
     lateinit var parent: Entity
 
-    override fun reset() {
-
-    }
-
-    fun init(relativePositionCalculator: ArmComponent.RelativePositionCalculator) {
-        this.relativePositionCalculator = relativePositionCalculator
-    }
 
 }

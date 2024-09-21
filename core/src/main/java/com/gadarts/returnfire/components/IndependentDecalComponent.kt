@@ -1,18 +1,13 @@
 package com.gadarts.returnfire.components
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.utils.TimeUtils
 
-class IndependentDecalComponent : GameComponent() {
+class IndependentDecalComponent(val decal: Decal, lifeInMillis: Long) : Component {
     var ttl: Long = 0L
-    lateinit var decal: Decal
 
-    override fun reset() {
-
-    }
-
-    fun init(decal: Decal, lifeInMillis: Long) {
-        this.decal = decal
+    init {
         this.ttl = TimeUtils.millis() + lifeInMillis
     }
 

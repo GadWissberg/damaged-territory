@@ -1,10 +1,11 @@
 package com.gadarts.returnfire.components.model
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.gadarts.returnfire.components.GameComponent
+import com.badlogic.gdx.utils.Pool
 
-class ModelInstanceComponent : GameComponent() {
+class ModelInstanceComponent : Component, Pool.Poolable {
     var hidden: Boolean = false
     var hideAt: Long = -1
     lateinit var gameModelInstance: GameModelInstance

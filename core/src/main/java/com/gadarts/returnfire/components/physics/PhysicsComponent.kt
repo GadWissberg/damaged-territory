@@ -1,9 +1,10 @@
 package com.gadarts.returnfire.components.physics
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.components.GameComponent
+import com.badlogic.gdx.utils.Pool.Poolable
 
-class PhysicsComponent : GameComponent(), Disposable {
+class PhysicsComponent : Component, Poolable, Disposable {
     lateinit var rigidBody: RigidBody
 
     override fun reset() {

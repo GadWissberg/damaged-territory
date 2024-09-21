@@ -45,6 +45,7 @@ class PlayerShootingHandler {
         event: SystemEvents,
     ) {
         if (!shooting) return
+
         val now = TimeUtils.millis()
         if (armComp.loaded <= now) {
             armComp.displaySpark = now

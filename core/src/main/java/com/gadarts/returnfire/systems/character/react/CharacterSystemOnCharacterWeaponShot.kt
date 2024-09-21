@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.systems.character.react
 
+import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -21,7 +22,7 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
         val sparkComponent = ComponentsMapper.spark.get(arm.spark)
         val relativePosition = sparkComponent.relativePositionCalculator.calculate(
             sparkComponent.parent,
-            arm.relativePos
+            arm.getRelativePosition(auxVector)
         )
         characterSystem.positionSpark(
             arm,
@@ -37,4 +38,7 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
         managers.dispatcher.dispatchMessage(SystemEvents.BULLET_CREATION_REQUEST.ordinal)
     }
 
+    companion object {
+        private val auxVector = Vector3()
+    }
 }

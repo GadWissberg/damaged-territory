@@ -1,10 +1,8 @@
 package com.gadarts.returnfire.components
 
-class GroundComponent : GameComponent() {
+import com.badlogic.ashley.core.Component
+
+class GroundComponent : Component {
     var water: Boolean = false
-
-    override fun reset() {
-
-    }
 
 }

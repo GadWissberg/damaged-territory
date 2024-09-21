@@ -57,30 +57,26 @@ class EntityBuilder private constructor() {
         decals: List<ChildDecal>,
         animateRotation: Boolean
     ): EntityBuilder {
-        val component = engine.createComponent(ChildDecalComponent::class.java)
-        component.init(decals, animateRotation)
+        val component = ChildDecalComponent(decals, animateRotation)
         entity!!.add(component)
         return instance
 
     }
 
     fun addAmbSoundComponent(sound: Sound): EntityBuilder {
-        val ambSoundComponent = engine.createComponent(AmbSoundComponent::class.java)
-        ambSoundComponent.init(sound)
+        val ambSoundComponent = AmbSoundComponent(sound)
         entity!!.add(ambSoundComponent)
         return instance
     }
 
     fun addCharacterComponent(definition: CharacterDefinition): EntityBuilder {
-        val characterComponent = engine.createComponent(CharacterComponent::class.java)
-        characterComponent.init(definition)
+        val characterComponent = CharacterComponent(definition)
         entity!!.add(characterComponent)
         return instance
     }
 
     fun addPlayerComponent(): EntityBuilder {
-        val characterComponent = engine.createComponent(PlayerComponent::class.java)
-        characterComponent.init()
+        val characterComponent = PlayerComponent()
         entity!!.add(characterComponent)
         return instance
     }
@@ -90,12 +86,10 @@ class EntityBuilder private constructor() {
         armProperties: ArmProperties,
         bulletBehavior: BulletBehavior
     ): EntityBuilder {
-        return addArmComponent(
-            PrimaryArmComponent::class.java,
-            spark,
-            armProperties,
-            bulletBehavior
-        )
+        ComponentsMapper.spark.get(spark).parent = entity!!
+        val armComponent = PrimaryArmComponent(armProperties, spark, bulletBehavior)
+        entity!!.add(armComponent)
+        return instance
     }
 
     fun addSecondaryArmComponent(
@@ -103,26 +97,12 @@ class EntityBuilder private constructor() {
         armProperties: ArmProperties,
         bulletBehavior: BulletBehavior
     ): EntityBuilder {
-        return addArmComponent(
-            SecondaryArmComponent::class.java,
-            spark,
-            armProperties,
-            bulletBehavior
-        )
-    }
-
-    private fun addArmComponent(
-        armComponentType: Class<out ArmComponent>,
-        spark: Entity,
-        armProperties: ArmProperties,
-        bulletBehavior: BulletBehavior
-    ): EntityBuilder {
         ComponentsMapper.spark.get(spark).parent = entity!!
-        val armComponent = engine.createComponent(armComponentType)
-        armComponent.init(spark, armProperties, bulletBehavior)
+        val armComponent = SecondaryArmComponent(armProperties, spark, bulletBehavior)
         entity!!.add(armComponent)
         return instance
     }
+
 
     fun addBulletComponent(
         behavior: BulletBehavior,
@@ -138,8 +118,7 @@ class EntityBuilder private constructor() {
     }
 
     fun addAmbComponent(scale: Vector3, rotation: Float, def: AmbDefinition): EntityBuilder {
-        val ambComponent = engine.createComponent(AmbComponent::class.java)
-        ambComponent.init(scale, rotation, def)
+        val ambComponent = AmbComponent(scale, rotation, def)
         entity!!.add(ambComponent)
         return instance
     }
@@ -186,8 +165,7 @@ class EntityBuilder private constructor() {
     fun addSparkComponent(
         relativePositionCalculator: ArmComponent.RelativePositionCalculator,
     ): EntityBuilder {
-        val sparkComponent = engine.createComponent(SparkComponent::class.java)
-        sparkComponent.init(relativePositionCalculator)
+        val sparkComponent = SparkComponent(relativePositionCalculator)
         entity!!.add(sparkComponent)
         return instance
     }
@@ -200,8 +178,7 @@ class EntityBuilder private constructor() {
     }
 
     fun addTurretComponent(base: Entity): EntityBuilder {
-        val turretComponent = TurretComponent()
-        turretComponent.init(base)
+        val turretComponent = TurretComponent(base)
         entity!!.add(turretComponent)
         return instance
     }

@@ -90,7 +90,7 @@ class BulletSystem : GameEntitySystem() {
         val entityBuilder = EntityBuilder.begin()
             .addModelInstanceComponent(gameModelInstance, position, renderData.boundingBox)
             .addBulletComponent(
-                armComponent.behavior,
+                armComponent.bulletBehavior,
                 armProperties.effectsData.explosion,
                 armProperties.explosive,
                 BulletCreationRequestEventData.friendly,
