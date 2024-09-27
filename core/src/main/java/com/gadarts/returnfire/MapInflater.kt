@@ -241,7 +241,9 @@ class MapInflater(
     private fun addCharacters() {
         gameSessionData.currentMap.placedElements.filter {
             val definition = it.definition
-            definition.getType() == ElementType.CHARACTER && definition != SimpleCharacterDefinition.PLAYER
+            definition.getType() == ElementType.CHARACTER
+                && definition != SimpleCharacterDefinition.APACHE
+                && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(

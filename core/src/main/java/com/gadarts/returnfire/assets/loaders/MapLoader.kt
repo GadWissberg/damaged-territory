@@ -6,6 +6,7 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.GameException
 import com.gadarts.returnfire.model.*
 import com.google.gson.Gson
@@ -56,15 +57,19 @@ class MapLoader(resolver: FileHandleResolver) :
         return elementsJsonArray.map {
             val asJsonObject = it.asJsonObject
             val definitionName = asJsonObject.get(KEY_DEFINITION).asString
-            var definition: ElementDefinition? = null
             val allDefinitions = ElementType.entries.flatMap { elementType -> elementType.definitions.toList() }
-            try {
-                definition = allDefinitions.find { def -> def.getName() == definitionName }
-            } catch (e: IllegalArgumentException) {
+            var definition: ElementDefinition? = null
+            if (!definitionName.equals("PLAYER")) {
                 try {
-                    definition = AmbDefinition.valueOf(definitionName.uppercase(Locale.ROOT))
-                } catch (ignored: IllegalArgumentException) {
+                    definition = allDefinitions.find { def -> def.getName() == definitionName }
+                } catch (e: IllegalArgumentException) {
+                    try {
+                        definition = AmbDefinition.valueOf(definitionName.uppercase(Locale.ROOT))
+                    } catch (ignored: IllegalArgumentException) {
+                    }
                 }
+            } else {
+                definition = GameDebugSettings.SELECTED_VEHICLE
             }
             val row = asJsonObject.get(KEY_ROW).asInt
             val col = asJsonObject.get(KEY_COL).asInt

@@ -6,8 +6,23 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 enum class SimpleCharacterDefinition(
     private val hp: Int,
     private val modelDefinition: ModelDefinition,
+    private val gravity: Vector3,
+    private val linearFactor: Vector3,
+    private val startHeight: Float,
 ) : CharacterDefinition {
-    PLAYER(50, ModelDefinition.APACHE);
+    APACHE(50, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), 3.9F);
+
+    override fun getLinearFactor(output: Vector3): Vector3 {
+        return output.set(linearFactor)
+    }
+
+    override fun getStartHeight(): Float {
+        return startHeight
+    }
+
+    override fun getGravity(output: Vector3): Vector3 {
+        return output.set(gravity)
+    }
 
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition

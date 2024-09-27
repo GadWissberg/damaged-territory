@@ -26,10 +26,11 @@ class PlayerSystemOnPhysicsSystemReady :
             CollisionFlags.CF_CHARACTER_OBJECT,
             Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform),
         )
-        physicsComponent.rigidBody.gravity = Vector3.Zero
+        val characterDefinition = ComponentsMapper.character.get(gameSessionData.player).definition
+        physicsComponent.rigidBody.gravity = characterDefinition.getGravity(Vector3())
         physicsComponent.rigidBody.setDamping(0F, 0.75F)
         physicsComponent.rigidBody.angularFactor = Vector3.Y
-        physicsComponent.rigidBody.linearFactor = Vector3(1F, 0F, 1F)
+        physicsComponent.rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
     }
 
     private fun createCollisionShape(): btCompoundShape {

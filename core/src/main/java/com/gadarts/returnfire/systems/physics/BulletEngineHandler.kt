@@ -67,7 +67,7 @@ class BulletEngineHandler(
                 gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_PLAYER,
-                    COLLISION_GROUP_ENEMY_BULLET
+                    COLLISION_GROUP_ENEMY_BULLET or COLLISION_GROUP_GROUND
                 )
             } else if (ComponentsMapper.enemy.has(entity)) {
                 gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(

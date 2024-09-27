@@ -1,5 +1,7 @@
 package com.gadarts.returnfire
 
+import com.gadarts.returnfire.model.SimpleCharacterDefinition
+
 object GameDebugSettings {
 
     const val SHOW_OBJECT_POOL_PROFILING = true
@@ -11,4 +13,5 @@ object GameDebugSettings {
     const val DISPLAY_PROPELLER = true
     const val HIDE_PLAYER = false
     const val HIDE_FLOOR = false
+    val SELECTED_VEHICLE = SimpleCharacterDefinition.APACHE
 }

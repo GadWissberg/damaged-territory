@@ -7,11 +7,26 @@ enum class TurretCharacterDefinition(
     private val hp: Int,
     private val baseModelDefinition: ModelDefinition,
     private val smokeEmissionRelativePosition: Vector3,
+    private val gravity: Vector3,
+    private val linearFactor: Vector3,
 ) : CharacterDefinition {
-    TURRET_CANNON(20, ModelDefinition.TURRET_BASE, Vector3(0F, 2F, 0F));
+    TURRET_CANNON(20, ModelDefinition.TURRET_BASE, Vector3(0F, 2F, 0F), Vector3.Zero, Vector3.Zero),
+    TANK(100, ModelDefinition.TANK_BODY, Vector3.Zero, Vector3(0F, -10F, 0F), Vector3(1F, 1F, 1F));
 
     override fun getModelDefinition(): ModelDefinition {
         return baseModelDefinition
+    }
+
+    override fun getStartHeight(): Float {
+        return 0F
+    }
+
+    override fun getLinearFactor(output: Vector3): Vector3 {
+        return output.set(linearFactor)
+    }
+
+    override fun getGravity(output: Vector3): Vector3 {
+        return output.set(gravity)
     }
 
     override fun getSmokeEmissionRelativePosition(output: Vector3): Vector3 {
