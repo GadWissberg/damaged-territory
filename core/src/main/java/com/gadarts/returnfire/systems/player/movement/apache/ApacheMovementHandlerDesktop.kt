@@ -1,12 +1,11 @@
-package com.gadarts.returnfire.systems.player.movement
+package com.gadarts.returnfire.systems.player.movement.apache
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.gadarts.returnfire.components.ComponentsMapper
 
-
-class PlayerMovementHandlerDesktop : PlayerMovementHandler() {
+class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var movement: Int = 0
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera

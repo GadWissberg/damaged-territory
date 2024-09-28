@@ -9,22 +9,47 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandler
-import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerDesktop
-import com.gadarts.returnfire.systems.player.movement.PlayerMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.*
+import com.gadarts.returnfire.systems.player.movement.VehicleMovementHandler
+import com.gadarts.returnfire.systems.player.movement.apache.ApacheMovementHandlerDesktop
+import com.gadarts.returnfire.systems.player.movement.apache.ApacheMovementHandlerMobile
+import com.gadarts.returnfire.systems.player.movement.tank.TankMovementHandlerDesktop
+import com.gadarts.returnfire.systems.player.movement.tank.TankMovementHandlerMobile
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerFactory by lazy { PlayerFactory(managers.assetsManager, gameSessionData, playerShootingHandler) }
 
-    private val playerMovementHandler: PlayerMovementHandler by lazy {
-        if (gameSessionData.runsOnMobile) PlayerMovementHandlerMobile() else PlayerMovementHandlerDesktop()
+    private val playerMovementHandler: VehicleMovementHandler by lazy {
+        createPlayerMovementHandler()
+    }
+
+    private fun createPlayerMovementHandler(): VehicleMovementHandler {
+        val characterDefinition = ComponentsMapper.character.get(gameSessionData.player).definition
+        val runsOnMobile = gameSessionData.runsOnMobile
+        return if (characterDefinition == SimpleCharacterDefinition.APACHE) {
+            if (runsOnMobile) {
+                ApacheMovementHandlerMobile()
+            } else {
+                ApacheMovementHandlerDesktop()
+            }
+        } else {
+            if (runsOnMobile) {
+                TankMovementHandlerMobile()
+            } else {
+                TankMovementHandlerDesktop()
+            }
+        }
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(

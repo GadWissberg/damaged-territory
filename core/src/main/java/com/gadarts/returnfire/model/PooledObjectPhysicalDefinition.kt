@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.GeneralUtils
 
-enum class PhysicalDefinition(
+enum class PooledObjectPhysicalDefinition(
     val mass: Float,
     val shapeCreator: ShapeCreator,
 ) {

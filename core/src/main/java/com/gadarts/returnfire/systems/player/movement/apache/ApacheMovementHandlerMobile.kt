@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.player.movement
+package com.gadarts.returnfire.systems.player.movement.apache
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.PerspectiveCamera
@@ -8,8 +8,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-
-class PlayerMovementHandlerMobile : PlayerMovementHandler() {
+class ApacheMovementHandlerMobile : ApacheMovementHandler() {
     private val desiredDirection = Vector2()
     private lateinit var camera: PerspectiveCamera
     private var desiredDirectionChanged: Boolean = false

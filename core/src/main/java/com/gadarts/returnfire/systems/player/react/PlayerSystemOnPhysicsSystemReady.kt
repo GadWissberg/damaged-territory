@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -16,24 +17,38 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 class PlayerSystemOnPhysicsSystemReady :
     HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-        val playerShape = createCollisionShape()
+        val characterDefinition = ComponentsMapper.character.get(gameSessionData.player).definition
+        val isApache = characterDefinition == SimpleCharacterDefinition.APACHE
+        val playerShape =
+            if (isApache) createApacheCollisionShape() else btBoxShape(
+                Vector3(0.5F, 0.15F, 0.35F)
+            )
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.player)
+        val modelInstanceTransform =
+            modelInstanceComponent.gameModelInstance.modelInstance.transform
+        val physicsTransform =
+            if (isApache) Matrix4(modelInstanceTransform) else modelInstanceTransform
         val physicsComponent = EntityBuilder.addPhysicsComponent(
             gameSessionData.player,
             playerShape,
             10F,
             managers,
             CollisionFlags.CF_CHARACTER_OBJECT,
-            Matrix4(modelInstanceComponent.gameModelInstance.modelInstance.transform),
+            physicsTransform,
         )
-        val characterDefinition = ComponentsMapper.character.get(gameSessionData.player).definition
         physicsComponent.rigidBody.gravity = characterDefinition.getGravity(Vector3())
-        physicsComponent.rigidBody.setDamping(0F, 0.75F)
+        physicsComponent.rigidBody.setDamping(
+            if (isApache) 0F else 0.5F,
+            if (isApache) 0.75F else 0.99F
+        )
+        if (!isApache) {
+            physicsComponent.rigidBody.friction = 0F
+        }
         physicsComponent.rigidBody.angularFactor = Vector3.Y
         physicsComponent.rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
     }
 
-    private fun createCollisionShape(): btCompoundShape {
+    private fun createApacheCollisionShape(): btCompoundShape {
         val playerShape = btCompoundShape()
         val bodyShape = btBoxShape(
             Vector3(0.4F, 0.08F, 0.1F)
