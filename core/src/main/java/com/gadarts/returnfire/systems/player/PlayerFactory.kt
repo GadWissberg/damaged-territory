@@ -47,6 +47,31 @@ class PlayerFactory(
         val entityBuilder = EntityBuilder.begin()
         addPlayerBaseComponents(entityBuilder, placedPlayer, primarySpark)
         val player = entityBuilder.finish()
+        EntityBuilder.begin()
+        entityBuilder.addModelInstanceComponent(
+            GameModelInstance(
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_CANNON)),
+                ModelDefinition.TANK_CANNON
+            ),
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            ),
+            null
+        )
+        val cannon = entityBuilder.finishAndAddToEngine()
+        EntityBuilder.begin()
+        entityBuilder.addModelInstanceComponent(
+            GameModelInstance(
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
+                ModelDefinition.TANK_TURRET
+            ),
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            ),
+            null
+        )
+        entityBuilder.addTurretComponent(player, true, cannon)
+        entityBuilder.finishAndAddToEngine()
         return player
     }
 

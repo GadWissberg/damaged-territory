@@ -29,7 +29,9 @@ enum class ModelDefinition(
     MACHINE_GUN_SPARK,
     CANNON_SPARK,
     FLYING_PART(3),
-    TANK_BODY;
+    TANK_BODY,
+    TANK_TURRET,
+    TANK_CANNON;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()

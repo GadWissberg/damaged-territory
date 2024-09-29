@@ -11,10 +11,7 @@ import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.AmbSoundComponent
-import com.gadarts.returnfire.components.ArmComponent
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -33,11 +30,19 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             Family.all(AmbSoundComponent::class.java).get()
         )
     }
+
     private val charactersEntities: ImmutableArray<Entity> by lazy {
         engine!!.getEntitiesFor(
             Family.all(CharacterComponent::class.java).get()
         )
     }
+
+    private val turretEntities: ImmutableArray<Entity> by lazy {
+        engine!!.getEntitiesFor(
+            Family.all(TurretComponent::class.java).get()
+        )
+    }
+
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
         SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(this),
@@ -115,6 +120,31 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         update3dSound()
+        updateCharacters()
+        for (turret in turretEntities) {
+            val turretComponent = ComponentsMapper.turret.get(turret)
+            if (turretComponent.followBase) {
+                val base = turretComponent.base
+                ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform.setTranslation(
+                    auxVector1
+                ).translate(auxVector2.set(0F, 0.2F, 0F))
+            }
+            val cannon = turretComponent.cannon
+            if (cannon != null) {
+                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+                ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform.setTranslation(
+                    auxVector1
+                ).translate(auxVector2.set(0.31F, 0F, 0F))
+            }
+        }
+    }
+
+    private fun updateCharacters() {
         for (character in charactersEntities) {
             val characterComponent = ComponentsMapper.character.get(character)
             val hp = characterComponent.hp

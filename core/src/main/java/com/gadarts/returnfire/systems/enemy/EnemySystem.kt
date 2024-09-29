@@ -17,6 +17,7 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.EnemyComponent
 import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.CharacterType
@@ -123,13 +124,13 @@ class EnemySystem : GameEntitySystem() {
             .setEulerAngles(MathUtils.random(360F), MathUtils.random(360F), MathUtils.random(45F, 135F))
     ).scl(MathUtils.random(4F, 6F))
 
-    private val turretEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(Family.all(TurretComponent::class.java).get())
+    private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(Family.all(TurretComponent::class.java, EnemyComponent::class.java).get())
     }
 
 
     override fun update(deltaTime: Float) {
-        for (turret in turretEntities) {
+        for (turret in enemyTurretEntities) {
             if (ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base).dead) continue
 
             attack(deltaTime, turret)

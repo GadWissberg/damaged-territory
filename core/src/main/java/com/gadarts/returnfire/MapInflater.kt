@@ -190,7 +190,7 @@ class MapInflater(
                 ),
                 null,
             )
-            .addTurretComponent(baseEntity)
+            .addTurretComponent(baseEntity, false, null)
             .addPrimaryArmComponent(
                 spark,
                 ArmProperties(

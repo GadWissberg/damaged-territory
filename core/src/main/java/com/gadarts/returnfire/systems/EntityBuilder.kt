@@ -177,8 +177,8 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addTurretComponent(base: Entity): EntityBuilder {
-        val turretComponent = TurretComponent(base)
+    fun addTurretComponent(base: Entity, followBase: Boolean, cannon: Entity?): EntityBuilder {
+        val turretComponent = TurretComponent(base, followBase, cannon)
         entity!!.add(turretComponent)
         return instance
     }

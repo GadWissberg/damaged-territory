@@ -18,7 +18,7 @@ enum class TurretCharacterDefinition(
     }
 
     override fun getStartHeight(): Float {
-        return 0F
+        return 0.1F
     }
 
     override fun getLinearFactor(output: Vector3): Vector3 {
