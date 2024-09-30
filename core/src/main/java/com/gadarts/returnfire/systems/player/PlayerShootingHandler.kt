@@ -31,12 +31,14 @@ class PlayerShootingHandler {
             armComp,
             SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY,
         )
-        armComp = ComponentsMapper.secondaryArm.get(player)
-        handleShooting(
-            secShooting,
-            armComp,
-            SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY,
-        )
+        if (ComponentsMapper.secondaryArm.has(player)) {
+            armComp = ComponentsMapper.secondaryArm.get(player)
+            handleShooting(
+                secShooting,
+                armComp,
+                SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY,
+            )
+        }
     }
 
     private fun handleShooting(
@@ -50,9 +52,16 @@ class PlayerShootingHandler {
         if (armComp.loaded <= now) {
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
+            val direction =
+                if (!ComponentsMapper.turret.has(player) || ComponentsMapper.turret.get(player).cannon == null) {
+                    ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+                } else {
+                    val cannon = ComponentsMapper.turret.get(player).cannon
+                    ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
+                }
             CharacterWeaponShotEventData.set(
                 player,
-                ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+                direction
             )
             dispatcher.dispatchMessage(event.ordinal)
         }

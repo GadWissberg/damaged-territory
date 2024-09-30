@@ -37,7 +37,7 @@ class GameSessionData(
     companion object {
         const val FOV = 67F
         const val UI_TABLE_NAME = "ui_table"
-        const val SPARK_HEIGHT_BIAS = 0.4F
+        const val APACHE_SPARK_HEIGHT_BIAS = 0.4F
     }
 
     override fun dispose() {

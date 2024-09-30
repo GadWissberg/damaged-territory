@@ -25,7 +25,7 @@ import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.data.GameSessionData.Companion.SPARK_HEIGHT_BIAS
+import com.gadarts.returnfire.systems.data.GameSessionData.Companion.APACHE_SPARK_HEIGHT_BIAS
 
 class PlayerFactory(
     private val assetsManager: GameAssetManager,
@@ -109,17 +109,27 @@ class PlayerFactory(
         )
         entityBuilder.addCharacterComponent(GameDebugSettings.SELECTED_VEHICLE)
         entityBuilder.addPlayerComponent()
-        addPrimaryArmComponent(entityBuilder, primarySpark)
+        if (GameDebugSettings.SELECTED_VEHICLE == SimpleCharacterDefinition.APACHE) {
+            addApachePrimaryArmComponent(entityBuilder, primarySpark)
+        } else if (GameDebugSettings.SELECTED_VEHICLE == TurretCharacterDefinition.TANK) {
+            addTankPrimaryArmComponent(entityBuilder, primarySpark)
+        }
         ComponentsMapper.spark.get(primarySpark).parent = EntityBuilder.entity!!
     }
 
     private fun createPrimarySpark(): Entity {
         val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
-        val primarySpark = addSpark(machineGunSparkModel, primaryRelativePositionCalculator)
+        val calculator =
+            if (GameDebugSettings.SELECTED_VEHICLE == SimpleCharacterDefinition.APACHE) {
+                apachePrimaryRelativePositionCalculator
+            } else {
+                tankPrimaryRelativePositionCalculator
+            }
+        val primarySpark = addSpark(machineGunSparkModel, calculator)
         return primarySpark
     }
 
-    private fun addPrimaryArmComponent(
+    private fun addApachePrimaryArmComponent(
         entityBuilder: EntityBuilder,
         primarySpark: Entity,
     ): EntityBuilder {
@@ -128,8 +138,8 @@ class PlayerFactory(
             ArmProperties(
                 1,
                 assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN),
-                PRI_RELOAD_DUR,
-                PRI_BULLET_SPEED,
+                APACHE_PRI_RELOAD_DUR,
+                APACHE_PRI_BULLET_SPEED,
                 ArmEffectsData(
                     null,
                     null,
@@ -140,6 +150,35 @@ class PlayerFactory(
                     ModelDefinition.BULLET,
                     assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
                     -45F,
+                ),
+                false,
+                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.BULLET),
+            ),
+            BulletBehavior.REGULAR
+        )
+        return entityBuilder
+    }
+
+    private fun addTankPrimaryArmComponent(
+        entityBuilder: EntityBuilder,
+        primarySpark: Entity,
+    ): EntityBuilder {
+        entityBuilder.addPrimaryArmComponent(
+            primarySpark,
+            ArmProperties(
+                10,
+                assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN),
+                TANK_PRI_RELOAD_DUR,
+                TANK_PRI_BULLET_SPEED,
+                ArmEffectsData(
+                    null,
+                    null,
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
+                    null
+                ),
+                ArmRenderData(
+                    ModelDefinition.BULLET,
+                    assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
                 ),
                 false,
                 gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.BULLET),
@@ -177,7 +216,7 @@ class PlayerFactory(
                     if (playerShootingHandler.secondaryCreationSide) 1F else -1F
                 )
                     .rot(transform).scl(SECONDARY_POSITION_BIAS)
-            pos.y -= SPARK_HEIGHT_BIAS
+            pos.y -= APACHE_SPARK_HEIGHT_BIAS
             return pos
         }
     }
@@ -234,22 +273,34 @@ class PlayerFactory(
         )
     }
 
-    private val primaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
+    private val apachePrimaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
         override fun calculate(parent: Entity, output: Vector3): Vector3 {
             val transform =
                 ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
             val pos = output.set(0.3F, 0F, 0F).rot(transform)
-            pos.y -= SPARK_HEIGHT_BIAS
+            pos.y -= APACHE_SPARK_HEIGHT_BIAS
+            return pos
+        }
+    }
+
+    private val tankPrimaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
+        override fun calculate(parent: Entity, output: Vector3): Vector3 {
+            val transform =
+                ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
+            val pos = output.set(0.7F, 0F, 0F).rot(transform)
+            pos.y += 0.1F
             return pos
         }
     }
 
     companion object {
         private val auxVector3_1 = Vector3()
-        private const val PRI_RELOAD_DUR = 125L
+        private const val APACHE_PRI_RELOAD_DUR = 125L
+        private const val TANK_PRI_RELOAD_DUR = 2000L
         private const val SEC_RELOAD_DUR = 2000L
         private const val PROP_SIZE = 1.5F
-        private const val PRI_BULLET_SPEED = 16F
+        private const val APACHE_PRI_BULLET_SPEED = 16F
+        private const val TANK_PRI_BULLET_SPEED = 8F
         private const val SEC_BULLET_SPEED = 5F
         private const val SECONDARY_POSITION_BIAS = 0.2F
     }

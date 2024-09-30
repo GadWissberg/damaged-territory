@@ -22,7 +22,7 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
         val sparkComponent = ComponentsMapper.spark.get(arm.spark)
         val relativePosition = sparkComponent.relativePositionCalculator.calculate(
             sparkComponent.parent,
-            arm.getRelativePosition(auxVector)
+            auxVector
         )
         characterSystem.positionSpark(
             arm,

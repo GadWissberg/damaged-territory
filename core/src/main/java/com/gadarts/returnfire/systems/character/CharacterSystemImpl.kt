@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
@@ -125,21 +126,24 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             val turretComponent = ComponentsMapper.turret.get(turret)
             if (turretComponent.followBase) {
                 val base = turretComponent.base
-                ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
+                val baseTransform = ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
+                baseTransform.getTranslation(
                     auxVector1
                 )
-                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform.setTranslation(
+                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform.setToTranslation(
                     auxVector1
-                ).translate(auxVector2.set(0F, 0.2F, 0F))
+                ).translate(auxVector2.set(0F, 0.2F, 0F)).rotate(baseTransform.getRotation(auxQuat.idt()))
             }
             val cannon = turretComponent.cannon
             if (cannon != null) {
-                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform.getTranslation(
+                val turretTransform =
+                    ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
+                turretTransform.getTranslation(
                     auxVector1
                 )
-                ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform.setTranslation(
+                ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform.setToTranslation(
                     auxVector1
-                ).translate(auxVector2.set(0.31F, 0F, 0F))
+                ).rotate(turretTransform.getRotation(auxQuat.idt())).translate(auxVector2.set(0.31F, 0F, 0F))
             }
         }
     }
@@ -208,6 +212,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     }
 
     companion object {
+        private val auxQuat = Quaternion()
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
     }
