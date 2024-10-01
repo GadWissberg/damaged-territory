@@ -118,14 +118,16 @@ class PlayerFactory(
     }
 
     private fun createPrimarySpark(): Entity {
-        val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
+        val sparkModel: ModelDefinition
         val calculator =
             if (GameDebugSettings.SELECTED_VEHICLE == SimpleCharacterDefinition.APACHE) {
+                sparkModel = ModelDefinition.MACHINE_GUN_SPARK
                 apachePrimaryRelativePositionCalculator
             } else {
+                sparkModel = ModelDefinition.CANNON_SPARK
                 tankPrimaryRelativePositionCalculator
             }
-        val primarySpark = addSpark(machineGunSparkModel, calculator)
+        val primarySpark = addSpark(assetsManager.getAssetByDefinition(sparkModel), calculator)
         return primarySpark
     }
 
@@ -171,17 +173,17 @@ class PlayerFactory(
                 TANK_PRI_RELOAD_DUR,
                 TANK_PRI_BULLET_SPEED,
                 ArmEffectsData(
+                    ParticleEffectDefinition.EXPLOSION,
                     null,
-                    null,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
-                    null
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_MED),
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
                 ),
                 ArmRenderData(
-                    ModelDefinition.BULLET,
-                    assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
+                    ModelDefinition.TANK_CANNON_BULLET,
+                    assetsManager.getCachedBoundingBox(ModelDefinition.TANK_CANNON_BULLET),
                 ),
-                false,
-                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.BULLET),
+                true,
+                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.TANK_CANNON_BULLET),
             ),
             BulletBehavior.REGULAR
         )

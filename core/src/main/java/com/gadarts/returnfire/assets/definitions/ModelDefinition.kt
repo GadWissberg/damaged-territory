@@ -31,7 +31,8 @@ enum class ModelDefinition(
     FLYING_PART(3),
     TANK_BODY,
     TANK_TURRET,
-    TANK_CANNON;
+    TANK_CANNON,
+    TANK_CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.TANK_CANNON_BULLET);
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
