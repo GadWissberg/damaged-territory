@@ -189,6 +189,12 @@ class EntityBuilder private constructor() {
         return instance
     }
 
+    fun addTurretBaseComponent(): EntityBuilder {
+        val turretComponent = TurretBaseComponent()
+        entity!!.add(turretComponent)
+        return instance
+    }
+
     fun addPhysicsComponent(
         shape: btCollisionShape,
         managers: Managers,

@@ -46,19 +46,9 @@ class PlayerFactory(
         val primarySpark = createPrimarySpark()
         val entityBuilder = EntityBuilder.begin()
         addPlayerBaseComponents(entityBuilder, placedPlayer, primarySpark)
+        entityBuilder.addTurretBaseComponent()
         val player = entityBuilder.finish()
-        EntityBuilder.begin()
-        entityBuilder.addModelInstanceComponent(
-            GameModelInstance(
-                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_CANNON)),
-                ModelDefinition.TANK_CANNON
-            ),
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
-                auxVector3_1
-            ),
-            null
-        )
-        val cannon = entityBuilder.finishAndAddToEngine()
+        val cannon = addTankCannon(entityBuilder, player)
         EntityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
             GameModelInstance(
@@ -71,8 +61,28 @@ class PlayerFactory(
             null
         )
         entityBuilder.addTurretComponent(player, true, cannon)
-        entityBuilder.finishAndAddToEngine()
+        val turret = entityBuilder.finishAndAddToEngine()
+        ComponentsMapper.turretBase.get(player).turret = turret
         return player
+    }
+
+    private fun addTankCannon(
+        entityBuilder: EntityBuilder,
+        player: Entity
+    ): Entity {
+        EntityBuilder.begin()
+        entityBuilder.addModelInstanceComponent(
+            GameModelInstance(
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_CANNON)),
+                ModelDefinition.TANK_CANNON
+            ),
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            ),
+            null
+        )
+        val cannon = entityBuilder.finishAndAddToEngine()
+        return cannon
     }
 
     private fun createApache(
