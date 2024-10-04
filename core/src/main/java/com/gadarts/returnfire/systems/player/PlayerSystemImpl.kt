@@ -19,19 +19,18 @@ import com.gadarts.returnfire.systems.player.movement.apache.ApacheMovementHandl
 import com.gadarts.returnfire.systems.player.movement.apache.ApacheMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.movement.tank.TankMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.movement.tank.TankMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
+import com.gadarts.returnfire.systems.player.react.*
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerFactory by lazy { PlayerFactory(managers.assetsManager, gameSessionData, playerShootingHandler) }
+    private lateinit var playerMovementHandler: VehicleMovementHandler
 
-    private val playerMovementHandler: VehicleMovementHandler by lazy {
-        createPlayerMovementHandler()
+    override fun onSystemReady() {
+        super.onSystemReady()
+        playerMovementHandler = createPlayerMovementHandler()
+        playerMovementHandler.initialize(gameSessionData.renderData.camera)
     }
 
     private fun createPlayerMovementHandler(): VehicleMovementHandler {
@@ -44,10 +43,11 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 ApacheMovementHandlerDesktop()
             }
         } else {
+            val rigidBody = ComponentsMapper.physics.get(gameSessionData.player).rigidBody
             if (runsOnMobile) {
-                TankMovementHandlerMobile()
+                TankMovementHandlerMobile(rigidBody)
             } else {
-                TankMovementHandlerDesktop()
+                TankMovementHandlerDesktop(rigidBody)
             }
         }
     }
@@ -182,7 +182,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             managers.dispatcher,
             gameSessionData.player
         )
-        playerMovementHandler.initialize(gameSessionData.renderData.camera)
     }
 
     private fun initInputMethod() {

@@ -44,7 +44,7 @@ class PlayerSystemOnPhysicsSystemReady :
         if (!isApache) {
             physicsComponent.rigidBody.friction = 0F
         }
-        physicsComponent.rigidBody.angularFactor = Vector3.Y
+        physicsComponent.rigidBody.angularFactor = if (isApache) Vector3.Y else Vector3.Zero
         physicsComponent.rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
     }
 

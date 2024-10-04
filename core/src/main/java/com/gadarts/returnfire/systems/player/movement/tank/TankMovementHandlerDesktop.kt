@@ -3,9 +3,11 @@ package com.gadarts.returnfire.systems.player.movement.tank
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerDesktop : TankMovementHandler() {
+class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovementHandler(rigidBody) {
     private var movement: Int = 0
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
@@ -27,12 +29,14 @@ class TankMovementHandlerDesktop : TankMovementHandler() {
             Input.Keys.LEFT -> {
                 if (rotation > 0F) {
                     rotation = 0
+                    rigidBody.angularFactor = Vector3.Zero
                 }
             }
 
             Input.Keys.RIGHT -> {
                 if (rotation < 0F) {
                     rotation = 0
+                    rigidBody.angularFactor = Vector3.Zero
                 }
             }
 
@@ -62,6 +66,7 @@ class TankMovementHandlerDesktop : TankMovementHandler() {
 
 
     override fun applyRotation(clockwise: Int) {
+        super.applyRotation(clockwise)
         rotation = clockwise
     }
 

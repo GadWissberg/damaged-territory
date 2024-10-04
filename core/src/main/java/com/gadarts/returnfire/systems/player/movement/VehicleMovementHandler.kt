@@ -2,14 +2,19 @@ package com.gadarts.returnfire.systems.player.movement
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.model.TurretCharacterDefinition
+
 
 abstract class VehicleMovementHandler(
     private val lateralVelocityScale: Float,
-    private val rotationScale: Float
+    private val rotationScale: Float,
+    private val forwardForceSize: Float,
+    private val reverseForceSize: Float
 ) {
     abstract fun initialize(camera: PerspectiveCamera)
 
@@ -21,7 +26,7 @@ abstract class VehicleMovementHandler(
                     .transform(auxVector3_2.set(forwardDirection * 1F, 0F, 0F))
             rigidBody.applyCentralForce(
                 auxVector3_1.set(forward.x, 0F, forward.z)
-                    .scl(if (forwardDirection > 0) 50F else 25F)
+                    .scl(if (forwardDirection > 0) forwardForceSize else reverseForceSize)
             )
         }
     }
@@ -30,6 +35,19 @@ abstract class VehicleMovementHandler(
         player: Entity,
     ) {
         applyLateralDamping(player)
+        if (ComponentsMapper.character.get(player).definition == TurretCharacterDefinition.TANK) {
+            val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+            if (!rigidBody.linearVelocity.epsilonEquals(Vector3.Zero)) {
+                val transform: Matrix4 = rigidBody.worldTransform
+                transform.getRotation(auxQuaternion1)
+                val localZ = auxVector3_1.set(Vector3.Z)
+                auxQuaternion1.transform(localZ)
+                val velocity: Vector3 = rigidBody.linearVelocity
+                val sidewaysVelocity = velocity.dot(localZ)
+                velocity.mulAdd(localZ, -sidewaysVelocity)
+                rigidBody.linearVelocity = velocity
+            }
+        }
     }
 
     abstract fun thrust(

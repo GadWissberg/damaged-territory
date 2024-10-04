@@ -7,8 +7,9 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerMobile : TankMovementHandler() {
+class TankMovementHandlerMobile(rigidBody: RigidBody) : TankMovementHandler(rigidBody) {
     private val desiredDirection = Vector2()
     private lateinit var camera: PerspectiveCamera
     private var desiredDirectionChanged: Boolean = false
