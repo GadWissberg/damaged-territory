@@ -26,6 +26,7 @@ import com.gadarts.returnfire.model.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.GameSessionData.Companion.APACHE_SPARK_HEIGHT_BIAS
+import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 
 class PlayerFactory(
     private val assetsManager: GameAssetManager,
@@ -297,8 +298,9 @@ class PlayerFactory(
 
     private val tankPrimaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
         override fun calculate(parent: Entity, output: Vector3): Vector3 {
+            val turret = ComponentsMapper.turretBase.get(parent).turret
             val transform =
-                ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
+                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
             val pos = output.set(0.7F, 0F, 0F).rot(transform)
             pos.y += 0.1F
             return pos

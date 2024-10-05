@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.player.movement
+package com.gadarts.returnfire.systems.player.handlers.movement
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.PerspectiveCamera
@@ -80,6 +80,18 @@ abstract class VehicleMovementHandler(
         val lateralVelocity = auxVector3_1.set(velocity.x, 0f, velocity.z)
         val dampingForce: Vector3 = lateralVelocity.scl(lateralVelocityScale)
         rigidBody.applyCentralForce(dampingForce)
+    }
+
+    open fun letterPressedA() {
+    }
+
+    open fun letterPressedD() {
+    }
+
+    open fun letterReleasedA() {
+    }
+
+    open fun letterReleasedD() {
     }
 
     companion object {

@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.player
+package com.gadarts.returnfire.systems.player.handlers
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
@@ -53,10 +53,15 @@ class PlayerShootingHandler {
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
             val direction =
-                if (!ComponentsMapper.turret.has(player) || ComponentsMapper.turret.get(player).cannon == null) {
+                if (!ComponentsMapper.turretBase.has(player) || ComponentsMapper.turret.get(
+                        ComponentsMapper.turretBase.get(
+                            player
+                        ).turret
+                    ).cannon == null
+                ) {
                     ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
                 } else {
-                    val cannon = ComponentsMapper.turret.get(player).cannon
+                    val cannon = ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).cannon
                     ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
                 }
             CharacterWeaponShotEventData.set(
@@ -82,5 +87,4 @@ class PlayerShootingHandler {
     fun stopSecondaryShooting() {
         secShooting = false
     }
-
 }

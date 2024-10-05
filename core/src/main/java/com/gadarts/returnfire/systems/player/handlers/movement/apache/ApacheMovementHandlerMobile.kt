@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.player.movement.tank
+package com.gadarts.returnfire.systems.player.handlers.movement.apache
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.PerspectiveCamera
@@ -7,15 +7,15 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerMobile(rigidBody: RigidBody) : TankMovementHandler(rigidBody) {
+class ApacheMovementHandlerMobile : ApacheMovementHandler() {
     private val desiredDirection = Vector2()
     private lateinit var camera: PerspectiveCamera
     private var desiredDirectionChanged: Boolean = false
 
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float) {
+        super.thrust(player, directionX, directionY)
         if (directionX != 0F || directionY != 0F) {
             updateDesiredDirection(directionX, directionY)
         }
@@ -40,6 +40,7 @@ class TankMovementHandlerMobile(rigidBody: RigidBody) : TankMovementHandler(rigi
                 val negativeRotation = auxVector2.set(1F, 0F).setAngleDeg(diff).angleDeg() > 180
                 val clockwise = if (negativeRotation) -1 else 1
                 rotate(rigidBody, clockwise)
+                tiltAnimationHandler.lateralTilt(clockwise)
             } else {
                 rigidBody.angularVelocity = auxVector3.setZero()
             }
@@ -52,10 +53,8 @@ class TankMovementHandlerMobile(rigidBody: RigidBody) : TankMovementHandler(rigi
 
     override fun onTouchUp(keycode: Int) {
         desiredDirection.setZero()
-    }
-
-    override fun applyRotation(clockwise: Int) {
-
+        tiltAnimationHandler.returnToRollIdle()
+        tiltAnimationHandler.returnToPitchIdle()
     }
 
 

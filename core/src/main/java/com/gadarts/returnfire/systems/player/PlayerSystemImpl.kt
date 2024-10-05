@@ -14,11 +14,12 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.player.movement.VehicleMovementHandler
-import com.gadarts.returnfire.systems.player.movement.apache.ApacheMovementHandlerDesktop
-import com.gadarts.returnfire.systems.player.movement.apache.ApacheMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.movement.tank.TankMovementHandlerDesktop
-import com.gadarts.returnfire.systems.player.movement.tank.TankMovementHandlerMobile
+import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
+import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
+import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
+import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerMobile
+import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
+import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.react.*
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
@@ -115,6 +116,14 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             Input.Keys.SHIFT_LEFT -> {
                 playerShootingHandler.startSecondaryShooting()
             }
+
+            Input.Keys.A -> {
+                playerMovementHandler.letterPressedA()
+            }
+
+            Input.Keys.D -> {
+                playerMovementHandler.letterPressedD()
+            }
         }
         return false
     }
@@ -131,6 +140,14 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
             Input.Keys.SHIFT_LEFT -> {
                 playerShootingHandler.stopSecondaryShooting()
+            }
+
+            Input.Keys.A -> {
+                playerMovementHandler.letterReleasedA()
+            }
+
+            Input.Keys.D -> {
+                playerMovementHandler.letterReleasedD()
             }
         }
         return false

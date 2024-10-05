@@ -134,11 +134,11 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 val baseTransform = ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
                 baseTransform.getTranslation(auxVector1)
                 val turretTransform =
-                    ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform.setToTranslation(
-                        auxVector1
-                    ).translate(auxVector2.set(0F, 0.2F, 0F))
+                    ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
+                turretTransform.setToTranslation(auxVector1).translate(auxVector2.set(0F, 0.2F, 0F))
                 applyTurretOffsetFromBase(turretComponent, turretTransform)
                 turretTransform.rotate(baseTransform.getRotation(auxQuat.idt()))
+                turretTransform.rotate(Vector3.Y, turretComponent.turretRelativeRotation)
             }
             val cannon = turretComponent.cannon
             if (cannon != null) {

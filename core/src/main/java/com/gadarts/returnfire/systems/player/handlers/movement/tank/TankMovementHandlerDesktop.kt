@@ -1,11 +1,13 @@
-package com.gadarts.returnfire.systems.player.movement.apache
+package com.gadarts.returnfire.systems.player.handlers.movement.tank
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.physics.RigidBody
 
-class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
+class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovementHandler(rigidBody) {
     private var movement: Int = 0
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
@@ -15,28 +17,26 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
                     movement = 0
-                    tiltAnimationHandler.returnToRollIdle()
                 }
             }
 
             Input.Keys.DOWN -> {
                 if (movement == MOVEMENT_REVERSE) {
                     movement = 0
-                    tiltAnimationHandler.returnToRollIdle()
                 }
             }
 
             Input.Keys.LEFT -> {
                 if (rotation > 0F) {
                     rotation = 0
-                    tiltAnimationHandler.returnToPitchIdle()
+                    rigidBody.angularFactor = Vector3.Zero
                 }
             }
 
             Input.Keys.RIGHT -> {
                 if (rotation < 0F) {
                     rotation = 0
-                    tiltAnimationHandler.returnToPitchIdle()
+                    rigidBody.angularFactor = Vector3.Zero
                 }
             }
 
@@ -49,7 +49,6 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     }
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float) {
-        super.thrust(player, directionX, directionY)
         movement = MOVEMENT_FORWARD
     }
 
@@ -63,8 +62,29 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         if (rotation != ROTATION_IDLE) {
             rotate(rigidBody, rotation)
         }
+        if (turretRotating != 0) {
+            val turretRelativeRotation =
+                ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).turretRelativeRotation
+            ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).turretRelativeRotation =
+                (turretRelativeRotation + turretRotating) % 360F
+        }
     }
 
+    override fun letterPressedD() {
+        turretRotating = -1
+    }
+
+    override fun letterReleasedD() {
+        turretRotating = 0
+    }
+
+    override fun letterPressedA() {
+        turretRotating = 1
+    }
+
+    override fun letterReleasedA() {
+        turretRotating = 0
+    }
 
     override fun applyRotation(clockwise: Int) {
         super.applyRotation(clockwise)
@@ -73,7 +93,6 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
 
     override fun reverse() {
         movement = MOVEMENT_REVERSE
-        tiltAnimationHandler.tiltBackwards()
     }
 
     companion object {

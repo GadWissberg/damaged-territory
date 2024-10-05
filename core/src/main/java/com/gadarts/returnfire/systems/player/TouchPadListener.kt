@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.systems.player.movement.VehicleMovementHandler
+import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 
 class TouchPadListener(
     private val movementHandler: VehicleMovementHandler,

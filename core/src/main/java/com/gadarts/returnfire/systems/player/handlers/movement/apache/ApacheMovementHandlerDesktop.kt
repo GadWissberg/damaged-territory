@@ -1,13 +1,11 @@
-package com.gadarts.returnfire.systems.player.movement.tank
+package com.gadarts.returnfire.systems.player.handlers.movement.apache
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.PerspectiveCamera
-import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovementHandler(rigidBody) {
+class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var movement: Int = 0
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
@@ -17,26 +15,28 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovemen
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
                     movement = 0
+                    tiltAnimationHandler.returnToRollIdle()
                 }
             }
 
             Input.Keys.DOWN -> {
                 if (movement == MOVEMENT_REVERSE) {
                     movement = 0
+                    tiltAnimationHandler.returnToRollIdle()
                 }
             }
 
             Input.Keys.LEFT -> {
                 if (rotation > 0F) {
                     rotation = 0
-                    rigidBody.angularFactor = Vector3.Zero
+                    tiltAnimationHandler.returnToPitchIdle()
                 }
             }
 
             Input.Keys.RIGHT -> {
                 if (rotation < 0F) {
                     rotation = 0
-                    rigidBody.angularFactor = Vector3.Zero
+                    tiltAnimationHandler.returnToPitchIdle()
                 }
             }
 
@@ -49,6 +49,7 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovemen
     }
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float) {
+        super.thrust(player, directionX, directionY)
         movement = MOVEMENT_FORWARD
     }
 
@@ -72,6 +73,7 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovemen
 
     override fun reverse() {
         movement = MOVEMENT_REVERSE
+        tiltAnimationHandler.tiltBackwards()
     }
 
     companion object {
