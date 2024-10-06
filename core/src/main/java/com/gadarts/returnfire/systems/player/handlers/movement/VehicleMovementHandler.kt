@@ -33,6 +33,7 @@ abstract class VehicleMovementHandler(
 
     open fun update(
         player: Entity,
+        deltaTime: Float,
     ) {
         applyLateralDamping(player)
         if (ComponentsMapper.character.get(player).definition == TurretCharacterDefinition.TANK) {
@@ -58,7 +59,7 @@ abstract class VehicleMovementHandler(
 
     abstract fun reverse()
 
-    abstract fun onTouchUp(keycode: Int = -1)
+    abstract fun onMovementTouchpadTouchUp(keycode: Int = -1)
 
     protected fun rotate(rigidBody: btRigidBody, clockwise: Int) {
         val newVelocity = auxVector3_1.set(rigidBody.angularVelocity)
@@ -93,6 +94,9 @@ abstract class VehicleMovementHandler(
 
     open fun letterReleasedD() {
     }
+
+    abstract fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float)
+    abstract fun onTurretTouchPadTouchUp()
 
     companion object {
         private val auxVector3_1 = Vector3()

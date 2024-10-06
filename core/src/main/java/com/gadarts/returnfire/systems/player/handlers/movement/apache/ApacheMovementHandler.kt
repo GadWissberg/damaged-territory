@@ -43,8 +43,9 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
 
     override fun update(
         player: Entity,
+        deltaTime: Float,
     ) {
-        super.update(player)
+        super.update(player, deltaTime)
         syncModelInstanceTransformToRigidBody(player)
         tiltAnimationHandler.update(player)
     }

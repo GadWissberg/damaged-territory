@@ -8,7 +8,10 @@ import com.gadarts.returnfire.assets.GameAssetManager
 
 class GameSessionDataHud(assetsManager: GameAssetManager) : Disposable {
     val stage: Stage = Stage()
-    val touchpad: Touchpad = Touchpad(
+    val movementTouchpad: Touchpad = createTouchpad(assetsManager)
+    val turretTouchpad: Touchpad = createTouchpad(assetsManager)
+
+    private fun createTouchpad(assetsManager: GameAssetManager) = Touchpad(
         15F,
         Touchpad.TouchpadStyle(
             TextureRegionDrawable(

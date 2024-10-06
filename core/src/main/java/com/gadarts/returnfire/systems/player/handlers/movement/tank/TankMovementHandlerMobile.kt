@@ -9,7 +9,8 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerMobile(rigidBody: RigidBody) : TankMovementHandler(rigidBody) {
+class TankMovementHandlerMobile(rigidBody: RigidBody, private val player: Entity) :
+    TankMovementHandler(rigidBody) {
     private val desiredDirection = Vector2()
     private lateinit var camera: PerspectiveCamera
     private var desiredDirectionChanged: Boolean = false
@@ -23,25 +24,29 @@ class TankMovementHandlerMobile(rigidBody: RigidBody) : TankMovementHandler(rigi
 
     override fun update(
         player: Entity,
+        deltaTime: Float,
     ) {
-        super.update(player)
+        super.update(player, deltaTime)
         val rigidBody = ComponentsMapper.physics.get(player).rigidBody
         if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
                 .transform(auxVector3.set(1F, 0F, 0F))
             pushForward(rigidBody, 1)
+            val yaw = auxQuaternion.yaw
             if (!MathUtils.isEqual(
-                    auxQuaternion.yaw + (if (auxQuaternion.yaw >= 0) 0F else 360F),
+                    yaw + (if (yaw >= 0) 0F else 360F),
                     desiredDirection.angleDeg(),
                     1F
                 )
             ) {
-                val diff = desiredDirection.angleDeg() - auxQuaternion.yaw
+                val diff = desiredDirection.angleDeg() - yaw
                 val negativeRotation = auxVector2.set(1F, 0F).setAngleDeg(diff).angleDeg() > 180
                 val clockwise = if (negativeRotation) -1 else 1
                 rotate(rigidBody, clockwise)
+                rigidBody.angularFactor = Vector3.Y
             } else {
                 rigidBody.angularVelocity = auxVector3.setZero()
+                rigidBody.angularFactor = Vector3.Zero
             }
         }
     }
@@ -50,12 +55,27 @@ class TankMovementHandlerMobile(rigidBody: RigidBody) : TankMovementHandler(rigi
 
     }
 
-    override fun onTouchUp(keycode: Int) {
+    override fun onMovementTouchpadTouchUp(keycode: Int) {
         desiredDirection.setZero()
     }
 
-    override fun applyRotation(clockwise: Int) {
+    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
+        val turret = ComponentsMapper.turretBase.get(player).turret
+        val turretInstance =
+            ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance
+        val currentYaw = turretInstance.transform.getRotation(auxQuaternion).yaw
+        val targetAngle = auxVector2.set(deltaX, deltaY).angleDeg()
+        var angleDifference = targetAngle - currentYaw
+        angleDifference = (angleDifference + 360F) % 360F
+        turretRotating = when {
+            angleDifference < ROTATION_EPSILON || angleDifference > 360 - ROTATION_EPSILON -> 0
+            angleDifference > 180 -> -1
+            else -> 1
+        }
+    }
 
+    override fun onTurretTouchPadTouchUp() {
+        turretRotating = 0
     }
 
 
@@ -73,5 +93,6 @@ class TankMovementHandlerMobile(rigidBody: RigidBody) : TankMovementHandler(rigi
         private val auxVector3 = Vector3()
         private val auxVector2 = Vector2()
         private val auxQuaternion = Quaternion()
+        private const val ROTATION_EPSILON = 2F
     }
 }

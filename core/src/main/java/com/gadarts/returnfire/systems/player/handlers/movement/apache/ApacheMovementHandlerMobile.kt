@@ -23,8 +23,9 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
 
     override fun update(
         player: Entity,
+        deltaTime: Float,
     ) {
-        super.update(player)
+        super.update(player, deltaTime)
         val rigidBody = ComponentsMapper.physics.get(player).rigidBody
         if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
@@ -51,10 +52,18 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
 
     }
 
-    override fun onTouchUp(keycode: Int) {
+    override fun onMovementTouchpadTouchUp(keycode: Int) {
         desiredDirection.setZero()
         tiltAnimationHandler.returnToRollIdle()
         tiltAnimationHandler.returnToPitchIdle()
+    }
+
+    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
+
+    }
+
+    override fun onTurretTouchPadTouchUp() {
+
     }
 
 

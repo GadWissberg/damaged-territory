@@ -10,7 +10,7 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
 
-    override fun onTouchUp(keycode: Int) {
+    override fun onMovementTouchpadTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
@@ -43,6 +43,14 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         }
     }
 
+    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
+
+    }
+
+    override fun onTurretTouchPadTouchUp() {
+
+    }
+
 
     override fun initialize(camera: PerspectiveCamera) {
         this.camera = camera
@@ -53,8 +61,8 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         movement = MOVEMENT_FORWARD
     }
 
-    override fun update(player: Entity) {
-        super.update(player)
+    override fun update(player: Entity, deltaTime: Float) {
+        super.update(player, deltaTime)
         val physicsComponent = ComponentsMapper.physics.get(player)
         val rigidBody = physicsComponent.rigidBody
         if (movement != 0) {

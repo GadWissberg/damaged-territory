@@ -4,13 +4,18 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -59,18 +64,24 @@ class HudSystem : GameEntitySystem() {
         super.initialize(gameSessionData, managers)
         val ui = addUiTable()
         if (gameSessionData.runsOnMobile) {
-            addJoystick(ui)
-            addWeaponButton(
-                ui,
-                "icon_bullets",
-                clickListener = priWeaponButtonClickListener
-            )
-            addWeaponButton(
-                ui,
-                "icon_missiles",
-                JOYSTICK_PADDING_LEFT,
-                secWeaponButtonClickListener
-            )
+            addTouchpad(ui, this.gameSessionData.gameSessionDataHud.movementTouchpad).left()
+            val definition = ComponentsMapper.character.get(gameSessionData.player).definition
+            if (definition == SimpleCharacterDefinition.APACHE) {
+                addWeaponButton(
+                    ui,
+                    "icon_bullets",
+                    clickListener = priWeaponButtonClickListener
+                )
+                addWeaponButton(
+                    ui,
+                    "icon_missiles",
+                    JOYSTICK_PADDING,
+                    secWeaponButtonClickListener
+                )
+            } else if (definition == TurretCharacterDefinition.TANK) {
+                val touchpad = this.gameSessionData.gameSessionDataHud.turretTouchpad
+                addTouchpad(ui, touchpad).right()
+            }
         }
         initializeInput()
     }
@@ -94,13 +105,12 @@ class HudSystem : GameEntitySystem() {
         button.addListener(clickListener)
     }
 
-    private fun addJoystick(ui: Table) {
+    private fun addTouchpad(ui: Table, touchpad: Touchpad): Cell<Touchpad> {
         val joystickTexture = managers.assetsManager.getTexture("joystick")
-        ui.add(gameSessionData.gameSessionDataHud.touchpad)
+        return ui.add(touchpad)
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
-            .pad(0F, JOYSTICK_PADDING_LEFT, 64F, 0F)
+            .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, JOYSTICK_PADDING)
             .growX()
-            .left()
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
@@ -144,6 +154,6 @@ class HudSystem : GameEntitySystem() {
     }
 
     companion object {
-        const val JOYSTICK_PADDING_LEFT = 64F
+        const val JOYSTICK_PADDING = 64F
     }
 }

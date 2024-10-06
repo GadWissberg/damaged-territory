@@ -2,11 +2,13 @@ package com.gadarts.returnfire.systems.player.handlers
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
+import kotlin.math.abs
 
 class PlayerShootingHandler {
     private lateinit var player: Entity
@@ -61,7 +63,8 @@ class PlayerShootingHandler {
                 ) {
                     ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
                 } else {
-                    val cannon = ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).cannon
+                    val cannon =
+                        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).cannon
                     ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
                 }
             CharacterWeaponShotEventData.set(
@@ -86,5 +89,18 @@ class PlayerShootingHandler {
 
     fun stopSecondaryShooting() {
         secShooting = false
+    }
+
+    fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
+        val dst = auxVector2.set(abs(deltaX), abs(deltaY)).dst2(Vector2.Zero)
+        priShooting = dst >= 0.9
+    }
+
+    fun onTurretTouchPadTouchUp() {
+        priShooting = false
+    }
+
+    companion object {
+        private val auxVector2 = Vector2()
     }
 }

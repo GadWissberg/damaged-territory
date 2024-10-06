@@ -12,7 +12,7 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovemen
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
 
-    override fun onTouchUp(keycode: Int) {
+    override fun onMovementTouchpadTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
@@ -52,8 +52,8 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovemen
         movement = MOVEMENT_FORWARD
     }
 
-    override fun update(player: Entity) {
-        super.update(player)
+    override fun update(player: Entity, deltaTime: Float) {
+        super.update(player, deltaTime)
         val physicsComponent = ComponentsMapper.physics.get(player)
         val rigidBody = physicsComponent.rigidBody
         if (movement != 0) {
@@ -61,12 +61,6 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovemen
         }
         if (rotation != ROTATION_IDLE) {
             rotate(rigidBody, rotation)
-        }
-        if (turretRotating != 0) {
-            val turretRelativeRotation =
-                ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).turretRelativeRotation
-            ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).turretRelativeRotation =
-                (turretRelativeRotation + turretRotating) % 360F
         }
     }
 
@@ -76,6 +70,14 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovemen
 
     override fun letterReleasedD() {
         turretRotating = 0
+    }
+
+    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
+
+    }
+
+    override fun onTurretTouchPadTouchUp() {
+
     }
 
     override fun letterPressedA() {

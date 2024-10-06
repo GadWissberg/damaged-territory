@@ -20,22 +20,36 @@ import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMove
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.react.*
+import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.MovementTouchPadListener
+import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()
-    private val playerFactory by lazy { PlayerFactory(managers.assetsManager, gameSessionData, playerShootingHandler) }
+    private val playerFactory by lazy {
+        PlayerFactory(
+            managers.assetsManager,
+            gameSessionData,
+            playerShootingHandler
+        )
+    }
     private lateinit var playerMovementHandler: VehicleMovementHandler
 
     override fun onSystemReady() {
         super.onSystemReady()
         playerMovementHandler = createPlayerMovementHandler()
         playerMovementHandler.initialize(gameSessionData.renderData.camera)
+        initInputMethod()
     }
 
     private fun createPlayerMovementHandler(): VehicleMovementHandler {
-        val characterDefinition = ComponentsMapper.character.get(gameSessionData.player).definition
+        val player = gameSessionData.player
+        val characterDefinition = ComponentsMapper.character.get(player).definition
         val runsOnMobile = gameSessionData.runsOnMobile
         return if (characterDefinition == SimpleCharacterDefinition.APACHE) {
             if (runsOnMobile) {
@@ -44,9 +58,9 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 ApacheMovementHandlerDesktop()
             }
         } else {
-            val rigidBody = ComponentsMapper.physics.get(gameSessionData.player).rigidBody
+            val rigidBody = ComponentsMapper.physics.get(player).rigidBody
             if (runsOnMobile) {
-                TankMovementHandlerMobile(rigidBody)
+                TankMovementHandlerMobile(rigidBody, player)
             } else {
                 TankMovementHandlerDesktop(rigidBody)
             }
@@ -87,6 +101,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         super.update(deltaTime)
         playerMovementHandler.update(
             gameSessionData.player,
+            deltaTime
         )
         playerShootingHandler.update()
     }
@@ -131,7 +146,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     override fun keyUp(keycode: Int): Boolean {
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
-                playerMovementHandler.onTouchUp(keycode)
+                playerMovementHandler.onMovementTouchpadTouchUp(keycode)
             }
 
             Input.Keys.CONTROL_LEFT -> {
@@ -189,7 +204,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         engine.addEntity(player)
         gameSessionData.player = player
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
-        initInputMethod()
         initializePlayerHandlers()
         return player
     }
@@ -203,10 +217,16 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private fun initInputMethod() {
         if (gameSessionData.runsOnMobile) {
-            gameSessionData.gameSessionDataHud.touchpad.addListener(
-                TouchPadListener(
+            gameSessionData.gameSessionDataHud.movementTouchpad.addListener(
+                MovementTouchPadListener(
                     playerMovementHandler,
                     gameSessionData.player
+                )
+            )
+            gameSessionData.gameSessionDataHud.turretTouchpad.addListener(
+                TurretTouchPadListener(
+                    playerMovementHandler,
+                    playerShootingHandler
                 )
             )
         } else {

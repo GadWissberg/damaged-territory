@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.player
+package com.gadarts.returnfire.systems.player.handlers.movement.touchpad
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.scenes.scene2d.Actor
@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 
-class TouchPadListener(
+class MovementTouchPadListener(
     private val movementHandler: VehicleMovementHandler,
     private val player: Entity
 ) : ClickListener() {
@@ -44,7 +44,7 @@ class TouchPadListener(
         pointer: Int,
         button: Int
     ) {
-        movementHandler.onTouchUp()
+        movementHandler.onMovementTouchpadTouchUp()
         super.touchUp(event, x, y, pointer, button)
     }
 }
