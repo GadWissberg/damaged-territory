@@ -48,6 +48,10 @@ class PlayerFactory(
         val entityBuilder = EntityBuilder.begin()
         addPlayerBaseComponents(entityBuilder, placedPlayer, primarySpark)
         entityBuilder.addTurretBaseComponent()
+        val engineSound = assetsManager.getAssetByDefinition(SoundDefinition.ENGINE)
+        entityBuilder.addAmbSoundComponent(
+            engineSound
+        )
         val player = entityBuilder.finish()
         val cannon = addTankCannon(entityBuilder, player)
         EntityBuilder.begin()

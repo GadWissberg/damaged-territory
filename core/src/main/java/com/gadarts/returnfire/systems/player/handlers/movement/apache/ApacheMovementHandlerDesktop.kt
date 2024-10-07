@@ -10,7 +10,7 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
 
-    override fun onMovementTouchpadTouchUp(keycode: Int) {
+    override fun onMovementTouchPadTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {

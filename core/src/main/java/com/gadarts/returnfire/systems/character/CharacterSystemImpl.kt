@@ -6,14 +6,18 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.AmbSoundComponent
+import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.CharacterComponent
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -121,9 +125,24 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-        update3dSound()
         updateCharacters()
         updateTurrets()
+        for (entity in ambSoundEntities) {
+            val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
+            val sound = ambSoundComponent.sound
+            val pitchTarget = ambSoundComponent.pitchTarget
+            val pitch = ambSoundComponent.pitch
+            if (!MathUtils.isEqual(pitchTarget, pitch, 0.1F)) {
+                val calculatePitchStep = calculateNewPitch(pitchTarget, pitch, deltaTime)
+                ambSoundComponent.pitch = calculatePitchStep
+                sound.setPitch(ambSoundComponent.soundId, calculatePitchStep)
+            }
+        }
+    }
+
+    private fun calculateNewPitch(pitchTarget: Float, pitch: Float, deltaTime: Float): Float {
+        val stepSize = PITCH_STEP_SIZE * deltaTime * 60F * (if (pitch < pitchTarget) 1F else -1F)
+        return pitch + stepSize
     }
 
     private fun updateTurrets() {
@@ -207,26 +226,6 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         )
     }
 
-    private fun update3dSound() {
-        for (entity in ambSoundEntities) {
-            updateEntity3dSound(entity)
-        }
-    }
-
-    private fun updateEntity3dSound(entity: Entity) {
-        val distance =
-            GeneralUtils.calculateVolumeAccordingToPosition(entity, gameSessionData.renderData.camera)
-        val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
-        ambSoundComponent.sound.setVolume(ambSoundComponent.soundId, distance)
-        if (distance <= 0F) {
-            stopSoundOfEntity(ambSoundComponent)
-        }
-    }
-
-    private fun stopSoundOfEntity(ambSoundComponent: AmbSoundComponent) {
-        ambSoundComponent.sound.stop(ambSoundComponent.soundId)
-        ambSoundComponent.soundId = -1
-    }
 
     override fun dispose() {
 
@@ -237,6 +236,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
+        private const val PITCH_STEP_SIZE = 0.05F
     }
 
 }

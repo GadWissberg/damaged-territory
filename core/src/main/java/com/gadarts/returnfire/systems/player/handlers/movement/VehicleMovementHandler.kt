@@ -18,7 +18,7 @@ abstract class VehicleMovementHandler(
 ) {
     abstract fun initialize(camera: PerspectiveCamera)
 
-    protected fun pushForward(rigidBody: btRigidBody, forwardDirection: Int) {
+    protected open fun pushForward(rigidBody: btRigidBody, forwardDirection: Int) {
         val newVelocity = auxVector3_1.set(rigidBody.linearVelocity)
         if (newVelocity.len2() < MAX_VELOCITY) {
             val forward =
@@ -59,7 +59,7 @@ abstract class VehicleMovementHandler(
 
     abstract fun reverse()
 
-    abstract fun onMovementTouchpadTouchUp(keycode: Int = -1)
+    abstract fun onMovementTouchPadTouchUp(keycode: Int = -1)
 
     protected fun rotate(rigidBody: btRigidBody, clockwise: Int) {
         val newVelocity = auxVector3_1.set(rigidBody.angularVelocity)

@@ -9,8 +9,8 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerMobile(rigidBody: RigidBody, private val player: Entity) :
-    TankMovementHandler(rigidBody) {
+class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
+    TankMovementHandler(rigidBody, player) {
     private val desiredDirection = Vector2()
     private lateinit var camera: PerspectiveCamera
     private var desiredDirectionChanged: Boolean = false
@@ -55,8 +55,9 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, private val player: Entity
 
     }
 
-    override fun onMovementTouchpadTouchUp(keycode: Int) {
+    override fun onMovementTouchPadTouchUp(keycode: Int) {
         desiredDirection.setZero()
+        idleEngineSound()
     }
 
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {

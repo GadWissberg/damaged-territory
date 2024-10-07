@@ -44,7 +44,7 @@ class MovementTouchPadListener(
         pointer: Int,
         button: Int
     ) {
-        movementHandler.onMovementTouchpadTouchUp()
+        movementHandler.onMovementTouchPadTouchUp()
         super.touchUp(event, x, y, pointer, button)
     }
 }

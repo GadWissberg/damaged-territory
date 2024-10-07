@@ -7,22 +7,28 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerDesktop(private val rigidBody: RigidBody) : TankMovementHandler(rigidBody) {
+class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entity) :
+    TankMovementHandler(rigidBody, player) {
     private var movement: Int = 0
     private var rotation: Int = 0
     private lateinit var camera: PerspectiveCamera
 
-    override fun onMovementTouchpadTouchUp(keycode: Int) {
+    override fun idleEngineSound() {
+        super.idleEngineSound()
+        movement = 0
+    }
+
+    override fun onMovementTouchPadTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
-                    movement = 0
+                    idleEngineSound()
                 }
             }
 
             Input.Keys.DOWN -> {
                 if (movement == MOVEMENT_REVERSE) {
-                    movement = 0
+                    idleEngineSound()
                 }
             }
 

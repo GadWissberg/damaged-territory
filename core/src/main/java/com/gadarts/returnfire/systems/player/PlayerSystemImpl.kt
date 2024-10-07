@@ -62,7 +62,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             if (runsOnMobile) {
                 TankMovementHandlerMobile(rigidBody, player)
             } else {
-                TankMovementHandlerDesktop(rigidBody)
+                TankMovementHandlerDesktop(rigidBody, player)
             }
         }
     }
@@ -146,7 +146,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     override fun keyUp(keycode: Int): Boolean {
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
-                playerMovementHandler.onMovementTouchpadTouchUp(keycode)
+                playerMovementHandler.onMovementTouchPadTouchUp(keycode)
             }
 
             Input.Keys.CONTROL_LEFT -> {

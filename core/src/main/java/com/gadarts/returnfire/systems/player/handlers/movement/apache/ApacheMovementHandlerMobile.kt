@@ -52,7 +52,7 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
 
     }
 
-    override fun onMovementTouchpadTouchUp(keycode: Int) {
+    override fun onMovementTouchPadTouchUp(keycode: Int) {
         desiredDirection.setZero()
         tiltAnimationHandler.returnToRollIdle()
         tiltAnimationHandler.returnToPitchIdle()
