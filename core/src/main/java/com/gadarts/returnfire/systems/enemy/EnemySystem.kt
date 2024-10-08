@@ -40,34 +40,46 @@ class EnemySystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                val characterComponent = ComponentsMapper.character.get(msg.extraInfo as Entity)
-                if (characterComponent.definition.getCharacterType() == CharacterType.TURRET) {
-                    val modelInstanceComponent = ComponentsMapper.modelInstance.get(characterComponent.child)
-                    auxMatrix.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
-                    val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
-                    val position = transform.getTranslation(auxVector3_1)
-                    val randomDeadModel =
-                        if (MathUtils.randomBoolean()) ModelDefinition.TURRET_CANNON_DEAD_0 else ModelDefinition.TURRET_CANNON_DEAD_1
-                    modelInstanceComponent.gameModelInstance = GameModelInstance(
-                        ModelInstance(managers.assetsManager.getAssetByDefinition(randomDeadModel)),
-                        ModelDefinition.TURRET_CANNON_DEAD_0,
-                    )
-                    modelInstanceComponent.gameModelInstance.setBoundingBox(
-                        managers.assetsManager.getCachedBoundingBox(randomDeadModel)
-                    )
-                    EntityBuilder.begin()
-                        .addParticleEffectComponent(
-                            position,
-                            gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
-                        )
-                        .finishAndAddToEngine()
-                    modelInstanceComponent.gameModelInstance.modelInstance.transform.set(transform)
-                    addFlyingParts(position)
+                val entity = msg.extraInfo as Entity
+                val characterComponent = ComponentsMapper.character.get(entity)
+                if (characterComponent.definition.getCharacterType() == CharacterType.TURRET
+                    && ComponentsMapper.enemy.has(entity)
+                ) {
+                    destroyTurret(entity, managers, gameSessionData)
                 }
             }
 
         }
     )
+
+    private fun destroyTurret(
+        entity: Entity,
+        managers: Managers,
+        gameSessionData: GameSessionData
+    ) {
+        val modelInstanceComponent =
+            ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(entity).turret)
+        auxMatrix.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
+        val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
+        val position = transform.getTranslation(auxVector3_1)
+        val randomDeadModel =
+            if (MathUtils.randomBoolean()) ModelDefinition.TURRET_CANNON_DEAD_0 else ModelDefinition.TURRET_CANNON_DEAD_1
+        modelInstanceComponent.gameModelInstance = GameModelInstance(
+            ModelInstance(managers.assetsManager.getAssetByDefinition(randomDeadModel)),
+            ModelDefinition.TURRET_CANNON_DEAD_0,
+        )
+        modelInstanceComponent.gameModelInstance.setBoundingBox(
+            managers.assetsManager.getCachedBoundingBox(randomDeadModel)
+        )
+        EntityBuilder.begin()
+            .addParticleEffectComponent(
+                position,
+                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
+            )
+            .finishAndAddToEngine()
+        modelInstanceComponent.gameModelInstance.modelInstance.transform.set(transform)
+        addFlyingParts(position)
+    }
 
     private fun addFlyingParts(position: Vector3?) {
         val numberOfFlyingParts = MathUtils.random(2, 4)

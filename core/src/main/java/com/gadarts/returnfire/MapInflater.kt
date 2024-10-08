@@ -100,6 +100,7 @@ class MapInflater(
             )
             .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON)
             .addEnemyComponent()
+            .addTurretBaseComponent()
             .finishAndAddToEngine()
         addPhysicsToStaticObject(baseEntity, gameModelInstance)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
@@ -214,7 +215,7 @@ class MapInflater(
                 BulletBehavior.REGULAR
             )
             .finishAndAddToEngine()
-        ComponentsMapper.character.get(baseEntity).child = turret
+        ComponentsMapper.turretBase.get(baseEntity).turret = turret
         val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
         val shape = btCompoundShape()
         shape.addChildShape(

@@ -6,7 +6,6 @@ import com.gadarts.returnfire.model.CharacterDefinition
 
 class CharacterComponent(val definition: CharacterDefinition) : Component {
     var smokeEmission: Entity? = null
-    lateinit var child: Entity
     var hp: Int = 0
         private set
     var dead: Boolean = false
