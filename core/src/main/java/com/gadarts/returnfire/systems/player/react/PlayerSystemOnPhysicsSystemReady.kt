@@ -38,7 +38,7 @@ class PlayerSystemOnPhysicsSystemReady :
         )
         physicsComponent.rigidBody.gravity = characterDefinition.getGravity(Vector3())
         physicsComponent.rigidBody.setDamping(
-            if (isApache) 0F else 0.5F,
+            if (isApache) 0F else 0.1F,
             if (isApache) 0.75F else 0.99F
         )
         if (!isApache) {

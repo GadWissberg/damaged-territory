@@ -10,7 +10,8 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
     -15F,
     8F,
     50F,
-    25F
+    25F,
+    6F
 ) {
 
     protected var tiltAnimationHandler = TiltAnimationHandler()

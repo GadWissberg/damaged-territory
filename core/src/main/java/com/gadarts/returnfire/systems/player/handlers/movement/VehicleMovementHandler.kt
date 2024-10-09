@@ -14,13 +14,14 @@ abstract class VehicleMovementHandler(
     private val lateralVelocityScale: Float,
     private val rotationScale: Float,
     private val forwardForceSize: Float,
-    private val reverseForceSize: Float
+    private val reverseForceSize: Float,
+    private val maxVelocity: Float
 ) {
     abstract fun initialize(camera: PerspectiveCamera)
 
     protected open fun pushForward(rigidBody: btRigidBody, forwardDirection: Int) {
         val newVelocity = auxVector3_1.set(rigidBody.linearVelocity)
-        if (newVelocity.len2() < MAX_VELOCITY) {
+        if (newVelocity.len2() < maxVelocity) {
             val forward =
                 rigidBody.worldTransform.getRotation(auxQuaternion1)
                     .transform(auxVector3_2.set(forwardDirection * 1F, 0F, 0F))
@@ -102,7 +103,6 @@ abstract class VehicleMovementHandler(
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
         private const val MAX_ROTATION = 3F
-        private const val MAX_VELOCITY = 6F
         private val auxQuaternion1 = Quaternion()
 
     }

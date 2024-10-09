@@ -11,8 +11,9 @@ abstract class TankMovementHandler(private val rigidBody: RigidBody, protected v
     VehicleMovementHandler(
         -30F,
         4F,
-        50F,
-        25F
+        45F,
+        25F,
+        6F
     ) {
     protected var turretRotating: Int = 0
 
