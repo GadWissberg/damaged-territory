@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
+import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
@@ -63,7 +64,10 @@ class ParticleEffectsSystem : GameEntitySystem() {
                 if (ComponentsMapper.particleEffect.has(entity)) {
                     val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
                     if (particleEffectComponent.parent != null) {
-                        removeParticleEffect(entity)
+                        particleEffectComponent.parent = null
+                        for (controller in particleEffectComponent.effect.controllers) {
+                            (controller.emitter as RegularEmitter).isContinuous = false
+                        }
                     }
                 }
             }
@@ -97,7 +101,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
             val ttlInMillis = particleEffectComponent.ttlInSeconds * 1000L
             val timeToLeave =
                 ttlInMillis > 0F && TimeUtils.timeSinceMillis(particleEffectComponent.createdAt) >= ttlInMillis
-            if ((!particleEffectComponent.definition.loop && particleEffect.isComplete)
+            if ((particleEffectComponent.parent == null && particleEffect.isComplete)
                 || (parent != null
                     && ComponentsMapper.character.has(parent)
                     && ComponentsMapper.character.get(parent).dead)
