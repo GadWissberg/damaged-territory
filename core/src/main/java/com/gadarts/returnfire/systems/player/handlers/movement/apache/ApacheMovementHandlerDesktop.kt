@@ -51,7 +51,6 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
 
     }
 
-
     override fun initialize(camera: PerspectiveCamera) {
         this.camera = camera
     }

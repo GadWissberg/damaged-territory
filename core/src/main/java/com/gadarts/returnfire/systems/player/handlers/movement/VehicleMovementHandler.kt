@@ -98,6 +98,8 @@ abstract class VehicleMovementHandler(
 
     abstract fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float)
     abstract fun onTurretTouchPadTouchUp()
+    open fun onReverseScreenButtonPressed() {}
+    open fun onReverseScreenButtonReleased() {}
 
     companion object {
         private val auxVector3_1 = Vector3()

@@ -33,15 +33,16 @@ class HudSystem : GameEntitySystem() {
             pointer: Int,
             button: Int
         ): Boolean {
-            managers.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED.ordinal)
+            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            managers.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED.ordinal)
+            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
+
     private val secWeaponButtonClickListener = object : ClickListener() {
         override fun touchDown(
             event: InputEvent,
@@ -50,12 +51,30 @@ class HudSystem : GameEntitySystem() {
             pointer: Int,
             button: Int
         ): Boolean {
-            managers.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED.ordinal)
+            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            managers.dispatcher.dispatchMessage(SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED.ordinal)
+            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED.ordinal)
+            super.touchUp(event, x, y, pointer, button)
+        }
+    }
+
+    private val reverseButtonClickListener = object : ClickListener() {
+        override fun touchDown(
+            event: InputEvent,
+            x: Float,
+            y: Float,
+            pointer: Int,
+            button: Int
+        ): Boolean {
+            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_PRESSED.ordinal)
+            return super.touchDown(event, x, y, pointer, button)
+        }
+
+        override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
+            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
@@ -63,54 +82,72 @@ class HudSystem : GameEntitySystem() {
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         val ui = addUiTable()
-        if (gameSessionData.runsOnMobile) {
-            addTouchpad(ui, this.gameSessionData.gameSessionDataHud.movementTouchpad).left()
-            val definition = ComponentsMapper.character.get(gameSessionData.player).definition
-            if (definition == SimpleCharacterDefinition.APACHE) {
-                addWeaponButton(
-                    ui,
-                    "icon_bullets",
-                    clickListener = priWeaponButtonClickListener
-                )
-                addWeaponButton(
-                    ui,
-                    "icon_missiles",
-                    JOYSTICK_PADDING,
-                    secWeaponButtonClickListener
-                )
-            } else if (definition == TurretCharacterDefinition.TANK) {
-                val touchpad = this.gameSessionData.gameSessionDataHud.turretTouchpad
-                addTouchpad(ui, touchpad).right()
-            }
-        }
+        addOnScreenInput(gameSessionData, ui)
         initializeInput()
     }
 
-    private fun addWeaponButton(
+    private fun addOnScreenInput(
+        gameSessionData: GameSessionData,
+        ui: Table
+    ) {
+        if (gameSessionData.runsOnMobile) {
+            addTouchpad(ui, this.gameSessionData.gameSessionDataHud.movementTouchpad)
+                .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, 0F).left()
+            val definition = ComponentsMapper.character.get(gameSessionData.player).definition
+            if (definition == SimpleCharacterDefinition.APACHE) {
+                addApacheButtons(ui)
+            } else if (definition == TurretCharacterDefinition.TANK) {
+                val touchpad = this.gameSessionData.gameSessionDataHud.turretTouchpad
+                val imageButtonCell = addButton(
+                    ui,
+                    "icon_reverse",
+                    reverseButtonClickListener
+                ).size(150F)
+                imageButtonCell.growX().left().bottom().padBottom(JOYSTICK_PADDING)
+                addTouchpad(ui, touchpad).padRight(JOYSTICK_PADDING).padBottom(JOYSTICK_PADDING)
+                    .right()
+            }
+        }
+    }
+
+    private fun addApacheButtons(ui: Table) {
+        addButton(
+            ui,
+            "icon_bullets",
+            clickListener = priWeaponButtonClickListener
+        )
+        addButton(
+            ui,
+            "icon_missiles",
+            secWeaponButtonClickListener,
+            JOYSTICK_PADDING,
+        )
+    }
+
+    private fun addButton(
         ui: Table,
         iconDefinition: String,
+        clickListener: ClickListener,
         rightPadding: Float = 0F,
-        clickListener: ClickListener
-    ) {
+    ): Cell<ImageButton> {
         val up = TextureRegionDrawable(managers.assetsManager.getTexture("button_up"))
         val down =
             TextureRegionDrawable(managers.assetsManager.getTexture("button_down"))
         val icon =
             TextureRegionDrawable(managers.assetsManager.getTexture(iconDefinition))
         val button = ImageButton(ImageButton.ImageButtonStyle(up, down, null, icon, null, null))
-        ui.add(button)
+        val cell = ui.add(button)
         if (rightPadding != 0F) {
             ui.pad(0F, 0F, 0F, rightPadding)
         }
         button.addListener(clickListener)
+        return cell
     }
 
     private fun addTouchpad(ui: Table, touchpad: Touchpad): Cell<Touchpad> {
         val joystickTexture = managers.assetsManager.getTexture("joystick")
         return ui.add(touchpad)
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
-            .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, JOYSTICK_PADDING)
-            .growX()
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()

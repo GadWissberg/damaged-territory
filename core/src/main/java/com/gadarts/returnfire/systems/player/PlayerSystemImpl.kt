@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
@@ -68,18 +69,36 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.WEAPON_BUTTON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(
+        SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(
             playerShootingHandler
         ),
-        SystemEvents.WEAPON_BUTTON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(
+        SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(
             playerShootingHandler
         ),
-        SystemEvents.WEAPON_BUTTON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(
+        SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(
             playerShootingHandler
         ),
-        SystemEvents.WEAPON_BUTTON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
+        SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
             playerShootingHandler
         ),
+        SystemEvents.BUTTON_REVERSE_PRESSED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                managers: Managers
+            ) {
+                playerMovementHandler.onReverseScreenButtonPressed()
+            }
+        },
+        SystemEvents.BUTTON_REVERSE_RELEASED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                managers: Managers
+            ) {
+                playerMovementHandler.onReverseScreenButtonReleased()
+            }
+        },
         SystemEvents.PHYSICS_SYSTEM_READY to PlayerSystemOnPhysicsSystemReady()
     )
 

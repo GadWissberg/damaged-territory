@@ -14,11 +14,13 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
     private val desiredDirection = Vector2()
     private lateinit var camera: PerspectiveCamera
     private var desiredDirectionChanged: Boolean = false
+    private var reverse = false
 
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float) {
         if (directionX != 0F || directionY != 0F) {
             updateDesiredDirection(directionX, directionY)
+            reverse = false
         }
     }
 
@@ -31,7 +33,7 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
         if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
                 .transform(auxVector3.set(1F, 0F, 0F))
-            pushForward(rigidBody, 1)
+            pushForward(rigidBody, if (!reverse) 1 else -1)
             val yaw = auxQuaternion.yaw
             if (!MathUtils.isEqual(
                     yaw + (if (yaw >= 0) 0F else 360F),
@@ -51,11 +53,31 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
         }
     }
 
+    override fun onReverseScreenButtonReleased() {
+        stopMoving()
+    }
+
+    override fun onReverseScreenButtonPressed() {
+        val direction = auxVector2.set(Vector2.X).setAngleDeg(
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(
+                auxQuaternion
+            ).yaw
+        )
+        updateDesiredDirection(
+            direction.x, direction.y
+        )
+        reverse = true
+    }
+
     override fun reverse() {
 
     }
 
     override fun onMovementTouchPadTouchUp(keycode: Int) {
+        stopMoving()
+    }
+
+    private fun stopMoving() {
         desiredDirection.setZero()
         idleEngineSound()
     }
