@@ -6,12 +6,16 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.GameException
-import com.gadarts.returnfire.model.*
+import com.gadarts.returnfire.model.AmbDefinition
+import com.gadarts.returnfire.model.ElementDefinition
+import com.gadarts.returnfire.model.ElementType
+import com.gadarts.returnfire.model.GameMap
+import com.gadarts.returnfire.model.PlacedElement
+import com.gadarts.returnfire.screens.GamePlayScreen
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import java.util.*
+import java.util.Locale
 
 class MapLoader(resolver: FileHandleResolver) :
     AsynchronousAssetLoader<GameMap, MapLoader.MapLoaderParameter>(resolver) {
@@ -69,7 +73,7 @@ class MapLoader(resolver: FileHandleResolver) :
                     }
                 }
             } else {
-                definition = GameDebugSettings.SELECTED_VEHICLE
+                definition = GamePlayScreen.SELECTED_VEHICLE
             }
             val row = asJsonObject.get(KEY_ROW).asInt
             val col = asJsonObject.get(KEY_COL).asInt

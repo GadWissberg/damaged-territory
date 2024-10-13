@@ -23,6 +23,7 @@ import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
+import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.GameSessionData.Companion.APACHE_SPARK_HEIGHT_BIAS
@@ -122,11 +123,11 @@ class PlayerFactory(
             auxVector3_1.set(placedPlayer.col.toFloat(), definition.getStartHeight(), placedPlayer.row.toFloat()),
             null,
         )
-        entityBuilder.addCharacterComponent(GameDebugSettings.SELECTED_VEHICLE)
+        entityBuilder.addCharacterComponent(GamePlayScreen.SELECTED_VEHICLE)
         entityBuilder.addPlayerComponent()
-        if (GameDebugSettings.SELECTED_VEHICLE == SimpleCharacterDefinition.APACHE) {
+        if (GamePlayScreen.SELECTED_VEHICLE == SimpleCharacterDefinition.APACHE) {
             addApachePrimaryArmComponent(entityBuilder, primarySpark)
-        } else if (GameDebugSettings.SELECTED_VEHICLE == TurretCharacterDefinition.TANK) {
+        } else if (GamePlayScreen.SELECTED_VEHICLE == TurretCharacterDefinition.TANK) {
             addTankPrimaryArmComponent(entityBuilder, primarySpark)
         }
         ComponentsMapper.spark.get(primarySpark).parent = EntityBuilder.entity!!
@@ -135,7 +136,7 @@ class PlayerFactory(
     private fun createPrimarySpark(): Entity {
         val sparkModel: ModelDefinition
         val calculator =
-            if (GameDebugSettings.SELECTED_VEHICLE == SimpleCharacterDefinition.APACHE) {
+            if (GamePlayScreen.SELECTED_VEHICLE == SimpleCharacterDefinition.APACHE) {
                 sparkModel = ModelDefinition.MACHINE_GUN_SPARK
                 apachePrimaryRelativePositionCalculator
             } else {
@@ -282,7 +283,7 @@ class PlayerFactory(
 
 
     private fun createPlayerModelInstance(): GameModelInstance {
-        val modelDefinition = GameDebugSettings.SELECTED_VEHICLE.getModelDefinition()
+        val modelDefinition = GamePlayScreen.SELECTED_VEHICLE.getModelDefinition()
         val model = assetsManager.getAssetByDefinition(modelDefinition)
         return GameModelInstance(
             ModelInstance(model),

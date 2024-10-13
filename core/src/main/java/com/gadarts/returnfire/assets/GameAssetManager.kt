@@ -26,7 +26,7 @@ import com.gadarts.returnfire.assets.loaders.DefinitionsLoader
 import com.gadarts.returnfire.assets.loaders.MapLoader
 import com.gadarts.returnfire.model.GameMap
 import java.io.File
-import java.util.*
+import java.util.Arrays
 
 open class GameAssetManager : AssetManager() {
 
@@ -55,31 +55,33 @@ open class GameAssetManager : AssetManager() {
 
     private fun loadAllAssets() {
         AssetsTypes.entries.forEach { type ->
-            if (type.loadedUsingLoader) {
-                if (type.assets.isNotEmpty()) {
-                    type.assets.forEach { asset ->
-                        if (asset.getParameters() != null) {
-                            load(
-                                asset.getPaths().first(),
-                                BitmapFont::class.java,
-                                (asset.getParameters() as FreetypeFontLoader.FreeTypeFontLoaderParameter)
-                            )
-                        } else {
-                            asset.getPaths().forEach { load(it, asset.getClazz()) }
+            if (!type.skipAutoLoad) {
+                if (type.loadedUsingLoader) {
+                    if (type.assets.isNotEmpty()) {
+                        type.assets.forEach { asset ->
+                            if (asset.getParameters() != null) {
+                                load(
+                                    asset.getPaths().first(),
+                                    BitmapFont::class.java,
+                                    (asset.getParameters() as FreetypeFontLoader.FreeTypeFontLoaderParameter)
+                                )
+                            } else {
+                                asset.getPaths().forEach { load(it, asset.getClazz()) }
+                            }
                         }
+                    } else {
+                        load("definitions/textures.json", ExternalDefinitions::class.java)
                     }
                 } else {
-                    load("definitions/textures.json", ExternalDefinitions::class.java)
-                }
-            } else {
-                type.assets.forEach { asset ->
-                    asset.getPaths().forEach {
-                        val content = Gdx.files.internal(it).readString()
-                        addAsset(
-                            it,
-                            String::class.java,
-                            content
-                        )
+                    type.assets.forEach { asset ->
+                        asset.getPaths().forEach {
+                            val content = Gdx.files.internal(it).readString()
+                            addAsset(
+                                it,
+                                String::class.java,
+                                content
+                            )
+                        }
                     }
                 }
             }

@@ -1,11 +1,20 @@
-package com.gadarts.returnfire
+package com.gadarts.returnfire.screens
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
-import com.gadarts.returnfire.systems.*
+import com.gadarts.returnfire.assets.definitions.MapDefinition
+import com.gadarts.returnfire.model.CharacterDefinition
+import com.gadarts.returnfire.model.GameMap
+import com.gadarts.returnfire.systems.CameraSystem
+import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.ParticleEffectsSystem
+import com.gadarts.returnfire.systems.ProfilingSystem
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -22,9 +31,18 @@ class GamePlayScreen(
     private val rigidBodyFactory: RigidBodyFactory,
     private val soundPlayer: SoundPlayer,
     private val runsOnMobile: Boolean,
-    private val fpsTarget: Int
+    private val fpsTarget: Int,
+    characterDefinition: CharacterDefinition
 ) : Screen {
 
+    init {
+        SELECTED_VEHICLE = characterDefinition
+        assetsManager.load(
+            MapDefinition.MAP_0.getPaths()[0],
+            GameMap::class.java
+        )
+        assetsManager.finishLoading()
+    }
 
     private var pauseTime: Long = 0
     private val gameSessionData: GameSessionData by lazy {
@@ -92,6 +110,10 @@ class GamePlayScreen(
     override fun dispose() {
         engine.systems.forEach { (it as GameEntitySystem).dispose() }
         gameSessionData.dispose()
+    }
+
+    companion object {
+        lateinit var SELECTED_VEHICLE: CharacterDefinition
     }
 
 

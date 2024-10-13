@@ -11,6 +11,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -110,7 +111,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     override fun resume(delta: Long) {
 
     }
-
 
     override fun dispose() {
 
@@ -218,7 +218,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     private fun addPlayer(): Entity {
         val map = managers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
         val placedPlayer =
-            map.placedElements.find { placedElement -> placedElement.definition == GameDebugSettings.SELECTED_VEHICLE }
+            map.placedElements.find { placedElement -> placedElement.definition == GamePlayScreen.SELECTED_VEHICLE }
         val player = playerFactory.create(placedPlayer!!)
         engine.addEntity(player)
         gameSessionData.player = player
