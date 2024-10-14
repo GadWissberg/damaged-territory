@@ -287,7 +287,17 @@ class MapInflater(
             auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
         )
         gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
-        applyTextureToFloorTile(col, row, entity, modelInstance)
+        val textureDefinition = applyTextureToFloorTile(col, row, entity, modelInstance)
+        if (textureDefinition != null && !textureDefinition.fileName.contains("water")) {
+            EntityBuilder.addPhysicsComponent(
+                entity,
+                btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
+                0F,
+                managers,
+                btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
+                modelInstance.modelInstance.transform
+            )
+        }
     }
 
     private fun applyTextureToFloorTile(
@@ -295,7 +305,7 @@ class MapInflater(
         row: Int,
         entity: Entity,
         modelInstance: GameModelInstance
-    ) {
+    ): TextureDefinition? {
         var textureDefinition: TextureDefinition? = null
         val playerPosition =
             ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
@@ -328,6 +338,7 @@ class MapInflater(
                 ComponentsMapper.ground.get(entity).water = true
             }
         }
+        return textureDefinition
     }
 
     private fun createAndAddGroundTileEntity(

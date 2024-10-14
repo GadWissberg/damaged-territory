@@ -47,7 +47,7 @@ class PhysicsSystem : GameEntitySystem() {
 
     override fun onSystemReady() {
         super.onSystemReady()
-        addBoundary(auxVector.set(0F, 1F, 0F))
+//        addBoundary(auxVector.set(0F, 1F, 0F))
         addBoundary(auxVector.set(1F, 0F, 0F))
         addBoundary(auxVector.set(0F, 0F, 1F))
         addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.currentMap.tilesMapping.size)
