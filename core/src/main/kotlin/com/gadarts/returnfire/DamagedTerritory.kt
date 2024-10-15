@@ -12,20 +12,17 @@ import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
+    private val selectionScreen by lazy { SelectionScreen(assetsManager, this) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val rigidBodyFactory = RigidBodyFactory()
 
     override fun create() {
         Gdx.graphics.setWindowedMode(1920, 1080)
-        loadAssets()
-        Gdx.input.inputProcessor = InputMultiplexer()
-        setScreen(SelectionScreen(runsOnMobile, assetsManager, this))
-    }
-
-
-    private fun loadAssets() {
         assetsManager.loadAssets()
+        Gdx.input.inputProcessor = InputMultiplexer()
+        setScreen(selectionScreen)
     }
+
 
     override fun goToWarScreen(characterDefinition: CharacterDefinition) {
         val soundPlayer = SoundPlayer()
@@ -36,10 +33,15 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
                 soundPlayer,
                 runsOnMobile,
                 fpsTarget,
-                characterDefinition
+                characterDefinition,
+                this
             )
         )
 
+    }
+
+    override fun goToSelectionScreen() {
+        setScreen(selectionScreen)
     }
 
 }

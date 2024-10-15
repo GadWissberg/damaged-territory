@@ -2,11 +2,11 @@ package com.gadarts.returnfire.systems.physics
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
-import com.badlogic.gdx.physics.bullet.collision.btStaticPlaneShape
+import com.badlogic.gdx.physics.bullet.collision.*
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -16,9 +16,12 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GROUND
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.auxVector
 
+
 class PhysicsSystem : GameEntitySystem() {
 
+    private lateinit var ghostObject: btPairCachingGhostObject
     private lateinit var contactListener: GameContactListener
+
 
     private val bulletEngineHandler: BulletEngineHandler by lazy {
         BulletEngineHandler(
@@ -47,7 +50,26 @@ class PhysicsSystem : GameEntitySystem() {
 
     override fun onSystemReady() {
         super.onSystemReady()
-//        addBoundary(auxVector.set(0F, 1F, 0F))
+        val halfMapDepth = gameSessionData.currentMap.tilesMapping.size.toFloat() / 2F
+        val halfMapWidth = gameSessionData.currentMap.tilesMapping[0].size.toFloat() / 2F
+        val waterShape = btBoxShape(
+            Vector3(
+                halfMapWidth,
+                0.02F,
+                halfMapDepth,
+            )
+        )
+        val water = EntityBuilder.begin().addWaterTriggerComponent().finishAndAddToEngine()
+        ghostObject = btPairCachingGhostObject()
+        ghostObject.collisionShape = waterShape
+        ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
+        ghostObject.worldTransform = Matrix4().translate(halfMapWidth, -1F, halfMapDepth)
+        ghostObject.userData = water
+        gameSessionData.gameSessionDataPhysics.collisionWorld.addCollisionObject(
+            ghostObject,
+            COLLISION_GROUP_GROUND,
+            -1
+        )
         addBoundary(auxVector.set(1F, 0F, 0F))
         addBoundary(auxVector.set(0F, 0F, 1F))
         addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.currentMap.tilesMapping.size)
@@ -57,6 +79,14 @@ class PhysicsSystem : GameEntitySystem() {
 
     override fun update(deltaTime: Float) {
         bulletEngineHandler.update(deltaTime)
+        val overlappingPairs = ghostObject.overlappingPairs
+        val size = overlappingPairs.size()
+        for (i in 4 until size) {
+            managers.dispatcher.dispatchMessage(
+                SystemEvents.PHYSICS_DROWNING.ordinal,
+                overlappingPairs.atConst(i).userData
+            )
+        }
     }
 
     override fun dispose() {
@@ -66,7 +96,7 @@ class PhysicsSystem : GameEntitySystem() {
 
     private fun createBoundaryPhysicsBody(vector: Vector3, planeConstant: Int): btRigidBody {
         val ground = btStaticPlaneShape(vector, planeConstant.toFloat())
-        val info = btRigidBody.btRigidBodyConstructionInfo(
+        val info = btRigidBodyConstructionInfo(
             0f,
             null,
             ground

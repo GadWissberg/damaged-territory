@@ -13,11 +13,7 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.AmbSoundComponent
-import com.gadarts.returnfire.components.ArmComponent
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.TurretComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -193,23 +189,31 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             val characterComponent = ComponentsMapper.character.get(character)
             val hp = characterComponent.hp
             if (!characterComponent.dead) {
-                val smokeEmission = characterComponent.smokeEmission
-                if (hp <= 0) {
-                    characterDies(characterComponent, character)
-                } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
-                    val position =
-                        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
-                            auxVector1
-                        )
-                    val smoke = EntityBuilder.begin().addParticleEffectComponent(
-                        position = position,
-                        pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
-                        parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
-                            auxVector2
-                        )
-                    ).finishAndAddToEngine()
-                    ComponentsMapper.particleEffect.get(smoke).parent = character
-                    characterComponent.smokeEmission = smoke
+                if (ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector1
+                    ).y < -1F
+                ) {
+                    managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+                } else {
+                    val smokeEmission = characterComponent.smokeEmission
+                    if (hp <= 0) {
+                        characterDies(characterComponent, character)
+                    } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
+                        val position =
+                            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                                auxVector1
+                            )
+                        val smoke = EntityBuilder.begin().addParticleEffectComponent(
+                            position = position,
+                            pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
+                            parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
+                                auxVector2
+                            )
+                        ).finishAndAddToEngine()
+                        ComponentsMapper.particleEffect.get(smoke).parent = character
+                        characterComponent.smokeEmission = smoke
+                    }
+
                 }
             }
         }

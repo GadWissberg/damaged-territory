@@ -10,11 +10,7 @@ import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.GameMap
-import com.gadarts.returnfire.systems.CameraSystem
-import com.gadarts.returnfire.systems.EntityBuilder
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.ParticleEffectsSystem
-import com.gadarts.returnfire.systems.ProfilingSystem
+import com.gadarts.returnfire.systems.*
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -32,13 +28,15 @@ class GamePlayScreen(
     private val soundPlayer: SoundPlayer,
     private val runsOnMobile: Boolean,
     private val fpsTarget: Int,
-    characterDefinition: CharacterDefinition
+    characterDefinition: CharacterDefinition,
+    private val screensManager: ScreensManager
 ) : Screen {
 
     init {
         SELECTED_VEHICLE = characterDefinition
+        val fileName = MapDefinition.MAP_0.getPaths()[0]
         assetsManager.load(
-            MapDefinition.MAP_0.getPaths()[0],
+            fileName,
             GameMap::class.java
         )
         assetsManager.finishLoading()
@@ -73,7 +71,15 @@ class GamePlayScreen(
         systems.forEach {
             engine.addSystem(it)
         }
-        val managers = Managers(engine, soundPlayer, assetsManager, dispatcher, RigidBodyFactory())
+        val managers = Managers(
+            engine,
+            soundPlayer,
+            assetsManager,
+            dispatcher,
+            RigidBodyFactory(),
+            SpecialEffectsGenerator(gameSessionData, soundPlayer, assetsManager),
+            screensManager
+        )
         EntityBuilder.initialize(managers.engine)
         engine.systems.forEach {
             (it as GameEntitySystem).initialize(
@@ -105,6 +111,7 @@ class GamePlayScreen(
     }
 
     override fun hide() {
+        assetsManager.unload(MapDefinition.MAP_0.getPaths()[0])
     }
 
     override fun dispose() {

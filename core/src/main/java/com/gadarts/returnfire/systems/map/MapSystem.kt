@@ -3,11 +3,14 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
+import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
@@ -46,8 +49,22 @@ class MapSystem : GameEntitySystem() {
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
-        mapOf()
-
+        mapOf(SystemEvents.PHYSICS_DROWNING to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                val position =
+                    ComponentsMapper.modelInstance.get(msg.extraInfo as Entity).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector
+                    )
+                position.set(
+                    position.x + MathUtils.randomSign() * MathUtils.random(0.2F),
+                    0.05F,
+                    position.z + MathUtils.randomSign() * MathUtils.random(0.2F)
+                )
+                managers.specialEffectsGenerator.generateWaterSplash(
+                    position
+                )
+            }
+        })
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
@@ -119,4 +136,7 @@ class MapSystem : GameEntitySystem() {
         return builder.end()
     }
 
+    companion object {
+        private val auxVector = Vector3()
+    }
 }

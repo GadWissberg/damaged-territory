@@ -24,11 +24,7 @@ import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovement
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.MovementTouchPadListener
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnPhysicsSystemReady
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
+import com.gadarts.returnfire.systems.player.react.*
 
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
@@ -100,7 +96,14 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 playerMovementHandler.onReverseScreenButtonReleased()
             }
         },
-        SystemEvents.PHYSICS_SYSTEM_READY to PlayerSystemOnPhysicsSystemReady()
+        SystemEvents.PHYSICS_SYSTEM_READY to PlayerSystemOnPhysicsSystemReady(),
+        SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
+                    managers.screensManager.goToSelectionScreen()
+                }
+            }
+        }
     )
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {

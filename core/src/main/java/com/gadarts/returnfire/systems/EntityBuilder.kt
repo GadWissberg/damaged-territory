@@ -195,6 +195,12 @@ class EntityBuilder private constructor() {
         return instance
     }
 
+    fun addWaterTriggerComponent(): EntityBuilder {
+        val waterTriggerComponent = WaterTriggerComponent()
+        entity!!.add(waterTriggerComponent)
+        return instance
+    }
+
     fun addPhysicsComponent(
         shape: btCollisionShape,
         managers: Managers,

@@ -47,5 +47,7 @@ object ComponentsMapper {
         ComponentMapper.getFor(TurretComponent::class.java)
     val turretBase: ComponentMapper<TurretBaseComponent> =
         ComponentMapper.getFor(TurretBaseComponent::class.java)
+    val waterTrigger: ComponentMapper<WaterTriggerComponent> =
+        ComponentMapper.getFor(WaterTriggerComponent::class.java)
 
 }

@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.FontDefinition
@@ -19,7 +20,6 @@ import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
 
 class SelectionScreen(
-    private val runsOnMobile: Boolean,
     private val assetsManager: GameAssetManager,
     private val screensManager: ScreensManager
 ) : Screen {
@@ -69,6 +69,7 @@ class SelectionScreen(
     )
 
     override fun render(delta: Float) {
+        ScreenUtils.clear(Color.BLACK)
         stage.act()
         stage.draw()
     }

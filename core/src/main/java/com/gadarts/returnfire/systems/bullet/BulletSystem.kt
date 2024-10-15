@@ -6,8 +6,6 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -34,12 +32,6 @@ import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class BulletSystem : GameEntitySystem() {
-    private val waterSplashSounds by lazy {
-        managers.assetsManager.getAllAssetsByDefinition(
-            SoundDefinition.WATER_SPLASH
-        )
-    }
-    private val waterSplashFloorTexture: Texture by lazy { managers.assetsManager.getTexture("water_splash_floor") }
     private val blastRingTexture: Texture by lazy { managers.assetsManager.getTexture("blast_ring") }
     private val bulletEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
@@ -239,7 +231,7 @@ class BulletSystem : GameEntitySystem() {
                     tileEntity
                 ).water
             ) {
-                addWaterSplash(position)
+                managers.specialEffectsGenerator.generateWaterSplash(position)
             } else {
                 addBulletExplosion(entity0, position)
             }
@@ -252,33 +244,6 @@ class BulletSystem : GameEntitySystem() {
         return false
     }
 
-    private fun addGroundBlast(
-        position: Vector3,
-        texture: Texture,
-        startingScale: Float,
-        scalePace: Float,
-        duration: Int,
-        fadeOutPace: Float
-    ) {
-        val gameModelInstance = gameSessionData.groundBlastPool.obtain()
-        val modelInstance = gameModelInstance.modelInstance
-        modelInstance.transform.setToScaling(1F, 1F, 1F)
-        val material = modelInstance.materials.get(0)
-        val blendingAttribute = material.get(BlendingAttribute.Type) as BlendingAttribute
-        blendingAttribute.opacity = 1F
-        val textureAttribute =
-            material.get(TextureAttribute.Diffuse) as TextureAttribute
-        textureAttribute.textureDescription.texture = texture
-        EntityBuilder.begin()
-            .addModelInstanceComponent(
-                gameModelInstance,
-                position,
-                auxBoundingBox.ext(Vector3.Zero, 1F)
-            )
-            .addGroundBlastComponent(scalePace, duration, fadeOutPace)
-            .finishAndAddToEngine()
-        modelInstance.transform.scl(startingScale)
-    }
 
     private fun addBulletExplosion(bullet: Entity, position: Vector3) {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
@@ -300,7 +265,7 @@ class BulletSystem : GameEntitySystem() {
                     )
                 ).finishAndAddToEngine()
             if (explosion.hasBlastRing) {
-                addGroundBlast(position, blastRingTexture, 0.1F, 11F, 250, 0.03F)
+                managers.specialEffectsGenerator.addGroundBlast(position, blastRingTexture, 0.1F, 11F, 250, 0.03F)
             }
         } else {
             if (!explosive) {
@@ -313,20 +278,6 @@ class BulletSystem : GameEntitySystem() {
                     ).finishAndAddToEngine()
             }
         }
-    }
-
-    private fun addWaterSplash(position: Vector3) {
-        EntityBuilder.begin()
-            .addParticleEffectComponent(
-                position,
-                gameSessionData.pools.particleEffectsPools.obtain(
-                    ParticleEffectDefinition.WATER_SPLASH
-                )
-            ).finishAndAddToEngine()
-        managers.soundPlayer.play(
-            waterSplashSounds.random(),
-        )
-        addGroundBlast(position, waterSplashFloorTexture, 0.5F, 1.01F, 2000, 0.01F)
     }
 
     override fun update(deltaTime: Float) {
