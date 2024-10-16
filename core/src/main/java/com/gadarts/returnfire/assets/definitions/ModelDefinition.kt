@@ -17,7 +17,7 @@ enum class ModelDefinition(
     BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
     CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
     MISSILE(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
-    PALM_TREE(3),
+    PALM_TREE(fileNames = 3, boundingBoxScale = Vector3(0.25F, 1F, 0.25F)),
     WATCH_TOWER,
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,

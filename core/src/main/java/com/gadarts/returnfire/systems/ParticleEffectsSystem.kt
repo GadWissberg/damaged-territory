@@ -81,42 +81,38 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
     override fun update(deltaTime: Float) {
         updateSystem(deltaTime)
-        handleCompletedParticleEffects()
-    }
-
-    private val particleEntitiesToRemove = ArrayList<Entity>()
-
-    private fun handleCompletedParticleEffects() {
         particleEntitiesToRemove.clear()
         updateParticleEffectsComponents()
         removeParticleEffectsMarkedToBeRemoved()
     }
 
+    private val particleEntitiesToRemove = ArrayList<Entity>()
+
     private fun updateParticleEffectsComponents() {
         for (entity in particleEffectsEntities) {
             val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
-            val particleEffect: ParticleEffect =
-                particleEffectComponent.effect
             val parent = particleEffectComponent.parent
             val ttlInMillis = particleEffectComponent.ttlInSeconds * 1000L
             val timeToLeave =
                 ttlInMillis > 0F && TimeUtils.timeSinceMillis(particleEffectComponent.createdAt) >= ttlInMillis
-            if ((particleEffectComponent.parent == null && particleEffect.isComplete)
+            val effect = particleEffectComponent.effect
+            if ((particleEffectComponent.parent == null && effect.isComplete)
                 || (parent != null
                     && ComponentsMapper.character.has(parent)
                     && ComponentsMapper.character.get(parent).dead)
                 || timeToLeave
+                || (parent != null && ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                ).y <= -1F)
             ) {
                 particleEntitiesToRemove.add(entity)
                 return
             } else if (parent != null) {
-                val parentTransform =
-                    ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
-                parentTransform.getTranslation(
+                ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
                 )
                 auxMatrix.setToTranslation(auxVector1).trn(particleEffectComponent.parentRelativePosition)
-                particleEffectComponent.effect.setTransform(auxMatrix)
+                effect.setTransform(auxMatrix)
             }
         }
     }
