@@ -181,7 +181,7 @@ class EnemySystem : GameEntitySystem() {
         }
         val effectiveRotation = min(ROTATION_STEP_SIZE * deltaTime, angle) * rotationDirection
 
-        if (abs(angle - abs(effectiveRotation)) > 0.1f) {
+        if (abs(angle - abs(effectiveRotation)) > 6f) {
             transform.setFromEulerAngles(
                 currentRotation.yaw + effectiveRotation,
                 currentRotation.pitch,
@@ -196,14 +196,14 @@ class EnemySystem : GameEntitySystem() {
             if (MathUtils.isEqual(
                     currentRotation.roll,
                     auxQuat2.roll,
-                    0.1F
+                    6F
                 )
             ) {
                 val enemyComponent = ComponentsMapper.enemy.get(enemy)
                 val now = TimeUtils.millis()
                 if (enemyComponent.attackReady) {
                     enemyComponent.attackReady = false
-                    enemyComponent.attackReadyTime = now + 3000L
+                    enemyComponent.attackReadyTime = now + 1000L
                     managers.soundPlayer.play(cannonSound)
                     CharacterWeaponShotEventData.set(
                         enemy,

@@ -28,7 +28,6 @@ class ProfilingSystem : GameEntitySystem() {
     }
 
     override fun dispose() {
-        gameSessionData.gameSessionDataHud.stage.dispose()
     }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {

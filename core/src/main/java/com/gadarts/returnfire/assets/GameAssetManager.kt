@@ -26,7 +26,7 @@ import com.gadarts.returnfire.assets.loaders.DefinitionsLoader
 import com.gadarts.returnfire.assets.loaders.MapLoader
 import com.gadarts.returnfire.model.GameMap
 import java.io.File
-import java.util.Arrays
+import java.util.*
 
 open class GameAssetManager : AssetManager() {
 
@@ -123,6 +123,17 @@ open class GameAssetManager : AssetManager() {
                             pointSpriteParticleBatch
                         )
                     )
+                )
+            }
+        }
+        finishLoading()
+    }
+
+    fun unloadParticleEffects() {
+        ParticleEffectDefinition.entries.forEach {
+            it.getPaths().forEach { _ ->
+                unload(
+                    it.getPaths()[0],
                 )
             }
         }

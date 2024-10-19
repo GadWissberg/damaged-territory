@@ -1,6 +1,8 @@
 package com.gadarts.returnfire.screens
 
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
@@ -96,6 +98,9 @@ class GamePlayScreen(
 
     override fun render(delta: Float) {
         engine.update(delta)
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.BACK)) {
+            screensManager.goToSelectionScreen()
+        }
     }
 
     override fun resize(width: Int, height: Int) {

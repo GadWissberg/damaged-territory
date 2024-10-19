@@ -37,6 +37,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
+    private var disposed: Boolean = false
     private val relatedEntities: RenderSystemRelatedEntities by lazy {
         RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
@@ -80,6 +81,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     override fun update(deltaTime: Float) {
+        if (disposed) return
+
         val camera = gameSessionData.renderData.camera
         shadowLight.begin(
             auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
@@ -126,6 +129,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     override fun dispose() {
         batches.dispose()
         shadowLight.dispose()
+        disposed = true
     }
 
     private fun initializeDirectionalLightAndShadows() {

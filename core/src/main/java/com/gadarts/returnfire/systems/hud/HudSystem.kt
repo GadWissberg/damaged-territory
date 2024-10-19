@@ -91,10 +91,11 @@ class HudSystem : GameEntitySystem() {
         ui: Table
     ) {
         if (gameSessionData.runsOnMobile) {
-            addTouchpad(ui, this.gameSessionData.gameSessionDataHud.movementTouchpad)
+            val movementPad = addTouchpad(ui, this.gameSessionData.gameSessionDataHud.movementTouchpad)
                 .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, 0F).left()
             val definition = ComponentsMapper.character.get(gameSessionData.player).definition
             if (definition == SimpleCharacterDefinition.APACHE) {
+                movementPad.growX()
                 addApacheButtons(ui)
             } else if (definition == TurretCharacterDefinition.TANK) {
                 val touchpad = this.gameSessionData.gameSessionDataHud.turretTouchpad

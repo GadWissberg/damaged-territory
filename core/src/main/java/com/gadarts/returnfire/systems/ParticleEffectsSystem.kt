@@ -143,6 +143,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     override fun dispose() {
+        managers.assetsManager.unloadParticleEffects()
     }
 
     companion object {

@@ -2,12 +2,14 @@ package com.gadarts.returnfire
 
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.math.MathUtils
+import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 
 class SoundPlayer {
 
     fun loopSound(sound: Sound): Long {
         if (!GameDebugSettings.SFX) return -1
-        return sound.loop(0.27F, 1F, 0F)
+        return sound.loop(0.5F, 1F, 0F)
     }
 
     fun play(sound: Sound): Long {
@@ -17,6 +19,14 @@ class SoundPlayer {
             MathUtils.random(PITCH_MIN, PITCH_MAX),
             0F
         )
+    }
+
+    fun stopAll(assetsManager: GameAssetManager) {
+        SoundDefinition.entries.forEach {
+            assetsManager.getAllAssetsByDefinition(it).forEach { sound: Sound ->
+                sound.stop()
+            }
+        }
     }
 
     companion object {

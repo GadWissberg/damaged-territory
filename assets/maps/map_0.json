@@ -16,13 +16,6 @@
       "col": 8
     },
     {
-      "definition": "PLAYER",
-      "type": "CHARACTER",
-      "direction": 0,
-      "row": 11,
-      "col": 12
-    },
-    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
@@ -37,11 +30,11 @@
       "col": 11
     },
     {
-      "definition": "TURRET_CANNON",
+      "definition": "PLAYER",
       "type": "CHARACTER",
       "direction": 0,
       "row": 11,
-      "col": 13
+      "col": 12
     },
     {
       "definition": "TURRET_CANNON",

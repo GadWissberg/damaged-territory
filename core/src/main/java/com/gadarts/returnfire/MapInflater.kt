@@ -195,7 +195,7 @@ class MapInflater(
             .addPrimaryArmComponent(
                 spark,
                 ArmProperties(
-                    5,
+                    2,
                     assetsManager.getAssetByDefinition(SoundDefinition.CANNON),
                     3000L,
                     20F,
