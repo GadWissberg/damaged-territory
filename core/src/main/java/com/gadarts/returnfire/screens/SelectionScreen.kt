@@ -32,7 +32,7 @@ class SelectionScreen(
         val table = Table()
         table.setFillParent(true)
         table.add(
-            createLabel("Damaged Territory - 0.6", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))
+            createLabel("Damaged Territory - 0.7", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))
         ).pad(LABEL_PADDING).left().top().row()
         table.add(
             createLabel("Select Vehicle:", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))
