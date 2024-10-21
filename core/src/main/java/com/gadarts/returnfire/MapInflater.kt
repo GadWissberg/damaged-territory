@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -132,19 +133,24 @@ class MapInflater(
         )
     }
 
-    private fun createShapeForStaticObject(modelDefinition: ModelDefinition): btCompoundShape {
-        val shape = btCompoundShape()
-        val dimensions =
-            auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition))
-                .getDimensions(
-                    auxVector3
-                )
-        val btBoxShape = btBoxShape(
-            dimensions.scl(0.5F)
-        )
-        shape.addChildShape(
-            auxMatrix.idt().translate(0F, dimensions.y / 2F, 0F), btBoxShape
-        )
+    private fun createShapeForStaticObject(modelDefinition: ModelDefinition): btCollisionShape {
+        val shape: btCollisionShape
+        if (modelDefinition.physicalShapeCreator == null) {
+            shape = btCompoundShape()
+            val dimensions =
+                auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition))
+                    .getDimensions(
+                        auxVector3
+                    )
+            val btBoxShape = btBoxShape(
+                dimensions.scl(0.5F)
+            )
+            shape.addChildShape(
+                auxMatrix.idt().translate(0F, dimensions.y / 2F, 0F), btBoxShape
+            )
+        } else {
+            shape = modelDefinition.physicalShapeCreator.create()
+        }
         return shape
     }
 

@@ -3,13 +3,17 @@ package com.gadarts.returnfire.assets.definitions
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
+import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape
 import com.gadarts.returnfire.model.PooledObjectPhysicalDefinition
+
 
 enum class ModelDefinition(
     fileNames: Int = 1,
     val boundingBoxScale: Vector3 = Vector3(1F, 1F, 1F),
     val boundingBoxBias: Vector3 = Vector3.Zero,
     val pooledObjectPhysicalDefinition: PooledObjectPhysicalDefinition? = null,
+    val physicalShapeCreator: PhysicalShapeCreator? = null
 ) :
     AssetDefinition<Model> {
 
@@ -25,7 +29,7 @@ enum class ModelDefinition(
     TURRET_CANNON(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
     TURRET_CANNON_DEAD_0(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
     TURRET_CANNON_DEAD_1(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
-    TURRET_BASE,
+    TURRET_BASE(physicalShapeCreator = TurretBasePhysicalShapeCreator),
     MACHINE_GUN_SPARK,
     CANNON_SPARK,
     FLYING_PART(3),
@@ -55,6 +59,30 @@ enum class ModelDefinition(
 
     override fun getDefinitionName(): String {
         return name
+    }
+
+}
+
+object TurretBasePhysicalShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        val trapezoidShape = btConvexHullShape()
+        val bottomWidth = 0.5F
+        val height = 1.5F
+        val topWidth = 0.4F
+        val vertices = arrayOf(
+            Vector3(-bottomWidth, 0f, -bottomWidth),
+            Vector3(bottomWidth, 0f, -bottomWidth),
+            Vector3(bottomWidth, 0f, bottomWidth),
+            Vector3(-bottomWidth, 0f, bottomWidth),
+            Vector3(-topWidth, height, -topWidth),
+            Vector3(topWidth, height, -topWidth),
+            Vector3(topWidth, height, topWidth),
+            Vector3(-topWidth, height, topWidth),
+        )
+        for (vertex in vertices) {
+            trapezoidShape.addPoint(vertex)
+        }
+        return trapezoidShape
     }
 
 }
