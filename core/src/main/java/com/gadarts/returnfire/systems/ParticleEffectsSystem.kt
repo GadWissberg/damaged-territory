@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ParticleEffectComponent
@@ -98,8 +99,8 @@ class ParticleEffectsSystem : GameEntitySystem() {
             val effect = particleEffectComponent.effect
             if ((particleEffectComponent.parent == null && effect.isComplete)
                 || (parent != null
-                    && ComponentsMapper.character.has(parent)
-                    && ComponentsMapper.character.get(parent).dead)
+                        && ComponentsMapper.character.has(parent)
+                        && ComponentsMapper.character.get(parent).dead)
                 || timeToLeave
                 || (parent != null && ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
@@ -135,11 +136,14 @@ class ParticleEffectsSystem : GameEntitySystem() {
             .free(particleEffect)
     }
 
+    @Suppress("KotlinConstantConditions")
     private fun updateSystem(deltaTime: Float) {
         gameSessionData.renderData.particleSystem.update(deltaTime)
-        gameSessionData.renderData.particleSystem.begin()
-        gameSessionData.renderData.particleSystem.draw()
-        gameSessionData.renderData.particleSystem.end()
+        if (!GameDebugSettings.AVOID_PARTICLE_EFFECTS_DRAWING) {
+            gameSessionData.renderData.particleSystem.begin()
+            gameSessionData.renderData.particleSystem.draw()
+            gameSessionData.renderData.particleSystem.end()
+        }
     }
 
     override fun dispose() {

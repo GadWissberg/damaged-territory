@@ -1,3 +1,5 @@
+@file:Suppress("KotlinConstantConditions")
+
 package com.gadarts.returnfire.systems
 
 import com.badlogic.gdx.Gdx
@@ -50,7 +52,7 @@ class ProfilingSystem : GameEntitySystem() {
     }
 
     override fun update(delta: Float) {
-        if (glProfiler.isEnabled) {
+        if (GameDebugSettings.ENABLE_PROFILER && glProfiler.isEnabled) {
             stringBuilder.setLength(0)
             displayLine(LABEL_FPS, Gdx.graphics.framesPerSecond)
             displayGlProfiling()

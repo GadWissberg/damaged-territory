@@ -37,7 +37,6 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
-    private var disposed: Boolean = false
     private val relatedEntities: RenderSystemRelatedEntities by lazy {
         RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
@@ -81,7 +80,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     override fun update(deltaTime: Float) {
-        if (disposed) return
+        if (gameSessionData.sessionFinished) return
 
         val camera = gameSessionData.renderData.camera
         shadowLight.begin(
@@ -115,6 +114,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         renderDecals(deltaTime)
     }
 
+    @Suppress("KotlinConstantConditions")
     private fun renderCollisionShapes() {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
 
@@ -129,7 +129,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
     override fun dispose() {
         batches.dispose()
         shadowLight.dispose()
-        disposed = true
     }
 
     private fun initializeDirectionalLightAndShadows() {
@@ -151,8 +150,8 @@ class RenderSystem : GameEntitySystem(), Disposable {
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(
             GL20.GL_COLOR_BUFFER_BIT
-                or GL20.GL_DEPTH_BUFFER_BIT
-                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+                    or GL20.GL_DEPTH_BUFFER_BIT
+                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
     }
 
@@ -206,6 +205,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         else frustum.boundsInFrustum(center, dims)
     }
 
+    @Suppress("KotlinConstantConditions")
     private fun renderModels(
         batch: ModelBatch,
         camera: Camera,
