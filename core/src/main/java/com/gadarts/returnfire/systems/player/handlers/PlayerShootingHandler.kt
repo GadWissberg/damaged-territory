@@ -75,7 +75,7 @@ class PlayerShootingHandler {
                         ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).cannon
                     ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
                 }
-            CharacterWeaponShotEventData.set(
+            CharacterWeaponShotEventData.setWithDirection(
                 player,
                 direction
             )

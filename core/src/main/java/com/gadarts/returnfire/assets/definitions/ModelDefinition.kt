@@ -13,11 +13,12 @@ enum class ModelDefinition(
     val boundingBoxScale: Vector3 = Vector3(1F, 1F, 1F),
     val boundingBoxBias: Vector3 = Vector3.Zero,
     val pooledObjectPhysicalDefinition: PooledObjectPhysicalDefinition? = null,
-    val physicalShapeCreator: PhysicalShapeCreator? = null
+    val physicalShapeCreator: PhysicalShapeCreator? = null,
+    val centerOfMass: Vector3 = Vector3.Zero
 ) :
     AssetDefinition<Model> {
 
-    APACHE,
+    APACHE(centerOfMass = Vector3(0F, -0.2F, 0F)),
     BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
     CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
     MISSILE(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
@@ -32,7 +33,7 @@ enum class ModelDefinition(
     TURRET_BASE(physicalShapeCreator = TurretBasePhysicalShapeCreator),
     MACHINE_GUN_SPARK,
     CANNON_SPARK,
-    FLYING_PART(3),
+    FLYING_PART(boundingBoxScale = Vector3(0.5F, 0.5F, 0.5F), fileNames = 3),
     TANK_BODY,
     TANK_TURRET,
     TANK_CANNON,

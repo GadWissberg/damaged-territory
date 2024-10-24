@@ -205,16 +205,9 @@ class EnemySystem : GameEntitySystem() {
                     enemyComponent.attackReady = false
                     enemyComponent.attackReadyTime = now + 1000L
                     managers.soundPlayer.play(cannonSound)
-                    CharacterWeaponShotEventData.set(
+                    CharacterWeaponShotEventData.setWithTarget(
                         enemy,
-                        auxMatrix.idt().set(
-                            auxQuat1.setFromCross(
-                                Vector3.X,
-                                ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
-                                    auxVector3_1
-                                ).sub(position).nor()
-                            )
-                        ),
+                        player,
                     )
                     managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY.ordinal)
                 } else if (enemyComponent.attackReadyTime <= now) {
