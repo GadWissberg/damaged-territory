@@ -2,6 +2,8 @@ package com.gadarts.returnfire.systems.player.handlers
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ArmComponent
@@ -61,13 +63,19 @@ class PlayerShootingHandler {
                         ).turret
                     ).cannon == null
                 ) {
-                    ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+                    val rotation =
+                        ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(
+                            auxQuat
+                        )
+                    auxMatrix.set(
+                        rotation.setEulerAngles(rotation.yaw, 0F, 0F)
+                    )
                 } else {
                     val cannon =
                         ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).cannon
                     ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
                 }
-            CharacterWeaponShotEventData.set(
+            CharacterWeaponShotEventData.setWithDirection(
                 player,
                 direction
             )
@@ -102,5 +110,7 @@ class PlayerShootingHandler {
 
     companion object {
         private val auxVector2 = Vector2()
+        private val auxMatrix = Matrix4()
+        private val auxQuat = Quaternion()
     }
 }

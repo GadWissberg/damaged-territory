@@ -41,6 +41,10 @@ class PlayerFactory(
         } else if (placedPlayer.definition == TurretCharacterDefinition.TANK) {
             player = createTank(placedPlayer)
         }
+        @Suppress("KotlinConstantConditions")
+        if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {
+            ComponentsMapper.character.get(player).hp = GameDebugSettings.FORCE_PLAYER_HP
+        }
         return player!!
     }
 

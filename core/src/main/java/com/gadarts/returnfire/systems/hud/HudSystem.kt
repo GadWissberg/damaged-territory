@@ -1,3 +1,5 @@
+@file:Suppress("KotlinConstantConditions")
+
 package com.gadarts.returnfire.systems.hud
 
 import com.badlogic.gdx.Gdx
@@ -158,7 +160,6 @@ class HudSystem : GameEntitySystem() {
     }
 
     override fun dispose() {
-
     }
 
 
@@ -183,12 +184,15 @@ class HudSystem : GameEntitySystem() {
     }
 
     override fun update(deltaTime: Float) {
-        super.update(deltaTime)
+        if (gameSessionData.sessionFinished) return
+
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.update()
         }
-        gameSessionData.gameSessionDataHud.stage.act(deltaTime)
-        gameSessionData.gameSessionDataHud.stage.draw()
+        if (!GameDebugSettings.DISABLE_HUD) {
+            gameSessionData.gameSessionDataHud.stage.act(deltaTime)
+            gameSessionData.gameSessionDataHud.stage.draw()
+        }
     }
 
     companion object {

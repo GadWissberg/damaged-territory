@@ -120,8 +120,8 @@ class GamePlayScreen(
     }
 
     override fun dispose() {
+        gameSessionData.finishSession()
         engine.systems.forEach { (it as GameEntitySystem).dispose() }
-        gameSessionData.dispose()
     }
 
     companion object {

@@ -26,6 +26,8 @@ class GameSessionData(
     val pools = GameSessionDataPools(assetsManager, rigidBodyFactory)
     val renderData = GameSessionDataRender()
     lateinit var tilesEntities: Array<Array<Entity?>>
+    var sessionFinished: Boolean = false
+        private set
 
     val groundBlastPool = object : Pool<GameModelInstance>() {
         override fun newObject(): GameModelInstance {
@@ -45,5 +47,10 @@ class GameSessionData(
         renderData.dispose()
         gameSessionDataHud.dispose()
         gameSessionDataPhysics.dispose()
+    }
+
+    fun finishSession() {
+        sessionFinished = true
+        dispose()
     }
 }
