@@ -1,0 +1,40 @@
+exp.png
+size: 1162, 241
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+exp
+  rotate: false
+  xy: 1000, 1
+  size: 161, 161
+  orig: 349, 317
+  offset: 94, 78
+  index: 0
+exp
+  rotate: false
+  xy: 788, 1
+  size: 210, 210
+  orig: 349, 317
+  offset: 70, 53
+  index: 1
+exp
+  rotate: true
+  xy: 273, 1
+  size: 239, 233
+  orig: 349, 317
+  offset: 48, 42
+  index: 2
+exp
+  rotate: false
+  xy: 1, 1
+  size: 270, 239
+  orig: 349, 317
+  offset: 38, 39
+  index: 3
+exp
+  rotate: false
+  xy: 508, 1
+  size: 278, 238
+  orig: 349, 317
+  offset: 36, 39
+  index: 4

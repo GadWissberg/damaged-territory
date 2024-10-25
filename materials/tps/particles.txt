@@ -1,96 +1,96 @@
 particles.png
-size: 256, 256
+size: 1225, 318
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-explosion
+exp
   rotate: false
   xy: 0, 0
-  size: 64, 64
-  orig: 64, 64
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 0
-explosion
+exp
   rotate: false
-  xy: 64, 0
-  size: 64, 64
-  orig: 64, 64
+  xy: 175, 0
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 1
-explosion
+exp
   rotate: false
-  xy: 128, 0
-  size: 64, 64
-  orig: 64, 64
+  xy: 350, 0
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 2
-explosion
+exp
   rotate: false
-  xy: 192, 0
-  size: 64, 64
-  orig: 64, 64
+  xy: 525, 0
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 3
-explosion
+exp
   rotate: false
-  xy: 0, 64
-  size: 64, 64
-  orig: 64, 64
+  xy: 700, 0
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 4
 particle
   rotate: false
-  xy: 64, 64
-  size: 64, 64
-  orig: 64, 64
+  xy: 875, 0
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: -1
 smoke
   rotate: false
-  xy: 128, 64
-  size: 64, 64
-  orig: 64, 64
+  xy: 1050, 0
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 0
 smoke
   rotate: false
-  xy: 192, 64
-  size: 64, 64
-  orig: 64, 64
+  xy: 0, 159
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 1
 smoke
   rotate: false
-  xy: 0, 128
-  size: 64, 64
-  orig: 64, 64
+  xy: 175, 159
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 2
 spark
   rotate: false
-  xy: 64, 128
-  size: 64, 64
-  orig: 64, 64
+  xy: 350, 159
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 0
 spark
   rotate: false
-  xy: 128, 128
-  size: 64, 64
-  orig: 64, 64
+  xy: 525, 159
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 1
 spark
   rotate: false
-  xy: 192, 128
-  size: 64, 64
-  orig: 64, 64
+  xy: 700, 159
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: 2
 water_splash
   rotate: false
-  xy: 0, 192
-  size: 64, 64
-  orig: 64, 64
+  xy: 875, 159
+  size: 175, 159
+  orig: 175, 159
   offset: 0, 0
   index: -1

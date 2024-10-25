@@ -108,7 +108,7 @@
             <key>sizeConstraints</key>
             <enum type="AlgorithmSettings::SizeConstraints">AnySize</enum>
             <key>forceSquared</key>
-            <true/>
+            <false/>
             <key>maxRects</key>
             <struct type="AlgorithmMaxRectsSettings">
                 <key>heuristic</key>
@@ -181,11 +181,25 @@
         </struct>
         <key>individualSpriteSettings</key>
         <map type="IndividualSpriteSettingsMap">
-            <key type="filename">../sprites/explosion_0.png</key>
-            <key type="filename">../sprites/explosion_1.png</key>
-            <key type="filename">../sprites/explosion_2.png</key>
-            <key type="filename">../sprites/explosion_3.png</key>
-            <key type="filename">../sprites/explosion_4.png</key>
+            <key type="filename">../sprites/exp_0.png</key>
+            <key type="filename">../sprites/exp_1.png</key>
+            <key type="filename">../sprites/exp_2.png</key>
+            <key type="filename">../sprites/exp_3.png</key>
+            <key type="filename">../sprites/exp_4.png</key>
+            <struct type="IndividualSpriteSettings">
+                <key>pivotPoint</key>
+                <point_f>0.5,0.5</point_f>
+                <key>spriteScale</key>
+                <double>1</double>
+                <key>scale9Enabled</key>
+                <false/>
+                <key>scale9Borders</key>
+                <rect>87,79,175,159</rect>
+                <key>scale9Paddings</key>
+                <rect>87,79,175,159</rect>
+                <key>scale9FromFile</key>
+                <false/>
+            </struct>
             <key type="filename">../sprites/particle.png</key>
             <key type="filename">../sprites/smoke_0.png</key>
             <key type="filename">../sprites/smoke_1.png</key>
@@ -218,12 +232,12 @@
             <filename>../sprites/spark_0.png</filename>
             <filename>../sprites/spark_1.png</filename>
             <filename>../sprites/spark_2.png</filename>
-            <filename>../sprites/explosion_0.png</filename>
-            <filename>../sprites/explosion_1.png</filename>
-            <filename>../sprites/explosion_2.png</filename>
-            <filename>../sprites/explosion_3.png</filename>
-            <filename>../sprites/explosion_4.png</filename>
             <filename>../sprites/particle.png</filename>
+            <filename>../sprites/exp_0.png</filename>
+            <filename>../sprites/exp_1.png</filename>
+            <filename>../sprites/exp_2.png</filename>
+            <filename>../sprites/exp_3.png</filename>
+            <filename>../sprites/exp_4.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

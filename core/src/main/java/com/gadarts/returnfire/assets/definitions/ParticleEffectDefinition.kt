@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 enum class ParticleEffectDefinition(fileNames: Int = 1, val hasBlastRing: Boolean = false, val loop: Boolean = false) :
     AssetDefinition<ParticleEffect> {
 
-    EXPLOSION_GROUND(hasBlastRing = true),
     EXPLOSION_SMALL(hasBlastRing = true),
     EXPLOSION(hasBlastRing = true),
     SMOKE,
