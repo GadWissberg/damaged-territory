@@ -90,8 +90,8 @@ class PhysicsSystem : GameEntitySystem() {
     }
 
     override fun dispose() {
-//        bulletEngineHandler.dispose()
-//        contactListener.dispose()
+        bulletEngineHandler.dispose()
+        contactListener.dispose()
     }
 
     private fun createBoundaryPhysicsBody(vector: Vector3, planeConstant: Int): btRigidBody {

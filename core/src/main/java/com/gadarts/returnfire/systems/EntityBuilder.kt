@@ -221,25 +221,6 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addPhysicsComponentPooled(
-        rigidBodyPool: RigidBodyPool,
-        dispatcher: MessageDispatcher,
-        collisionFlag: Int,
-        transform: Matrix4,
-        applyGravity: Boolean,
-    ): EntityBuilder {
-        val physicsComponent = Companion.addPhysicsComponentPooled(
-            entity!!,
-            rigidBodyPool,
-            dispatcher,
-            collisionFlag,
-            transform,
-            applyGravity
-        )
-        entity!!.add(physicsComponent)
-        return instance
-    }
-
     fun finish(): Entity {
         val result = entity
         entity = null
