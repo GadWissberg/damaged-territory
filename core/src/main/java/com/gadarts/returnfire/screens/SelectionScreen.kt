@@ -26,11 +26,13 @@ class SelectionScreen(
     private val screensManager: ScreensManager,
     private val runsOnMobile: Boolean
 ) : Screen {
-    private val stage by lazy { Stage() }
+    private val stage by lazy {
+        Stage(
+        )
+    }
 
     override fun show() {
         val table = Table()
-        table.setFillParent(true)
         table.add(
             createLabel("Damaged Territory - 0.7", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))
         ).pad(LABEL_PADDING).left().top().row()
@@ -49,9 +51,19 @@ class SelectionScreen(
             TurretCharacterDefinition.TANK,
             "Arrows to move, primary attack - left ctrl, rotate turret - A and D"
         )
+        val scaleX = Gdx.graphics.width / 1920f
+        val scaleY = Gdx.graphics.height / 1080f
+        val scaleFactor = minOf(scaleX, scaleY) // Use the smaller scale factor for both dimensions
+        table.isTransform = true // Enable transformations
+        table.setScale(scaleFactor) // Apply scaling
         stage.addActor(table)
         table.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(stage)
+        val viewport = stage.viewport
+        table.setPosition(
+            (viewport.worldWidth - table.width) / 2,
+            (viewport.worldHeight - table.height) / 2
+        )
     }
 
     private fun addVehicleLine(
@@ -101,6 +113,7 @@ class SelectionScreen(
 
 
     override fun resize(width: Int, height: Int) {
+        stage.viewport.update(width, height, true)
     }
 
     override fun pause() {

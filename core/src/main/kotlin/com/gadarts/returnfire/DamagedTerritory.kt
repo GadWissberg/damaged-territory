@@ -19,8 +19,12 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val rigidBodyFactory = RigidBodyFactory()
 
     override fun create() {
+        val screenWidth = Gdx.graphics.displayMode.width
+        val screenHeight = Gdx.graphics.displayMode.height
+        val targetWidth = (screenWidth * 0.85).toInt().coerceAtMost(MAX_RESOLUTION_WIDTH)
+        val targetHeight = (screenHeight * 0.85).toInt().coerceAtMost(MAX_RESOLUTION_HEIGHT)
+        Gdx.graphics.setWindowedMode(targetWidth, targetHeight)
         Gdx.input.setCatchKey(Input.Keys.BACK, true)
-        Gdx.graphics.setWindowedMode(1920, 1080)
         assetsManager.loadAssets()
         Gdx.input.inputProcessor = InputMultiplexer()
         setScreen(selectionScreen)
@@ -47,4 +51,9 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         setScreen(selectionScreen)
     }
 
+    companion object {
+        private const val MAX_RESOLUTION_WIDTH = 1920
+        private const val MAX_RESOLUTION_HEIGHT = 1080
+
+    }
 }
