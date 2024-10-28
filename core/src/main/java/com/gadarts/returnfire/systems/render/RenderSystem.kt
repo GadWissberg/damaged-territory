@@ -114,7 +114,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
         renderDecals(deltaTime)
     }
 
-    @Suppress("KotlinConstantConditions")
     private fun renderCollisionShapes() {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
 
@@ -205,7 +204,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
         else frustum.boundsInFrustum(center, dims)
     }
 
-    @Suppress("KotlinConstantConditions")
     private fun renderModels(
         batch: ModelBatch,
         camera: Camera,

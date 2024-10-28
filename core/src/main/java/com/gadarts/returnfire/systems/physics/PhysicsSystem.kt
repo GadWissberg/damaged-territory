@@ -59,7 +59,7 @@ class PhysicsSystem : GameEntitySystem() {
                 halfMapDepth,
             )
         )
-        val water = EntityBuilder.begin().addWaterTriggerComponent().finishAndAddToEngine()
+        val water = EntityBuilder.begin().finishAndAddToEngine()
         ghostObject = btPairCachingGhostObject()
         ghostObject.collisionShape = waterShape
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
@@ -92,6 +92,7 @@ class PhysicsSystem : GameEntitySystem() {
     override fun dispose() {
         bulletEngineHandler.dispose()
         contactListener.dispose()
+        ghostObject.dispose()
     }
 
     private fun createBoundaryPhysicsBody(vector: Vector3, planeConstant: Int): btRigidBody {

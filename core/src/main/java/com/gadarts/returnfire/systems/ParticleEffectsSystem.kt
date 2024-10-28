@@ -21,6 +21,9 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 
 class ParticleEffectsSystem : GameEntitySystem() {
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
+        mapOf()
+
     private val particleEffectsEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(
@@ -30,9 +33,6 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     private val billboardParticleBatch: BillboardParticleBatch by lazy { BillboardParticleBatch() }
-
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
-        mapOf()
 
     override fun resume(delta: Long) {
     }
@@ -49,6 +49,17 @@ class ParticleEffectsSystem : GameEntitySystem() {
         billboardParticleBatch.blendingAttribute.destFunction = GL20.GL_ONE_MINUS_SRC_ALPHA
         managers.assetsManager.loadParticleEffects(billboardParticleBatch)
         engine.addEntityListener(createEntityListener())
+    }
+
+    override fun update(deltaTime: Float) {
+        updateSystem(deltaTime)
+        particleEntitiesToRemove.clear()
+        updateParticleEffectsComponents()
+        removeParticleEffectsMarkedToBeRemoved()
+    }
+
+    override fun dispose() {
+        managers.assetsManager.unloadParticleEffects()
     }
 
     private fun createEntityListener(): EntityListener {
@@ -80,14 +91,8 @@ class ParticleEffectsSystem : GameEntitySystem() {
         effect.start()
     }
 
-    override fun update(deltaTime: Float) {
-        updateSystem(deltaTime)
-        particleEntitiesToRemove.clear()
-        updateParticleEffectsComponents()
-        removeParticleEffectsMarkedToBeRemoved()
-    }
-
     private val particleEntitiesToRemove = ArrayList<Entity>()
+
 
     private fun updateParticleEffectsComponents() {
         for (entity in particleEffectsEntities) {
@@ -118,7 +123,6 @@ class ParticleEffectsSystem : GameEntitySystem() {
         }
     }
 
-
     private fun removeParticleEffectsMarkedToBeRemoved() {
         for (entity in particleEntitiesToRemove) {
             removeParticleEffect(entity)
@@ -136,7 +140,6 @@ class ParticleEffectsSystem : GameEntitySystem() {
             .free(particleEffect)
     }
 
-    @Suppress("KotlinConstantConditions")
     private fun updateSystem(deltaTime: Float) {
         gameSessionData.renderData.particleSystem.update(deltaTime)
         if (!GameDebugSettings.AVOID_PARTICLE_EFFECTS_DRAWING) {
@@ -144,10 +147,6 @@ class ParticleEffectsSystem : GameEntitySystem() {
             gameSessionData.renderData.particleSystem.draw()
             gameSessionData.renderData.particleSystem.end()
         }
-    }
-
-    override fun dispose() {
-        managers.assetsManager.unloadParticleEffects()
     }
 
     companion object {

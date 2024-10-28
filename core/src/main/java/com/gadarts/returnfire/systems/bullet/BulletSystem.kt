@@ -231,7 +231,7 @@ class BulletSystem : GameEntitySystem() {
                     tileEntity
                 ).water
             ) {
-                managers.specialEffectsGenerator.generateWaterSplash(position)
+                managers.factories.specialEffectsFactory.generateWaterSplash(position)
             } else {
                 addBulletExplosion(entity0, position)
             }
@@ -265,7 +265,14 @@ class BulletSystem : GameEntitySystem() {
                     )
                 ).finishAndAddToEngine()
             if (explosion.hasBlastRing) {
-                managers.specialEffectsGenerator.addGroundBlast(position, blastRingTexture, 0.1F, 11F, 250, 0.03F)
+                managers.factories.specialEffectsFactory.addGroundBlast(
+                    position,
+                    blastRingTexture,
+                    0.1F,
+                    11F,
+                    250,
+                    0.03F
+                )
             }
         } else {
             if (!explosive) {

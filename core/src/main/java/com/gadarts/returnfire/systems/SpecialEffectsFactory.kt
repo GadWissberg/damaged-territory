@@ -11,7 +11,7 @@ import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.systems.bullet.BulletSystem.Companion.auxBoundingBox
 import com.gadarts.returnfire.systems.data.GameSessionData
 
-class SpecialEffectsGenerator(
+class SpecialEffectsFactory(
     private val gameSessionData: GameSessionData,
     private val soundPlayer: SoundPlayer,
     private val assetsManager: GameAssetManager

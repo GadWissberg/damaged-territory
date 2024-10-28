@@ -26,6 +26,9 @@ import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.Movement
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
 import com.gadarts.returnfire.systems.player.react.*
 
+/**
+ * Responsible to initialize input, create the player and updates the player's character according to the input.
+ */
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private val playerShootingHandler = PlayerShootingHandler()

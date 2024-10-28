@@ -60,7 +60,7 @@ class MapSystem : GameEntitySystem() {
                     0.05F,
                     position.z + MathUtils.randomSign() * MathUtils.random(0.2F)
                 )
-                managers.specialEffectsGenerator.generateWaterSplash(
+                managers.factories.specialEffectsFactory.generateWaterSplash(
                     position
                 )
             }

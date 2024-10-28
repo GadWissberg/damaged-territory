@@ -25,7 +25,6 @@ import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
-import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
@@ -55,9 +54,8 @@ class EntityBuilder private constructor() {
 
     fun addChildDecalComponent(
         decals: List<ChildDecal>,
-        animateRotation: Boolean
     ): EntityBuilder {
-        val component = ChildDecalComponent(decals, animateRotation)
+        val component = ChildDecalComponent(decals)
         entity!!.add(component)
         return instance
 
@@ -117,8 +115,8 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addAmbComponent(scale: Vector3, rotation: Float, def: AmbDefinition): EntityBuilder {
-        val ambComponent = AmbComponent(scale, rotation, def)
+    fun addAmbComponent(scale: Vector3, rotation: Float): EntityBuilder {
+        val ambComponent = AmbComponent(scale, rotation)
         entity!!.add(ambComponent)
         return instance
     }
@@ -195,12 +193,6 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addWaterTriggerComponent(): EntityBuilder {
-        val waterTriggerComponent = WaterTriggerComponent()
-        entity!!.add(waterTriggerComponent)
-        return instance
-    }
-
     fun addPhysicsComponent(
         shape: btCollisionShape,
         managers: Managers,
@@ -252,7 +244,7 @@ class EntityBuilder private constructor() {
             transform: Matrix4,
             applyGravity: Boolean = false
         ): PhysicsComponent {
-            val rigidBody = managers.rigidBodyFactory.create(mass, shape, null, transform)
+            val rigidBody = managers.factories.rigidBodyFactory.create(mass, shape, null, transform)
             return addPhysicsComponent(entity, rigidBody, managers.dispatcher, collisionFlag, null, applyGravity)
         }
 

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.Factories
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
@@ -78,8 +79,10 @@ class GamePlayScreen(
             soundPlayer,
             assetsManager,
             dispatcher,
-            RigidBodyFactory(),
-            SpecialEffectsGenerator(gameSessionData, soundPlayer, assetsManager),
+            Factories(
+                RigidBodyFactory(),
+                SpecialEffectsFactory(gameSessionData, soundPlayer, assetsManager),
+            ),
             screensManager
         )
         EntityBuilder.initialize(managers.engine)
