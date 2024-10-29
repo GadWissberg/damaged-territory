@@ -26,7 +26,7 @@ import com.gadarts.returnfire.assets.loaders.DefinitionsLoader
 import com.gadarts.returnfire.assets.loaders.MapLoader
 import com.gadarts.returnfire.model.GameMap
 import java.io.File
-import java.util.*
+import java.util.Arrays
 
 open class GameAssetManager : AssetManager() {
 
@@ -35,15 +35,18 @@ open class GameAssetManager : AssetManager() {
         loadAllAssets()
         finishLoading()
         getTexturesDefinitions().definitions.forEach {
-            if (it.value.frames == 1) {
+            val textureDefinition = it.value
+            val fileName =
+                "${TextureDefinition.FOLDER}${File.separator}${textureDefinition.folder}${File.separator}${textureDefinition.fileName}"
+            if (textureDefinition.frames == 1) {
                 load(
-                    "${TextureDefinition.FOLDER}${File.separator}${it.value.fileName}.${TextureDefinition.FORMAT}",
+                    "$fileName.${TextureDefinition.FORMAT}",
                     Texture::class.java
                 )
             } else {
-                for (i in 0 until it.value.frames) {
+                for (i in 0 until textureDefinition.frames) {
                     load(
-                        "${TextureDefinition.FOLDER}${File.separator}${it.value.fileName}_$i.${TextureDefinition.FORMAT}",
+                        "${fileName}_$i.${TextureDefinition.FORMAT}",
                         Texture::class.java
                     )
                 }
@@ -171,10 +174,12 @@ open class GameAssetManager : AssetManager() {
     }
 
     fun getTexture(definition: TextureDefinition, frameIndex: Int = 0): Texture {
+        val path =
+            "${AssetsTypes.TEXTURES.name.lowercase()}${File.separator}${definition.folder}${File.separator}${definition.fileName}"
         val fileName = if (definition.frames == 1) {
-            "${AssetsTypes.TEXTURES.name.lowercase()}${File.separator}${definition.fileName}.${AssetsTypes.TEXTURES.format}"
+            "$path.${AssetsTypes.TEXTURES.format}"
         } else {
-            "${AssetsTypes.TEXTURES.name.lowercase()}${File.separator}${definition.fileName}_${frameIndex}.${AssetsTypes.TEXTURES.format}"
+            "${path}_${frameIndex}.${AssetsTypes.TEXTURES.format}"
         }
         return get(
             fileName,

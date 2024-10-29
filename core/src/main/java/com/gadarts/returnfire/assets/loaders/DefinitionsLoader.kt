@@ -13,7 +13,9 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 
 class DefinitionsLoader(resolver: FileHandleResolver) :
-    AsynchronousAssetLoader<ExternalDefinitions<*>, AssetLoaderParameters<ExternalDefinitions<*>>>(resolver) {
+    AsynchronousAssetLoader<ExternalDefinitions<*>, AssetLoaderParameters<ExternalDefinitions<*>>>(
+        resolver
+    ) {
     override fun getDependencies(
         fileName: String?,
         file: FileHandle?,
@@ -46,6 +48,7 @@ class DefinitionsLoader(resolver: FileHandleResolver) :
                     asJsonObject.get(KEY_FILE_NAME).asString,
                     if (asJsonObject.has(KEY_FRAMES)) asJsonObject.get(KEY_FRAMES).asInt else 1,
                     if (asJsonObject.has(KEY_ANIMATED)) asJsonObject.get(KEY_ANIMATED).asBoolean else false,
+                    if (asJsonObject.has(KEY_FOLDER)) asJsonObject.get(KEY_FOLDER).asString else ""
                 )
             })
         return ExternalDefinitions(definitions)
@@ -56,6 +59,7 @@ class DefinitionsLoader(resolver: FileHandleResolver) :
         private val gson = Gson()
         private const val KEY_DEFINITIONS = "definitions"
         private const val KEY_FILE_NAME = "file_name"
+        private const val KEY_FOLDER = "folder"
         private const val KEY_FRAMES = "frames"
         private const val KEY_ANIMATED = "animated"
     }
