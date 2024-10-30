@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.console.Console
+import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.screens.ScreensManager
@@ -13,6 +15,7 @@ import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
+    private val console: Console by lazy { ConsoleImpl(assetsManager) }
     private val soundPlayer: SoundPlayer by lazy { SoundPlayer() }
     private val selectionScreen by lazy { SelectionScreen(assetsManager, this, runsOnMobile) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
