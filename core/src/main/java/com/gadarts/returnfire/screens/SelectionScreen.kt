@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.ScreenUtils
+import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.FontDefinition
@@ -34,7 +35,7 @@ class SelectionScreen(
     override fun show() {
         val table = Table()
         table.add(
-            createLabel("Damaged Territory - 0.7", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))
+            createLabel("Damaged Territory - ${DamagedTerritory.VERSION}", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))
         ).pad(LABEL_PADDING).left().top().row()
         table.add(
             createLabel("Select Vehicle:", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))

@@ -1,6 +1,6 @@
 package com.gadarts.returnfire.console
 
-abstract class CommandParameter(private val description: String, private val alias: String) {
+abstract class CommandParameter(val description: String, val alias: String) {
     var parameterValue: Boolean = false
 
     fun defineParameterValue(
