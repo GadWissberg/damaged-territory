@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.*
@@ -17,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Scaling
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.console.ConsoleConstants.TEXT_VIEW_NAME
 import com.gadarts.returnfire.console.commands.CommandInvoke
@@ -25,9 +27,15 @@ import java.util.function.Consumer
 import java.util.stream.Collectors
 
 class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProcessor {
+    private val consoleTextData: ConsoleTextData = ConsoleTextData(assetsManager)
+    private val scrollPane by lazy {
+        createScrollPane()
+    }
     private val textWindowStack: Stack by lazy { Stack(scrollPane) }
-    private val consoleTextures: ConsoleTextures = ConsoleTextures()
-    var textBackgroundTextureRegionDrawable: TextureRegionDrawable =
+    private val consoleTextures: ConsoleTextures = ConsoleTextures(calculateHeight())
+
+    private fun calculateHeight() = (Gdx.graphics.height / 3F).toInt()
+    private var textBackgroundTextureRegionDrawable: TextureRegionDrawable =
         TextureRegionDrawable(consoleTextures.textBackgroundTexture)
     private val consoleCommandResult = ConsoleCommandResult()
 
@@ -35,109 +43,36 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
         createArrow()
     }
 
-    override fun activate() {
-        if (active || !actions.isEmpty) return
-        stage.setKeyboardFocus(stage.root.findActor(INPUT_FIELD_NAME))
-        active = true
-        val amountY = -Gdx.graphics.height / 3f
-        addAction(Actions.moveBy(0f, amountY, TRANSITION_DURATION, Interpolation.pow2))
-        isVisible = true
-//        subscribers.forEach(ConsoleEventsSubscriber::onConsoleActivated)
-    }
-
-    override fun deactivate() {
-        if (!active || !actions.isEmpty) return
-        active = false
-        val amountY = Gdx.graphics.height / 3f
-        val move = Actions.moveBy(0f, amountY, TRANSITION_DURATION, Interpolation.pow2)
-        addAction(Actions.sequence(move, Actions.visible(false)))
-//        subscribers.forEach(ConsoleEventsSubscriber::onConsoleDeactivated)
-        stage.unfocusAll()
+    init {
+        debug(if (GameDebugSettings.UI_DEBUG) Debug.all else Debug.none)
     }
 
     override val isActive: Boolean
         get() = active
 
-
-    override fun notifyCommandExecution(command: Commands, commandParameter: CommandParameter?): ConsoleCommandResult {
-        val result = false
-        consoleCommandResult.clear()
-        val optional = Optional.ofNullable(commandParameter)
-//        for (sub in subscribers) {
-//            result = if (optional.isPresent) {
-//                result or sub.onCommandRun(command, consoleCommandResult, optional.get())
-//            } else {
-//                result or sub.onCommandRun(command, consoleCommandResult)
-//            }
-//        }
-        consoleCommandResult.result = result
-        return consoleCommandResult
-    }
-
-    override fun insertNewLog(text: String?, logTime: Boolean, color: String?) {
-        if (text == null) return
-        consoleTextData.insertNewLog(text, logTime, color)
-        scrollToEnd = true
-        arrow.isVisible = false
-    }
-
-    private fun createArrow(): Image {
-        val arrow = Image(consoleTextures.arrowTexture)
-        arrow.align = Align.bottomRight
-        textWindowStack.add(arrow)
-        arrow.setScaling(Scaling.none)
-        arrow.setFillParent(false)
-        arrow.isVisible = false
-        return arrow
-    }
-
     private var scrollToEnd: Boolean = false
-    private val scrollPane by lazy {
-        createScrollPane()
-    }
 
-    private fun createScrollPane(): ScrollPane {
-        val textStyle: LabelStyle = consoleTextData.textStyle
-        textStyle.background = textBackgroundTextureRegionDrawable
-        val textView = Label(consoleTextData.stringBuilder, textStyle)
-        textView.setAlignment(Align.bottomLeft)
-        textView.name = TEXT_VIEW_NAME
-        textView.wrap = true
-        val scrollPane = ScrollPane(textView)
-        scrollPane.touchable = Touchable.disabled
-        return scrollPane
-    }
 
     private val stringBuilder = StringBuilder()
-    private val consoleTextData: ConsoleTextData = ConsoleTextData(assetsManager)
+
+
     private val consoleInputHistoryHandler: ConsoleInputHistoryHandler by lazy { ConsoleInputHistoryHandler() }
     private val input: TextField by lazy { addInputField(textBackgroundTextureRegionDrawable) }
+
     private var active = false
 
-    init {
-        name = NAME
-        val screenHeight = Gdx.graphics.height
-        val height = screenHeight / 3f
-        isVisible = false
-        setPosition(0f, screenHeight.toFloat())
-        consoleTextures.init(height.toInt())
-        addTextView(height.toInt())
+    override fun setStage(stage: Stage?) {
+        super.setStage(stage)
+        if (stage == null) return
 
-        background = TextureRegionDrawable(consoleTextures.backgroundTexture)
-        setSize(Gdx.graphics.width.toFloat(), consoleTextures.backgroundTexture.height.toFloat())
-        val multiplexer = Gdx.input.inputProcessor as InputMultiplexer
-        multiplexer.addProcessor(this)
-        input.setTextFieldListener { textField: TextField, c: Char ->
-            if (c == '`') {
-                textField.text = null
-                if (!this@ConsoleImpl.hasActions()) if (active) deactivate()
-            }
-            if (active) {
-                if (c == '\r' || c == '\n') {
-                    applyInput(input)
-                }
-            }
-        }
+        consoleTextData.stage = stage
+        add(textWindowStack).colspan(2).size(width, height).align(Align.bottomLeft).padRight(PADDING)
+            .padLeft(PADDING).row()
+        defineInputFieldTextFieldListener()
+        defineInputFieldListener()
+    }
+
+    private fun defineInputFieldListener() {
         input.addCaptureListener(object : InputListener() {
             override fun keyDown(event: InputEvent, keycode: Int): Boolean {
                 var result = false
@@ -165,7 +100,7 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
 
             private fun logSuggestedCommands(options: List<CommandsList>) {
                 stringBuilder.clear()
-                options.forEach(Consumer<CommandsList> { command: CommandsList ->
+                options.forEach(Consumer { command: CommandsList ->
                     stringBuilder.append(
                         command.name.lowercase(Locale.getDefault())
                     ).append(" | ")
@@ -174,10 +109,102 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
             }
 
             private fun scroll(step: Float) {
-                scrollPane.scrollY = scrollPane.scrollY + step
+                scrollPane.scrollY += step
                 scrollToEnd = false
             }
         })
+    }
+
+    private fun defineInputFieldTextFieldListener() {
+        input.setTextFieldListener { textField: TextField, c: Char ->
+            if (c == '`') {
+                textField.text = null
+                if (!this@ConsoleImpl.hasActions()) if (active) deactivate()
+            }
+            if (active) {
+                if (c == '\r' || c == '\n') {
+                    applyInput(input)
+                }
+            }
+        }
+    }
+
+    private fun createScrollPane(): ScrollPane {
+        val textStyle: LabelStyle = consoleTextData.textStyle
+        textStyle.background = textBackgroundTextureRegionDrawable
+        val textView = Label(consoleTextData.stringBuilder, textStyle)
+        textView.setAlignment(Align.bottomLeft)
+        textView.name = TEXT_VIEW_NAME
+        textView.wrap = true
+        val scrollPane = ScrollPane(textView)
+        scrollPane.touchable = Touchable.disabled
+        stage.addActor(scrollPane)
+        return scrollPane
+    }
+
+    override fun activate() {
+        if (active || !actions.isEmpty) return
+        stage.setKeyboardFocus(stage.root.findActor(INPUT_FIELD_NAME))
+        active = true
+        val amountY = -Gdx.graphics.height / 3f
+        addAction(Actions.moveBy(0f, amountY, TRANSITION_DURATION, Interpolation.pow2))
+        isVisible = true
+//        subscribers.forEach(ConsoleEventsSubscriber::onConsoleActivated)
+    }
+
+    override fun deactivate() {
+        if (!active || !actions.isEmpty) return
+        active = false
+        val amountY = Gdx.graphics.height / 3f
+        val move = Actions.moveBy(0f, amountY, TRANSITION_DURATION, Interpolation.pow2)
+        addAction(Actions.sequence(move, Actions.visible(false)))
+//        subscribers.forEach(ConsoleEventsSubscriber::onConsoleDeactivated)
+        stage.unfocusAll()
+    }
+
+    override fun insertNewLog(text: String?, logTime: Boolean, color: String?) {
+        if (text == null) return
+        consoleTextData.insertNewLog(text, logTime, color)
+        scrollToEnd = true
+        arrow.isVisible = false
+    }
+
+    override fun notifyCommandExecution(command: Commands, commandParameter: CommandParameter?): ConsoleCommandResult {
+        val result = false
+        consoleCommandResult.clear()
+        val optional = Optional.ofNullable(commandParameter)
+//        for (sub in subscribers) {
+//            result = if (optional.isPresent) {
+//                result or sub.onCommandRun(command, consoleCommandResult, optional.get())
+//            } else {
+//                result or sub.onCommandRun(command, consoleCommandResult)
+//            }
+//        }
+        consoleCommandResult.result = result
+        return consoleCommandResult
+    }
+
+    private fun createArrow(): Image {
+        val arrow = Image(consoleTextures.arrowTexture)
+        arrow.align = Align.bottomRight
+        textWindowStack.add(arrow)
+        arrow.setScaling(Scaling.none)
+        arrow.setFillParent(false)
+        arrow.isVisible = false
+        return arrow
+    }
+
+    init {
+        name = NAME
+        val screenHeight = Gdx.graphics.height
+        val height = screenHeight / 3f
+        isVisible = false
+        setPosition(0f, screenHeight.toFloat())
+
+        background = TextureRegionDrawable(consoleTextures.backgroundTexture)
+        setSize(Gdx.graphics.width.toFloat(), consoleTextures.backgroundTexture.height.toFloat())
+        val multiplexer = Gdx.input.inputProcessor as InputMultiplexer
+        multiplexer.addProcessor(this)
 
     }
 
@@ -272,14 +299,6 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
         }
     }
 
-    private fun addTextView(consoleHeight: Int) {
-        val width: Float = Gdx.graphics.width - PADDING * 2
-        val height: Float = consoleHeight - (INPUT_HEIGHT)
-        val textWindowStack = Stack(scrollPane)
-        add<Stack>(textWindowStack).colspan(2).size(width, height).align(Align.bottomLeft).padRight(PADDING)
-            .padLeft(PADDING).row()
-    }
-
     private fun addInputField(textBackgroundTexture: TextureRegionDrawable): TextField {
         val style = TextFieldStyle(
             consoleTextData.font, Color.YELLOW, TextureRegionDrawable(consoleTextures.cursorTexture),
@@ -288,10 +307,9 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
         val input = TextField("", style)
         input.name = INPUT_FIELD_NAME
         val arrow = Label(">", consoleTextData.textStyle)
-        add<Label>(arrow).padBottom(PADDING).padLeft(PADDING)
-            .size(10f, INPUT_HEIGHT)
-        add<TextField>(input).size(Gdx.graphics.width - PADDING * 3, INPUT_HEIGHT)
-            .padBottom(PADDING).padRight(PADDING).align(Align.left).row()
+        add(arrow).padBottom(PADDING).padLeft(PADDING).align(Align.left).size(30F, INPUT_HEIGHT)
+        add(input).size(Gdx.graphics.width - PADDING * 2F, INPUT_HEIGHT)
+            .padBottom(PADDING).align(Align.left).row()
         input.focusTraversal = false
         return input
     }

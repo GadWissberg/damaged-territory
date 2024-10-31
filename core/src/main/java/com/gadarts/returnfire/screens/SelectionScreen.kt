@@ -18,6 +18,7 @@ import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.FontDefinition
+import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
@@ -25,17 +26,21 @@ import com.gadarts.returnfire.model.TurretCharacterDefinition
 class SelectionScreen(
     private val assetsManager: GameAssetManager,
     private val screensManager: ScreensManager,
-    private val runsOnMobile: Boolean
+    private val runsOnMobile: Boolean,
 ) : Screen {
     private val stage by lazy {
-        Stage(
-        )
+        Stage()
     }
 
     override fun show() {
+        val console = ConsoleImpl(assetsManager)
+        stage.addActor(console)
         val table = Table()
         table.add(
-            createLabel("Damaged Territory - ${DamagedTerritory.VERSION}", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))
+            createLabel(
+                "Damaged Territory - ${DamagedTerritory.VERSION}",
+                assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL)
+            )
         ).pad(LABEL_PADDING).left().top().row()
         table.add(
             createLabel("Select Vehicle:", assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL))
@@ -65,6 +70,7 @@ class SelectionScreen(
             (viewport.worldWidth - table.width) / 2,
             (viewport.worldHeight - table.height) / 2
         )
+        console.toFront()
     }
 
     private fun addVehicleLine(

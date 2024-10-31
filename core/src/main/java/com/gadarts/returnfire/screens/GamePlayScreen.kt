@@ -11,6 +11,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.MapDefinition
+import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.*
@@ -32,7 +33,7 @@ class GamePlayScreen(
     private val runsOnMobile: Boolean,
     private val fpsTarget: Int,
     characterDefinition: CharacterDefinition,
-    private val screensManager: ScreensManager
+    private val screensManager: ScreensManager,
 ) : Screen {
 
     init {
@@ -51,7 +52,8 @@ class GamePlayScreen(
             assetsManager,
             rigidBodyFactory,
             runsOnMobile,
-            fpsTarget
+            fpsTarget,
+            ConsoleImpl(assetsManager)
         )
     }
     private val engine: PooledEngine by lazy { PooledEngine() }

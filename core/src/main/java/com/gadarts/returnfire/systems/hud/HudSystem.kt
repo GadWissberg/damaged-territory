@@ -86,6 +86,7 @@ class HudSystem : GameEntitySystem() {
         val ui = addUiTable()
         addOnScreenInput(gameSessionData, ui)
         initializeInput()
+        gameSessionData.gameSessionDataHud.stage.addActor(gameSessionData.gameSessionDataHud.console)
     }
 
     private fun addOnScreenInput(

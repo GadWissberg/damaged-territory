@@ -11,23 +11,23 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.StringBuilder
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.assets.definitions.FontDefinition
 import com.gadarts.returnfire.console.ConsoleConstants.TEXT_VIEW_NAME
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
 
 class ConsoleTextData(assetsManager: GameAssetManager) : Disposable {
-    val font: BitmapFont = assetsManager.get("consola.ttf", BitmapFont::class.java)
+    val font: BitmapFont = assetsManager.getAssetByDefinition(FontDefinition.CONSOLA)
     val fontHeight: Float
-    private var stage: Stage? = null
+    lateinit var stage: Stage
     val stringBuilder: StringBuilder = StringBuilder()
     private val date = SimpleDateFormat("HH:mm:ss")
     private val timeStamp = Timestamp(TimeUtils.millis())
-    val textStyle: LabelStyle
+    val textStyle: LabelStyle = LabelStyle(font, Color.WHITE)
 
     init {
         font.data.markupEnabled = true
-        textStyle = LabelStyle(font, Color.WHITE)
         val layout = GlyphLayout()
         layout.setText(font, "test")
         fontHeight = layout.height
@@ -40,7 +40,7 @@ class ConsoleTextData(assetsManager: GameAssetManager) : Disposable {
             appendTextWithTime(text, colorText)
         } else stringBuilder.append(colorText).append(text).append('\n')
         stringBuilder.append(OUTPUT_COLOR)
-        (stage!!.root.findActor<Actor>(TEXT_VIEW_NAME) as Label).setText(stringBuilder)
+        (stage.root.findActor<Actor>(TEXT_VIEW_NAME) as Label).setText(stringBuilder)
     }
 
     private fun appendTextWithTime(text: String, colorText: String?) {
@@ -52,10 +52,6 @@ class ConsoleTextData(assetsManager: GameAssetManager) : Disposable {
 
     override fun dispose() {
         font.dispose()
-    }
-
-    fun setStage(stage: Stage?) {
-        this.stage = stage
     }
 
     companion object {
