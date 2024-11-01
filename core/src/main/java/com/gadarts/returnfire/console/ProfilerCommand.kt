@@ -6,11 +6,7 @@ class ProfilerCommand : ConsoleCommandImpl() {
         return result
     }
 
-    override val commandEnumValue: CommandsList
-        get() = CommandsList.PROFILER
+    override val commandEnumValue: CommandList
+        get() = CommandList.PROFILER
 
-    companion object {
-        const val PROFILING_ACTIVATED: String = "Profiling info is displayed."
-        const val PROFILING_DEACTIVATED: String = "Profiling info is hidden."
-    }
 }

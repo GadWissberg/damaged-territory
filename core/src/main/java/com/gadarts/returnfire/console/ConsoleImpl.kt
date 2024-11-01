@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -14,19 +15,24 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Stack
+import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldFilter
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Scaling
+import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.console.ConsoleConstants.TEXT_VIEW_NAME
 import com.gadarts.returnfire.console.commands.CommandInvoke
+import com.gadarts.returnfire.console.commands.ExecutedCommand
+import com.gadarts.returnfire.systems.events.SystemEvents
 import java.util.*
 import java.util.function.Consumer
-import java.util.stream.Collectors
 
-class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProcessor {
+
+class ConsoleImpl(assetsManager: GameAssetManager, private val dispatcher: MessageDispatcher) : Table(), Console,
+    InputProcessor {
     private val consoleTextData: ConsoleTextData = ConsoleTextData(assetsManager)
     private val scrollPane by lazy {
         createScrollPane()
@@ -56,11 +62,10 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
     private val stringBuilder = StringBuilder()
 
 
-    private val consoleInputHistoryHandler: ConsoleInputHistoryHandler by lazy { ConsoleInputHistoryHandler() }
+    private val consoleInputHistoryHandler: ConsoleInputHistoryHandler by lazy { ConsoleInputHistoryHandler(stage) }
     private val input: TextField by lazy { addInputField(textBackgroundTextureRegionDrawable) }
 
     private var active = false
-
     override fun setStage(stage: Stage?) {
         super.setStage(stage)
         if (stage == null) return
@@ -68,8 +73,13 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
         consoleTextData.stage = stage
         add(textWindowStack).colspan(2).size(width, height).align(Align.bottomLeft).padRight(PADDING)
             .padLeft(PADDING).row()
+        input.textFieldFilter = TextFieldFilter { _, c ->
+            if (c == '\t') return@TextFieldFilter false
+            true
+        }
         defineInputFieldTextFieldListener()
         defineInputFieldListener()
+        insertNewLog("Damaged Territory v${DamagedTerritory.VERSION}", false)
     }
 
     private fun defineInputFieldListener() {
@@ -78,29 +88,30 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
                 var result = false
                 if (active) {
                     result = true
-                    if (keycode == Input.Keys.PAGE_UP) scroll(-consoleTextData.fontHeight * 2)
-                    else if (keycode == Input.Keys.PAGE_DOWN) scroll(consoleTextData.fontHeight * 2)
-                    else if (keycode == Input.Keys.TAB) tryFindingCommand()
-                    else if (keycode == Input.Keys.ESCAPE) deactivate()
-                    else consoleInputHistoryHandler.onKeyDown(keycode)
+                    when (keycode) {
+                        Input.Keys.PAGE_UP -> scroll(-consoleTextData.fontHeight * 2)
+                        Input.Keys.PAGE_DOWN -> scroll(consoleTextData.fontHeight * 2)
+                        Input.Keys.TAB -> tryFindingCommand()
+                        Input.Keys.ESCAPE -> deactivate()
+                        else -> consoleInputHistoryHandler.onKeyDown(keycode)
+                    }
                 }
                 return result
             }
 
             private fun tryFindingCommand() {
                 if (input.text.isEmpty()) return
-                val options: List<CommandsList> = Arrays.stream(CommandsList.entries.toTypedArray())
-                    .filter { command -> command.name.startsWith(input.text.uppercase(Locale.getDefault())) }
-                    .collect(Collectors.toList())
+                val options: List<CommandList> = CommandList.entries.toTypedArray()
+                    .filter { command -> command.name.startsWith(input.text.uppercase()) }
                 if (options.size == 1) {
-                    input.text = options[0].name.lowercase(Locale.getDefault())
+                    input.text = options[0].name.lowercase()
                     input.cursorPosition = input.text.length
                 } else if (options.size > 1) logSuggestedCommands(options)
             }
 
-            private fun logSuggestedCommands(options: List<CommandsList>) {
+            private fun logSuggestedCommands(options: List<CommandList>) {
                 stringBuilder.clear()
-                options.forEach(Consumer { command: CommandsList ->
+                options.forEach(Consumer { command: CommandList ->
                     stringBuilder.append(
                         command.name.lowercase(Locale.getDefault())
                     ).append(" | ")
@@ -169,17 +180,17 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
         arrow.isVisible = false
     }
 
-    override fun notifyCommandExecution(command: Commands, commandParameter: CommandParameter?): ConsoleCommandResult {
+    override fun notifyCommandExecution(
+        command: Command,
+        parameters: Map<String, String>
+    ): ConsoleCommandResult {
         val result = false
         consoleCommandResult.clear()
-        val optional = Optional.ofNullable(commandParameter)
-//        for (sub in subscribers) {
-//            result = if (optional.isPresent) {
-//                result or sub.onCommandRun(command, consoleCommandResult, optional.get())
-//            } else {
-//                result or sub.onCommandRun(command, consoleCommandResult)
-//            }
-//        }
+        dispatcher.dispatchMessage(
+            dispatcher,
+            SystemEvents.CONSOLE_COMMAND_EXECUTED.ordinal,
+            ExecutedCommand(command, parameters)
+        )
         consoleCommandResult.result = result
         return consoleCommandResult
     }
@@ -197,15 +208,12 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
     init {
         name = NAME
         val screenHeight = Gdx.graphics.height
-        val height = screenHeight / 3f
         isVisible = false
         setPosition(0f, screenHeight.toFloat())
-
         background = TextureRegionDrawable(consoleTextures.backgroundTexture)
         setSize(Gdx.graphics.width.toFloat(), consoleTextures.backgroundTexture.height.toFloat())
         val multiplexer = Gdx.input.inputProcessor as InputMultiplexer
         multiplexer.addProcessor(this)
-
     }
 
     private fun applyInput(textField: TextField) {
@@ -213,8 +221,7 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
         val inputCommand = textField.text
         consoleInputHistoryHandler.applyInput(inputCommand)
         try {
-            val commandToInvoke: CommandInvoke
-            commandToInvoke = parseCommandFromInput(inputCommand)!!
+            val commandToInvoke: CommandInvoke = parseCommandFromInput(inputCommand)!!
             val result: ConsoleCommandResult =
                 commandToInvoke.getCommand().commandImpl.run(this, commandToInvoke.getParameters())
             insertNewLog(result.message, false)
@@ -272,12 +279,11 @@ class ConsoleImpl(assetsManager: GameAssetManager) : Table(), Console, InputProc
         val entries =
             text.uppercase(Locale.getDefault()).split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val commandName = entries[0]
-        val command = CommandInvoke(CommandsList.findCommandByNameOrAlias(commandName))
+        val command = CommandInvoke(CommandList.findCommandByNameOrAlias(commandName))
         parseParameters(entries, command)
         return command
     }
 
-    @Throws(InputParsingFailureException::class)
     private fun parseParameters(entries: Array<String>, command: CommandInvoke) {
         var i = 1
         while (i < entries.size) {

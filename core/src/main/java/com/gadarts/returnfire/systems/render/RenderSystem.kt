@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.render
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
@@ -29,6 +30,9 @@ import com.gadarts.returnfire.components.IndependentDecalComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.console.CommandList
+import com.gadarts.returnfire.console.commands.ExecutedCommand
+import com.gadarts.returnfire.console.commands.SkipDrawingCommand
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
@@ -37,6 +41,10 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class RenderSystem : GameEntitySystem(), Disposable {
 
+    private var renderAmbient: Boolean = true
+    private var renderCharacters: Boolean = true
+    private var renderGround: Boolean = true
+    private var renderShadows: Boolean = true
     private val relatedEntities: RenderSystemRelatedEntities by lazy {
         RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
@@ -72,7 +80,37 @@ class RenderSystem : GameEntitySystem(), Disposable {
         )
     }
 
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.CONSOLE_COMMAND_EXECUTED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                val command = msg.extraInfo as ExecutedCommand
+                if (command.command == CommandList.SKIP_DRAWING) {
+                    val parameters = command.parameters
+                    parameters.forEach { (parameter, value) ->
+                        val alias: String = parameter.lowercase()
+                        val renderEnabled = value == "0"
+                        when (alias) {
+                            SkipDrawingCommand.ShadowsParameter.alias -> {
+                                renderShadows = renderEnabled
+                                if (renderEnabled) {
+                                    enableShadow()
+                                } else {
+                                    disableShadow()
+                                    environment.shadowMap = null
+                                }
+                            }
+
+                            SkipDrawingCommand.GroundParameter.alias -> renderGround = renderEnabled
+                            SkipDrawingCommand.CharactersParameter.alias -> renderCharacters = renderEnabled
+                            SkipDrawingCommand.EnvironmentParameter.alias -> renderAmbient = renderEnabled
+                        }
+                    }
+
+                }
+            }
+
+        }
+    )
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
@@ -83,18 +121,20 @@ class RenderSystem : GameEntitySystem(), Disposable {
         if (gameSessionData.sessionFinished) return
 
         val camera = gameSessionData.renderData.camera
-        shadowLight.begin(
-            auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
-            camera.direction
-        )
-        renderModels(
-            batch = batches.shadowBatch,
-            camera = shadowLight.camera,
-            applyEnvironment = false,
-            renderParticleEffects = false,
-            forShadow = true
-        )
-        shadowLight.end()
+        if (renderShadows) {
+            shadowLight.begin(
+                auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
+                camera.direction
+            )
+            renderModels(
+                batch = batches.shadowBatch,
+                camera = shadowLight.camera,
+                applyEnvironment = false,
+                renderParticleEffects = false,
+                forShadow = true
+            )
+            shadowLight.end()
+        }
         resetDisplay()
         renderModels(
             batch = batches.modelBatch,
@@ -139,8 +179,17 @@ class RenderSystem : GameEntitySystem(), Disposable {
         )
         val dirValue = 0.4f
         shadowLight.set(dirValue, dirValue, dirValue, 0.4F, -0.6f, -0.35f)
+        enableShadow()
+    }
+
+    private fun enableShadow() {
         environment.add(shadowLight)
         environment.shadowMap = shadowLight
+    }
+
+    private fun disableShadow() {
+        environment.remove(shadowLight)
+        environment.shadowMap = null
     }
 
     private fun resetDisplay() {
@@ -149,15 +198,17 @@ class RenderSystem : GameEntitySystem(), Disposable {
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(
             GL20.GL_COLOR_BUFFER_BIT
-                    or GL20.GL_DEPTH_BUFFER_BIT
-                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+                or GL20.GL_DEPTH_BUFFER_BIT
+                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
     }
 
     private fun renderDecals(deltaTime: Float) {
         Gdx.gl.glDepthMask(false)
         for (entity in relatedEntities.childEntities) {
-            renderChildren(entity, deltaTime)
+            if (renderCharacters || !ComponentsMapper.childDecal.has(entity)) {
+                renderChildren(entity, deltaTime)
+            }
         }
         renderIndependentDecals()
         batches.decalBatch.flush()
@@ -187,8 +238,10 @@ class RenderSystem : GameEntitySystem(), Disposable {
         val dims: Vector3 = boundingBox.getDimensions(auxVector3_2)
 
         if (modelInsComp.hidden) return false
-        if (ComponentsMapper.player.has(entity)) return true
         if (dims.isZero) return false
+        if (!renderCharacters && (isConsideredCharacter(entity))) return false
+        if (ComponentsMapper.player.has(entity)) return true
+        if (!renderAmbient && ComponentsMapper.amb.has(entity)) return false
 
         val center: Vector3 =
             gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
@@ -204,6 +257,9 @@ class RenderSystem : GameEntitySystem(), Disposable {
         else frustum.boundsInFrustum(center, dims)
     }
 
+    private fun isConsideredCharacter(entity: Entity) =
+        (ComponentsMapper.character.has(entity) || ComponentsMapper.turret.has(entity))
+
     private fun renderModels(
         batch: ModelBatch,
         camera: Camera,
@@ -216,7 +272,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         for (entity in relatedEntities.modelInstanceEntities) {
             renderModel(entity, batch, applyEnvironment, forShadow)
         }
-        if (!GameDebugSettings.HIDE_FLOOR) {
+        if (!GameDebugSettings.HIDE_FLOOR && renderGround) {
             if (applyEnvironment) {
                 batch.render(gameSessionData.renderData.modelCache, environment)
             } else {

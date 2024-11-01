@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
@@ -13,8 +14,9 @@ import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
+    private val dispatcher = MessageDispatcher()
     private val soundPlayer: SoundPlayer by lazy { SoundPlayer() }
-    private val selectionScreen by lazy { SelectionScreen(assetsManager, this, runsOnMobile) }
+    private val selectionScreen by lazy { SelectionScreen(assetsManager, this, runsOnMobile, dispatcher) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val rigidBodyFactory = RigidBodyFactory()
 
@@ -40,6 +42,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
                 fpsTarget,
                 characterDefinition,
                 this,
+                dispatcher
             )
         )
 
@@ -52,7 +55,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     }
 
     companion object {
-        val VERSION: String = "0.7"
+        const val VERSION: String = "0.7"
         private const val MAX_RESOLUTION_WIDTH = 1920
         private const val MAX_RESOLUTION_HEIGHT = 1080
 

@@ -3,7 +3,10 @@ package com.gadarts.returnfire.console
 interface Console {
     fun insertNewLog(text: String?, logTime: Boolean, color: String? = null)
 
-    fun notifyCommandExecution(command: Commands, commandParameter: CommandParameter? = null): ConsoleCommandResult
+    fun notifyCommandExecution(
+        command: Command,
+        parameters: Map<String, String> = mapOf()
+    ): ConsoleCommandResult
 
     fun activate()
 

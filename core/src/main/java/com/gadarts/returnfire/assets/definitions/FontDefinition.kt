@@ -41,8 +41,6 @@ enum class FontDefinition(private val size: Int) :
         params.fontParameters.borderColor = Color(0f, 0F, 0f, 0.5f)
         params.fontParameters.borderWidth = 1F
         params.fontParameters.shadowColor = Color(0f, 0F, 0f, 0.5f)
-        params.fontParameters.shadowOffsetX = -4
-        params.fontParameters.shadowOffsetY = 4
         params.fontParameters.borderStraight = true
         params.fontParameters.kerning = true
         return params

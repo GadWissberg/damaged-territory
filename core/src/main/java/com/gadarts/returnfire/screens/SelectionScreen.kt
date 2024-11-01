@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -27,13 +28,14 @@ class SelectionScreen(
     private val assetsManager: GameAssetManager,
     private val screensManager: ScreensManager,
     private val runsOnMobile: Boolean,
+    dispatcher: MessageDispatcher,
 ) : Screen {
+    private val console = ConsoleImpl(assetsManager, dispatcher)
     private val stage by lazy {
         Stage()
     }
 
     override fun show() {
-        val console = ConsoleImpl(assetsManager)
         stage.addActor(console)
         val table = Table()
         table.add(
@@ -130,7 +132,9 @@ class SelectionScreen(
     }
 
     override fun hide() {
-        (Gdx.input.inputProcessor as InputMultiplexer).removeProcessor(stage)
+        val inputMultiplexer = Gdx.input.inputProcessor as InputMultiplexer
+        inputMultiplexer.removeProcessor(stage)
+        inputMultiplexer.removeProcessor(console)
     }
 
     override fun dispose() {

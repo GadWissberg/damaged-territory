@@ -142,6 +142,8 @@ class EnemySystem : GameEntitySystem() {
 
 
     override fun update(deltaTime: Float) {
+        if (gameSessionData.gameSessionDataHud.console.isActive) return
+
         for (turret in enemyTurretEntities) {
             if (ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base).dead) continue
 

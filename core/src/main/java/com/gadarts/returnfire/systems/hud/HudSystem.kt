@@ -86,7 +86,9 @@ class HudSystem : GameEntitySystem() {
         val ui = addUiTable()
         addOnScreenInput(gameSessionData, ui)
         initializeInput()
-        gameSessionData.gameSessionDataHud.stage.addActor(gameSessionData.gameSessionDataHud.console)
+        val console = gameSessionData.gameSessionDataHud.console
+        gameSessionData.gameSessionDataHud.stage.addActor(console)
+        console.toFront()
     }
 
     private fun addOnScreenInput(
@@ -197,6 +199,6 @@ class HudSystem : GameEntitySystem() {
     }
 
     companion object {
-        const val JOYSTICK_PADDING = 64F
+        private const val JOYSTICK_PADDING = 64F
     }
 }

@@ -8,8 +8,7 @@ import com.gadarts.returnfire.console.ConsoleConstants.INPUT_FIELD_NAME
 import kotlin.math.max
 import kotlin.math.min
 
-class ConsoleInputHistoryHandler {
-    private var stage: Stage? = null
+class ConsoleInputHistoryHandler(private val stage: Stage) {
     private val inputHistory = Array<String>()
     private var current = 0
 
@@ -30,12 +29,9 @@ class ConsoleInputHistoryHandler {
 
     private fun updateInputByHistory() {
         if (inputHistory.isEmpty) return
-        val input = stage!!.root.findActor<TextField>(INPUT_FIELD_NAME)
+        val input = stage.root.findActor<TextField>(INPUT_FIELD_NAME)
         input.text = inputHistory[current]
         input.cursorPosition = input.text.length
     }
 
-    fun setStage(stage: Stage?) {
-        this.stage = stage
-    }
 }

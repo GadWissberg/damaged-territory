@@ -34,6 +34,7 @@ class GamePlayScreen(
     private val fpsTarget: Int,
     characterDefinition: CharacterDefinition,
     private val screensManager: ScreensManager,
+    private val messageDispatcher: MessageDispatcher,
 ) : Screen {
 
     init {
@@ -53,7 +54,7 @@ class GamePlayScreen(
             rigidBodyFactory,
             runsOnMobile,
             fpsTarget,
-            ConsoleImpl(assetsManager)
+            ConsoleImpl(assetsManager, messageDispatcher)
         )
     }
     private val engine: PooledEngine by lazy { PooledEngine() }
@@ -72,7 +73,6 @@ class GamePlayScreen(
     )
 
     override fun show() {
-        val dispatcher = MessageDispatcher()
         systems.forEach {
             engine.addSystem(it)
         }
@@ -80,7 +80,7 @@ class GamePlayScreen(
             engine,
             soundPlayer,
             assetsManager,
-            dispatcher,
+            messageDispatcher,
             Factories(
                 RigidBodyFactory(),
                 SpecialEffectsFactory(gameSessionData, soundPlayer, assetsManager),
