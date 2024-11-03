@@ -14,20 +14,25 @@ enum class ModelDefinition(
     val boundingBoxBias: Vector3 = Vector3.Zero,
     val pooledObjectPhysicalDefinition: PooledObjectPhysicalDefinition? = null,
     val physicalShapeCreator: PhysicalShapeCreator? = null,
-    val centerOfMass: Vector3 = Vector3.Zero
+    val centerOfMass: Vector3 = Vector3.Zero,
+    val separateModelForShadow: Boolean = false
 ) :
     AssetDefinition<Model> {
 
-    APACHE(centerOfMass = Vector3(0F, -0.2F, 0F)),
+    APACHE(centerOfMass = Vector3(0F, -0.2F, 0F), separateModelForShadow = true),
     BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
     CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
     MISSILE(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
-    PALM_TREE(fileNames = 3, boundingBoxScale = Vector3(0.25F, 1F, 0.25F)),
+    PALM_TREE(fileNames = 3, boundingBoxScale = Vector3(0.25F, 1F, 0.25F), separateModelForShadow = true),
     WATCH_TOWER,
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,
     FLAG,
-    TURRET_CANNON(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
+    TURRET_CANNON(
+        boundingBoxScale = Vector3(0.4F, 1F, 1F),
+        boundingBoxBias = Vector3(0.2F, 0F, 0F),
+        separateModelForShadow = true
+    ),
     TURRET_CANNON_DEAD_0(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
     TURRET_CANNON_DEAD_1(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
     TURRET_BASE(physicalShapeCreator = TurretBasePhysicalShapeCreator),
@@ -41,9 +46,13 @@ enum class ModelDefinition(
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
+    val shadowsPaths = ArrayList<String>()
 
     init {
-        initializePaths(pathFormat, fileNames)
+        initializePaths(pathFormat, getPaths(), fileNames)
+        if (separateModelForShadow) {
+            initializePaths(pathFormat, shadowsPaths, fileNames, "_shadow")
+        }
     }
 
     override fun getPaths(): ArrayList<String> {

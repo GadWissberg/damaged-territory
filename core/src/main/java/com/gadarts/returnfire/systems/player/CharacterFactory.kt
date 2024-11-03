@@ -9,12 +9,16 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.systems.EntityBuilder
 
-abstract class CharacterFactory(private val assetsManager: GameAssetManager) {
+abstract class CharacterFactory(
+    private val assetsManager: GameAssetManager,
+    private val gameModelInstanceFactory: GameModelInstanceFactory
+) {
     protected fun addSpark(
         machineGunSparkModel: Model,
         relativePositionCalculator: ArmComponent.RelativePositionCalculator
@@ -30,14 +34,6 @@ abstract class CharacterFactory(private val assetsManager: GameAssetManager) {
             .finishAndAddToEngine()
     }
 
-    private fun createPlayerModelInstance(): GameModelInstance {
-        val modelDefinition = GamePlayScreen.SELECTED_VEHICLE.getModelDefinition()
-        val model = assetsManager.getAssetByDefinition(modelDefinition)
-        return GameModelInstance(
-            ModelInstance(model),
-            modelDefinition,
-        )
-    }
 
     protected fun addPlayerBaseComponents(
         entityBuilder: EntityBuilder,
@@ -47,7 +43,7 @@ abstract class CharacterFactory(private val assetsManager: GameAssetManager) {
     ) {
         val definition = placedPlayer.definition as CharacterDefinition
         entityBuilder.addModelInstanceComponent(
-            createPlayerModelInstance(),
+            gameModelInstanceFactory.createGameModelInstance(GamePlayScreen.SELECTED_VEHICLE.getModelDefinition()),
             auxVector3_1.set(placedPlayer.col.toFloat(), definition.getStartHeight(), placedPlayer.row.toFloat()),
             null,
         )

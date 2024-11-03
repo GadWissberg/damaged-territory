@@ -14,14 +14,16 @@ import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 
 class TankFactory(
     private val assetsManager: GameAssetManager,
-    private val gameSessionData: GameSessionData
-) : CharacterFactory(assetsManager) {
+    private val gameSessionData: GameSessionData,
+    gameModelInstanceFactory: GameModelInstanceFactory
+) : CharacterFactory(assetsManager, gameModelInstanceFactory) {
     override fun create(placedPlayer: PlacedElement): Entity {
         val primarySpark = createPrimarySpark(ModelDefinition.CANNON_SPARK, tankPrimaryRelativePositionCalculator)
         val entityBuilder = EntityBuilder.begin()

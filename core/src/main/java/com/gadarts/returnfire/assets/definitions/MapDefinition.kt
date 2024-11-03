@@ -13,7 +13,7 @@ enum class MapDefinition :
     private val paths = ArrayList<String>()
 
     init {
-        initializePaths(pathFormat)
+        initializePaths(pathFormat, output = getPaths())
     }
 
     override fun getPaths(): ArrayList<String> {

@@ -21,7 +21,7 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
     private val paths = ArrayList<String>()
 
     init {
-        initializePaths("sfx/%s.wav", fileNames)
+        initializePaths("sfx/%s.wav", getPaths(), fileNames)
     }
 
     override fun getPaths(): ArrayList<String> {

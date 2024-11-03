@@ -26,7 +26,7 @@ import com.gadarts.returnfire.assets.loaders.DefinitionsLoader
 import com.gadarts.returnfire.assets.loaders.MapLoader
 import com.gadarts.returnfire.model.GameMap
 import java.io.File
-import java.util.Arrays
+import java.util.*
 
 open class GameAssetManager : AssetManager() {
 
@@ -63,33 +63,50 @@ open class GameAssetManager : AssetManager() {
                     if (type.assets.isNotEmpty()) {
                         type.assets.forEach { asset ->
                             if (asset.getParameters() != null) {
-                                load(
-                                    asset.getPaths().first(),
-                                    BitmapFont::class.java,
-                                    (asset.getParameters() as FreetypeFontLoader.FreeTypeFontLoaderParameter)
-                                )
+                                loadFont(asset)
                             } else {
-                                asset.getPaths().forEach { load(it, asset.getClazz()) }
+                                asset.getPaths().forEach {
+                                    load(it, asset.getClazz())
+                                }
+                                if (type == AssetsTypes.MODELS) {
+                                    val modelDefinition = asset as ModelDefinition
+                                    modelDefinition.shadowsPaths.forEach {
+                                        load(it, asset.getClazz())
+                                    }
+                                }
                             }
                         }
                     } else {
                         load("definitions/textures.json", ExternalDefinitions::class.java)
                     }
                 } else {
-                    type.assets.forEach { asset ->
-                        asset.getPaths().forEach {
-                            val content = Gdx.files.internal(it).readString()
-                            addAsset(
-                                it,
-                                String::class.java,
-                                content
-                            )
-                        }
-                    }
+                    loadTextualAsset(type)
                 }
             }
         }
     }
+
+    private fun loadTextualAsset(type: AssetsTypes) {
+        type.assets.forEach { asset ->
+            asset.getPaths().forEach {
+                val content = Gdx.files.internal(it).readString()
+                addAsset(
+                    it,
+                    String::class.java,
+                    content
+                )
+            }
+        }
+    }
+
+    private fun loadFont(asset: AssetDefinition<*>) {
+        load(
+            asset.getPaths().first(),
+            BitmapFont::class.java,
+            (asset.getParameters() as FreetypeFontLoader.FreeTypeFontLoaderParameter)
+        )
+    }
+
 
     fun getTexturesDefinitions(): ExternalDefinitions<TextureDefinition> {
         return get("definitions/${AssetsTypes.TEXTURES.name.lowercase()}.${ExternalDefinitions.FORMAT}")
@@ -160,8 +177,10 @@ open class GameAssetManager : AssetManager() {
             }
     }
 
-    inline fun <reified T> getAssetByDefinition(definition: AssetDefinition<T>): T {
-        return get(definition.getPaths().random(), T::class.java)
+    inline fun <reified T> getAssetByDefinition(definition: AssetDefinition<T>, index: Int = -1): T {
+        val paths = definition.getPaths()
+        val selectedPath = if (index == -1) paths.random() else paths[index]
+        return get(selectedPath, T::class.java)
     }
 
     inline fun <reified T> getAllAssetsByDefinition(definition: AssetDefinition<T>): List<T> {

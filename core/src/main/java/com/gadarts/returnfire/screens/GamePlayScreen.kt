@@ -12,6 +12,7 @@ import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.*
@@ -84,6 +85,7 @@ class GamePlayScreen(
             Factories(
                 RigidBodyFactory(),
                 SpecialEffectsFactory(gameSessionData, soundPlayer, assetsManager),
+                GameModelInstanceFactory(assetsManager)
             ),
             screensManager
         )

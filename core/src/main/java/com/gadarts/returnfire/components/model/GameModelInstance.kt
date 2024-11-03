@@ -9,9 +9,16 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 class GameModelInstance(
     val modelInstance: ModelInstance,
     val definition: ModelDefinition?,
+    val shadow: ModelInstance? = null,
 ) {
     var sphere: Boolean = false
         private set
+
+    init {
+        if (shadow != null) {
+            shadow.transform = modelInstance.transform
+        }
+    }
 
     private val boundingBox = BoundingBox()
 

@@ -69,7 +69,8 @@ class MapInflater(
         def: AmbDefinition,
         direction: Int,
     ) {
-        val gameModelInstance = createGameModelInstance(def.getModelDefinition())
+        val gameModelInstance =
+            managers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
         val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
         val entity = EntityBuilder.begin()
             .addModelInstanceComponent(
@@ -77,7 +78,8 @@ class MapInflater(
                 position,
                 null,
                 direction.toFloat(),
-            )
+
+                )
             .addAmbComponent(
                 auxVector1.set(randomScale, randomScale, randomScale),
                 if (def.isRandomizeRotation()) random(0F, 360F) else 0F,
@@ -91,7 +93,8 @@ class MapInflater(
         characterDefinition: CharacterDefinition,
         direction: Int
     ) {
-        val gameModelInstance = createGameModelInstance(characterDefinition.getModelDefinition())
+        val gameModelInstance =
+            managers.factories.gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
         val baseEntity = EntityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
@@ -109,15 +112,6 @@ class MapInflater(
         }
     }
 
-    private fun createGameModelInstance(modelDefinition: ModelDefinition): GameModelInstance {
-        val assetsManager = managers.assetsManager
-        assetsManager.getCachedBoundingBox(modelDefinition)
-        val gameModelInstance = GameModelInstance(
-            ModelInstance(assetsManager.getAssetByDefinition(modelDefinition)),
-            modelDefinition,
-        )
-        return gameModelInstance
-    }
 
     private fun addPhysicsToStaticObject(
         entity: Entity,
@@ -159,12 +153,12 @@ class MapInflater(
     ) {
         val assetsManager = managers.assetsManager
         val modelInstance =
-            ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TURRET_CANNON))
-        val spark = addTurretSpark(assetsManager, modelInstance)
+            managers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
+        val spark = addTurretSpark(assetsManager, modelInstance.modelInstance)
         val turret = EntityBuilder.begin()
             .addEnemyComponent()
             .addModelInstanceComponent(
-                GameModelInstance(modelInstance, ModelDefinition.TURRET_CANNON),
+                modelInstance,
                 calculateTurretPosition(baseEntity, assetsManager),
                 null,
             )
@@ -176,7 +170,7 @@ class MapInflater(
             )
             .finishAndAddToEngine()
         ComponentsMapper.turretBase.get(baseEntity).turret = turret
-        addPhysicsToTurret(assetsManager, turret, modelInstance)
+        addPhysicsToTurret(assetsManager, turret, modelInstance.modelInstance)
     }
 
     private fun addPhysicsToTurret(

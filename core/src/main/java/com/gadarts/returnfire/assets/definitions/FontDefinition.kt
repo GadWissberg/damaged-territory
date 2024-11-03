@@ -13,7 +13,7 @@ enum class FontDefinition(private val size: Int) :
     private val paths = ArrayList<String>()
 
     init {
-        initializePaths("fonts/%s.ttf")
+        initializePaths("fonts/%s.ttf", output = getPaths())
     }
 
     override fun getParameters(): AssetLoaderParameters<BitmapFont>? {

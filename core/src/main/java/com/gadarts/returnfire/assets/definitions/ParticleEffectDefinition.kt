@@ -23,7 +23,7 @@ enum class ParticleEffectDefinition(fileNames: Int = 1, val hasBlastRing: Boolea
     private val pathFormat = "particles/%s.pfx"
 
     init {
-        initializePaths(pathFormat, fileNames)
+        initializePaths(pathFormat, getPaths(), fileNames)
     }
 
     override fun getPaths(): ArrayList<String> {

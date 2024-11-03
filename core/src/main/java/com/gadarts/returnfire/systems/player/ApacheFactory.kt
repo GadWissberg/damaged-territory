@@ -16,6 +16,7 @@ import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.cd.ChildDecal
+import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -25,9 +26,10 @@ import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 class ApacheFactory(
     private val assetsManager: GameAssetManager,
     private val playerShootingHandler: PlayerShootingHandler,
-    private val gameSessionData: GameSessionData
+    private val gameSessionData: GameSessionData,
+    gameModelInstanceFactory: GameModelInstanceFactory
 ) :
-    CharacterFactory(assetsManager) {
+    CharacterFactory(assetsManager, gameModelInstanceFactory) {
     override fun create(placedPlayer: PlacedElement): Entity {
         val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
         val secondarySpark = addSpark(machineGunSparkModel, secRelativePositionCalculator)

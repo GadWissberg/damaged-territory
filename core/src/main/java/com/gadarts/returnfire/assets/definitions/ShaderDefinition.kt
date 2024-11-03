@@ -8,7 +8,7 @@ enum class ShaderDefinition : AssetDefinition<String> {
     private val paths = ArrayList<String>()
 
     init {
-        initializePaths("shaders/%s.shader")
+        initializePaths("shaders/%s.shader", output = getPaths())
     }
 
     override fun getPaths(): ArrayList<String> {

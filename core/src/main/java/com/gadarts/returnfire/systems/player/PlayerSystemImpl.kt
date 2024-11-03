@@ -36,7 +36,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         PlayerFactory(
             managers.assetsManager,
             gameSessionData,
-            playerShootingHandler
+            playerShootingHandler,
+            managers.factories.gameModelInstanceFactory
         )
     }
     private lateinit var playerMovementHandler: VehicleMovementHandler
