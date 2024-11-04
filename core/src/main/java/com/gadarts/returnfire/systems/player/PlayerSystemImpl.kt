@@ -237,7 +237,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     private fun initializePlayerHandlers() {
         playerShootingHandler.initialize(
             managers.dispatcher,
-            gameSessionData.player
+            gameSessionData
         )
     }
 

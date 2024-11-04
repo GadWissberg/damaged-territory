@@ -114,10 +114,8 @@ class ParticleEffectsSystem : GameEntitySystem() {
                 particleEntitiesToRemove.add(entity)
                 return
             } else if (parent != null) {
-                ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector1
-                )
-                auxMatrix.setToTranslation(auxVector1).trn(particleEffectComponent.parentRelativePosition)
+                auxMatrix.set(ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform)
+                    .translate(particleEffectComponent.parentRelativePosition)
                 effect.setTransform(auxMatrix)
             }
         }

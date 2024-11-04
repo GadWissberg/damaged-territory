@@ -25,18 +25,18 @@ class GameSessionData(
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     val gameSessionDataHud = GameSessionDataHud(assetsManager, console)
-    val pools = GameSessionDataPools(assetsManager, rigidBodyFactory)
+    val pools by lazy { GameSessionDataPools(assetsManager, rigidBodyFactory) }
     val renderData = GameSessionDataRender()
     lateinit var tilesEntities: Array<Array<Entity?>>
     var sessionFinished: Boolean = false
         private set
 
+    lateinit var floorModel: Model
     val groundBlastPool = object : Pool<GameModelInstance>() {
         override fun newObject(): GameModelInstance {
             return GameModelInstance(ModelInstance(floorModel), null)
         }
     }
-    lateinit var floorModel: Model
 
     companion object {
         const val FOV = 67F

@@ -68,7 +68,7 @@ class TankFactory(
                 ArmEffectsData(
                     ParticleEffectDefinition.EXPLOSION,
                     null,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_MED),
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
                     gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
                 ),
                 ArmRenderData(

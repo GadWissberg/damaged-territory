@@ -6,7 +6,7 @@ import com.gadarts.returnfire.systems.player.GameModelInstancePool
 
 class GameSessionDataPools(
     private val assetsManager: GameAssetManager,
-    rigidBodyFactory: RigidBodyFactory
+    rigidBodyFactory: RigidBodyFactory,
 ) {
     val gameModelInstancePools = ModelDefinition.entries
         .filter { it.pooledObjectPhysicalDefinition != null }

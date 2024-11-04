@@ -1,19 +1,22 @@
 package com.gadarts.returnfire.systems.player.handlers
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 import kotlin.math.abs
 
 class PlayerShootingHandler {
-    private lateinit var player: Entity
+    private lateinit var gameSessionData: GameSessionData
     private lateinit var dispatcher: MessageDispatcher
     var secondaryCreationSide = false
     private var priShooting: Boolean = false
@@ -21,22 +24,21 @@ class PlayerShootingHandler {
 
     fun initialize(
         dispatcher: MessageDispatcher,
-        player: Entity
+        gameSessionData: GameSessionData,
     ) {
-
-        this.player = player
+        this.gameSessionData = gameSessionData
         this.dispatcher = dispatcher
     }
 
     fun update() {
-        var armComp: ArmComponent = ComponentsMapper.primaryArm.get(player)
+        var armComp: ArmComponent = ComponentsMapper.primaryArm.get(gameSessionData.player)
         handleShooting(
             priShooting,
             armComp,
             SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY,
         )
-        if (ComponentsMapper.secondaryArm.has(player)) {
-            armComp = ComponentsMapper.secondaryArm.get(player)
+        if (ComponentsMapper.secondaryArm.has(gameSessionData.player)) {
+            armComp = ComponentsMapper.secondaryArm.get(gameSessionData.player)
             handleShooting(
                 secShooting,
                 armComp,
@@ -57,14 +59,14 @@ class PlayerShootingHandler {
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
             val direction =
-                if (!ComponentsMapper.turretBase.has(player) || ComponentsMapper.turret.get(
+                if (!ComponentsMapper.turretBase.has(gameSessionData.player) || ComponentsMapper.turret.get(
                         ComponentsMapper.turretBase.get(
-                            player
+                            gameSessionData.player
                         ).turret
                     ).cannon == null
                 ) {
                     val rotation =
-                        ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(
+                        ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getRotation(
                             auxQuat
                         )
                     auxMatrix.set(
@@ -72,11 +74,18 @@ class PlayerShootingHandler {
                     )
                 } else {
                     val cannon =
-                        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).cannon
-                    ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
+                        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(gameSessionData.player).turret).cannon
+                    val direction = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
+                    val particleEffect = EntityBuilder.begin().addParticleEffectComponent(
+                        direction.getTranslation(auxVector3_1),
+                        gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_MED),
+                        parentRelativePosition = auxVector3_2.set(0.5F, 0F, 0F),
+                    ).finishAndAddToEngine()
+                    ComponentsMapper.particleEffect.get(particleEffect).parent = cannon
+                    direction
                 }
             CharacterWeaponShotEventData.setWithDirection(
-                player,
+                gameSessionData.player,
                 direction
             )
             dispatcher.dispatchMessage(event.ordinal)
@@ -110,6 +119,8 @@ class PlayerShootingHandler {
 
     companion object {
         private val auxVector2 = Vector2()
+        private val auxVector3_1 = Vector3()
+        private val auxVector3_2 = Vector3()
         private val auxMatrix = Matrix4()
         private val auxQuat = Quaternion()
     }
