@@ -79,6 +79,9 @@ class EnemySystem : GameEntitySystem() {
             .finishAndAddToEngine()
         modelInstanceComponent.gameModelInstance.modelInstance.transform.set(transform)
         addFlyingParts(position)
+        managers.soundPlayer.play(
+            managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+        )
     }
 
     private fun addFlyingParts(position: Vector3?) {
@@ -145,7 +148,8 @@ class EnemySystem : GameEntitySystem() {
         if (gameSessionData.gameSessionDataHud.console.isActive) return
 
         for (turret in enemyTurretEntities) {
-            if (ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base).dead) continue
+            val characterComponent = ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base)
+            if (characterComponent.dead || characterComponent.deathSequenceDuration > 0) continue
 
             attack(deltaTime, turret)
         }

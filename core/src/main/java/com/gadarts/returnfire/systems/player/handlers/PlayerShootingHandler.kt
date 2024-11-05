@@ -78,7 +78,7 @@ class PlayerShootingHandler {
                     val direction = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
                     val particleEffect = EntityBuilder.begin().addParticleEffectComponent(
                         direction.getTranslation(auxVector3_1),
-                        gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_MED),
+                        gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
                         parentRelativePosition = auxVector3_2.set(0.5F, 0F, 0F),
                     ).finishAndAddToEngine()
                     ComponentsMapper.particleEffect.get(particleEffect).parent = cannon

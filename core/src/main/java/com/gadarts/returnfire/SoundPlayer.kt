@@ -9,7 +9,7 @@ class SoundPlayer {
 
     fun loopSound(sound: Sound): Long {
         if (!GameDebugSettings.SFX) return -1
-        return sound.loop(0.5F, 1F, 0F)
+        return sound.loop(0.75F, 1F, 0F)
     }
 
     fun play(sound: Sound): Long {

@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -184,58 +185,79 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         }
     }
 
+    private val explosionMedGameParticleEffectPool by lazy {
+        gameSessionData.pools.particleEffectsPools.obtain(
+            ParticleEffectDefinition.EXPLOSION_MED
+        )
+    }
+
     private fun updateCharacters() {
         for (character in charactersEntities) {
             val characterComponent = ComponentsMapper.character.get(character)
             val hp = characterComponent.hp
             if (!characterComponent.dead) {
-                if (ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
-                        auxVector1
-                    ).y < -1F
-                ) {
-                    managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
-                } else {
-                    val smokeEmission = characterComponent.smokeEmission
-                    if (hp <= 0) {
-                        characterDies(characterComponent, character)
-                    } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
-                        val position =
-                            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
-                                auxVector1
-                            )
-                        val smoke = EntityBuilder.begin().addParticleEffectComponent(
-                            position = position,
-                            pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
-                            parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
-                                auxVector2
-                            )
-                        ).finishAndAddToEngine()
-                        ComponentsMapper.particleEffect.get(smoke).parent = character
-                        characterComponent.smokeEmission = smoke
+                if (characterComponent.deathSequenceDuration <= 0) {
+                    if (ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                            auxVector1
+                        ).y < -1F
+                    ) {
+                        managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+                    } else {
+                        val smokeEmission = characterComponent.smokeEmission
+                        if (hp <= 0 && characterComponent.deathSequenceDuration == 0) {
+                            characterComponent.beginDeathSequence()
+                        } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
+                            val position =
+                                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                                    auxVector1
+                                )
+                            val smoke = EntityBuilder.begin().addParticleEffectComponent(
+                                position = position,
+                                pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
+                                parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
+                                    auxVector2
+                                )
+                            ).finishAndAddToEngine()
+                            ComponentsMapper.particleEffect.get(smoke).parent = character
+                            characterComponent.smokeEmission = smoke
+                        }
                     }
-
+                } else if (characterComponent.deathSequenceNextExplosion < TimeUtils.millis()) {
+                    characterComponent.incrementDeathSequence()
+                    if (characterComponent.deathSequenceDuration <= 0) {
+                        characterComponent.dead = true
+                        managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+                    } else {
+                        val entity =
+                            if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(character).turret else character
+                        EntityBuilder.begin().addParticleEffectComponent(
+                            ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                                auxVector1
+                            ).add(
+                                MathUtils.random(
+                                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                                ), MathUtils.random(
+                                    MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                                ), MathUtils.random(
+                                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                                )
+                            ), explosionMedGameParticleEffectPool
+                        ).finishAndAddToEngine()
+                        managers.soundPlayer.play(
+                            managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+                        )
+                    }
                 }
             }
         }
     }
-
-    private fun characterDies(
-        characterComponent: CharacterComponent,
-        character: Entity
-    ) {
-        characterComponent.die()
-        managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
-        managers.soundPlayer.play(
-            managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
-        )
-    }
-
 
     override fun dispose() {
 
     }
 
     companion object {
+        private const val MED_EXPLOSION_DEATH_SEQUENCE_BIAS = 0.2F
         private val auxQuat = Quaternion()
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
