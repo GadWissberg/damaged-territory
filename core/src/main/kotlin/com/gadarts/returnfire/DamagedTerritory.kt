@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
+import com.badlogic.gdx.physics.bullet.Bullet
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
@@ -29,6 +30,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         Gdx.input.setCatchKey(Input.Keys.BACK, true)
         assetsManager.loadAssets()
         Gdx.input.inputProcessor = InputMultiplexer()
+        Bullet.init()
         setScreen(selectionScreen)
     }
 
@@ -49,6 +51,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     }
 
     override fun goToSelectionScreen() {
+        dispatcher.clearListeners()
         soundPlayer.stopAll(assetsManager)
         screen.dispose()
         setScreen(selectionScreen)

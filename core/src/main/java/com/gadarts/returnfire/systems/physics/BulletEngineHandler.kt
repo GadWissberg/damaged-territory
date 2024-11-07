@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.Bullet
 import com.badlogic.gdx.physics.bullet.DebugDrawer
 import com.badlogic.gdx.physics.bullet.collision.btAxisSweep3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher
@@ -125,7 +124,6 @@ class BulletEngineHandler(
     }
 
     fun initialize() {
-        Bullet.init()
         initializeBroadPhase()
         initializeCollisionWorld()
         initializeDebug()
