@@ -55,6 +55,8 @@ class ProfilingSystem : GameEntitySystem() {
         if (GameDebugSettings.ENABLE_PROFILER && glProfiler.isEnabled) {
             stringBuilder.setLength(0)
             displayLine(LABEL_FPS, Gdx.graphics.framesPerSecond)
+            displayLine("Java heap usage: ", Gdx.app.javaHeap / (1024L * 1024L), false).append("MB\n")
+            displayLine("Native heap usage: ", Gdx.app.nativeHeap / (1024L * 1024L), false).append("MB\n")
             displayGlProfiling()
             displayBatchCalls()
             displayLine("Version: ", "0.7")
@@ -91,10 +93,13 @@ class ProfilingSystem : GameEntitySystem() {
         glProfiler.reset()
     }
 
-    private fun displayLine(label: String, value: Any) {
+    private fun displayLine(label: String, value: Any, newline: Boolean = true): StringBuilder {
         stringBuilder.append(label)
         stringBuilder.append(value)
-        stringBuilder.append('\n')
+        if (newline) {
+            stringBuilder.append('\n')
+        }
+        return stringBuilder
     }
 
     companion object {
