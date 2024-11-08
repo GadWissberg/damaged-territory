@@ -35,6 +35,9 @@ import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
+/**
+ * Responsible for rendering the 3D models, their shadows, decals and collision shapes.
+ */
 class RenderSystem : GameEntitySystem(), Disposable {
 
     private val renderFlags = RenderFlags()
@@ -107,12 +110,11 @@ class RenderSystem : GameEntitySystem(), Disposable {
     override fun update(deltaTime: Float) {
         if (gameSessionData.sessionFinished) return
 
-        val camera = gameSessionData.renderData.camera
         modelsRenderer.renderShadows()
         resetDisplay()
         modelsRenderer.renderModels(
             batch = batches.modelBatch,
-            camera = camera,
+            camera = gameSessionData.renderData.camera,
             applyEnvironment = true,
             renderParticleEffects = true,
             forShadow = false
