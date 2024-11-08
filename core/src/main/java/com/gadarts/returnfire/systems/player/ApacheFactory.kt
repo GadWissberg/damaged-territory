@@ -30,6 +30,7 @@ class ApacheFactory(
     gameModelInstanceFactory: GameModelInstanceFactory
 ) :
     CharacterFactory(assetsManager, gameModelInstanceFactory) {
+
     override fun create(placedPlayer: PlacedElement): Entity {
         val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
         val secondarySpark = addSpark(machineGunSparkModel, secRelativePositionCalculator)
@@ -92,6 +93,7 @@ class ApacheFactory(
             return pos
         }
     }
+
     private val secRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
         override fun calculate(parent: Entity, output: Vector3): Vector3 {
             playerShootingHandler.secondaryCreationSide =
@@ -159,6 +161,5 @@ class ApacheFactory(
         private const val SECONDARY_POSITION_BIAS = 0.2F
         private const val APACHE_PRI_RELOAD_DUR = 125L
         private const val APACHE_PRI_BULLET_SPEED = 16F
-
     }
 }

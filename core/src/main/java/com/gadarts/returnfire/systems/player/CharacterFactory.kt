@@ -19,6 +19,9 @@ abstract class CharacterFactory(
     private val assetsManager: GameAssetManager,
     private val gameModelInstanceFactory: GameModelInstanceFactory
 ) {
+
+    abstract fun create(placedPlayer: PlacedElement): Entity
+
     protected fun addSpark(
         machineGunSparkModel: Model,
         relativePositionCalculator: ArmComponent.RelativePositionCalculator
@@ -33,7 +36,6 @@ abstract class CharacterFactory(
             .addSparkComponent(relativePositionCalculator)
             .finishAndAddToEngine()
     }
-
 
     protected fun addPlayerBaseComponents(
         entityBuilder: EntityBuilder,
@@ -59,8 +61,6 @@ abstract class CharacterFactory(
     ): Entity {
         return addSpark(assetsManager.getAssetByDefinition(sparkModel), calculator)
     }
-
-    abstract fun create(placedPlayer: PlacedElement): Entity
 
     companion object {
         private val auxVector3_1 = Vector3()

@@ -29,23 +29,8 @@ enum class CommandList(
         this.description = description
     }
 
-    private fun extendDescriptionWithParameters() {
-        if (parameters.size > 0) {
-            val stringBuilder = StringBuilder()
-            parameters.forEach { parameter ->
-                stringBuilder
-                    .append("\n")
-                    .append("   * ")
-                    .append(parameter.alias)
-                    .append(": ")
-                    .append(parameter.description)
-            }
-            this.description += String.format(DESCRIPTION_PARAMETERS, stringBuilder)
-        }
-    }
 
     companion object {
-        const val DESCRIPTION_PARAMETERS: String = " Parameters:%s"
 
         fun findCommandByNameOrAlias(input: String): CommandList {
             var result: Optional<CommandList>

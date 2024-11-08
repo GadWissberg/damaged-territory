@@ -257,7 +257,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     }
 
     companion object {
-        private const val MED_EXPLOSION_DEATH_SEQUENCE_BIAS = 0.2F
+        private const val MED_EXPLOSION_DEATH_SEQUENCE_BIAS = 0.1F
         private val auxQuat = Quaternion()
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()

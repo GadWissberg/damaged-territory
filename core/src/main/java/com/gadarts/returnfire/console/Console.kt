@@ -14,8 +14,4 @@ interface Console {
 
     val isActive: Boolean
 
-    companion object {
-        const val ERROR_COLOR: String = "[RED]"
-    }
-
 }

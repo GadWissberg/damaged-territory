@@ -37,16 +37,6 @@
    <init>(com.badlogic.gdx.Application, android.content.Context, java.lang.Object, com.badlogic.gdx.backends.android.AndroidApplicationConfiguration);
 }
 
--keepclassmembers class com.badlogic.gdx.physics.box2d.World {
-   boolean contactFilter(long, long);
-   void    beginContact(long);
-   void    endContact(long);
-   void    preSolve(long, long);
-   void    postSolve(long, long);
-   boolean reportFixture(long);
-   float   reportRayFixture(long, float, float, float, float, float);
-}
-
 # You will need the next three lines if you use scene2d for UI or gameplay
 # If you don't use scene2d at all, you can remove or comment out the next line
 -keep public class com.badlogic.gdx.scenes.scene2d.** { *; }

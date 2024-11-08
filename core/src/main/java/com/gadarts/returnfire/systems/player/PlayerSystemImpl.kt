@@ -16,6 +16,7 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.SystemEvents.*
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
@@ -40,12 +41,14 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             managers.factories.gameModelInstanceFactory
         )
     }
-    private lateinit var playerMovementHandler: VehicleMovementHandler
+    private val playerMovementHandler: VehicleMovementHandler by lazy {
+        val playerMovementHandler = createPlayerMovementHandler()
+        playerMovementHandler.initialize(gameSessionData.renderData.camera)
+        playerMovementHandler
+    }
 
     override fun onSystemReady() {
         super.onSystemReady()
-        playerMovementHandler = createPlayerMovementHandler()
-        playerMovementHandler.initialize(gameSessionData.renderData.camera)
         initInputMethod()
     }
 
@@ -70,44 +73,22 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(
-            playerShootingHandler
-        ),
-        SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(
-            playerShootingHandler
-        ),
-        SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(
-            playerShootingHandler
-        ),
-        SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
-            playerShootingHandler
-        ),
-        SystemEvents.BUTTON_REVERSE_PRESSED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                managers: Managers
-            ) {
+        BUTTON_WEAPON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(playerShootingHandler),
+        BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(playerShootingHandler),
+        BUTTON_WEAPON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(playerShootingHandler),
+        BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(playerShootingHandler),
+        BUTTON_REVERSE_PRESSED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
                 playerMovementHandler.onReverseScreenButtonPressed()
             }
         },
-        SystemEvents.BUTTON_REVERSE_RELEASED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                managers: Managers
-            ) {
+        BUTTON_REVERSE_RELEASED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
                 playerMovementHandler.onReverseScreenButtonReleased()
             }
         },
-        SystemEvents.PHYSICS_SYSTEM_READY to PlayerSystemOnPhysicsSystemReady(),
-        SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
-                    managers.screensManager.goToSelectionScreen()
-                }
-            }
-        }
+        PHYSICS_SYSTEM_READY to PlayerSystemOnPhysicsSystemReady(),
+        CHARACTER_DIED to PlayerSystemOnCharacterDied(),
     )
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {

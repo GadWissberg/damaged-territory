@@ -16,6 +16,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 
 class PlayerSystemOnPhysicsSystemReady :
     HandlerOnEvent {
+
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
         val characterDefinition = ComponentsMapper.character.get(gameSessionData.player).definition
         val isApache = characterDefinition == SimpleCharacterDefinition.APACHE
