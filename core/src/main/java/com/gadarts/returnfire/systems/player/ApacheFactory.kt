@@ -67,7 +67,7 @@ class ApacheFactory(
                 ArmEffectsData(
                     null,
                     null,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_NO_SMOKE),
                     null
                 ),
                 ArmRenderData(

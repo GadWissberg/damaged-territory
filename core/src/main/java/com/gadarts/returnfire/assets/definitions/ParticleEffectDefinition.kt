@@ -11,6 +11,7 @@ enum class ParticleEffectDefinition(fileNames: Int = 1, val hasBlastRing: Boolea
     EXPLOSION_MED(hasBlastRing = true),
     SMOKE,
     SMOKE_SMALL,
+    SMOKE_TINY,
     SMOKE_SMALL_LOOP,
     SMOKE_MED,
     SMOKE_LOOP,
@@ -18,6 +19,7 @@ enum class ParticleEffectDefinition(fileNames: Int = 1, val hasBlastRing: Boolea
     SMOKE_EMIT,
     WATER_SPLASH,
     SPARK_SMALL,
+    SPARK_NO_SMOKE,
     RICOCHET;
 
     private val paths = ArrayList<String>()

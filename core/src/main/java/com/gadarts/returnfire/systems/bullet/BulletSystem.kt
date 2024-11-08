@@ -280,7 +280,7 @@ class BulletSystem : GameEntitySystem() {
                     .addParticleEffectComponent(
                         position,
                         gameSessionData.pools.particleEffectsPools.obtain(
-                            ParticleEffectDefinition.SMOKE_SMALL,
+                            ParticleEffectDefinition.SMOKE_TINY,
                         )
                     ).finishAndAddToEngine()
             }
