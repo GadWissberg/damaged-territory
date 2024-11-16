@@ -64,8 +64,6 @@ class CameraSystem : GameEntitySystem() {
 
     private fun initializeCamera() {
         val camera = gameSessionData.renderData.camera
-        camera.near = NEAR
-        camera.far = FAR
         camera.update()
         val get = ComponentsMapper.modelInstance.get(gameSessionData.player)
         val playerPosition = get.gameModelInstance.modelInstance.transform.getTranslation(
@@ -83,8 +81,6 @@ class CameraSystem : GameEntitySystem() {
     }
 
     companion object {
-        private const val NEAR = 0.1F
-        private const val FAR = 300F
         private const val INITIAL_Y = 9F
         private const val Z_OFFSET = 3F
         private val auxVector2 = Vector2()

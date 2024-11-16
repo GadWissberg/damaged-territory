@@ -4,8 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy
 import com.badlogic.gdx.graphics.g3d.decals.Decal
@@ -15,9 +13,9 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
+import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundBlastComponent
@@ -111,7 +109,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         if (gameSessionData.sessionFinished) return
 
         modelsRenderer.renderShadows()
-        resetDisplay()
+        GeneralUtils.clearScreen()
         modelsRenderer.renderModels(
             batch = batches.modelBatch,
             camera = gameSessionData.renderData.camera,
@@ -140,17 +138,6 @@ class RenderSystem : GameEntitySystem(), Disposable {
         modelsRenderer.dispose()
     }
 
-
-    private fun resetDisplay() {
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.width, Gdx.graphics.height)
-        ScreenUtils.clear(Color.BLACK, true)
-        Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
-        Gdx.gl.glClear(
-            GL20.GL_COLOR_BUFFER_BIT
-                    or GL20.GL_DEPTH_BUFFER_BIT
-                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
-        )
-    }
 
     private fun renderDecals(deltaTime: Float) {
         Gdx.gl.glDepthMask(false)

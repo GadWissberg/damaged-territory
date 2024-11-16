@@ -17,7 +17,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     ScreensManager {
     private val dispatcher = MessageDispatcher()
     private val soundPlayer: SoundPlayer by lazy { SoundPlayer() }
-    private val selectionScreen by lazy { SelectionScreen(assetsManager, this, runsOnMobile, dispatcher) }
+    private val selectionScreen by lazy { SelectionScreen(assetsManager, dispatcher) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val rigidBodyFactory = RigidBodyFactory()
 
