@@ -173,3 +173,5 @@ Thumbs.db
 /materials/models/hangar/baked.blend
 /materials/models/hangar/scene.g3dj
 /materials/models/hangar/scene_texture.png
+/materials/models/hangar/*.g3dj
+/materials/models/hangar/hook_texture.png
