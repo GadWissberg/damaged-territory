@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.GeneralUtils
 
 class GameSessionDataRender : Disposable {
-    val camera: PerspectiveCamera = GeneralUtils.createCamera()
+    val camera: PerspectiveCamera = GeneralUtils.createCamera(67F)
     lateinit var particleSystem: ParticleSystem
     lateinit var modelCache: ModelCache
     override fun dispose() {

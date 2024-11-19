@@ -42,9 +42,9 @@ object GeneralUtils {
         )
     }
 
-    fun createCamera(): PerspectiveCamera {
+    fun createCamera(fov: Float): PerspectiveCamera {
         val perspectiveCamera = PerspectiveCamera(
-            67F,
+            fov,
             Gdx.graphics.width.toFloat(),
             Gdx.graphics.height.toFloat()
         )

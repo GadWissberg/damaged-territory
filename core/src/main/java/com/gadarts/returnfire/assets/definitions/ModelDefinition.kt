@@ -45,7 +45,9 @@ enum class ModelDefinition(
     TANK_CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.TANK_CANNON_BULLET),
     SCENE,
     HOOK,
-    FAN;
+    FAN,
+    CEILING,
+    STAGE;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()

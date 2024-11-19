@@ -148,15 +148,19 @@ class ModelsRenderer(
     }
 
     fun initializeDirectionalLightAndShadows() {
+        extracted()
+        val dirValue = 0.4f
+        shadowLight.set(dirValue, dirValue, dirValue, 0.4F, -0.6f, -0.35f)
+        enableShadow()
+    }
+
+    private fun extracted() {
         environment.set(
             ColorAttribute(
                 ColorAttribute.AmbientLight,
                 Color(0.9F, 0.9F, 0.9F, 1F)
             )
         )
-        val dirValue = 0.4f
-        shadowLight.set(dirValue, dirValue, dirValue, 0.4F, -0.6f, -0.35f)
-        enableShadow()
     }
 
     override fun dispose() {

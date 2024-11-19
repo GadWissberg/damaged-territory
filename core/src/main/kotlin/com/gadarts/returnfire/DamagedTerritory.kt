@@ -9,15 +9,15 @@ import com.badlogic.gdx.physics.bullet.Bullet
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
+import com.gadarts.returnfire.screens.HangarScreen
 import com.gadarts.returnfire.screens.ScreensManager
-import com.gadarts.returnfire.screens.SelectionScreen
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
     private val dispatcher = MessageDispatcher()
     private val soundPlayer: SoundPlayer by lazy { SoundPlayer() }
-    private val selectionScreen by lazy { SelectionScreen(assetsManager, dispatcher) }
+    private val hangarScreen by lazy { HangarScreen(assetsManager, dispatcher) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val rigidBodyFactory = RigidBodyFactory()
 
@@ -31,7 +31,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         assetsManager.loadAssets()
         Gdx.input.inputProcessor = InputMultiplexer()
         Bullet.init()
-        setScreen(selectionScreen)
+        setScreen(hangarScreen)
     }
 
     override fun goToWarScreen(characterDefinition: CharacterDefinition) {
@@ -54,7 +54,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         dispatcher.clearListeners()
         soundPlayer.stopAll(assetsManager)
         screen.dispose()
-        setScreen(selectionScreen)
+        setScreen(hangarScreen)
     }
 
     companion object {
