@@ -22,6 +22,8 @@ import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.screens.hangar.SelectableVehicle
+import com.gadarts.returnfire.screens.hangar.SelectableVehicleChild
 
 
 class HangarScreen(
@@ -91,6 +93,36 @@ class HangarScreen(
         modelInstance.transform.setToTranslation(Vector3(0.9F, 11F, 5F))
         modelInstance
     }
+    private val tank by lazy {
+        val modelInstance =
+            ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_BODY))
+        val vehicle = SelectableVehicle(modelInstance, stageLeftModelInstance, 1.07F, -45F)
+        vehicle.addChild(
+            SelectableVehicleChild(
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
+                Vector3(-0.05F, 0.2F, 0F)
+            )
+        )
+        vehicle.addChild(
+            SelectableVehicleChild(
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_CANNON)),
+                Vector3(0.25F, 0.17F, 0F)
+            )
+        )
+        vehicle
+    }
+    private val apache by lazy {
+        val modelInstance =
+            ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.APACHE))
+        val vehicle = SelectableVehicle(modelInstance, stageRightModelInstance, 1.27F, 215F)
+        vehicle.addChild(
+            SelectableVehicleChild(
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.PROPELLER)),
+                Vector3(0F, -0.02F, 0F)
+            )
+        )
+        vehicle
+    }
     private val console = ConsoleImpl(assetsManager, dispatcher)
     private val batch by lazy { ModelBatch() }
     private val camera by lazy { GeneralUtils.createCamera(55F) }
@@ -136,6 +168,8 @@ class HangarScreen(
         ceilingFanModelInstance.transform.rotate(Vector3.Y, 160F * delta)
         camera.update()
         debugInput.update()
+        tank.updateLocation()
+        apache.updateLocation()
         renderShadows(shadowLight, shadowBatch)
         batch.begin(camera)
         renderModels(environment)
@@ -153,6 +187,13 @@ class HangarScreen(
         batch.render(stageRightModelInstance, environment)
         batch.render(stageBottomLeftModelInstance, environment)
         batch.render(stageBottomRightModelInstance, environment)
+        renderVehicle(tank)
+        renderVehicle(apache)
+    }
+
+    private fun renderVehicle(selectableVehicle: SelectableVehicle) {
+        batch.render(selectableVehicle.modelInstance, environment)
+        selectableVehicle.children.forEach { batch.render(it.modelInstance, environment) }
     }
 
     private fun renderShadows(

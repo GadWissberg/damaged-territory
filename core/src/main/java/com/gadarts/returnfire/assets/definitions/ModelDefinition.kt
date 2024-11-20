@@ -47,7 +47,8 @@ enum class ModelDefinition(
     HOOK,
     FAN,
     CEILING,
-    STAGE;
+    STAGE,
+    PROPELLER;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
