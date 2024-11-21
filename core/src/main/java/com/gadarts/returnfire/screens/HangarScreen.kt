@@ -12,24 +12,45 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.gadarts.returnfire.DamagedTerritory
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.assets.definitions.FontDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.TurretCharacterDefinition
 import com.gadarts.returnfire.screens.hangar.SelectableVehicle
 import com.gadarts.returnfire.screens.hangar.SelectableVehicleChild
+import com.gadarts.returnfire.screens.hangar.VehicleStage
 
 
 class HangarScreen(
     private val assetsManager: GameAssetManager,
     dispatcher: MessageDispatcher,
+    private val screenManager: ScreensManager,
 ) : Screen {
+    private var selected: VehicleStage? = null
+    private val table: Table by lazy {
+        val table = Table()
+        table.setFillParent(true)
+        table.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)
+        table
+    }
+    private val tankButton: TextButton by lazy { addVehicleButton("Tank") }
+    private val apacheButton: TextButton by lazy { addVehicleButton("Apache") }
     private val shadowBatch = ModelBatch(DepthShaderProvider())
     private var swingTime: Float = 0.0f
     private val sceneModelInstance by lazy { ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.SCENE)) }
@@ -55,37 +76,37 @@ class HangarScreen(
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
         modelInstance.transform.setToTranslation(Vector3(-3F, 0F, 3F))
-        modelInstance
+        VehicleStage(modelInstance)
     }
     private val stageTopRightModelInstance by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
         modelInstance.transform.setToTranslation(Vector3(3F, 0F, 3F))
-        modelInstance
+        VehicleStage(modelInstance)
     }
-    private val stageLeftModelInstance by lazy {
+    private val stageTank by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
         modelInstance.transform.setToTranslation(Vector3(-3F, 0F, 6F))
-        modelInstance
+        VehicleStage(modelInstance)
     }
-    private val stageRightModelInstance by lazy {
+    private val stageApache by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
         modelInstance.transform.setToTranslation(Vector3(3F, 0F, 6F))
-        modelInstance
+        VehicleStage(modelInstance)
     }
     private val stageBottomLeftModelInstance by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
         modelInstance.transform.setToTranslation(Vector3(-3F, 0F, 9F))
-        modelInstance
+        VehicleStage(modelInstance)
     }
     private val stageBottomRightModelInstance by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
         modelInstance.transform.setToTranslation(Vector3(3F, 0F, 9F))
-        modelInstance
+        VehicleStage(modelInstance)
     }
     private val ceilingModelInstance by lazy {
         val modelInstance =
@@ -96,7 +117,7 @@ class HangarScreen(
     private val tank by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_BODY))
-        val vehicle = SelectableVehicle(modelInstance, stageLeftModelInstance, 1.07F, -45F)
+        val vehicle = SelectableVehicle(modelInstance, stageTank.modelInstance, 1.07F, -45F)
         vehicle.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
@@ -114,7 +135,7 @@ class HangarScreen(
     private val apache by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.APACHE))
-        val vehicle = SelectableVehicle(modelInstance, stageRightModelInstance, 1.27F, 215F)
+        val vehicle = SelectableVehicle(modelInstance, stageApache.modelInstance, 1.27F, 215F)
         vehicle.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.PROPELLER)),
@@ -128,7 +149,6 @@ class HangarScreen(
     private val camera by lazy { GeneralUtils.createCamera(55F) }
     private val environment: Environment by lazy { Environment() }
 
-    private val debugInput: CameraInputController by lazy { CameraInputController(camera) }
     private val shadowLight: DirectionalShadowLight by lazy {
         DirectionalShadowLight(
             2056,
@@ -139,10 +159,10 @@ class HangarScreen(
             150f
         )
     }
+    private val stage = Stage()
 
     override fun show() {
-        debugInput.autoUpdate = true
-        Gdx.input.inputProcessor = debugInput
+        Gdx.input.inputProcessor = stage
         camera.position.set(0F, 8.7F, 13.8F)
         camera.lookAt(0F, 0F, 0F)
         camera.rotate(Vector3.X, -10F)
@@ -156,6 +176,40 @@ class HangarScreen(
         )
         environment.add(shadowLight)
         environment.shadowMap = shadowLight
+        table.add(tankButton)
+        table.add(apacheButton)
+        table.bottom()
+        stage.addActor(table)
+    }
+
+    private fun addVehicleButton(text: String): TextButton {
+        val textButton = TextButton(
+            text,
+            TextButton.TextButtonStyle(
+                TextureRegionDrawable(assetsManager.getTexture("button_up")),
+                TextureRegionDrawable(assetsManager.getTexture("button_down")),
+                null,
+                assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL)
+            )
+        )
+        textButton.addListener(onClick(text))
+        return textButton
+    }
+
+    private fun onClick(text: String) = object : ClickListener() {
+        override fun clicked(event: InputEvent?, x: Float, y: Float) {
+            when (text) {
+                "Tank" -> {
+                    table.remove()
+                    selected = stageTank
+                }
+
+                "Apache" -> {
+                    table.remove()
+                    selected = stageApache
+                }
+            }
+        }
     }
 
 
@@ -163,17 +217,25 @@ class HangarScreen(
         if (Gdx.input.isKeyPressed(Input.Keys.BACK)) {
             Gdx.app.exit()
         }
+        if (selected != null) {
+            if (selected!!.updateLocation(delta)) {
+                screenManager.goToWarScreen(
+                    if (selected == stageTank) TurretCharacterDefinition.TANK else SimpleCharacterDefinition.APACHE
+                )
+            }
+        }
+        stage.act()
         animateHook(delta)
         fanModelInstance.transform.rotate(Vector3.Y, 320F * delta)
         ceilingFanModelInstance.transform.rotate(Vector3.Y, 160F * delta)
         camera.update()
-        debugInput.update()
         tank.updateLocation()
         apache.updateLocation()
         renderShadows(shadowLight, shadowBatch)
         batch.begin(camera)
         renderModels(environment)
         batch.end()
+        stage.draw()
     }
 
 
@@ -181,12 +243,12 @@ class HangarScreen(
         batch.render(sceneModelInstance, environment)
         batch.render(hookModelInstance, environment)
         batch.render(fanModelInstance, environment)
-        batch.render(stageTopLeftModelInstance, environment)
-        batch.render(stageTopRightModelInstance, environment)
-        batch.render(stageLeftModelInstance, environment)
-        batch.render(stageRightModelInstance, environment)
-        batch.render(stageBottomLeftModelInstance, environment)
-        batch.render(stageBottomRightModelInstance, environment)
+        batch.render(stageTopLeftModelInstance.modelInstance, environment)
+        batch.render(stageTopRightModelInstance.modelInstance, environment)
+        batch.render(stageTank.modelInstance, environment)
+        batch.render(stageApache.modelInstance, environment)
+        batch.render(stageBottomLeftModelInstance.modelInstance, environment)
+        batch.render(stageBottomRightModelInstance.modelInstance, environment)
         renderVehicle(tank)
         renderVehicle(apache)
     }
@@ -209,12 +271,12 @@ class HangarScreen(
         modelBatch.render(sceneModelInstance)
         modelBatch.render(hookModelInstance)
         modelBatch.render(fanModelInstance)
-        modelBatch.render(stageTopLeftModelInstance)
-        modelBatch.render(stageTopRightModelInstance)
-        modelBatch.render(stageLeftModelInstance)
-        modelBatch.render(stageRightModelInstance)
-        modelBatch.render(stageBottomLeftModelInstance)
-        modelBatch.render(stageBottomRightModelInstance)
+        modelBatch.render(stageTopLeftModelInstance.modelInstance)
+        modelBatch.render(stageTopRightModelInstance.modelInstance)
+        modelBatch.render(stageTank.modelInstance)
+        modelBatch.render(stageApache.modelInstance)
+        modelBatch.render(stageBottomLeftModelInstance.modelInstance)
+        modelBatch.render(stageBottomRightModelInstance.modelInstance)
         modelBatch.render(ceilingModelInstance)
         modelBatch.render(ceilingFanModelInstance)
         modelBatch.end()
@@ -254,6 +316,7 @@ class HangarScreen(
         batch.dispose()
         shadowLight.dispose()
         shadowBatch.dispose()
+        stage.dispose()
     }
 
     companion object {
