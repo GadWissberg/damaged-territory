@@ -16,7 +16,9 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
     EXPLOSION_SMALL,
     CANNON,
     WATER_SPLASH(3),
-    ENGINE;
+    ENGINE,
+    STAGE_DEPLOY,
+    STAGE_MOVE;
 
     private val paths = ArrayList<String>()
 

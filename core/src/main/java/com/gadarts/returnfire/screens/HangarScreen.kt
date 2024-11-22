@@ -23,12 +23,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
-import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.GeneralUtils
+import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.FontDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
@@ -41,6 +42,7 @@ class HangarScreen(
     private val assetsManager: GameAssetManager,
     dispatcher: MessageDispatcher,
     private val screenManager: ScreensManager,
+    private val soundPlayer: SoundPlayer,
 ) : Screen {
     private var selected: VehicleStage? = null
     private val table: Table by lazy {
@@ -209,6 +211,8 @@ class HangarScreen(
                     selected = stageApache
                 }
             }
+            soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY))
+            soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
         }
     }
 
