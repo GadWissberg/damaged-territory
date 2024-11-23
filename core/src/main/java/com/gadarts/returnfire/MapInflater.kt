@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -71,6 +72,10 @@ class MapInflater(
         direction: Int,
         exculdedTiles: ArrayList<Pair<Int, Int>>,
     ) {
+        excludeTilesUnderBase(def, position, exculdedTiles)
+        if (def.placeInMiddleOfCell) {
+            position.add(0.5F, 0F, 0.5F)
+        }
         val gameModelInstance =
             managers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
         val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
@@ -87,7 +92,6 @@ class MapInflater(
             )
             .finishAndAddToEngine()
         addPhysicsToObject(entity, gameModelInstance, def.collisionFlags)
-        excludeTilesUnderBase(def, position, exculdedTiles)
     }
 
     private fun excludeTilesUnderBase(
@@ -299,7 +303,7 @@ class MapInflater(
         gameSessionData.currentMap.placedElements.filter { it.definition.getType() == ElementType.AMB }
             .forEach {
                 addAmbObject(
-                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
+                    auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
                     it.definition as AmbDefinition,
                     it.direction,
                     exculdedTiles

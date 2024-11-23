@@ -7,13 +7,18 @@ enum class AmbDefinition(
     private val modelDefinition: ModelDefinition,
     private val randomizeScale: Boolean = false,
     private val randomizeRotation: Boolean = false,
-    val collisionFlags: Int = CollisionFlags.CF_STATIC_OBJECT
+    val collisionFlags: Int = CollisionFlags.CF_STATIC_OBJECT,
+    val placeInMiddleOfCell: Boolean = true,
 ) : ElementDefinition {
     PALM_TREE(ModelDefinition.PALM_TREE, true, true),
     WATCH_TOWER(ModelDefinition.WATCH_TOWER),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
     FLAG(ModelDefinition.FLAG),
-    BASE(modelDefinition = ModelDefinition.PIT, collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE);
+    BASE(
+        modelDefinition = ModelDefinition.PIT,
+        collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE,
+        placeInMiddleOfCell = false
+    );
 
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition
