@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.assets.GameAssetManager
@@ -49,8 +49,9 @@ class MapInflater(
     }
 
     fun inflate() {
-        addFloor()
-        addAmbEntities()
+        val exculdedTiles = ArrayList<Pair<Int, Int>>()
+        addAmbEntities(exculdedTiles)
+        addFloor(exculdedTiles)
         addCharacters()
     }
 
@@ -68,6 +69,7 @@ class MapInflater(
         position: Vector3,
         def: AmbDefinition,
         direction: Int,
+        exculdedTiles: ArrayList<Pair<Int, Int>>,
     ) {
         val gameModelInstance =
             managers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
@@ -78,14 +80,29 @@ class MapInflater(
                 position,
                 null,
                 direction.toFloat(),
-
-                )
+            )
             .addAmbComponent(
                 auxVector1.set(randomScale, randomScale, randomScale),
                 if (def.isRandomizeRotation()) random(0F, 360F) else 0F,
             )
             .finishAndAddToEngine()
-        addPhysicsToStaticObject(entity, gameModelInstance)
+        addPhysicsToObject(entity, gameModelInstance, def.collisionFlags)
+        excludeTilesUnderBase(def, position, exculdedTiles)
+    }
+
+    private fun excludeTilesUnderBase(
+        def: AmbDefinition,
+        position: Vector3,
+        exculdedTiles: ArrayList<Pair<Int, Int>>
+    ) {
+        if (def == AmbDefinition.BASE) {
+            val x = position.x.toInt()
+            val z = position.z.toInt()
+            exculdedTiles.add(Pair(x, z))
+            exculdedTiles.add(Pair(x + 1, z))
+            exculdedTiles.add(Pair(x, z + 1))
+            exculdedTiles.add(Pair(x + 1, z + 1))
+        }
     }
 
     private fun addCharacter(
@@ -106,23 +123,24 @@ class MapInflater(
             .addEnemyComponent()
             .addTurretBaseComponent()
             .finishAndAddToEngine()
-        addPhysicsToStaticObject(baseEntity, gameModelInstance)
+        addPhysicsToObject(baseEntity, gameModelInstance, CollisionFlags.CF_STATIC_OBJECT)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
             addTurret(baseEntity)
         }
     }
 
 
-    private fun addPhysicsToStaticObject(
+    private fun addPhysicsToObject(
         entity: Entity,
-        gameModelInstance: GameModelInstance
+        gameModelInstance: GameModelInstance,
+        collisionFlags: Int
     ): PhysicsComponent {
         return EntityBuilder.addPhysicsComponent(
             entity,
             createShapeForStaticObject(gameModelInstance.definition!!),
             0F,
             managers,
-            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
+            collisionFlags,
             Matrix4(gameModelInstance.modelInstance.transform),
         )
     }
@@ -194,7 +212,7 @@ class MapInflater(
             shape,
             10F,
             managers,
-            btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT,
+            CollisionFlags.CF_KINEMATIC_OBJECT,
             modelInstance.transform,
         )
     }
@@ -265,8 +283,8 @@ class MapInflater(
         gameSessionData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                && definition != SimpleCharacterDefinition.APACHE
-                && definition != TurretCharacterDefinition.TANK
+                    && definition != SimpleCharacterDefinition.APACHE
+                    && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -277,24 +295,25 @@ class MapInflater(
             }
     }
 
-    private fun addAmbEntities() {
+    private fun addAmbEntities(exculdedTiles: ArrayList<Pair<Int, Int>>) {
         gameSessionData.currentMap.placedElements.filter { it.definition.getType() == ElementType.AMB }
             .forEach {
                 addAmbObject(
                     auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
                     it.definition as AmbDefinition,
-                    it.direction
+                    it.direction,
+                    exculdedTiles
                 )
             }
         applyTransformOnAmbEntities()
     }
 
-    private fun addFloor() {
+    private fun addFloor(exculdedTiles: ArrayList<Pair<Int, Int>>) {
         gameSessionData.renderData.modelCache.begin()
         val tilesMapping = gameSessionData.currentMap.tilesMapping
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
-        addFloorRegion(depth, width)
+        addFloorRegion(depth, width, exculdedTiles)
         addAllExternalSea(width, depth)
         gameSessionData.renderData.modelCache.end()
     }
@@ -316,7 +335,7 @@ class MapInflater(
                 btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
                 0F,
                 managers,
-                btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
+                CollisionFlags.CF_STATIC_OBJECT,
                 modelInstance.modelInstance.transform
             )
         }
@@ -329,16 +348,8 @@ class MapInflater(
         modelInstance: GameModelInstance
     ): TextureDefinition? {
         var textureDefinition: TextureDefinition? = null
-        val playerPosition =
-            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
-                auxVector1
-            )
         val assetsManager = managers.assetsManager
-        val texturesDefinitions =
-            assetsManager.getTexturesDefinitions()
-        if (playerPosition.x.toInt() == col && playerPosition.z.toInt() == row) {
-            textureDefinition = texturesDefinitions.definitions["base_door"]
-        } else if (isPositionInsideBoundaries(row, col)) {
+        if (isPositionInsideBoundaries(row, col)) {
             gameSessionData.tilesEntities[row][col] = entity
             val definitions = assetsManager.getTexturesDefinitions()
             val indexOfFirst =
@@ -406,9 +417,11 @@ class MapInflater(
     private fun addFloorRegion(
         rows: Int,
         cols: Int,
+        exculdedTiles: ArrayList<Pair<Int, Int>>,
     ) {
         for (row in 0 until rows) {
             for (col in 0 until cols) {
+                if (exculdedTiles.contains(Pair(row, col))) continue
                 addFloorTile(
                     row,
                     col,
@@ -435,9 +448,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-        && col >= 0
-        && row < gameSessionData.currentMap.tilesMapping.size
-        && col < gameSessionData.currentMap.tilesMapping[0].size)
+            && col >= 0
+            && row < gameSessionData.currentMap.tilesMapping.size
+            && col < gameSessionData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

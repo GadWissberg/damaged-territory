@@ -15,6 +15,7 @@ const elementsDefinitions = Object.freeze([
   { name: "GUARD_HOUSE", type: "AMB" },
   { name: "WATCH_TOWER", type: "AMB" },
   { name: "BUILDING_FLAG", type: "AMB" },
+  { name: "BASE", type: "AMB" },
   { name: "TURRET_CANNON", type: "CHARACTER" },
 ]);
 const Directions = Object.freeze({ east: 0, north: 90, west: 180, south: 270 });
@@ -791,7 +792,7 @@ function applyTileOnCell(td, selectedTile, bit = -1) {
   if (typeof selectedTile !== "string") {
     finalName = selectedTile.name + (selectedTile.animated ? "_0" : "");
   }
-  td.style.backgroundImage = `url(../assets/textures/${finalName}.png)`;
+  td.style.backgroundImage = `url(../assets/textures/ground/beach/${finalName}.png)`;
   td.style.backgroundSize = "cover";
   if (td.cellData) {
     td.cellData.selectedTile = selectedTile;

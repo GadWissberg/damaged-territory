@@ -81,7 +81,7 @@ class PhysicsSystem : GameEntitySystem() {
         bulletEngineHandler.update(deltaTime)
         val overlappingPairs = ghostObject.overlappingPairs
         val size = overlappingPairs.size()
-        for (i in 4 until size) {
+        for (i in 5 until size) {
             managers.dispatcher.dispatchMessage(
                 SystemEvents.PHYSICS_DROWNING.ordinal,
                 overlappingPairs.atConst(i).userData

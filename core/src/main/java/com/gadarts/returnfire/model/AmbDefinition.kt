@@ -1,16 +1,19 @@
 package com.gadarts.returnfire.model
 
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 
 enum class AmbDefinition(
     private val modelDefinition: ModelDefinition,
     private val randomizeScale: Boolean = false,
     private val randomizeRotation: Boolean = false,
+    val collisionFlags: Int = CollisionFlags.CF_STATIC_OBJECT
 ) : ElementDefinition {
     PALM_TREE(ModelDefinition.PALM_TREE, true, true),
     WATCH_TOWER(ModelDefinition.WATCH_TOWER),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
-    FLAG(ModelDefinition.FLAG);
+    FLAG(ModelDefinition.FLAG),
+    BASE(modelDefinition = ModelDefinition.PIT, collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE);
 
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition

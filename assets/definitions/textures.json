@@ -362,10 +362,6 @@
       "folder": "hud"
     },
     {
-      "file_name": "base_door",
-      "folder": "ground/beach"
-    },
-    {
       "file_name": "water_splash_floor",
       "folder": "effects"
     },

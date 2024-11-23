@@ -164,7 +164,7 @@ class HangarScreen(
     private val stage = Stage()
 
     override fun show() {
-        Gdx.input.inputProcessor = stage
+        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(stage)
         camera.position.set(0F, 8.7F, 13.8F)
         camera.lookAt(0F, 0F, 0F)
         camera.rotate(Vector3.X, -10F)
@@ -314,6 +314,7 @@ class HangarScreen(
     override fun hide() {
         val inputMultiplexer = Gdx.input.inputProcessor as InputMultiplexer
         inputMultiplexer.removeProcessor(console)
+        inputMultiplexer.removeProcessor(stage)
     }
 
     override fun dispose() {

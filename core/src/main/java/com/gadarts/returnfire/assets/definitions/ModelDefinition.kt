@@ -15,7 +15,7 @@ enum class ModelDefinition(
     val pooledObjectPhysicalDefinition: PooledObjectPhysicalDefinition? = null,
     val physicalShapeCreator: PhysicalShapeCreator? = null,
     val centerOfMass: Vector3 = Vector3.Zero,
-    val separateModelForShadow: Boolean = false
+    val separateModelForShadow: Boolean = false,
 ) :
     AssetDefinition<Model> {
 
@@ -48,7 +48,8 @@ enum class ModelDefinition(
     FAN,
     CEILING,
     STAGE,
-    PROPELLER;
+    PROPELLER,
+    PIT;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
