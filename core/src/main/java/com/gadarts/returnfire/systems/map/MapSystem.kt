@@ -3,9 +3,11 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
@@ -15,10 +17,14 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.MapInflater
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.components.AnimatedTextureComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundBlastComponent
 import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -79,6 +85,20 @@ class MapSystem : GameEntitySystem() {
     override fun onSystemReady() {
         super.onSystemReady()
         MapInflater(gameSessionData, managers, engine).inflate()
+        engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
+            .find { ComponentsMapper.modelInstance.get(it).gameModelInstance.definition == ModelDefinition.PIT }.let {
+            Gdx.app.log("MapSystem", "Creating stage model instance.")
+            val stageModelInstance = GameModelInstance(
+                ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
+                ModelDefinition.STAGE
+            )
+            EntityBuilder.begin().addModelInstanceComponent(
+                stageModelInstance,
+                ComponentsMapper.modelInstance.get(it).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector
+                ).add(1F, -1F, 1F), null
+            ).finishAndAddToEngine()
+        }
     }
 
 

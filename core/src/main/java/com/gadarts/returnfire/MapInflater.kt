@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -325,13 +324,16 @@ class MapInflater(
     private fun addFloorTile(
         row: Int,
         col: Int,
-        modelInstance: GameModelInstance
-    ) {
+        modelInstance: GameModelInstance,
+        exculdedTiles: ArrayList<Pair<Int, Int>>
+    ): Entity {
         val entity = createAndAddGroundTileEntity(
             modelInstance,
             auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
         )
-        gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
+        if (!exculdedTiles.contains(Pair(col, row))) {
+            gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
+        }
         val textureDefinition = applyTextureToFloorTile(col, row, entity, modelInstance)
         if (textureDefinition != null && !textureDefinition.fileName.contains("water")) {
             EntityBuilder.addPhysicsComponent(
@@ -343,6 +345,7 @@ class MapInflater(
                 modelInstance.modelInstance.transform
             )
         }
+        return entity
     }
 
     private fun applyTextureToFloorTile(
@@ -425,14 +428,14 @@ class MapInflater(
     ) {
         for (row in 0 until rows) {
             for (col in 0 until cols) {
-                if (exculdedTiles.contains(Pair(row, col))) continue
                 addFloorTile(
                     row,
                     col,
                     GameModelInstance(
                         ModelInstance(gameSessionData.floorModel),
                         null,
-                    )
+                    ),
+                    exculdedTiles
                 )
             }
         }
