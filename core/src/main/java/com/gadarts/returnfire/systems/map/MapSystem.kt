@@ -35,6 +35,8 @@ import com.gadarts.returnfire.systems.events.SystemEvents
  */
 class MapSystem : GameEntitySystem() {
 
+    private lateinit var eastDoor: Entity
+    private lateinit var westDoor: Entity
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
     private val ambSoundsHandler = AmbSoundsHandler()
     private var groundTextureAnimationStateTime = 0F
@@ -87,18 +89,46 @@ class MapSystem : GameEntitySystem() {
         MapInflater(gameSessionData, managers, engine).inflate()
         engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
             .find { ComponentsMapper.modelInstance.get(it).gameModelInstance.definition == ModelDefinition.PIT }.let {
-            Gdx.app.log("MapSystem", "Creating stage model instance.")
-            val stageModelInstance = GameModelInstance(
-                ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
-                ModelDefinition.STAGE
+                addStage(it!!)
+                westDoor = addBaseDoor(it, 1F, 0F, -1F)
+                eastDoor = addBaseDoor(it, 1F, 180F, 1F)
+            }
+    }
+
+    private fun addBaseDoor(base: Entity, relativeX: Float, rotationAroundY: Float, relativeXtarget: Float): Entity {
+        val doorModelInstance = GameModelInstance(
+            ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.PIT_DOOR)),
+            ModelDefinition.PIT_DOOR
+        )
+        val basePosition =
+            ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector
             )
-            EntityBuilder.begin().addModelInstanceComponent(
+        val door = EntityBuilder.begin()
+            .addModelInstanceComponent(
+                doorModelInstance,
+                basePosition.add(relativeX, -0.1F, 1F), null
+            )
+            .addBaseDoorComponent(basePosition.x + relativeXtarget)
+            .finishAndAddToEngine()
+        doorModelInstance.modelInstance.transform.rotate(Vector3.Y, rotationAroundY)
+        return door
+    }
+
+    private fun addStage(base: Entity): Entity {
+        val stageModelInstance = GameModelInstance(
+            ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
+            ModelDefinition.STAGE
+        )
+        return EntityBuilder.begin()
+            .addModelInstanceComponent(
                 stageModelInstance,
-                ComponentsMapper.modelInstance.get(it).gameModelInstance.modelInstance.transform.getTranslation(
+                ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector
-                ).add(1F, -1F, 1F), null
-            ).finishAndAddToEngine()
-        }
+                ).add(1F, -4F, 1F), null
+            )
+            .addStageComponent()
+            .finishAndAddToEngine()
     }
 
 
@@ -108,6 +138,7 @@ class MapSystem : GameEntitySystem() {
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
+        updateBaseDoors(deltaTime)
         ambSoundsHandler.update(managers)
         groundTextureAnimationStateTime += deltaTime
         for (entity in animatedFloorsEntities) {
@@ -141,6 +172,21 @@ class MapSystem : GameEntitySystem() {
             engine.removeEntity(entity)
         }
     }
+
+    private fun updateBaseDoors(deltaTime: Float) {
+        val westDoorTransform = ComponentsMapper.modelInstance.get(westDoor).gameModelInstance.modelInstance.transform
+        val stepSize = deltaTime * 0.3F
+        if (westDoorTransform.getTranslation(auxVector).x > ComponentsMapper.baseDoor.get(westDoor).targetX
+        ) {
+            westDoorTransform.trn(-stepSize, 0F, 0F)
+        }
+        val eastDoorTransform = ComponentsMapper.modelInstance.get(eastDoor).gameModelInstance.modelInstance.transform
+        if (eastDoorTransform.getTranslation(auxVector).x < ComponentsMapper.baseDoor.get(eastDoor).targetX
+        ) {
+            eastDoorTransform.trn(stepSize, 0F, 0F)
+        }
+    }
+
 
     override fun dispose() {
         gameSessionData.renderData.modelCache.dispose()

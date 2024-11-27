@@ -49,7 +49,8 @@ enum class ModelDefinition(
     CEILING,
     STAGE,
     PROPELLER,
-    PIT;
+    PIT,
+    PIT_DOOR;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()

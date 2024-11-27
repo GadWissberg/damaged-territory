@@ -33,13 +33,12 @@ class GamePlayScreen(
     private val soundPlayer: SoundPlayer,
     private val runsOnMobile: Boolean,
     private val fpsTarget: Int,
-    characterDefinition: CharacterDefinition,
+    private val selected: CharacterDefinition,
     private val screensManager: ScreensManager,
     private val messageDispatcher: MessageDispatcher,
 ) : Screen {
 
     init {
-        SELECTED_VEHICLE = characterDefinition
         val fileName = MapDefinition.MAP_0.getPaths()[0]
         assetsManager.load(
             fileName,
@@ -55,7 +54,8 @@ class GamePlayScreen(
             rigidBodyFactory,
             runsOnMobile,
             fpsTarget,
-            ConsoleImpl(assetsManager, messageDispatcher)
+            ConsoleImpl(assetsManager, messageDispatcher),
+            selected
         )
     }
     private val engine: PooledEngine by lazy { PooledEngine() }
@@ -131,9 +131,6 @@ class GamePlayScreen(
         engine.systems.forEach { (it as GameEntitySystem).dispose() }
     }
 
-    companion object {
-        lateinit var SELECTED_VEHICLE: CharacterDefinition
-    }
 
 
 }

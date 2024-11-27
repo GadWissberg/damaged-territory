@@ -24,7 +24,7 @@ import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.AnimatedTextureComponent
-import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties

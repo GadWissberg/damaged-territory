@@ -2,7 +2,7 @@ package com.gadarts.returnfire.systems.events.data
 
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.arm.ArmComponent
 
 object BulletCreationRequestEventData {
     val direction: Matrix4 = Matrix4()

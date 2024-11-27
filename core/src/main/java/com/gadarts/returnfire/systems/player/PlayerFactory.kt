@@ -5,6 +5,7 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
+import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
@@ -21,12 +22,12 @@ class PlayerFactory(
         ApacheFactory(assetsManager, playerShootingHandler, gameSessionData, gameModelInstanceFactory)
     private val tankFactory = TankFactory(assetsManager, gameSessionData, gameModelInstanceFactory)
 
-    fun create(placedPlayer: PlacedElement): Entity {
+    fun create(base: PlacedElement, selected: CharacterDefinition): Entity {
         var player: Entity? = null
-        if (placedPlayer.definition == SimpleCharacterDefinition.APACHE) {
-            player = apacheFactory.create(placedPlayer)
-        } else if (placedPlayer.definition == TurretCharacterDefinition.TANK) {
-            player = tankFactory.create(placedPlayer)
+        if (selected == SimpleCharacterDefinition.APACHE) {
+            player = apacheFactory.create(base)
+        } else if (selected == TurretCharacterDefinition.TANK) {
+            player = tankFactory.create(base)
         }
         @Suppress("KotlinConstantConditions")
         if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {

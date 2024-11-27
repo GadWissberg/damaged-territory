@@ -10,8 +10,8 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
-import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -87,7 +87,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 playerMovementHandler.onReverseScreenButtonReleased()
             }
         },
-        PHYSICS_SYSTEM_READY to PlayerSystemOnPhysicsSystemReady(),
+        CHARACTER_ONBOARDED to PlayerSystemOnCharacterOnboarded(),
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
     )
 
@@ -105,7 +105,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override fun update(deltaTime: Float) {
-        super.update(deltaTime)
+        if (ComponentsMapper.onboardingCharacter.get(gameSessionData.player).onboarding) return
         playerMovementHandler.update(
             gameSessionData.player,
             deltaTime
@@ -114,6 +114,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override fun keyDown(keycode: Int): Boolean {
+        if (ComponentsMapper.onboardingCharacter.get(gameSessionData.player).onboarding) return false
+
         when (keycode) {
             Input.Keys.UP -> {
                 playerMovementHandler.thrust(gameSessionData.player)
@@ -151,6 +153,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override fun keyUp(keycode: Int): Boolean {
+        if (ComponentsMapper.onboardingCharacter.get(gameSessionData.player).onboarding) return false
+
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
                 playerMovementHandler.onMovementTouchPadTouchUp(keycode)
@@ -205,9 +209,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private fun addPlayer(): Entity {
         val map = managers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
-        val placedPlayer =
-            map.placedElements.find { placedElement -> placedElement.definition == GamePlayScreen.SELECTED_VEHICLE }
-        val player = playerFactory.create(placedPlayer!!)
+        val base = map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE }
+        val player = playerFactory.create(base!!, gameSessionData.selected)
         engine.addEntity(player)
         gameSessionData.player = player
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER

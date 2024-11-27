@@ -9,7 +9,7 @@ import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.ArmComponent
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -18,6 +18,7 @@ import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.PlacedElement
+import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.GameSessionData.Companion.APACHE_SPARK_HEIGHT_BIAS
@@ -31,13 +32,13 @@ class ApacheFactory(
 ) :
     CharacterFactory(assetsManager, gameModelInstanceFactory) {
 
-    override fun create(placedPlayer: PlacedElement): Entity {
+    override fun create(base: PlacedElement): Entity {
         val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
         val secondarySpark = addSpark(machineGunSparkModel, secRelativePositionCalculator)
         val primarySpark =
             createPrimarySpark(ModelDefinition.MACHINE_GUN_SPARK, apachePrimaryRelativePositionCalculator)
         val entityBuilder = EntityBuilder.begin()
-        addPlayerBaseComponents(entityBuilder, placedPlayer, primarySpark) {
+        addPlayerBaseComponents(entityBuilder, base, SimpleCharacterDefinition.APACHE, primarySpark) {
             addApachePrimaryArmComponent(entityBuilder, primarySpark)
         }
         if (GameDebugSettings.DISPLAY_PROPELLER) {

@@ -15,6 +15,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -32,6 +33,11 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         engine!!.getEntitiesFor(
             Family.all(AmbSoundComponent::class.java).get()
         )
+    }
+    private val stageEntity: Entity by lazy {
+        engine!!.getEntitiesFor(
+            Family.all(StageComponent::class.java).get()
+        ).first()
     }
 
     private val charactersEntities: ImmutableArray<Entity> by lazy {
@@ -122,7 +128,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-        updateCharacters()
+        updateCharacters(deltaTime)
         updateTurrets()
         for (entity in ambSoundEntities) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
@@ -191,13 +197,32 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         )
     }
 
-    private fun updateCharacters() {
+    private fun updateCharacters(deltaTime: Float) {
         for (character in charactersEntities) {
             val characterComponent = ComponentsMapper.character.get(character)
             val hp = characterComponent.hp
-            if (!characterComponent.dead) {
+            val characterTransform =
+                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
+            if (ComponentsMapper.onboardingCharacter.has(character) && ComponentsMapper.onboardingCharacter.get(
+                    character
+                ).onboarding
+            ) {
+                val stageTransform =
+                    ComponentsMapper.modelInstance.get(stageEntity).gameModelInstance.modelInstance.transform
+                if (stageTransform.getTranslation(auxVector1).y < -1F) {
+                    stageTransform.trn(
+                        0F,
+                        deltaTime,
+                        0F
+                    )
+                } else {
+                    ComponentsMapper.onboardingCharacter.get(character).onBoardingDone()
+                    managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
+                }
+                characterTransform.trn(0F, deltaTime, 0F)
+            } else if (!characterComponent.dead) {
                 if (characterComponent.deathSequenceDuration <= 0) {
-                    if (ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                    if (characterTransform.getTranslation(
                             auxVector1
                         ).y < -1F
                     ) {
@@ -208,7 +233,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                             characterComponent.beginDeathSequence()
                         } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
                             val position =
-                                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                                characterTransform.getTranslation(
                                     auxVector1
                                 )
                             val smoke = EntityBuilder.begin().addParticleEffectComponent(

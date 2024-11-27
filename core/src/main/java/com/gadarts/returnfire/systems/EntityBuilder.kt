@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
@@ -70,6 +71,12 @@ class EntityBuilder private constructor() {
     fun addCharacterComponent(definition: CharacterDefinition): EntityBuilder {
         val characterComponent = CharacterComponent(definition)
         entity!!.add(characterComponent)
+        return instance
+    }
+
+    fun addOnboardingCharacterComponent(): EntityBuilder {
+        val onboardingCharacterComponent = OnboardingCharacterComponent()
+        entity!!.add(onboardingCharacterComponent)
         return instance
     }
 
@@ -187,6 +194,18 @@ class EntityBuilder private constructor() {
         return instance
     }
 
+    fun addStageComponent(): EntityBuilder {
+        val enemyComponent = engine.createComponent(StageComponent::class.java)
+        entity!!.add(enemyComponent)
+        return instance
+    }
+
+    fun addBaseDoorComponent(targetX: Float): EntityBuilder {
+        val baseDoorComponent = BaseDoorComponent(targetX)
+        entity!!.add(baseDoorComponent)
+        return instance
+    }
+
     fun addTurretBaseComponent(): EntityBuilder {
         val turretComponent = TurretBaseComponent()
         entity!!.add(turretComponent)
@@ -218,6 +237,7 @@ class EntityBuilder private constructor() {
         entity = null
         return result!!
     }
+
 
     companion object {
         private val auxVector = Vector3()

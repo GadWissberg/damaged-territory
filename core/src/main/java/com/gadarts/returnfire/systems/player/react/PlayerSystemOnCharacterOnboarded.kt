@@ -14,7 +14,7 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 
 
-class PlayerSystemOnPhysicsSystemReady :
+class PlayerSystemOnCharacterOnboarded :
     HandlerOnEvent {
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {

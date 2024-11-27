@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.assets.loaders
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetDescriptor
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.assets.AssetManager
@@ -57,13 +58,12 @@ class MapLoader(resolver: FileHandleResolver) :
     }
 
     private fun inflateElements(jsonObj: JsonObject): List<PlacedElement> {
-        val elementsJsonArray = jsonObj.getAsJsonArray(KEY_ELEMENTS)
-        return elementsJsonArray.map {
-            val asJsonObject = it.asJsonObject
-            val definitionName = asJsonObject.get(KEY_DEFINITION).asString
-            val allDefinitions = ElementType.entries.flatMap { elementType -> elementType.definitions.toList() }
-            var definition: ElementDefinition? = null
-            if (!definitionName.equals("PLAYER")) {
+        return jsonObj.getAsJsonArray(KEY_ELEMENTS)
+            .filterNot { it.asJsonObject.get(KEY_DEFINITION).asString.equals("PLAYER") }.map {
+                val asJsonObject = it.asJsonObject
+                val definitionName = asJsonObject.get(KEY_DEFINITION).asString
+                val allDefinitions = ElementType.entries.flatMap { elementType -> elementType.definitions.toList() }
+                var definition: ElementDefinition? = null
                 try {
                     definition = allDefinitions.find { def -> def.getName() == definitionName }
                 } catch (e: IllegalArgumentException) {
@@ -72,14 +72,17 @@ class MapLoader(resolver: FileHandleResolver) :
                     } catch (ignored: IllegalArgumentException) {
                     }
                 }
-            } else {
-                definition = GamePlayScreen.SELECTED_VEHICLE
+                val row = asJsonObject.get(KEY_ROW).asInt
+                val col = asJsonObject.get(KEY_COL).asInt
+                val direction = asJsonObject.get(KEY_DIRECTION).asInt
+                if (definition == null) {
+                    Gdx.app.log(
+                        GamePlayScreen::class.java.simpleName,
+                        "Failed to find definition for element: $definitionName"
+                    )
+                }
+                PlacedElement(definition!!, row, col, direction)
             }
-            val row = asJsonObject.get(KEY_ROW).asInt
-            val col = asJsonObject.get(KEY_COL).asInt
-            val direction = asJsonObject.get(KEY_DIRECTION).asInt
-            PlacedElement(definition!!, row, col, direction)
-        }
     }
 
     companion object {

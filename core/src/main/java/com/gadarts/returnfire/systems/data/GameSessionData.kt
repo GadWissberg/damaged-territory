@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Pool
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.data.pools.GameSessionDataPools
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
@@ -17,7 +18,8 @@ class GameSessionData(
     rigidBodyFactory: RigidBodyFactory,
     val runsOnMobile: Boolean,
     val fpsTarget: Int,
-    console: ConsoleImpl
+    console: ConsoleImpl,
+    val selected: CharacterDefinition
 ) :
     Disposable {
     lateinit var player: Entity
