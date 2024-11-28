@@ -212,6 +212,12 @@ class EntityBuilder private constructor() {
         return instance
     }
 
+    fun addChildModelInstanceComponent(gameModelInstance: GameModelInstance): EntityBuilder {
+        val childModelInstanceComponent = ChildModelInstanceComponent(gameModelInstance)
+        entity!!.add(childModelInstanceComponent)
+        return instance
+    }
+
     fun addPhysicsComponent(
         shape: btCollisionShape,
         managers: Managers,

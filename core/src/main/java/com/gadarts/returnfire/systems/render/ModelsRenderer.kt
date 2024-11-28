@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.systems.data.GameSessionDataRender
 import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxBox
 import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxVector3_1
@@ -68,14 +69,7 @@ class ModelsRenderer(
     private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean, forShadow: Boolean = false) {
         if (isVisible(entity, forShadow)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
-            val gameModelInstance = modelInstanceComponent.gameModelInstance
-            val isShadow = forShadow && gameModelInstance.shadow != null
-            val modelInstance = if (isShadow) gameModelInstance.shadow else gameModelInstance.modelInstance
-            if (applyEnvironment) {
-                batch.render(modelInstance, environment)
-            } else {
-                batch.render(modelInstance)
-            }
+            renderGameModelInstance(modelInstanceComponent.gameModelInstance, forShadow, applyEnvironment, batch)
             if (!modelInstanceComponent.hidden
                 && modelInstanceComponent.hideAt != -1L
                 && modelInstanceComponent.hideAt <= TimeUtils.millis()
@@ -83,6 +77,31 @@ class ModelsRenderer(
                 modelInstanceComponent.hidden = true
                 modelInstanceComponent.hideAt = -1L
             }
+            if (ComponentsMapper.childModelInstanceComponent.has(entity)) {
+                val gameModelInstance = ComponentsMapper.childModelInstanceComponent.get(entity).gameModelInstance
+                gameModelInstance.modelInstance.transform.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
+                renderGameModelInstance(
+                    gameModelInstance,
+                    forShadow,
+                    applyEnvironment,
+                    batch
+                )
+            }
+        }
+    }
+
+    private fun renderGameModelInstance(
+        gameModelInstance: GameModelInstance,
+        forShadow: Boolean,
+        applyEnvironment: Boolean,
+        batch: ModelBatch
+    ) {
+        val isShadow = forShadow && gameModelInstance.shadow != null
+        val modelInstance = if (isShadow) gameModelInstance.shadow else gameModelInstance.modelInstance
+        if (applyEnvironment) {
+            batch.render(modelInstance, environment)
+        } else {
+            batch.render(modelInstance)
         }
     }
 

@@ -51,5 +51,7 @@ object ComponentsMapper {
         ComponentMapper.getFor(OnboardingCharacterComponent::class.java)
     val baseDoor: ComponentMapper<BaseDoorComponent> =
         ComponentMapper.getFor(BaseDoorComponent::class.java)
+    val childModelInstanceComponent: ComponentMapper<ChildModelInstanceComponent> =
+        ComponentMapper.getFor(ChildModelInstanceComponent::class.java)
 
 }

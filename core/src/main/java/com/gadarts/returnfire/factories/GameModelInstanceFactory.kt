@@ -9,7 +9,6 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 
 class GameModelInstanceFactory(private val assetsManager: GameAssetManager) {
     fun createGameModelInstance(modelDefinition: ModelDefinition): GameModelInstance {
-        assetsManager.getCachedBoundingBox(modelDefinition)
         val paths = modelDefinition.getPaths()
         val selectedIndex = random(paths.size - 1)
         val shadow =

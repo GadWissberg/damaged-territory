@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -41,12 +40,8 @@ class ApacheFactory(
         addPlayerBaseComponents(entityBuilder, base, SimpleCharacterDefinition.APACHE, primarySpark) {
             addApachePrimaryArmComponent(entityBuilder, primarySpark)
         }
-        if (GameDebugSettings.DISPLAY_PROPELLER) {
-            addPropeller(entityBuilder)
-        }
-        val propellerSound = assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER)
-        entityBuilder.addAmbSoundComponent(
-            propellerSound
+        entityBuilder.addChildModelInstanceComponent(
+            gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER),
         )
         addSecondaryArmComponent(entityBuilder, secondarySpark)
         val player = entityBuilder.finish()

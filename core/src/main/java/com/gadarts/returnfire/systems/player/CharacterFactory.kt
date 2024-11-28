@@ -16,10 +16,10 @@ import com.gadarts.returnfire.systems.EntityBuilder
 
 abstract class CharacterFactory(
     private val assetsManager: GameAssetManager,
-    private val gameModelInstanceFactory: GameModelInstanceFactory
+    protected val gameModelInstanceFactory: GameModelInstanceFactory
 ) {
 
-    abstract fun create(placedPlayer: PlacedElement): Entity
+    abstract fun create(base: PlacedElement): Entity
 
     protected fun addSpark(
         machineGunSparkModel: Model,
@@ -42,9 +42,10 @@ abstract class CharacterFactory(
         characterDefinition: CharacterDefinition,
         primarySpark: Entity,
         primaryArmComponentCreator: () -> EntityBuilder
-    ) {
+    ): GameModelInstance {
+        val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
         entityBuilder.addModelInstanceComponent(
-            gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition()),
+            gameModelInstance,
             auxVector3_1.set(base.col.toFloat() + 1F, -2.7F, base.row.toFloat() + 1F),
             null,
         )
@@ -53,6 +54,7 @@ abstract class CharacterFactory(
         entityBuilder.addPlayerComponent()
         primaryArmComponentCreator()
         ComponentsMapper.spark.get(primarySpark).parent = EntityBuilder.entity!!
+        return gameModelInstance
     }
 
     protected fun createPrimarySpark(
