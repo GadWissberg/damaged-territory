@@ -29,6 +29,10 @@ class SoundPlayer {
         }
     }
 
+    fun stop(sound: Sound, id: Long) {
+        sound.stop(id)
+    }
+
     companion object {
         const val PITCH_MIN = 0.9F
         const val PITCH_MAX = 1.1F

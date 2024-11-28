@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
@@ -18,6 +17,7 @@ import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.MapInflater
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.AnimatedTextureComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundBlastComponent
@@ -35,6 +35,8 @@ import com.gadarts.returnfire.systems.events.SystemEvents
  */
 class MapSystem : GameEntitySystem() {
 
+    private var doorMoveDone: Boolean = false
+    private var baseDoorSoundId: Long = -1L
     private lateinit var eastDoor: Entity
     private lateinit var westDoor: Entity
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
@@ -90,12 +92,14 @@ class MapSystem : GameEntitySystem() {
         engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
             .find { ComponentsMapper.modelInstance.get(it).gameModelInstance.definition == ModelDefinition.PIT }.let {
                 addStage(it!!)
-                westDoor = addBaseDoor(it, 1F, 0F, -1F)
-                eastDoor = addBaseDoor(it, 1F, 180F, 1F)
+                westDoor = addBaseDoor(it, 0F, -1F)
+                eastDoor = addBaseDoor(it, 180F, 1F)
+                baseDoorSoundId =
+                    managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE))
             }
     }
 
-    private fun addBaseDoor(base: Entity, relativeX: Float, rotationAroundY: Float, relativeXtarget: Float): Entity {
+    private fun addBaseDoor(base: Entity, rotationAroundY: Float, relativeXtarget: Float): Entity {
         val doorModelInstance = GameModelInstance(
             ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.PIT_DOOR)),
             ModelDefinition.PIT_DOOR
@@ -107,11 +111,12 @@ class MapSystem : GameEntitySystem() {
         val door = EntityBuilder.begin()
             .addModelInstanceComponent(
                 doorModelInstance,
-                basePosition.add(relativeX, -0.1F, 1F), null
+                basePosition.add(1F, -0.1F, 1F), null
             )
             .addBaseDoorComponent(basePosition.x + relativeXtarget)
             .finishAndAddToEngine()
         doorModelInstance.modelInstance.transform.rotate(Vector3.Y, rotationAroundY)
+
         return door
     }
 
@@ -174,6 +179,8 @@ class MapSystem : GameEntitySystem() {
     }
 
     private fun updateBaseDoors(deltaTime: Float) {
+        if (doorMoveDone) return
+
         val westDoorTransform = ComponentsMapper.modelInstance.get(westDoor).gameModelInstance.modelInstance.transform
         val stepSize = deltaTime * 0.3F
         if (westDoorTransform.getTranslation(auxVector).x > ComponentsMapper.baseDoor.get(westDoor).targetX
@@ -184,6 +191,13 @@ class MapSystem : GameEntitySystem() {
         if (eastDoorTransform.getTranslation(auxVector).x < ComponentsMapper.baseDoor.get(eastDoor).targetX
         ) {
             eastDoorTransform.trn(stepSize, 0F, 0F)
+        } else {
+            doorMoveDone = true
+            managers.soundPlayer.stop(
+                managers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
+                baseDoorSoundId
+            )
+            managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE))
         }
     }
 
