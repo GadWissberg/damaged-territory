@@ -4,13 +4,16 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
+import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GeneralUtils
@@ -22,6 +25,7 @@ import com.gadarts.returnfire.components.AnimatedTextureComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundBlastComponent
 import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -125,12 +129,24 @@ class MapSystem : GameEntitySystem() {
             ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
             ModelDefinition.STAGE
         )
+        val decal = Decal.newDecal(2F, 2F, TextureRegion(managers.assetsManager.getTexture("landing_ok")), true)
+        val color = decal.color
+        decal.setColor(color.r, color.g, color.b, 0.5F)
         return EntityBuilder.begin()
             .addModelInstanceComponent(
                 stageModelInstance,
                 ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector
                 ).add(1F, -4F, 1F), null
+            )
+            .addChildDecalComponent(
+                listOf(
+                    ChildDecal(
+                        decal,
+                        Vector3(0F, 1F, 0F),
+                        Quaternion().setEulerAngles(0F, 90F, 0F)
+                    )
+                ), false
             )
             .addStageComponent()
             .finishAndAddToEngine()

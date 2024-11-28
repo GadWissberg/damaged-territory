@@ -8,7 +8,6 @@ object GameDebugSettings {
     const val DEBUG_INPUT = false
     const val UI_DEBUG = false
     const val SFX = true
-    const val DISPLAY_PROPELLER = true
     const val HIDE_PLAYER = false
     const val HIDE_FLOOR = false
     const val FORCE_PLAYER_HP = 100000

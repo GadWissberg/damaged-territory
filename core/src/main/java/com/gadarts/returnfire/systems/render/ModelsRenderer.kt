@@ -79,7 +79,11 @@ class ModelsRenderer(
             }
             if (ComponentsMapper.childModelInstanceComponent.has(entity)) {
                 val gameModelInstance = ComponentsMapper.childModelInstanceComponent.get(entity).gameModelInstance
-                gameModelInstance.modelInstance.transform.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
+                gameModelInstance.modelInstance.transform.setTranslation(
+                    modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector3_1
+                    )
+                )
                 renderGameModelInstance(
                     gameModelInstance,
                     forShadow,

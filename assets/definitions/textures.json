@@ -368,6 +368,9 @@
     {
       "file_name": "blast_ring",
       "folder": "effects"
+    },
+    {
+      "file_name": "landing_ok"
     }
   ]
 }

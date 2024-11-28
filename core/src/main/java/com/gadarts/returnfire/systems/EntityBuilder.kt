@@ -23,6 +23,8 @@ import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.components.onboarding.OnboardingAnimation
+import com.gadarts.returnfire.components.onboarding.OnboardingCharacterComponent
 import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
@@ -55,16 +57,15 @@ class EntityBuilder private constructor() {
 
     fun addChildDecalComponent(
         decals: List<ChildDecal>,
+        visible: Boolean = true,
     ): EntityBuilder {
-        val component = ChildDecalComponent(decals)
+        val component = ChildDecalComponent(decals, visible)
         entity!!.add(component)
         return instance
-
     }
 
     fun addAmbSoundComponent(sound: Sound): EntityBuilder {
-        val ambSoundComponent = AmbSoundComponent(sound)
-        entity!!.add(ambSoundComponent)
+        Companion.addAmbSoundComponent(entity!!, sound)
         return instance
     }
 
@@ -74,8 +75,8 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addOnboardingCharacterComponent(): EntityBuilder {
-        val onboardingCharacterComponent = OnboardingCharacterComponent()
+    fun addOnboardingCharacterComponent(onboardingAnimation: OnboardingAnimation?): EntityBuilder {
+        val onboardingCharacterComponent = OnboardingCharacterComponent(onboardingAnimation)
         entity!!.add(onboardingCharacterComponent)
         return instance
     }
@@ -259,6 +260,12 @@ class EntityBuilder private constructor() {
         fun initialize(engine: PooledEngine) {
             this.engine = engine
             this.instance = EntityBuilder()
+        }
+
+        fun addAmbSoundComponent(entity: Entity, sound: Sound): Entity {
+            val ambSoundComponent = AmbSoundComponent(sound)
+            entity.add(ambSoundComponent)
+            return entity
         }
 
         fun addPhysicsComponent(

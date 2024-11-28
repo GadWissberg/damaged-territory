@@ -6,6 +6,7 @@ import com.gadarts.returnfire.components.arm.SecondaryArmComponent
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.components.onboarding.OnboardingCharacterComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 
 object ComponentsMapper {

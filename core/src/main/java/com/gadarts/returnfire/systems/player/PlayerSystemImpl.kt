@@ -1,15 +1,18 @@
 package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -32,6 +35,7 @@ import com.gadarts.returnfire.systems.player.react.*
  */
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
+    private val stage: Entity by lazy { engine.getEntitiesFor(Family.all(StageComponent::class.java).get()).first() }
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerFactory by lazy {
         PlayerFactory(
@@ -111,6 +115,19 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             deltaTime
         )
         playerShootingHandler.update()
+        val position =
+            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        val stagePosition =
+            ComponentsMapper.modelInstance.get(stage).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector2
+            )
+        val childDecalComponent = ComponentsMapper.childDecal.get(stage)
+        childDecalComponent.visible = position.x <= stagePosition.x + LANDING_OK_OFFSET
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -244,5 +261,9 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         }
     }
 
-
+    companion object {
+        private val auxVector1 = Vector3()
+        private val auxVector2 = Vector3()
+        private val LANDING_OK_OFFSET = 0.5F
+    }
 }

@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
-import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
@@ -119,7 +118,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         )
         modelsRenderer.renderWaterWaves()
         renderCollisionShapes()
-        renderDecals(deltaTime)
+        renderDecals()
     }
 
     private fun renderCollisionShapes() {
@@ -139,11 +138,12 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
 
-    private fun renderDecals(deltaTime: Float) {
+    private fun renderDecals() {
         Gdx.gl.glDepthMask(false)
+        batches.decalBatch
         for (entity in relatedEntities.childEntities) {
             if (renderFlags.renderCharacters || !ComponentsMapper.childDecal.has(entity)) {
-                renderChildren(entity, deltaTime)
+                renderChildren(entity)
             }
         }
         renderIndependentDecals()
@@ -176,29 +176,27 @@ class RenderSystem : GameEntitySystem(), Disposable {
 
     private fun renderChildren(
         entity: Entity,
-        deltaTime: Float,
     ) {
         val childComponent = ComponentsMapper.childDecal.get(entity)
+        if (!childComponent.visible) return
+
         val children = childComponent.decals
         val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
         val parentPosition = modelInstance.modelInstance.transform.getTranslation(auxVector3_1)
-        val parentRotation = modelInstance.modelInstance.transform.getRotation(auxQuat)
         for (child in children) {
-            renderChild(child, parentRotation, deltaTime, parentPosition)
+            renderChild(child, parentPosition)
         }
     }
 
     private fun renderChild(
         child: ChildDecal,
-        parentRotation: Quaternion?,
-        deltaTime: Float,
         parentPosition: Vector3?
     ) {
-        child.decal.rotation = parentRotation
-        child.decal.rotateX(90F)
-        child.decal.rotateZ(child.rotationStep.angleDeg())
-        child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
         child.decal.position = parentPosition
+        child.decal.position.add(child.relativePosition)
+        if (child.localRotation != null) {
+            child.decal.rotation = child.localRotation
+        }
         batches.decalBatch.add(child.decal)
     }
 
@@ -206,9 +204,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
         val auxVector3_1 = Vector3()
         val auxVector3_2 = Vector3()
         val auxVector3_3 = Vector3()
-        val auxQuat = Quaternion()
         val auxBox = BoundingBox()
-        const val ROT_STEP = 1600F
         const val DECALS_POOL_SIZE = 200
     }
 

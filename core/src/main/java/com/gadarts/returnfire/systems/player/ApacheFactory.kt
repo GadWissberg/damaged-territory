@@ -2,19 +2,21 @@ package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.cd.ChildDecal
+import com.gadarts.returnfire.components.onboarding.ApacheOnboardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
@@ -37,11 +39,18 @@ class ApacheFactory(
         val primarySpark =
             createPrimarySpark(ModelDefinition.MACHINE_GUN_SPARK, apachePrimaryRelativePositionCalculator)
         val entityBuilder = EntityBuilder.begin()
-        addPlayerBaseComponents(entityBuilder, base, SimpleCharacterDefinition.APACHE, primarySpark) {
-            addApachePrimaryArmComponent(entityBuilder, primarySpark)
-        }
+        addPlayerBaseComponents(
+            entityBuilder, base, SimpleCharacterDefinition.APACHE, primarySpark,
+            {
+                addApachePrimaryArmComponent(entityBuilder, primarySpark)
+            },
+            ApacheOnboardingAnimation()
+        )
+        addPropeller(entityBuilder)
+        val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER)
+        gameModelInstance.modelInstance.materials.get(0).set(BlendingAttribute())
         entityBuilder.addChildModelInstanceComponent(
-            gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER),
+            gameModelInstance,
         )
         addSecondaryArmComponent(entityBuilder, secondarySpark)
         val player = entityBuilder.finish()
@@ -146,7 +155,9 @@ class ApacheFactory(
             TextureRegion(assetsManager.getTexture(definitions.definitions["propeller_blurred"]!!))
         val propDec = newDecal(PROP_SIZE, PROP_SIZE, propTextureRegion, true)
         propDec.rotateX(90F)
-        val decals = listOf(ChildDecal(propDec, Vector3.Zero))
+        propDec.setColor(propDec.color.r, propDec.color.g, propDec.color.b, 0F)
+        val childDecal = ChildDecal(propDec, Vector3.Zero, null)
+        val decals = listOf(childDecal)
         entityBuilder.addChildDecalComponent(decals)
     }
 

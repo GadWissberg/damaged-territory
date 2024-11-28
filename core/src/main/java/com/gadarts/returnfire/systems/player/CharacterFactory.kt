@@ -6,9 +6,10 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
-import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.components.onboarding.OnboardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
@@ -41,7 +42,8 @@ abstract class CharacterFactory(
         base: PlacedElement,
         characterDefinition: CharacterDefinition,
         primarySpark: Entity,
-        primaryArmComponentCreator: () -> EntityBuilder
+        primaryArmComponentCreator: () -> EntityBuilder,
+        onboardingAnimation: OnboardingAnimation?
     ): GameModelInstance {
         val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
         entityBuilder.addModelInstanceComponent(
@@ -50,7 +52,7 @@ abstract class CharacterFactory(
             null,
         )
         entityBuilder.addCharacterComponent(characterDefinition)
-        entityBuilder.addOnboardingCharacterComponent()
+        entityBuilder.addOnboardingCharacterComponent(onboardingAnimation)
         entityBuilder.addPlayerComponent()
         primaryArmComponentCreator()
         ComponentsMapper.spark.get(primarySpark).parent = EntityBuilder.entity!!

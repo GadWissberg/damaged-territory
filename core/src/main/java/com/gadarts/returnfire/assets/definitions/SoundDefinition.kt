@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound
 enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
 
     PROPELLER,
+    PROPELLER_START,
     MACHINE_GUN,
     MISSILE,
     AMB_WIND(2),

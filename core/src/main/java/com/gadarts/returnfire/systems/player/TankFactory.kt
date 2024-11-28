@@ -7,8 +7,8 @@ import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
@@ -28,9 +28,13 @@ class TankFactory(
     override fun create(placedPlayer: PlacedElement): Entity {
         val primarySpark = createPrimarySpark(ModelDefinition.CANNON_SPARK, tankPrimaryRelativePositionCalculator)
         val entityBuilder = EntityBuilder.begin()
-        addPlayerBaseComponents(entityBuilder, placedPlayer, TurretCharacterDefinition.TANK, primarySpark) {
-            addTankPrimaryArmComponent(entityBuilder, primarySpark)
-        }
+        addPlayerBaseComponents(
+            entityBuilder, placedPlayer, TurretCharacterDefinition.TANK, primarySpark,
+            {
+                addTankPrimaryArmComponent(entityBuilder, primarySpark)
+            },
+            null
+        )
         entityBuilder.addTurretBaseComponent()
         val engineSound = assetsManager.getAssetByDefinition(SoundDefinition.ENGINE)
         entityBuilder.addAmbSoundComponent(

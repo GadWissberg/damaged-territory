@@ -16,6 +16,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -200,9 +201,16 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     private fun updateCharacters(deltaTime: Float) {
         for (character in charactersEntities) {
             val characterComponent = ComponentsMapper.character.get(character)
-            val hp = characterComponent.hp
             val characterTransform =
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
+            if (characterComponent.definition == SimpleCharacterDefinition.APACHE) {
+                val child = ComponentsMapper.childDecal.get(character).decals[0]
+                child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
+                child.decal.rotation = characterTransform.getRotation(auxQuat)
+                child.decal.rotateX(90F)
+                child.decal.rotateZ(child.rotationStep.angleDeg())
+            }
+            val hp = characterComponent.hp
             if (ComponentsMapper.onboardingCharacter.has(character) && ComponentsMapper.onboardingCharacter.get(
                     character
                 ).onboarding
@@ -215,11 +223,25 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                         deltaTime,
                         0F
                     )
+                    characterTransform.trn(0F, deltaTime, 0F)
                 } else {
-                    ComponentsMapper.onboardingCharacter.get(character).onBoardingDone()
-                    managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
+                    val onboardingAnimation = ComponentsMapper.onboardingCharacter.get(
+                        character
+                    ).onboardingAnimation
+                    if (onboardingAnimation != null) {
+                        val onboardingDone = onboardingAnimation.update(
+                            deltaTime,
+                            character,
+                            managers.soundPlayer,
+                            managers.assetsManager
+                        )
+                        if (onboardingDone) {
+                            onboardingDone(character)
+                        }
+                    } else {
+                        onboardingDone(character)
+                    }
                 }
-                characterTransform.trn(0F, deltaTime, 0F)
             } else if (!characterComponent.dead) {
                 if (characterComponent.deathSequenceDuration <= 0) {
                     if (characterTransform.getTranslation(
@@ -277,6 +299,11 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         }
     }
 
+    private fun onboardingDone(character: Entity?) {
+        ComponentsMapper.onboardingCharacter.get(character).onBoardingDone()
+        managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
+    }
+
     override fun dispose() {
 
     }
@@ -287,6 +314,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
+        const val ROT_STEP = 1600F
         private const val PITCH_STEP_SIZE = 0.05F
     }
 
