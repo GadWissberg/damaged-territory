@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
@@ -43,19 +44,36 @@ class HangarScreen(
     dispatcher: MessageDispatcher,
     private val screenManager: ScreensManager,
     private val soundPlayer: SoundPlayer,
+    private val runsOnMobile: Boolean,
 ) : Screen {
+    private var deployingState = 0
+    private var initialized: Boolean = false
     private var selected: VehicleStage? = null
-    private val table: Table by lazy {
+    private val buttonsTable: Table by lazy {
+        createTable()
+    }
+    private val textTable: Table by lazy {
+        createTable()
+    }
+
+    private fun createTable(): Table {
         val table = Table()
         table.setFillParent(true)
         table.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)
-        table
+        return table
     }
+
     private val tankButton: TextButton by lazy { addVehicleButton("Tank") }
     private val apacheButton: TextButton by lazy { addVehicleButton("Apache") }
     private val shadowBatch = ModelBatch(DepthShaderProvider())
     private var swingTime: Float = 0.0f
-    private val sceneModelInstance by lazy { ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.SCENE)) }
+    private val sceneModelInstance by lazy {
+        ModelInstance(
+            assetsManager.getAssetByDefinition(
+                ModelDefinition.SCENE
+            )
+        )
+    }
     private val hookModelInstance by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.HOOK))
@@ -77,38 +95,44 @@ class HangarScreen(
     private val stageTopLeftModelInstance by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
-        modelInstance.transform.setToTranslation(Vector3(-3F, 0F, 3F))
-        VehicleStage(modelInstance)
+        val initialPosition = Vector3(-3F, 0F, 3F)
+        modelInstance.transform.setToTranslation(initialPosition)
+        VehicleStage(modelInstance, initialPosition)
     }
     private val stageTopRightModelInstance by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
-        modelInstance.transform.setToTranslation(Vector3(3F, 0F, 3F))
-        VehicleStage(modelInstance)
+        val initialPosition = Vector3(3F, 0F, 3F)
+        modelInstance.transform.setToTranslation(initialPosition)
+        VehicleStage(modelInstance, initialPosition)
     }
     private val stageTank by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
-        modelInstance.transform.setToTranslation(Vector3(-3F, 0F, 6F))
-        VehicleStage(modelInstance)
+        val initialPosition = Vector3(-3F, 0F, 6F)
+        modelInstance.transform.setToTranslation(initialPosition)
+        VehicleStage(modelInstance, initialPosition)
     }
     private val stageApache by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
-        modelInstance.transform.setToTranslation(Vector3(3F, 0F, 6F))
-        VehicleStage(modelInstance)
+        val initialPosition = Vector3(3F, 0F, 6F)
+        modelInstance.transform.setToTranslation(initialPosition)
+        VehicleStage(modelInstance, initialPosition)
     }
     private val stageBottomLeftModelInstance by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
-        modelInstance.transform.setToTranslation(Vector3(-3F, 0F, 9F))
-        VehicleStage(modelInstance)
+        val initialPosition = Vector3(-3F, 0F, 9F)
+        modelInstance.transform.setToTranslation(initialPosition)
+        VehicleStage(modelInstance, initialPosition)
     }
     private val stageBottomRightModelInstance by lazy {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.STAGE))
-        modelInstance.transform.setToTranslation(Vector3(3F, 0F, 9F))
-        VehicleStage(modelInstance)
+        val initialPosition = Vector3(3F, 0F, 9F)
+        modelInstance.transform.setToTranslation(initialPosition)
+        VehicleStage(modelInstance, initialPosition)
     }
     private val ceilingModelInstance by lazy {
         val modelInstance =
@@ -165,10 +189,50 @@ class HangarScreen(
 
     override fun show() {
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(stage)
-        camera.position.set(0F, 8.7F, 13.8F)
-        camera.lookAt(0F, 0F, 0F)
-        camera.rotate(Vector3.X, -10F)
-        shadowLight.set(0.2F, 0.2F, 0.2F, 0F, -1F, -0.01F)
+        if (initialized) {
+            soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
+            deployingState = -1
+        } else {
+            initialize()
+        }
+    }
+
+    private fun initialize() {
+        initialized = true
+        initializeCamera()
+        initializeEnvironment()
+        buttonsTable.add(tankButton)
+        buttonsTable.add(apacheButton)
+        buttonsTable.bottom()
+        stage.addActor(buttonsTable)
+        textTable.pad(20F).add(
+            Label(
+                "Damaged Territory - 0.7",
+                Label.LabelStyle(
+                    assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL),
+                    Color.WHITE
+                )
+            )
+        ).top().left().row()
+        val desktopText =
+            "Arrows - Movement, CTRL - Primary attack, SHIFT - Secondary attack/return to base, '~' - Open console"
+        val androidText =
+            "An on-screen game-pad will appear in-game"
+        textTable.add(
+            Label(
+                if (runsOnMobile) androidText else desktopText,
+                Label.LabelStyle(
+                    assetsManager.getAssetByDefinition(FontDefinition.CONSOLA),
+                    Color.WHITE
+                )
+            )
+        ).expand().top().left().row()
+        stage.addActor(textTable)
+        stage.addActor(console)
+        console.toFront()
+    }
+
+    private fun initializeEnvironment() {
         shadowLight.set(0.2F, 0.2F, 0.2F, 0F, -1F, -0.01F)
         environment.set(
             ColorAttribute(
@@ -178,10 +242,12 @@ class HangarScreen(
         )
         environment.add(shadowLight)
         environment.shadowMap = shadowLight
-        table.add(tankButton)
-        table.add(apacheButton)
-        table.bottom()
-        stage.addActor(table)
+    }
+
+    private fun initializeCamera() {
+        camera.position.set(0F, 8.7F, 13.5F)
+        camera.lookAt(0F, 0F, 0F)
+        camera.rotate(Vector3.X, -10F)
     }
 
     private fun addVehicleButton(text: String): TextButton {
@@ -202,13 +268,15 @@ class HangarScreen(
         override fun clicked(event: InputEvent?, x: Float, y: Float) {
             when (text) {
                 "Tank" -> {
-                    table.remove()
+                    buttonsTable.remove()
                     selected = stageTank
+                    deployingState = 1
                 }
 
                 "Apache" -> {
-                    table.remove()
+                    buttonsTable.remove()
                     selected = stageApache
+                    deployingState = 1
                 }
             }
             soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY))
@@ -218,14 +286,20 @@ class HangarScreen(
 
 
     override fun render(delta: Float) {
-        if (Gdx.input.isKeyPressed(Input.Keys.BACK)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.BACK) || Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit()
         }
         if (selected != null) {
-            if (selected!!.updateLocation(delta)) {
-                screenManager.goToWarScreen(
-                    if (selected == stageTank) TurretCharacterDefinition.TANK else SimpleCharacterDefinition.APACHE
-                )
+            val reachedDestination = selected!!.updateLocation(delta, deployingState)
+            if (reachedDestination) {
+                if (deployingState > 0) {
+                    screenManager.goToWarScreen(
+                        if (selected == stageTank) TurretCharacterDefinition.TANK else SimpleCharacterDefinition.APACHE
+                    )
+                } else {
+                    selected = null
+                    stage.addActor(buttonsTable)
+                }
             }
         }
         stage.act()

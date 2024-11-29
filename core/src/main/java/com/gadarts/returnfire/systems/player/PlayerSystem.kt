@@ -1,3 +1,5 @@
 package com.gadarts.returnfire.systems.player
 
-interface PlayerSystem
+interface PlayerSystem {
+    fun initInputMethod()
+}

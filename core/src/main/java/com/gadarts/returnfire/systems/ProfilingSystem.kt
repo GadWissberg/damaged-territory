@@ -55,8 +55,7 @@ class ProfilingSystem : GameEntitySystem() {
         if (GameDebugSettings.ENABLE_PROFILER && glProfiler.isEnabled) {
             stringBuilder.setLength(0)
             displayLine(LABEL_FPS, Gdx.graphics.framesPerSecond)
-            displayLine("Java heap usage: ", Gdx.app.javaHeap / (1024L * 1024L), false).append("MB\n")
-            displayLine("Native heap usage: ", Gdx.app.nativeHeap / (1024L * 1024L), false).append("MB\n")
+            displayHeapSize()
             displayGlProfiling()
             displayBatchCalls()
             displayLine("Version: ", "0.7")
@@ -73,6 +72,21 @@ class ProfilingSystem : GameEntitySystem() {
                 }
             }
             label.setText(stringBuilder)
+        }
+    }
+
+    private fun displayHeapSize() {
+        if (GameDebugSettings.SHOW_HEAP_SIZE) {
+            displayLine(
+                "Java heap usage: ",
+                Gdx.app.javaHeap / (1024L * 1024L),
+                false
+            ).append("MB\n")
+            displayLine(
+                "Native heap usage: ",
+                Gdx.app.nativeHeap / (1024L * 1024L),
+                false
+            ).append("MB\n")
         }
     }
 

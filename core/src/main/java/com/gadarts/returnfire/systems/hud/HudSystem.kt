@@ -4,6 +4,7 @@ package com.gadarts.returnfire.systems.hud
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Cell
@@ -24,6 +25,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem : GameEntitySystem() {
+    private var onboardButton: ImageButton? = null
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
 
@@ -80,6 +82,21 @@ class HudSystem : GameEntitySystem() {
             super.touchUp(event, x, y, pointer, button)
         }
     }
+    private val onBoardButtonClickListener = object : ClickListener() {
+        override fun touchDown(
+            event: InputEvent,
+            x: Float,
+            y: Float,
+            pointer: Int,
+            button: Int
+        ): Boolean {
+            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_ONBOARD_PRESSED.ordinal)
+            if (onboardButton != null) {
+                onboardButton!!.isVisible = false
+            }
+            return super.touchDown(event, x, y, pointer, button)
+        }
+    }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
@@ -96,8 +113,9 @@ class HudSystem : GameEntitySystem() {
         ui: Table
     ) {
         if (gameSessionData.runsOnMobile) {
-            val movementPad = addTouchpad(ui, this.gameSessionData.gameSessionDataHud.movementTouchpad)
-                .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, 0F).left()
+            val movementPad =
+                addTouchpad(ui, this.gameSessionData.gameSessionDataHud.movementTouchpad)
+                    .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, 0F).left()
             val definition = ComponentsMapper.character.get(gameSessionData.player).definition
             if (definition == SimpleCharacterDefinition.APACHE) {
                 movementPad.growX()
@@ -113,6 +131,14 @@ class HudSystem : GameEntitySystem() {
                 addTouchpad(ui, touchpad).padRight(JOYSTICK_PADDING).padBottom(JOYSTICK_PADDING)
                     .right()
             }
+            val cell = addButton(
+                ui,
+                "icon_reverse",
+                onBoardButtonClickListener,
+                visible = false
+            ).size(150F)
+            onboardButton = cell.actor
+            cell.left().bottom().padBottom(JOYSTICK_PADDING)
         }
     }
 
@@ -135,6 +161,7 @@ class HudSystem : GameEntitySystem() {
         iconDefinition: String,
         clickListener: ClickListener,
         rightPadding: Float = 0F,
+        visible: Boolean = true
     ): Cell<ImageButton> {
         val up = TextureRegionDrawable(managers.assetsManager.getTexture("button_up"))
         val down =
@@ -147,6 +174,7 @@ class HudSystem : GameEntitySystem() {
             ui.pad(0F, 0F, 0F, rightPadding)
         }
         button.addListener(clickListener)
+        button.isVisible = visible
         return cell
     }
 
@@ -156,7 +184,19 @@ class HudSystem : GameEntitySystem() {
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
     }
 
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.LANDING_INDICATOR_VISIBILITY_CHANGED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                managers: Managers
+            ) {
+                if (onboardButton != null) {
+                    onboardButton!!.isVisible = msg.extraInfo as Boolean
+                }
+            }
+        }
+    )
 
     override fun resume(delta: Long) {
 

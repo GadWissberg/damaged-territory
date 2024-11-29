@@ -12,9 +12,10 @@ import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.player.PlayerSystem
 
 
-class PlayerSystemOnCharacterOnboarded :
+class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
     HandlerOnEvent {
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
@@ -47,6 +48,7 @@ class PlayerSystemOnCharacterOnboarded :
         }
         physicsComponent.rigidBody.angularFactor = if (isApache) Vector3.Y else Vector3.Zero
         physicsComponent.rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
+        playerSystem.initInputMethod()
     }
 
     private fun createApacheCollisionShape(): btCompoundShape {

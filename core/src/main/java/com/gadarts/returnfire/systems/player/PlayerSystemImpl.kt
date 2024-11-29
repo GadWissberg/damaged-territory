@@ -13,6 +13,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
+import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -28,14 +29,21 @@ import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovement
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.MovementTouchPadListener
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
-import com.gadarts.returnfire.systems.player.react.*
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterDied
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterOnboarded
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
 /**
  * Responsible to initialize input, create the player and updates the player's character according to the input.
  */
 class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
-    private val stage: Entity by lazy { engine.getEntitiesFor(Family.all(StageComponent::class.java).get()).first() }
+    private val stage: Entity by lazy {
+        engine.getEntitiesFor(
+            Family.all(StageComponent::class.java).get()
+        ).first()
+    }
     private val playerShootingHandler = PlayerShootingHandler()
     private val playerFactory by lazy {
         PlayerFactory(
@@ -49,11 +57,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         val playerMovementHandler = createPlayerMovementHandler()
         playerMovementHandler.initialize(gameSessionData.renderData.camera)
         playerMovementHandler
-    }
-
-    override fun onSystemReady() {
-        super.onSystemReady()
-        initInputMethod()
     }
 
     private fun createPlayerMovementHandler(): VehicleMovementHandler {
@@ -77,22 +80,59 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        BUTTON_WEAPON_PRIMARY_PRESSED to PlayerSystemOnWeaponButtonPrimaryPressed(playerShootingHandler),
-        BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(playerShootingHandler),
-        BUTTON_WEAPON_SECONDARY_PRESSED to PlayerSystemOnWeaponButtonSecondaryPressed(playerShootingHandler),
-        BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(playerShootingHandler),
+        BUTTON_WEAPON_PRIMARY_PRESSED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                managers: Managers
+            ) {
+                playerShootingHandler.startPrimaryShooting()
+            }
+        },
+        BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(
+            playerShootingHandler
+        ),
+        BUTTON_WEAPON_SECONDARY_PRESSED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                managers: Managers
+            ) {
+                playerShootingHandler.startSecondaryShooting()
+            }
+        },
+        BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
+            playerShootingHandler
+        ),
         BUTTON_REVERSE_PRESSED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                managers: Managers
+            ) {
                 playerMovementHandler.onReverseScreenButtonPressed()
             }
         },
         BUTTON_REVERSE_RELEASED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                managers: Managers
+            ) {
                 playerMovementHandler.onReverseScreenButtonReleased()
             }
         },
-        CHARACTER_ONBOARDED to PlayerSystemOnCharacterOnboarded(),
+        CHARACTER_ONBOARDED to PlayerSystemOnCharacterOnboarded(this),
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
+        BUTTON_ONBOARD_PRESSED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                managers: Managers
+            ) {
+                onboard()
+            }
+        }
     )
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
@@ -124,10 +164,26 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
                 auxVector2
             )
         val childDecalComponent = ComponentsMapper.childDecal.get(stage)
-        childDecalComponent.visible = position.x <= stagePosition.x + LANDING_OK_OFFSET
+        handleLandingIndicatorVisibility(childDecalComponent, position, stagePosition)
+    }
+
+    private fun handleLandingIndicatorVisibility(
+        childDecalComponent: ChildDecalComponent,
+        position: Vector3,
+        stagePosition: Vector3
+    ) {
+        val oldValue = childDecalComponent.visible
+        val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
             && position.x >= stagePosition.x - LANDING_OK_OFFSET
             && position.z <= stagePosition.z + LANDING_OK_OFFSET
-            && position.z >= stagePosition.z - LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+        childDecalComponent.visible = newValue
+        if (oldValue != newValue) {
+            managers.dispatcher.dispatchMessage(
+                LANDING_INDICATOR_VISIBILITY_CHANGED.ordinal,
+                newValue
+            )
+        }
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -157,8 +213,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
             Input.Keys.SHIFT_LEFT -> {
                 if (ComponentsMapper.childDecal.get(stage).visible) {
-                    onboardingComponent.onBoard()
-                    managers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal)
+                    onboard()
                 } else {
                     playerShootingHandler.startSecondaryShooting()
                 }
@@ -173,6 +228,11 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             }
         }
         return false
+    }
+
+    private fun onboard() {
+        ComponentsMapper.boarding.get(gameSessionData.player).onBoard()
+        managers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal)
     }
 
     override fun keyUp(keycode: Int): Boolean {
@@ -232,7 +292,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     private fun addPlayer(): Entity {
         val map = managers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
-        val base = map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE }
+        val base =
+            map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE }
         val player = playerFactory.create(base!!, gameSessionData.selected)
         engine.addEntity(player)
         gameSessionData.player = player
@@ -248,7 +309,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
         )
     }
 
-    private fun initInputMethod() {
+    override fun initInputMethod() {
         if (gameSessionData.runsOnMobile) {
             gameSessionData.gameSessionDataHud.movementTouchpad.addListener(
                 MovementTouchPadListener(

@@ -106,7 +106,7 @@ class GamePlayScreen(
     override fun render(delta: Float) {
         engine.update(delta)
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.BACK)) {
-            screensManager.goToSelectionScreen()
+            screensManager.goToHangarScreen()
         }
     }
 

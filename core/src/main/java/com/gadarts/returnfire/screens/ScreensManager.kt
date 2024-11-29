@@ -4,6 +4,6 @@ import com.gadarts.returnfire.model.CharacterDefinition
 
 interface ScreensManager {
     fun goToWarScreen(characterDefinition: CharacterDefinition)
-    fun goToSelectionScreen()
+    fun goToHangarScreen()
 
 }

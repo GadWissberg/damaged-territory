@@ -255,7 +255,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                     }
                     if (animationDone) {
                         if (stageTransform.getTranslation(auxVector1).y <= StageComponent.BOTTOM_EDGE_Y) {
-                            managers.screensManager.goToSelectionScreen()
+                            managers.screensManager.goToHangarScreen()
                         } else {
                             takeStepForStageWithCharacter(stageTransform, -deltaTime, character)
                         }

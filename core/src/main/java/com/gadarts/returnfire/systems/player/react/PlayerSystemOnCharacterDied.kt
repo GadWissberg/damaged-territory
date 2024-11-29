@@ -10,7 +10,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 class PlayerSystemOnCharacterDied : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
         if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
-            managers.screensManager.goToSelectionScreen()
+            managers.screensManager.goToHangarScreen()
         }
     }
 

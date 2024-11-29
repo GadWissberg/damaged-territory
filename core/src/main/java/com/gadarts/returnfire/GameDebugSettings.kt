@@ -5,6 +5,7 @@ object GameDebugSettings {
     const val SHOW_OBJECT_POOL_PROFILING = false
     const val SHOW_COLLISION_SHAPES = false
     const val SHOW_GL_PROFILING = true
+    const val SHOW_HEAP_SIZE = false
     const val DEBUG_INPUT = false
     const val UI_DEBUG = false
     const val SFX = true

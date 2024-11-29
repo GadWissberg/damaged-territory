@@ -17,7 +17,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     ScreensManager {
     private val dispatcher = MessageDispatcher()
     private val soundPlayer: SoundPlayer by lazy { SoundPlayer() }
-    private val hangarScreen by lazy { HangarScreen(assetsManager, dispatcher, this, soundPlayer) }
+    private val hangarScreen by lazy { HangarScreen(assetsManager, dispatcher, this, soundPlayer, runsOnMobile) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val rigidBodyFactory = RigidBodyFactory()
 
@@ -52,10 +52,9 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
                 dispatcher
             )
         )
-
     }
 
-    override fun goToSelectionScreen() {
+    override fun goToHangarScreen() {
         dispatcher.clearListeners()
         soundPlayer.stopAll(assetsManager)
         screen.dispose()

@@ -160,7 +160,6 @@ class ConsoleImpl(assetsManager: GameAssetManager, private val dispatcher: Messa
         val amountY = -Gdx.graphics.height / 3f
         addAction(Actions.moveBy(0f, amountY, TRANSITION_DURATION, Interpolation.pow2))
         isVisible = true
-//        subscribers.forEach(ConsoleEventsSubscriber::onConsoleActivated)
     }
 
     override fun deactivate() {
@@ -169,7 +168,6 @@ class ConsoleImpl(assetsManager: GameAssetManager, private val dispatcher: Messa
         val amountY = Gdx.graphics.height / 3f
         val move = Actions.moveBy(0f, amountY, TRANSITION_DURATION, Interpolation.pow2)
         addAction(Actions.sequence(move, Actions.visible(false)))
-//        subscribers.forEach(ConsoleEventsSubscriber::onConsoleDeactivated)
         stage.unfocusAll()
     }
 
