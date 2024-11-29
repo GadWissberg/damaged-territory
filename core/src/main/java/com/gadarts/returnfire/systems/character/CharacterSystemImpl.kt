@@ -67,8 +67,13 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                     PhysicsCollisionEventData.colObj0.userData as Entity
                 )
             }
-        }
+        },
+        SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                ComponentsMapper.boarding.get(gameSessionData.player).boardingAnimation?.reset()
+            }
 
+        }
     )
 
     private fun handleBulletCharacterCollision(first: Entity, second: Entity): Boolean {
@@ -222,7 +227,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 if (boardingComponent.isOnboarding()
                 ) {
                     if (stageTransform.getTranslation(auxVector1).y < -1F) {
-                        takeStepForStageWithCharacter(stageTransform, deltaTime, characterTransform)
+                        takeStepForStageWithCharacter(stageTransform, deltaTime, character)
                     } else {
                         val animationDone = updateBoardingAnimation(deltaTime, character)
                         if (animationDone && boardingComponent.isOnboarding()) {
@@ -231,21 +236,21 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                     }
                 } else {
                     val animationDone = updateBoardingAnimation(deltaTime, character)
+                    if (ComponentsMapper.physics.has(character)) {
+                        val physicsComponent = ComponentsMapper.physics.get(character)
+                        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform =
+                            Matrix4(physicsComponent.rigidBody.worldTransform)
+                        managers.dispatcher.dispatchMessage(
+                            SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY.ordinal,
+                            physicsComponent
+                        )
+                        character.remove(PhysicsComponent::class.java)
+                    }
                     if (animationDone) {
                         if (stageTransform.getTranslation(auxVector1).y <= StageComponent.BOTTOM_EDGE_Y) {
                             managers.screensManager.goToSelectionScreen()
                         } else {
-                            takeStepForStageWithCharacter(stageTransform, -deltaTime, characterTransform)
-                        }
-                        if (ComponentsMapper.physics.has(character)) {
-                            val physicsComponent = ComponentsMapper.physics.get(character)
-                            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform =
-                                Matrix4(physicsComponent.rigidBody.worldTransform)
-                            managers.dispatcher.dispatchMessage(
-                                SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY.ordinal,
-                                physicsComponent
-                            )
-                            character.remove(PhysicsComponent::class.java)
+                            takeStepForStageWithCharacter(stageTransform, -deltaTime, character)
                         }
                     }
                 }
@@ -309,10 +314,10 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     private fun takeStepForStageWithCharacter(
         stageTransform: Matrix4,
         deltaTime: Float,
-        characterTransform: Matrix4
+        character: Entity
     ) {
         stageTransform.trn(0F, deltaTime, 0F)
-        characterTransform.trn(0F, deltaTime, 0F)
+        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(0F, deltaTime, 0F)
     }
 
     private fun updateBoardingAnimation(
@@ -320,13 +325,16 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         character: Entity
     ): Boolean {
         val boardingComponent = ComponentsMapper.boarding.get(character)
-        val boardingAnimation = boardingComponent.boardingAnimation
-        return boardingAnimation?.update(
+        val boardingAnimation = boardingComponent.boardingAnimation ?: return true
+
+        if (boardingAnimation.isDone()) return true
+
+        return boardingAnimation.update(
             deltaTime,
             character,
             managers.soundPlayer,
             managers.assetsManager
-        ) ?: true
+        )
     }
 
     private fun boardingDone(character: Entity) {

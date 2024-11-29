@@ -13,6 +13,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
 
 class ApacheBoardingAnimation : BoardingAnimation {
+    private var done: Boolean = false
     private var firstUpdate: Boolean = true
     private var boardingSpeed: Float = 0.0f
     private var rotationSpeed: Float = 0.0f
@@ -27,15 +28,21 @@ class ApacheBoardingAnimation : BoardingAnimation {
         if (boardingComponent.isOnboarding()) {
             val done = takeOff(deltaTime, soundPlayer, assetsManager, character)
             if (done) {
+                this.done = true
                 return true
             }
         } else {
             val landed = land(deltaTime, soundPlayer, assetsManager, character)
             if (landed) {
+                this.done = true
                 return true
             }
         }
         return false
+    }
+
+    override fun isDone(): Boolean {
+        return this.done
     }
 
     private fun land(
@@ -70,7 +77,6 @@ class ApacheBoardingAnimation : BoardingAnimation {
             transform.setTranslation(auxVector.x, GROUND_HEIGHT_POSITION, auxVector.z)
         }
         if (rotationSpeed == 0F) {
-            reset()
             return true
         }
         return false
@@ -85,11 +91,12 @@ class ApacheBoardingAnimation : BoardingAnimation {
         val childModelInstance =
             ComponentsMapper.childModelInstanceComponent.get(character).gameModelInstance.modelInstance
         val blending = childModelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
-        updateRotation(childModelInstance, deltaTime)
         if (firstUpdate) {
+            reset()
             soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START))
             firstUpdate = false
         }
+        updateRotation(childModelInstance, deltaTime)
         if (rotationSpeed > ROTATION_THRESHOLD) {
             blending.opacity -= deltaTime
             updateDecalOpacity(character, deltaTime)
@@ -103,7 +110,6 @@ class ApacheBoardingAnimation : BoardingAnimation {
                     character,
                     assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER)
                 )
-                reset()
                 return true
             }
         }
@@ -128,10 +134,11 @@ class ApacheBoardingAnimation : BoardingAnimation {
         rotationSpeed = MathUtils.clamp(rotationSpeed, 0F, MAX_ROTATION_SPEED)
     }
 
-    private fun reset() {
+    override fun reset() {
         firstUpdate = true
         boardingSpeed = 0F
         rotationSpeed = 0F
+        done = false
     }
 
 
@@ -139,6 +146,6 @@ class ApacheBoardingAnimation : BoardingAnimation {
         private val auxVector = Vector3()
         private const val MAX_ROTATION_SPEED = 16F
         private const val ROTATION_THRESHOLD = 8F
-        private const val GROUND_HEIGHT_POSITION = 0.1F
+        private const val GROUND_HEIGHT_POSITION = 0.2F
     }
 }
