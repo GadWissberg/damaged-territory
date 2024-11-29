@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSol
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.systems.data.GameSessionData
 
@@ -86,13 +87,16 @@ class BulletEngineHandler(
 
     override fun entityRemoved(entity: Entity) {
         if (ComponentsMapper.physics.has(entity)) {
-            val physicsComponent = ComponentsMapper.physics[entity]
-            physicsComponent.rigidBody.activationState = 0
-            gameSessionData.gameSessionDataPhysics.collisionWorld.removeCollisionObject(
-                physicsComponent.rigidBody
-            )
-            physicsComponent.dispose()
+            removePhysicsOfComponent(ComponentsMapper.physics.get(entity))
         }
+    }
+
+    fun removePhysicsOfComponent(physicsComponent: PhysicsComponent) {
+        physicsComponent.rigidBody.activationState = 0
+        gameSessionData.gameSessionDataPhysics.collisionWorld.removeCollisionObject(
+            physicsComponent.rigidBody
+        )
+        physicsComponent.dispose()
     }
 
 

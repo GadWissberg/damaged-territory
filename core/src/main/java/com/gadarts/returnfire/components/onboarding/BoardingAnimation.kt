@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
 
-interface OnboardingAnimation {
+interface BoardingAnimation {
     fun update(deltaTime: Float, character: Entity, soundPlayer: SoundPlayer, assetsManager: GameAssetManager): Boolean
 
 }

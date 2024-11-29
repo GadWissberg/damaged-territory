@@ -21,10 +21,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.MapInflater
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.AnimatedTextureComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GroundBlastComponent
-import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
@@ -137,7 +134,7 @@ class MapSystem : GameEntitySystem() {
                 stageModelInstance,
                 ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector
-                ).add(1F, -4F, 1F), null
+                ).add(1F, StageComponent.BOTTOM_EDGE_Y, 1F), null
             )
             .addChildDecalComponent(
                 listOf(

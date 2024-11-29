@@ -16,6 +16,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -211,35 +212,41 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 child.decal.rotateZ(child.rotationStep.angleDeg())
             }
             val hp = characterComponent.hp
-            if (ComponentsMapper.onboardingCharacter.has(character) && ComponentsMapper.onboardingCharacter.get(
+            if (ComponentsMapper.boarding.has(character) && ComponentsMapper.boarding.get(
                     character
-                ).onboarding
+                ).isBoarding()
             ) {
+                val boardingComponent = ComponentsMapper.boarding.get(character)
                 val stageTransform =
                     ComponentsMapper.modelInstance.get(stageEntity).gameModelInstance.modelInstance.transform
-                if (stageTransform.getTranslation(auxVector1).y < -1F) {
-                    stageTransform.trn(
-                        0F,
-                        deltaTime,
-                        0F
-                    )
-                    characterTransform.trn(0F, deltaTime, 0F)
-                } else {
-                    val onboardingAnimation = ComponentsMapper.onboardingCharacter.get(
-                        character
-                    ).onboardingAnimation
-                    if (onboardingAnimation != null) {
-                        val onboardingDone = onboardingAnimation.update(
-                            deltaTime,
-                            character,
-                            managers.soundPlayer,
-                            managers.assetsManager
-                        )
-                        if (onboardingDone) {
-                            onboardingDone(character)
-                        }
+                if (boardingComponent.isOnboarding()
+                ) {
+                    if (stageTransform.getTranslation(auxVector1).y < -1F) {
+                        takeStepForStageWithCharacter(stageTransform, deltaTime, characterTransform)
                     } else {
-                        onboardingDone(character)
+                        val animationDone = updateBoardingAnimation(deltaTime, character)
+                        if (animationDone && boardingComponent.isOnboarding()) {
+                            boardingDone(character)
+                        }
+                    }
+                } else {
+                    val animationDone = updateBoardingAnimation(deltaTime, character)
+                    if (animationDone) {
+                        if (stageTransform.getTranslation(auxVector1).y <= StageComponent.BOTTOM_EDGE_Y) {
+                            managers.screensManager.goToSelectionScreen()
+                        } else {
+                            takeStepForStageWithCharacter(stageTransform, -deltaTime, characterTransform)
+                        }
+                        if (ComponentsMapper.physics.has(character)) {
+                            val physicsComponent = ComponentsMapper.physics.get(character)
+                            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform =
+                                Matrix4(physicsComponent.rigidBody.worldTransform)
+                            managers.dispatcher.dispatchMessage(
+                                SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY.ordinal,
+                                physicsComponent
+                            )
+                            character.remove(PhysicsComponent::class.java)
+                        }
                     }
                 }
             } else if (!characterComponent.dead) {
@@ -299,8 +306,31 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         }
     }
 
-    private fun onboardingDone(character: Entity?) {
-        ComponentsMapper.onboardingCharacter.get(character).onBoardingDone()
+    private fun takeStepForStageWithCharacter(
+        stageTransform: Matrix4,
+        deltaTime: Float,
+        characterTransform: Matrix4
+    ) {
+        stageTransform.trn(0F, deltaTime, 0F)
+        characterTransform.trn(0F, deltaTime, 0F)
+    }
+
+    private fun updateBoardingAnimation(
+        deltaTime: Float,
+        character: Entity
+    ): Boolean {
+        val boardingComponent = ComponentsMapper.boarding.get(character)
+        val boardingAnimation = boardingComponent.boardingAnimation
+        return boardingAnimation?.update(
+            deltaTime,
+            character,
+            managers.soundPlayer,
+            managers.assetsManager
+        ) ?: true
+    }
+
+    private fun boardingDone(character: Entity) {
+        ComponentsMapper.boarding.get(character).boardingDone()
         managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
     }
 

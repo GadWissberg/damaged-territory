@@ -7,6 +7,7 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
 
     PROPELLER,
     PROPELLER_START,
+    PROPELLER_STOP,
     MACHINE_GUN,
     MISSILE,
     AMB_WIND(2),

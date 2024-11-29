@@ -16,7 +16,7 @@ import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.cd.ChildDecal
-import com.gadarts.returnfire.components.onboarding.ApacheOnboardingAnimation
+import com.gadarts.returnfire.components.onboarding.ApacheBoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
@@ -44,7 +44,7 @@ class ApacheFactory(
             {
                 addApachePrimaryArmComponent(entityBuilder, primarySpark)
             },
-            ApacheOnboardingAnimation()
+            ApacheBoardingAnimation()
         )
         addPropeller(entityBuilder)
         val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER)

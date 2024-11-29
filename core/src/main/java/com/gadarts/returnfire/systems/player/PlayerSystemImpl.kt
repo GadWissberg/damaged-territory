@@ -109,7 +109,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override fun update(deltaTime: Float) {
-        if (ComponentsMapper.onboardingCharacter.get(gameSessionData.player).onboarding) return
+        if (ComponentsMapper.boarding.get(gameSessionData.player).isBoarding()) return
         playerMovementHandler.update(
             gameSessionData.player,
             deltaTime
@@ -131,7 +131,8 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        if (ComponentsMapper.onboardingCharacter.get(gameSessionData.player).onboarding) return false
+        val onboardingComponent = ComponentsMapper.boarding.get(gameSessionData.player)
+        if (onboardingComponent.isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP -> {
@@ -155,7 +156,11 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             }
 
             Input.Keys.SHIFT_LEFT -> {
-                playerShootingHandler.startSecondaryShooting()
+                if (ComponentsMapper.childDecal.get(stage).visible) {
+                    onboardingComponent.offBoard()
+                } else {
+                    playerShootingHandler.startSecondaryShooting()
+                }
             }
 
             Input.Keys.A -> {
@@ -170,7 +175,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (ComponentsMapper.onboardingCharacter.get(gameSessionData.player).onboarding) return false
+        if (ComponentsMapper.boarding.get(gameSessionData.player).isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
@@ -264,6 +269,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
-        private val LANDING_OK_OFFSET = 0.5F
+        private const val LANDING_OK_OFFSET = 0.25F
     }
 }

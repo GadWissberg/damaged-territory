@@ -23,8 +23,8 @@ import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.components.onboarding.OnboardingAnimation
-import com.gadarts.returnfire.components.onboarding.OnboardingCharacterComponent
+import com.gadarts.returnfire.components.onboarding.BoardingAnimation
+import com.gadarts.returnfire.components.onboarding.BoardingComponent
 import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
@@ -75,9 +75,9 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addOnboardingCharacterComponent(onboardingAnimation: OnboardingAnimation?): EntityBuilder {
-        val onboardingCharacterComponent = OnboardingCharacterComponent(onboardingAnimation)
-        entity!!.add(onboardingCharacterComponent)
+    fun addOnboardingCharacterComponent(boardingAnimation: BoardingAnimation?): EntityBuilder {
+        val boardingComponent = BoardingComponent(boardingAnimation)
+        entity!!.add(boardingComponent)
         return instance
     }
 

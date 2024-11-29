@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.bullet.collision.*
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo
 import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -35,7 +36,11 @@ class PhysicsSystem : GameEntitySystem() {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
                 bulletEngineHandler.addBodyOfEntity(msg.extraInfo as Entity)
             }
-
+        },
+        SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                bulletEngineHandler.removePhysicsOfComponent(msg.extraInfo as PhysicsComponent)
+            }
         }
     )
 

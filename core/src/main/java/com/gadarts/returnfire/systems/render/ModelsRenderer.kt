@@ -77,8 +77,10 @@ class ModelsRenderer(
                 modelInstanceComponent.hidden = true
                 modelInstanceComponent.hideAt = -1L
             }
-            if (ComponentsMapper.childModelInstanceComponent.has(entity)) {
-                val gameModelInstance = ComponentsMapper.childModelInstanceComponent.get(entity).gameModelInstance
+            val childModelInstanceComponent = ComponentsMapper.childModelInstanceComponent.get(entity)
+            if (childModelInstanceComponent != null && childModelInstanceComponent.visible
+            ) {
+                val gameModelInstance = childModelInstanceComponent.gameModelInstance
                 gameModelInstance.modelInstance.transform.setTranslation(
                     modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector3_1

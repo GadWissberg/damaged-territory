@@ -6,7 +6,7 @@ import com.gadarts.returnfire.components.arm.SecondaryArmComponent
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.components.onboarding.OnboardingCharacterComponent
+import com.gadarts.returnfire.components.onboarding.BoardingComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 
 object ComponentsMapper {
@@ -48,8 +48,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(TurretComponent::class.java)
     val turretBase: ComponentMapper<TurretBaseComponent> =
         ComponentMapper.getFor(TurretBaseComponent::class.java)
-    val onboardingCharacter: ComponentMapper<OnboardingCharacterComponent> =
-        ComponentMapper.getFor(OnboardingCharacterComponent::class.java)
+    val boarding: ComponentMapper<BoardingComponent> =
+        ComponentMapper.getFor(BoardingComponent::class.java)
     val baseDoor: ComponentMapper<BaseDoorComponent> =
         ComponentMapper.getFor(BaseDoorComponent::class.java)
     val childModelInstanceComponent: ComponentMapper<ChildModelInstanceComponent> =

@@ -9,7 +9,7 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.onboarding.OnboardingAnimation
+import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
@@ -43,7 +43,7 @@ abstract class CharacterFactory(
         characterDefinition: CharacterDefinition,
         primarySpark: Entity,
         primaryArmComponentCreator: () -> EntityBuilder,
-        onboardingAnimation: OnboardingAnimation?
+        boardingAnimation: BoardingAnimation?
     ): GameModelInstance {
         val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
         entityBuilder.addModelInstanceComponent(
@@ -52,7 +52,7 @@ abstract class CharacterFactory(
             null,
         )
         entityBuilder.addCharacterComponent(characterDefinition)
-        entityBuilder.addOnboardingCharacterComponent(onboardingAnimation)
+        entityBuilder.addOnboardingCharacterComponent(boardingAnimation)
         entityBuilder.addPlayerComponent()
         primaryArmComponentCreator()
         ComponentsMapper.spark.get(primarySpark).parent = EntityBuilder.entity!!

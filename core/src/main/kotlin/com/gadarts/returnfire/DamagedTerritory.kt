@@ -21,7 +21,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val rigidBodyFactory = RigidBodyFactory()
 
-    @Suppress("SENSELESS_COMPARISON")
+    @Suppress("SENSELESS_COMPARISON", "UNREACHABLE_CODE")
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
         val screenHeight = Gdx.graphics.displayMode.height
@@ -33,7 +33,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         Gdx.input.inputProcessor = InputMultiplexer()
         Bullet.init()
         if (GameDebugSettings.SELECTED_VEHICLE != null) {
-            goToWarScreen(GameDebugSettings.SELECTED_VEHICLE)
+            goToWarScreen(GameDebugSettings.SELECTED_VEHICLE!!)
         } else {
             setScreen(hangarScreen)
         }
