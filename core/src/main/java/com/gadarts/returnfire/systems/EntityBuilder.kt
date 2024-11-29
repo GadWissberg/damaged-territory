@@ -201,8 +201,8 @@ class EntityBuilder private constructor() {
         return instance
     }
 
-    fun addBaseDoorComponent(targetX: Float): EntityBuilder {
-        val baseDoorComponent = BaseDoorComponent(targetX)
+    fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder {
+        val baseDoorComponent = BaseDoorComponent(initialX, targetX)
         entity!!.add(baseDoorComponent)
         return instance
     }

@@ -224,17 +224,19 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 val boardingComponent = ComponentsMapper.boarding.get(character)
                 val stageTransform =
                     ComponentsMapper.modelInstance.get(stageEntity).gameModelInstance.modelInstance.transform
-                if (boardingComponent.isOnboarding()
+                if (boardingComponent.isOffboarding()
                 ) {
                     if (stageTransform.getTranslation(auxVector1).y < -1F) {
                         takeStepForStageWithCharacter(stageTransform, deltaTime, character)
                     } else {
                         val animationDone = updateBoardingAnimation(deltaTime, character)
-                        if (animationDone && boardingComponent.isOnboarding()) {
+                        if (animationDone && boardingComponent.isOffboarding()) {
                             boardingDone(character)
                         }
                     }
                 } else {
+                    val boardingAnimation = ComponentsMapper.boarding.get(character).boardingAnimation
+                    val isAlreadyDone = boardingAnimation?.isDone() ?: true
                     val animationDone = updateBoardingAnimation(deltaTime, character)
                     if (ComponentsMapper.physics.has(character)) {
                         val physicsComponent = ComponentsMapper.physics.get(character)
@@ -252,7 +254,11 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                         } else {
                             takeStepForStageWithCharacter(stageTransform, -deltaTime, character)
                         }
+                        if (!isAlreadyDone) {
+                            managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE.ordinal)
+                        }
                     }
+
                 }
             } else if (!characterComponent.dead) {
                 if (characterComponent.deathSequenceDuration <= 0) {

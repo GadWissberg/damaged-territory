@@ -157,7 +157,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
             Input.Keys.SHIFT_LEFT -> {
                 if (ComponentsMapper.childDecal.get(stage).visible) {
-                    onboardingComponent.offBoard()
+                    onboardingComponent.onBoard()
                     managers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal)
                 } else {
                     playerShootingHandler.startSecondaryShooting()

@@ -7,12 +7,16 @@ class BoardingComponent(val boardingAnimation: BoardingAnimation?) : Component {
         return boardingStatus != 0
     }
 
-    fun offBoard() {
+    fun onBoard() {
         boardingStatus = -1
     }
 
-    fun isOnboarding(): Boolean {
+    fun isOffboarding(): Boolean {
         return boardingStatus > 0
+    }
+
+    fun isOnboarding(): Boolean {
+        return boardingStatus < 0
     }
 
     fun boardingDone() {

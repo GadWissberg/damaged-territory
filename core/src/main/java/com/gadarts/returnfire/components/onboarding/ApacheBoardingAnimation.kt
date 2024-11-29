@@ -25,7 +25,7 @@ class ApacheBoardingAnimation : BoardingAnimation {
         assetsManager: GameAssetManager
     ): Boolean {
         val boardingComponent = ComponentsMapper.boarding.get(character)
-        if (boardingComponent.isOnboarding()) {
+        if (boardingComponent.isOffboarding()) {
             val done = takeOff(deltaTime, soundPlayer, assetsManager, character)
             if (done) {
                 this.done = true
@@ -63,7 +63,7 @@ class ApacheBoardingAnimation : BoardingAnimation {
             firstUpdate = false
         }
         val negDeltaTime = deltaTime * -1F
-        updateRotation(childModelInstance, negDeltaTime)
+        updateRotation(childModelInstance, negDeltaTime * 0.5F)
         if (rotationSpeed < ROTATION_THRESHOLD) {
             childModelInstanceComponent.visible = true
             blending.opacity += deltaTime
