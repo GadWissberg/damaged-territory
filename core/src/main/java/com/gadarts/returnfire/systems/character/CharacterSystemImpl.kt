@@ -207,8 +207,9 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     private fun updateCharacters(deltaTime: Float) {
         for (character in charactersEntities) {
             val characterComponent = ComponentsMapper.character.get(character)
+            val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
             val characterTransform =
-                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
+                modelInstanceComponent.gameModelInstance.modelInstance.transform
             if (characterComponent.definition == SimpleCharacterDefinition.APACHE) {
                 val child = ComponentsMapper.childDecal.get(character).decals[0]
                 child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
@@ -240,8 +241,12 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                     val animationDone = updateBoardingAnimation(deltaTime, character)
                     if (ComponentsMapper.physics.has(character)) {
                         val physicsComponent = ComponentsMapper.physics.get(character)
-                        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform =
-                            Matrix4(physicsComponent.rigidBody.worldTransform)
+                        val matrix4 = Matrix4(physicsComponent.rigidBody.worldTransform)
+                        modelInstanceComponent.gameModelInstance.modelInstance.transform =
+                            matrix4
+                        if (modelInstanceComponent.gameModelInstance.shadow != null) {
+                            modelInstanceComponent.gameModelInstance.shadow!!.transform = matrix4
+                        }
                         managers.dispatcher.dispatchMessage(
                             SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY.ordinal,
                             physicsComponent

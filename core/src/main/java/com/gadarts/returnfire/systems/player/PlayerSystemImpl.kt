@@ -270,6 +270,6 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
-        private const val LANDING_OK_OFFSET = 0.25F
+        private const val LANDING_OK_OFFSET = 0.45F
     }
 }
