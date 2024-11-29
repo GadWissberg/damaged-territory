@@ -84,7 +84,8 @@ class MapSystem : GameEntitySystem() {
             },
             SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
                 override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                    if (ComponentsMapper.boarding.get(gameSessionData.player).isOnboarding()) {
+                    val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.player)
+                    if (boardingComponent.boardingAnimation == null && boardingComponent.isOnboarding()) {
                         closeDoors(managers)
                     }
                 }
