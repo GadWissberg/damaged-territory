@@ -1,5 +1,7 @@
 package com.gadarts.returnfire
 
+import com.gadarts.returnfire.model.TurretCharacterDefinition
+
 object GameDebugSettings {
 
     const val SHOW_OBJECT_POOL_PROFILING = false
@@ -15,5 +17,5 @@ object GameDebugSettings {
     const val AVOID_PARTICLE_EFFECTS_DRAWING = false
     const val ENABLE_PROFILER = true
     const val DISABLE_HUD = false
-    val SELECTED_VEHICLE = null
+    val SELECTED_VEHICLE = TurretCharacterDefinition.TANK
 }

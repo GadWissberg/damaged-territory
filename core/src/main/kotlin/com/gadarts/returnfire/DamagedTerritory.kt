@@ -33,7 +33,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         Gdx.input.inputProcessor = InputMultiplexer()
         Bullet.init()
         if (GameDebugSettings.SELECTED_VEHICLE != null) {
-            goToWarScreen(GameDebugSettings.SELECTED_VEHICLE!!)
+            goToWarScreen(GameDebugSettings.SELECTED_VEHICLE)
         } else {
             setScreen(hangarScreen)
         }
@@ -62,7 +62,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     }
 
     companion object {
-        const val VERSION: String = "0.7"
+        const val VERSION: String = "0.8"
         private const val MAX_RESOLUTION_WIDTH = 1920
         private const val MAX_RESOLUTION_HEIGHT = 1080
 

@@ -24,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.GeneralUtils
 import com.gadarts.returnfire.SoundPlayer
@@ -207,7 +208,7 @@ class HangarScreen(
         stage.addActor(buttonsTable)
         textTable.pad(20F).add(
             Label(
-                "Damaged Territory - 0.7",
+                "Damaged Territory - ${DamagedTerritory.VERSION}",
                 Label.LabelStyle(
                     assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL),
                     Color.WHITE

@@ -136,13 +136,13 @@ class ModelsRenderer(
         val center: Vector3 =
             gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
         if (extendBoundingBoxSize) {
-            dims.scl(1F)
+            dims.scl(6.8F)
         }
         val frustum = renderData.camera.frustum
         return if (gameModelInstance.sphere) frustum.sphereInFrustum(
             gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_3
-            ), dims.len2() / 2F
+            ), dims.len2()
         )
         else frustum.boundsInFrustum(center, dims)
     }

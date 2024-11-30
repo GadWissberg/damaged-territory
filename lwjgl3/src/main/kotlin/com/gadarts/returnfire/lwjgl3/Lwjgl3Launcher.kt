@@ -10,7 +10,7 @@ fun main() {
     if (StartupHelper.startNewJvmIfRequired())
         return
     Lwjgl3Application(DamagedTerritory(false, 60), Lwjgl3ApplicationConfiguration().apply {
-        setTitle("Damaged Territory 0.7")
+        setTitle("Damaged Territory ${DamagedTerritory.VERSION}")
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
     })
 

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -58,7 +59,7 @@ class ProfilingSystem : GameEntitySystem() {
             displayHeapSize()
             displayGlProfiling()
             displayBatchCalls()
-            displayLine("Version: ", "0.7")
+            displayLine("Version: ", DamagedTerritory.VERSION)
             if (GameDebugSettings.SHOW_OBJECT_POOL_PROFILING) {
                 displayLine("Ground blast pool:", "${gameSessionData.groundBlastPool.free}")
                 gameSessionData.pools.gameModelInstancePools.forEach { pair ->
