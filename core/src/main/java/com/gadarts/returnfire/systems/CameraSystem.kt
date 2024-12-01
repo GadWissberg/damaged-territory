@@ -2,8 +2,6 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.math.Quaternion
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -49,16 +47,15 @@ class CameraSystem : GameEntitySystem() {
     private fun followPlayerRegularMovement(
         playerPosition: Vector3
     ) {
-        auxVector2.set(2F, 0F).setAngleDeg(
-            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getRotation(
-                auxQuat
-            ).yaw
-        )
+        val physicsComponent = ComponentsMapper.physics.get(gameSessionData.player) ?: return
+
+        val linearVelocity =
+            auxVector3_2.set(physicsComponent.rigidBody.linearVelocity).scl(5F)
         cameraTarget =
-            playerPosition.add(auxVector2.x, 0F, -auxVector2.y + Z_OFFSET)
+            playerPosition.add(linearVelocity.x, 0F, linearVelocity.z + Z_OFFSET)
         val camera = gameSessionData.renderData.camera
         cameraTarget.y = camera.position.y
-        camera.position.interpolate(cameraTarget, 0.2F, Interpolation.exp5)
+        camera.position.interpolate(cameraTarget, 0.025F, Interpolation.exp5)
     }
 
 
@@ -83,9 +80,8 @@ class CameraSystem : GameEntitySystem() {
     companion object {
         private const val INITIAL_Y = 9F
         private const val Z_OFFSET = 3F
-        private val auxVector2 = Vector2()
         private val auxVector3_1 = Vector3()
-        private val auxQuat = Quaternion()
+        private val auxVector3_2 = Vector3()
     }
 
 }

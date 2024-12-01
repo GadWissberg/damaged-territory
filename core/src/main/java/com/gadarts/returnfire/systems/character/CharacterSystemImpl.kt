@@ -10,12 +10,16 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -53,6 +57,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             Family.all(TurretComponent::class.java).get()
         )
     }
+    private val flyingPartBoundingBox by lazy { managers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART) }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
@@ -83,7 +88,9 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             val damage = ComponentsMapper.bullet.get(first).damage
             if (isSecondCharacter) {
                 ComponentsMapper.character.get(second).takeDamage(damage)
+                addFlyingPartsForDamage(second)
             } else {
+                addFlyingPartsForDamage(first)
                 ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base).takeDamage(damage)
             }
             EntityBuilder.begin()
@@ -96,6 +103,12 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             return true
         }
         return false
+    }
+
+    private fun addFlyingPartsForDamage(character: Entity) {
+        if (MathUtils.random() > 0.75F) {
+            addFlyingParts(character, 0.2F)
+        }
     }
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
@@ -296,6 +309,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                     characterComponent.incrementDeathSequence()
                     if (characterComponent.deathSequenceDuration <= 0) {
                         characterComponent.dead = true
+                        addFlyingParts(character)
                         managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
                     } else {
                         val entity =
@@ -351,6 +365,71 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     private fun boardingDone(character: Entity) {
         ComponentsMapper.boarding.get(character).boardingDone()
         managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
+    }
+
+    private fun addFlyingParts(character: Entity, scale: Float = 1F) {
+        val transform = if (ComponentsMapper.turretBase.has(character)) {
+            val turretModelInstanceComponent =
+                ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
+            turretModelInstanceComponent.gameModelInstance.modelInstance.transform
+        } else {
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
+        }
+        val numberOfFlyingParts = MathUtils.random(2, 4)
+        transform.getTranslation(auxVector2)
+        for (i in 0 until numberOfFlyingParts) {
+            addFlyingPart(auxVector2, scale)
+        }
+    }
+
+    private fun makeFlyingPartFlyAway(flyingPart: Entity) {
+        val rigidBody = ComponentsMapper.physics.get(flyingPart).rigidBody
+        rigidBody.applyCentralImpulse(
+            createRandomDirectionUpwards()
+        )
+        rigidBody.applyTorque(createRandomDirectionUpwards())
+    }
+
+    private fun createRandomDirectionUpwards(): Vector3 = auxVector1.set(1F, 0F, 0F).mul(
+        auxQuat.idt()
+            .setEulerAngles(MathUtils.random(360F), MathUtils.random(360F), MathUtils.random(45F, 135F))
+    ).scl(MathUtils.random(4F, 6F))
+
+    private fun addFlyingPart(
+        @Suppress("SameParameterValue") position: Vector3,
+        scale: Float = 1F
+    ) {
+        val modelInstance = ModelInstance(
+            managers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
+        )
+        val gameModelInstance = GameModelInstance(modelInstance, ModelDefinition.FLYING_PART)
+        val flyingPart = EntityBuilder.begin()
+            .addModelInstanceComponent(
+                gameModelInstance,
+                position,
+                flyingPartBoundingBox
+            )
+            .addPhysicsComponent(
+                btBoxShape(
+                    flyingPartBoundingBox.getDimensions(
+                        auxVector1
+                    ).scl(0.4F)
+                ),
+                managers,
+                CollisionFlags.CF_CHARACTER_OBJECT,
+                modelInstance.transform,
+                true,
+            )
+            .addParticleEffectComponent(
+                modelInstance.transform.getTranslation(auxVector1),
+                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
+                thisEntityAsParent = true,
+                ttlInSeconds = MathUtils.random(10, 15)
+            )
+            .finishAndAddToEngine()
+        ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.2F, 0.5F)
+        gameModelInstance.modelInstance.transform.scl(scale)
+        makeFlyingPartFlyAway(flyingPart)
     }
 
     override fun dispose() {

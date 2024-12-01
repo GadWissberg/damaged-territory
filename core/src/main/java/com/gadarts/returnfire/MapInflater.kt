@@ -121,6 +121,7 @@ class MapInflater(
                 position,
                 null,
                 direction.toFloat(),
+                GameDebugSettings.HIDE_ENEMIES
             )
             .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON)
             .addEnemyComponent()

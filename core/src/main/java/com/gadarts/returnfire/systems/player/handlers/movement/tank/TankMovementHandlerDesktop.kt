@@ -11,7 +11,6 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
     TankMovementHandler(rigidBody, player) {
     private var movement: Int = 0
     private var rotation: Int = 0
-    private lateinit var camera: PerspectiveCamera
 
     override fun idleEngineSound() {
         super.idleEngineSound()
@@ -51,7 +50,6 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
 
 
     override fun initialize(camera: PerspectiveCamera) {
-        this.camera = camera
     }
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float) {
@@ -60,8 +58,7 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
 
     override fun update(player: Entity, deltaTime: Float) {
         super.update(player, deltaTime)
-        val physicsComponent = ComponentsMapper.physics.get(player)
-        val rigidBody = physicsComponent.rigidBody
+        val rigidBody = ComponentsMapper.physics.get(player).rigidBody
         if (movement != 0) {
             pushForward(rigidBody, movement)
         }

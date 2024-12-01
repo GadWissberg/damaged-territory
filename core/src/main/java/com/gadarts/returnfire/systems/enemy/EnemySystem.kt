@@ -9,8 +9,6 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.collision.btBoxShape
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
@@ -35,7 +33,6 @@ import kotlin.math.sqrt
 class EnemySystem : GameEntitySystem() {
     private val cannonSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
 
-    private val flyingPartBoundingBox by lazy { managers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART) }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
@@ -77,67 +74,14 @@ class EnemySystem : GameEntitySystem() {
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
             )
             .finishAndAddToEngine()
-        modelInstanceComponent.gameModelInstance.modelInstance.transform.set(transform)
-        addFlyingParts(position)
         managers.soundPlayer.play(
             managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
         )
     }
 
-    private fun addFlyingParts(position: Vector3?) {
-        val numberOfFlyingParts = MathUtils.random(2, 4)
-        auxVector3_2.set(position)
-        for (i in 0 until numberOfFlyingParts) {
-            addFlyingPart(auxVector3_2)
-        }
-    }
 
-    private fun addFlyingPart(
-        @Suppress("SameParameterValue") position: Vector3,
-    ) {
-        val modelInstance = ModelInstance(
-            managers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
-        )
-        val flyingPart = EntityBuilder.begin()
-            .addModelInstanceComponent(
-                GameModelInstance(modelInstance, ModelDefinition.FLYING_PART),
-                position,
-                flyingPartBoundingBox
-            )
-            .addPhysicsComponent(
-                btBoxShape(
-                    flyingPartBoundingBox.getDimensions(
-                        auxVector3_1
-                    ).scl(0.4F)
-                ),
-                managers,
-                CollisionFlags.CF_CHARACTER_OBJECT,
-                modelInstance.transform,
-                true,
-            )
-            .addParticleEffectComponent(
-                modelInstance.transform.getTranslation(auxVector3_1),
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
-                thisEntityAsParent = true,
-                ttlInSeconds = MathUtils.random(10, 15)
-            )
-            .finishAndAddToEngine()
-        ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.2F, 0.5F)
-        makeFlyingPartFlyAway(flyingPart)
-    }
 
-    private fun makeFlyingPartFlyAway(flyingPart: Entity) {
-        val rigidBody = ComponentsMapper.physics.get(flyingPart).rigidBody
-        rigidBody.applyCentralImpulse(
-            createRandomDirectionUpwards()
-        )
-        rigidBody.applyTorque(createRandomDirectionUpwards())
-    }
 
-    private fun createRandomDirectionUpwards(): Vector3 = auxVector3_1.set(1F, 0F, 0F).mul(
-        auxQuat1.idt()
-            .setEulerAngles(MathUtils.random(360F), MathUtils.random(360F), MathUtils.random(45F, 135F))
-    ).scl(MathUtils.random(4F, 6F))
 
     private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(Family.all(TurretComponent::class.java, EnemyComponent::class.java).get())
