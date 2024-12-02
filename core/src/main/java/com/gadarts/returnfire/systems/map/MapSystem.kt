@@ -63,8 +63,9 @@ class MapSystem : GameEntitySystem() {
         mapOf(
             SystemEvents.PHYSICS_DROWNING to object : HandlerOnEvent {
                 override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                    val entity = msg.extraInfo as Entity
                     val position =
-                        ComponentsMapper.modelInstance.get(msg.extraInfo as Entity).gameModelInstance.modelInstance.transform.getTranslation(
+                        ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector1
                         )
                     position.set(
@@ -75,6 +76,14 @@ class MapSystem : GameEntitySystem() {
                     managers.factories.specialEffectsFactory.generateWaterSplash(
                         position
                     )
+                    val physicsComponent = ComponentsMapper.physics.get(
+                        entity
+                    )
+                    val rigidBody = physicsComponent.rigidBody
+                    gameSessionData.gameSessionDataPhysics.collisionWorld.removeRigidBody(
+                        rigidBody
+                    )
+                    engine.removeEntity(entity)
                 }
             },
             SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE to object : HandlerOnEvent {

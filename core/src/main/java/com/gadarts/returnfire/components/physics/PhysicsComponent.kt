@@ -20,6 +20,7 @@ class PhysicsComponent : Component, Poolable, Disposable {
 
     override fun dispose() {
         if (rigidBody.rigidBodyPool == null) {
+            rigidBody.collisionShape.dispose()
             rigidBody.dispose()
         }
     }
