@@ -20,9 +20,6 @@ class ParticleEffectComponent : Component, Poolable {
         private set
     val parentRelativePosition: Vector3 = Vector3()
 
-    override fun reset() {
-    }
-
     fun init(
         effect: ParticleEffect,
         definition: ParticleEffectDefinition,
@@ -36,6 +33,9 @@ class ParticleEffectComponent : Component, Poolable {
         this.ttlInSeconds = ttlInSeconds
         this.parentRelativePosition.set(parentRelativePosition)
         this.createdAt = TimeUtils.millis()
+    }
+
+    override fun reset() {
     }
 
 }

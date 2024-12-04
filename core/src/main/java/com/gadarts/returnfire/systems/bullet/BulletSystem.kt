@@ -32,13 +32,6 @@ import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class BulletSystem : GameEntitySystem() {
-    private val blastRingTexture: Texture by lazy { managers.assetsManager.getTexture("blast_ring") }
-    private val bulletEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(
-            Family.all(BulletComponent::class.java).get()
-        )
-    }
-
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
             override fun react(
@@ -64,40 +57,106 @@ class BulletSystem : GameEntitySystem() {
         }
     )
 
-    private fun createBullet() {
-        val armComponent = BulletCreationRequestEventData.armComponent
-        val armProperties = armComponent.armProperties
-        managers.soundPlayer.play(
-            armProperties.shootingSound,
+    private val blastRingTexture: Texture by lazy { managers.assetsManager.getTexture("blast_ring") }
+
+    private val bulletEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(BulletComponent::class.java).get()
         )
-        val spark = armComponent.spark
+    }
+
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
+        engine.addEntityListener(object : EntityListener {
+            override fun entityAdded(entity: Entity) {
+
+            }
+
+            override fun entityRemoved(entity: Entity) {
+                if (ComponentsMapper.bullet.has(entity)) {
+                    gameSessionData.pools.gameModelInstancePools[ComponentsMapper.modelInstance.get(
+                        entity
+                    ).gameModelInstance.definition]
+                        ?.free(
+                            ComponentsMapper.modelInstance.get(
+                                entity
+                            ).gameModelInstance
+                        )
+                    val rigidBody = ComponentsMapper.physics.get(entity).rigidBody
+                    rigidBody.rigidBodyPool?.free(rigidBody)
+                }
+            }
+
+        })
+    }
+
+    override fun update(deltaTime: Float) {
+        for (bullet in bulletEntities) {
+            val bulletComponent = ComponentsMapper.bullet.get(bullet)
+            if (bulletComponent.createdTime + 3000L > TimeUtils.millis()) {
+                if (bulletComponent.behavior == BulletBehavior.CURVE) {
+                    val physicsComponent = ComponentsMapper.physics.get(bullet)
+                    val curveRotationStepSize = CURVE_ROTATION_STEP * deltaTime
+                    if (physicsComponent.rigidBody.worldTransform.getRotation(auxQuat).roll > -90F) {
+                        val worldTransform = physicsComponent.rigidBody.worldTransform
+                        physicsComponent.rigidBody.worldTransform =
+                            auxMatrix.set(worldTransform).rotate(Vector3.Z, curveRotationStepSize)
+                        val orientation =
+                            physicsComponent.rigidBody.worldTransform.getRotation(auxQuat)
+                        val localZ = auxVector1.set(0F, 0F, 1F)
+                        orientation.transform(localZ)
+                        physicsComponent.rigidBody.linearVelocity =
+                            physicsComponent.rigidBody.linearVelocity.rotate(
+                                localZ,
+                                curveRotationStepSize
+                            )
+                    }
+                }
+            } else {
+                destroyBullet(bullet)
+            }
+        }
+    }
+
+    override fun resume(delta: Long) {
+    }
+
+    override fun dispose() {
+    }
+
+    private fun createBullet() {
+        managers.soundPlayer.play(BulletCreationRequestEventData.armComponent.armProperties.shootingSound)
+        val spark = BulletCreationRequestEventData.armComponent.spark
         val parentTransform =
             ComponentsMapper.modelInstance.get(ComponentsMapper.spark.get(spark).parent).gameModelInstance.modelInstance.transform
         val position = parentTransform.getTranslation(auxVector1)
         position.add(BulletCreationRequestEventData.relativePosition)
         showSpark(spark, position, parentTransform)
-        val renderData = armProperties.renderData
         val gameModelInstance =
-            gameSessionData.pools.gameModelInstancePools[renderData.modelDefinition]!!.obtain()
+            gameSessionData.pools.gameModelInstancePools[BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition]!!.obtain()
         val entityBuilder = EntityBuilder.begin()
-            .addModelInstanceComponent(gameModelInstance, position, renderData.boundingBox)
-            .addBulletComponent(
-                armComponent.bulletBehavior,
-                armProperties.effectsData.explosion,
-                armProperties.explosive,
-                BulletCreationRequestEventData.friendly,
-                armProperties.damage
+            .addModelInstanceComponent(
+                gameModelInstance,
+                position,
+                BulletCreationRequestEventData.armComponent.armProperties.renderData.boundingBox
             )
-        addSmokeTrail(armComponent, entityBuilder, position)
+            .addBulletComponent(
+                BulletCreationRequestEventData.armComponent.bulletBehavior,
+                BulletCreationRequestEventData.armComponent.armProperties.effectsData.explosion,
+                BulletCreationRequestEventData.armComponent.armProperties.explosive,
+                BulletCreationRequestEventData.friendly,
+                BulletCreationRequestEventData.armComponent.armProperties.damage
+            )
+        addSmokeTrail(BulletCreationRequestEventData.armComponent, entityBuilder, position)
         val bullet = entityBuilder.finishAndAddToEngine()
         applyPhysicsToBullet(
             bullet,
             gameModelInstance,
             BulletCreationRequestEventData.direction,
-            armProperties,
+            BulletCreationRequestEventData.armComponent.armProperties,
         )
-        addSmokeEmission(armProperties, gameModelInstance, position)
-        addSparkParticleEffect(position, armComponent)
+        addSmokeEmission(BulletCreationRequestEventData.armComponent.armProperties, gameModelInstance, position)
+        addSparkParticleEffect(position, BulletCreationRequestEventData.armComponent)
     }
 
     private fun addSparkParticleEffect(position: Vector3, arm: ArmComponent) {
@@ -178,6 +237,7 @@ class BulletSystem : GameEntitySystem() {
             btBroadphaseProxy.CollisionFilterGroups.AllFilter
     }
 
+
     private fun addSmokeTrail(
         arm: ArmComponent,
         entityBuilder: EntityBuilder,
@@ -194,31 +254,6 @@ class BulletSystem : GameEntitySystem() {
         }
     }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
-        engine.addEntityListener(object : EntityListener {
-            override fun entityAdded(entity: Entity) {
-
-            }
-
-            override fun entityRemoved(entity: Entity) {
-                if (ComponentsMapper.bullet.has(entity)) {
-                    gameSessionData.pools.gameModelInstancePools[ComponentsMapper.modelInstance.get(
-                        entity
-                    ).gameModelInstance.definition]
-                        ?.free(
-                            ComponentsMapper.modelInstance.get(
-                                entity
-                            ).gameModelInstance
-                        )
-                    val rigidBody = ComponentsMapper.physics.get(entity).rigidBody
-                    rigidBody.rigidBodyPool?.free(rigidBody)
-                }
-            }
-
-        })
-    }
-
     private fun handleBulletCollision(entity0: Entity, entity1: Entity): Boolean {
         val isBullet = ComponentsMapper.bullet.has(entity0)
         if (isBullet) {
@@ -226,7 +261,7 @@ class BulletSystem : GameEntitySystem() {
                 ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
                 )
-            val tileEntity = gameSessionData.tilesEntities[position.z.toInt()][position.x.toInt()]
+            val tileEntity = gameSessionData.mapData.tilesEntities[position.z.toInt()][position.x.toInt()]
             if (ComponentsMapper.ground.has(entity1) && tileEntity != null && ComponentsMapper.ground.get(
                     tileEntity
                 ).water
@@ -244,36 +279,21 @@ class BulletSystem : GameEntitySystem() {
         return false
     }
 
-
     private fun addBulletExplosion(bullet: Entity, position: Vector3) {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
-        val explosion = bulletComponent.explosion
         val explosive = bulletComponent.explosive
-        if (explosion != null) {
+        if (bulletComponent.explosion != null) {
             if (explosive) {
-                managers.soundPlayer.play(
-                    managers.assetsManager.getAssetByDefinition(
-                        SoundDefinition.EXPLOSION_SMALL
-                    )
-                )
+                managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL))
             }
             EntityBuilder.begin()
                 .addParticleEffectComponent(
                     position,
                     gameSessionData.pools.particleEffectsPools.obtain(
-                        explosion,
+                        bulletComponent.explosion!!,
                     )
                 ).finishAndAddToEngine()
-            if (explosion.hasBlastRing) {
-                managers.factories.specialEffectsFactory.addGroundBlast(
-                    position,
-                    blastRingTexture,
-                    0.1F,
-                    11F,
-                    250,
-                    0.03F
-                )
-            }
+            addBlastRing(bulletComponent.explosion!!, position)
         } else {
             if (!explosive) {
                 EntityBuilder.begin()
@@ -287,43 +307,24 @@ class BulletSystem : GameEntitySystem() {
         }
     }
 
-    override fun update(deltaTime: Float) {
-        for (bullet in bulletEntities) {
-            val bulletComponent = ComponentsMapper.bullet.get(bullet)
-            if (bulletComponent.createdTime + 3000L > TimeUtils.millis()) {
-                if (bulletComponent.behavior == BulletBehavior.CURVE) {
-                    val physicsComponent = ComponentsMapper.physics.get(bullet)
-                    val rotation = physicsComponent.rigidBody.worldTransform.getRotation(auxQuat)
-                    val curveRotationStepSize = CURVE_ROTATION_STEP * deltaTime
-                    if (rotation.roll > -90F) {
-                        val worldTransform = physicsComponent.rigidBody.worldTransform
-                        physicsComponent.rigidBody.worldTransform =
-                            auxMatrix.set(worldTransform).rotate(Vector3.Z, curveRotationStepSize)
-                        val orientation =
-                            physicsComponent.rigidBody.worldTransform.getRotation(auxQuat)
-                        val localZ = auxVector1.set(0F, 0F, 1F)
-                        orientation.transform(localZ)
-                        physicsComponent.rigidBody.linearVelocity =
-                            physicsComponent.rigidBody.linearVelocity.rotate(
-                                localZ,
-                                curveRotationStepSize
-                            )
-                    }
-                }
-            } else {
-                destroyBullet(bullet)
-            }
+    private fun addBlastRing(
+        explosion: ParticleEffectDefinition,
+        position: Vector3
+    ) {
+        if (explosion.hasBlastRing) {
+            managers.factories.specialEffectsFactory.addGroundBlast(
+                position,
+                blastRingTexture,
+                0.1F,
+                11F,
+                250,
+                0.03F
+            )
         }
     }
 
     private fun destroyBullet(entity: Entity) {
         engine.removeEntity(entity)
-    }
-
-    override fun resume(delta: Long) {
-    }
-
-    override fun dispose() {
     }
 
     companion object {

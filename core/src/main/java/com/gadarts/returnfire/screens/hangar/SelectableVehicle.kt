@@ -5,7 +5,10 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 
 class SelectableVehicle(
-    val modelInstance: ModelInstance, val stage: ModelInstance, val relativeHeight: Float, val rotationAroundY: Float
+    val modelInstance: ModelInstance,
+    val stage: ModelInstance,
+    private val relativeHeight: Float,
+    private val rotationAroundY: Float
 ) {
     val children = mutableListOf<SelectableVehicleChild>()
 

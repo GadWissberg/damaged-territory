@@ -21,7 +21,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val rigidBodyFactory = RigidBodyFactory()
 
-    @Suppress("SENSELESS_COMPARISON", "UNREACHABLE_CODE")
+    @Suppress("SENSELESS_COMPARISON")
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
         val screenHeight = Gdx.graphics.displayMode.height

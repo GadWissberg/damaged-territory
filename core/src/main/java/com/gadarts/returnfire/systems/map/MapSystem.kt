@@ -80,7 +80,7 @@ class MapSystem : GameEntitySystem() {
                         entity
                     )
                     val rigidBody = physicsComponent.rigidBody
-                    gameSessionData.gameSessionDataPhysics.collisionWorld.removeRigidBody(
+                    gameSessionData.physicsData.collisionWorld.removeRigidBody(
                         rigidBody
                     )
                     engine.removeEntity(entity)
@@ -93,7 +93,7 @@ class MapSystem : GameEntitySystem() {
             },
             SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
                 override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                    val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.player)
+                    val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.gameplayData.player)
                     if (boardingComponent.boardingAnimation == null && boardingComponent.isOnboarding()) {
                         closeDoors(managers)
                     }
@@ -108,10 +108,10 @@ class MapSystem : GameEntitySystem() {
 
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
-        val tilesMapping = gameSessionData.currentMap.tilesMapping
-        gameSessionData.tilesEntities =
+        val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
+        gameSessionData.mapData.tilesEntities =
             Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
-        gameSessionData.floorModel = createFloorModel()
+        gameSessionData.renderData.floorModel = createFloorModel()
         gameSessionData.renderData.modelCache = ModelCache()
     }
 
@@ -215,7 +215,7 @@ class MapSystem : GameEntitySystem() {
         }
         while (!waterSplashEntitiesToRemove.isEmpty) {
             val entity = waterSplashEntitiesToRemove.removeIndex(0)
-            gameSessionData.groundBlastPool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
+            gameSessionData.pools.groundBlastPool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
             engine.removeEntity(entity)
         }
     }

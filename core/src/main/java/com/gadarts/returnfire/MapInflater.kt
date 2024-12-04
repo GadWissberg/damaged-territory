@@ -284,7 +284,7 @@ class MapInflater(
 
 
     private fun addCharacters() {
-        gameSessionData.currentMap.placedElements.filter {
+        gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
                     && definition != SimpleCharacterDefinition.APACHE
@@ -300,7 +300,7 @@ class MapInflater(
     }
 
     private fun addAmbEntities(exculdedTiles: ArrayList<Pair<Int, Int>>) {
-        gameSessionData.currentMap.placedElements.filter { it.definition.getType() == ElementType.AMB }
+        gameSessionData.mapData.currentMap.placedElements.filter { it.definition.getType() == ElementType.AMB }
             .forEach {
                 addAmbObject(
                     auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
@@ -314,7 +314,7 @@ class MapInflater(
 
     private fun addFloor(exculdedTiles: ArrayList<Pair<Int, Int>>) {
         gameSessionData.renderData.modelCache.begin()
-        val tilesMapping = gameSessionData.currentMap.tilesMapping
+        val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
         addFloorRegion(depth, width, exculdedTiles)
@@ -358,10 +358,10 @@ class MapInflater(
         var textureDefinition: TextureDefinition? = null
         val assetsManager = managers.assetsManager
         if (isPositionInsideBoundaries(row, col)) {
-            gameSessionData.tilesEntities[row][col] = entity
+            gameSessionData.mapData.tilesEntities[row][col] = entity
             val definitions = assetsManager.getTexturesDefinitions()
             val indexOfFirst =
-                TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.currentMap.tilesMapping[row][col] == c }
+                TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.mapData.currentMap.tilesMapping[row][col] == c }
             textureDefinition =
                 definitions.definitions[TilesMapping.tiles[indexOfFirst]]
         }
@@ -393,7 +393,7 @@ class MapInflater(
     }
 
     private fun addExtSea(width: Int, depth: Int, x: Float, z: Float) {
-        val modelInstance = GameModelInstance(ModelInstance(gameSessionData.floorModel), null)
+        val modelInstance = GameModelInstance(ModelInstance(gameSessionData.renderData.floorModel), null)
         val entity = createAndAddGroundTileEntity(
             modelInstance,
             auxVector1.set(x, 0F, z)
@@ -433,7 +433,7 @@ class MapInflater(
                     row,
                     col,
                     GameModelInstance(
-                        ModelInstance(gameSessionData.floorModel),
+                        ModelInstance(gameSessionData.renderData.floorModel),
                         null,
                     ),
                     exculdedTiles
@@ -457,8 +457,8 @@ class MapInflater(
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
             && col >= 0
-            && row < gameSessionData.currentMap.tilesMapping.size
-            && col < gameSessionData.currentMap.tilesMapping[0].size)
+            && row < gameSessionData.mapData.currentMap.tilesMapping.size
+            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

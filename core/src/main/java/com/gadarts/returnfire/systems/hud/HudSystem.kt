@@ -103,8 +103,8 @@ class HudSystem : GameEntitySystem() {
         val ui = addUiTable()
         addOnScreenInput(gameSessionData, ui)
         initializeInput()
-        val console = gameSessionData.gameSessionDataHud.console
-        gameSessionData.gameSessionDataHud.stage.addActor(console)
+        val console = gameSessionData.hudData.console
+        gameSessionData.hudData.stage.addActor(console)
         console.toFront()
     }
 
@@ -114,14 +114,14 @@ class HudSystem : GameEntitySystem() {
     ) {
         if (gameSessionData.runsOnMobile) {
             val movementPad =
-                addTouchpad(ui, this.gameSessionData.gameSessionDataHud.movementTouchpad)
+                addTouchpad(ui, this.gameSessionData.hudData.movementTouchpad)
                     .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, 0F).left()
-            val definition = ComponentsMapper.character.get(gameSessionData.player).definition
+            val definition = ComponentsMapper.character.get(gameSessionData.gameplayData.player).definition
             if (definition == SimpleCharacterDefinition.APACHE) {
                 movementPad.growX()
                 addApacheButtons(ui)
             } else if (definition == TurretCharacterDefinition.TANK) {
-                val touchpad = this.gameSessionData.gameSessionDataHud.turretTouchpad
+                val touchpad = this.gameSessionData.hudData.turretTouchpad
                 val imageButtonCell = addButton(
                     ui,
                     "icon_reverse",
@@ -211,7 +211,7 @@ class HudSystem : GameEntitySystem() {
             debugInput.autoUpdate = true
             Gdx.input.inputProcessor = debugInput
         } else {
-            (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(gameSessionData.gameSessionDataHud.stage)
+            (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(gameSessionData.hudData.stage)
         }
     }
 
@@ -222,19 +222,19 @@ class HudSystem : GameEntitySystem() {
         uiTable.setFillParent(true)
         uiTable.setSize(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         uiTable.align(Align.bottom)
-        gameSessionData.gameSessionDataHud.stage.addActor(uiTable)
+        gameSessionData.hudData.stage.addActor(uiTable)
         return uiTable
     }
 
     override fun update(deltaTime: Float) {
-        if (gameSessionData.sessionFinished) return
+        if (gameSessionData.gameplayData.sessionFinished) return
 
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.update()
         }
         if (!GameDebugSettings.DISABLE_HUD) {
-            gameSessionData.gameSessionDataHud.stage.act(deltaTime)
-            gameSessionData.gameSessionDataHud.stage.draw()
+            gameSessionData.hudData.stage.act(deltaTime)
+            gameSessionData.hudData.stage.draw()
         }
     }
 

@@ -28,7 +28,7 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
             sparkComponent.parent,
             auxVector1
         )
-        val player = gameSessionData.player
+        val player = gameSessionData.gameplayData.player
         characterSystem.positionSpark(
             arm,
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance,

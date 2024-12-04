@@ -104,7 +104,7 @@ class ApacheFactory(
             playerShootingHandler.secondaryCreationSide =
                 !playerShootingHandler.secondaryCreationSide
             val transform =
-                ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform
+                ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance.transform
             val pos =
                 output.set(
                     0.5F,

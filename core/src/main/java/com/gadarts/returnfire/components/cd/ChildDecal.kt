@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.components.cd
 
 import com.badlogic.gdx.graphics.g3d.decals.Decal
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3

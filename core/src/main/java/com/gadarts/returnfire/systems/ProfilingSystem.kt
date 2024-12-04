@@ -41,7 +41,7 @@ class ProfilingSystem : GameEntitySystem() {
 
     private fun addLabel() {
         label.setPosition(0f, (Gdx.graphics.height - 175).toFloat())
-        gameSessionData.gameSessionDataHud.stage.addActor(label)
+        gameSessionData.hudData.stage.addActor(label)
         label.zIndex = 0
     }
 
@@ -61,7 +61,7 @@ class ProfilingSystem : GameEntitySystem() {
             displayBatchCalls()
             displayLine("Version: ", DamagedTerritory.VERSION)
             if (GameDebugSettings.SHOW_OBJECT_POOL_PROFILING) {
-                displayLine("Ground blast pool:", "${gameSessionData.groundBlastPool.free}")
+                displayLine("Ground blast pool:", "${gameSessionData.pools.groundBlastPool.free}")
                 gameSessionData.pools.gameModelInstancePools.forEach { pair ->
                     displayLine("${pair.key} pool:", "${pair.value.free}")
                 }
@@ -94,7 +94,7 @@ class ProfilingSystem : GameEntitySystem() {
     private fun displayBatchCalls() {
         displayLine(
             LABEL_UI_BATCH_RENDER_CALLS,
-            (gameSessionData.gameSessionDataHud.stage.batch as SpriteBatch).renderCalls
+            (gameSessionData.hudData.stage.batch as SpriteBatch).renderCalls
         )
     }
 

@@ -45,7 +45,7 @@ class SpecialEffectsFactory(
         duration: Int,
         fadeOutPace: Float
     ) {
-        val gameModelInstance = gameSessionData.groundBlastPool.obtain()
+        val gameModelInstance = gameSessionData.pools.groundBlastPool.obtain()
         val modelInstance = gameModelInstance.modelInstance
         modelInstance.transform.setToScaling(1F, 1F, 1F)
         val material = modelInstance.materials.get(0)

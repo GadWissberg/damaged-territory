@@ -42,7 +42,7 @@ class BulletEngineHandler(
 
     private fun initializeDebug() {
         debugDrawer.debugMode = btIDebugDraw.DebugDrawModes.DBG_DrawWireframe
-        gameSessionData.gameSessionDataPhysics.collisionWorld.debugDrawer = debugDrawer
+        gameSessionData.physicsData.collisionWorld.debugDrawer = debugDrawer
     }
 
 
@@ -58,25 +58,25 @@ class BulletEngineHandler(
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
             if (ComponentsMapper.bullet.has(entity)) {
                 val friendly = ComponentsMapper.bullet.get(entity).friendly
-                gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
+                gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET,
                     0x11111111 xor (if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET)
                 )
             } else if (ComponentsMapper.player.has(entity)) {
-                gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
+                gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_PLAYER,
                     COLLISION_GROUP_ENEMY_BULLET or COLLISION_GROUP_ENEMY or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
                 )
             } else if (ComponentsMapper.enemy.has(entity)) {
-                gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
+                gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_ENEMY,
                     COLLISION_GROUP_PLAYER_BULLET or COLLISION_GROUP_PLAYER or COLLISION_GROUP_GENERAL
                 )
             } else {
-                gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(
+                gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_GENERAL,
                     -1
@@ -93,7 +93,7 @@ class BulletEngineHandler(
 
     fun removePhysicsOfComponent(physicsComponent: PhysicsComponent) {
         physicsComponent.rigidBody.activationState = 0
-        gameSessionData.gameSessionDataPhysics.collisionWorld.removeCollisionObject(
+        gameSessionData.physicsData.collisionWorld.removeCollisionObject(
             physicsComponent.rigidBody
         )
         physicsComponent.dispose()
@@ -101,13 +101,13 @@ class BulletEngineHandler(
 
 
     private fun initializeCollisionWorld() {
-        gameSessionData.gameSessionDataPhysics.collisionWorld = btDiscreteDynamicsWorld(
+        gameSessionData.physicsData.collisionWorld = btDiscreteDynamicsWorld(
             dispatcher,
             broadPhase,
             solver,
             collisionConfiguration
         )
-        gameSessionData.gameSessionDataPhysics.collisionWorld.gravity = Vector3(0F, -10F, 0F)
+        gameSessionData.physicsData.collisionWorld.gravity = Vector3(0F, -10F, 0F)
     }
 
     override fun dispose() {
@@ -120,7 +120,7 @@ class BulletEngineHandler(
     }
 
     fun update(deltaTime: Float) {
-        gameSessionData.gameSessionDataPhysics.collisionWorld.stepSimulation(
+        gameSessionData.physicsData.collisionWorld.stepSimulation(
             deltaTime,
             20,
             1f / gameSessionData.fpsTarget
@@ -131,11 +131,11 @@ class BulletEngineHandler(
         initializeBroadPhase()
         initializeCollisionWorld()
         initializeDebug()
-        gameSessionData.gameSessionDataPhysics.debugDrawingMethod =
+        gameSessionData.physicsData.debugDrawingMethod =
             object : CollisionShapesDebugDrawing {
                 override fun drawCollisionShapes(camera: PerspectiveCamera) {
                     debugDrawer.begin(camera)
-                    gameSessionData.gameSessionDataPhysics.collisionWorld.debugDrawWorld()
+                    gameSessionData.physicsData.collisionWorld.debugDrawWorld()
                     debugDrawer.end()
                 }
             }

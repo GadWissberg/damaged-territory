@@ -105,7 +105,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     }
 
     override fun update(deltaTime: Float) {
-        if (gameSessionData.sessionFinished) return
+        if (gameSessionData.gameplayData.sessionFinished) return
 
         modelsRenderer.renderShadows()
         GeneralUtils.clearScreen()
@@ -124,7 +124,7 @@ class RenderSystem : GameEntitySystem(), Disposable {
     private fun renderCollisionShapes() {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
 
-        val debugDrawingMethod: CollisionShapesDebugDrawing? = gameSessionData.gameSessionDataPhysics.debugDrawingMethod
+        val debugDrawingMethod: CollisionShapesDebugDrawing? = gameSessionData.physicsData.debugDrawingMethod
         debugDrawingMethod?.drawCollisionShapes(gameSessionData.renderData.camera)
     }
 

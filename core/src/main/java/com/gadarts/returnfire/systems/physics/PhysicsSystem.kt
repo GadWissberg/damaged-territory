@@ -55,8 +55,8 @@ class PhysicsSystem : GameEntitySystem() {
 
     override fun onSystemReady() {
         super.onSystemReady()
-        val halfMapDepth = gameSessionData.currentMap.tilesMapping.size.toFloat() / 2F
-        val halfMapWidth = gameSessionData.currentMap.tilesMapping[0].size.toFloat() / 2F
+        val halfMapDepth = gameSessionData.mapData.currentMap.tilesMapping.size.toFloat() / 2F
+        val halfMapWidth = gameSessionData.mapData.currentMap.tilesMapping[0].size.toFloat() / 2F
         val waterShape = btBoxShape(
             Vector3(
                 halfMapWidth,
@@ -70,15 +70,15 @@ class PhysicsSystem : GameEntitySystem() {
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
         ghostObject.worldTransform = Matrix4().translate(halfMapWidth, -1F, halfMapDepth)
         ghostObject.userData = water
-        gameSessionData.gameSessionDataPhysics.collisionWorld.addCollisionObject(
+        gameSessionData.physicsData.collisionWorld.addCollisionObject(
             ghostObject,
             COLLISION_GROUP_GROUND,
             -1
         )
         addBoundary(auxVector.set(1F, 0F, 0F))
         addBoundary(auxVector.set(0F, 0F, 1F))
-        addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.currentMap.tilesMapping.size)
-        addBoundary(auxVector.set(0F, 0F, -1F), -gameSessionData.currentMap.tilesMapping[0].size)
+        addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.mapData.currentMap.tilesMapping.size)
+        addBoundary(auxVector.set(0F, 0F, -1F), -gameSessionData.mapData.currentMap.tilesMapping[0].size)
         managers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_SYSTEM_READY.ordinal)
     }
 
@@ -116,7 +116,7 @@ class PhysicsSystem : GameEntitySystem() {
 
     private fun addBoundary(vector: Vector3, planeConstant: Int = 0) {
         val btRigidBody = createBoundaryPhysicsBody(vector, planeConstant)
-        gameSessionData.gameSessionDataPhysics.collisionWorld.addRigidBody(btRigidBody, COLLISION_GROUP_GROUND, -1)
+        gameSessionData.physicsData.collisionWorld.addRigidBody(btRigidBody, COLLISION_GROUP_GROUND, -1)
         btRigidBody.userData = EntityBuilder.begin().addGroundComponent().finishAndAddToEngine()
     }
 

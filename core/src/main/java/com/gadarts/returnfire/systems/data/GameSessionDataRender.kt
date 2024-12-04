@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.data
 
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.utils.Disposable
@@ -12,6 +13,9 @@ class GameSessionDataRender : Disposable {
     lateinit var modelCache: ModelCache
     override fun dispose() {
         modelCache.dispose()
+        floorModel.dispose()
     }
+
+    lateinit var floorModel: Model
 
 }

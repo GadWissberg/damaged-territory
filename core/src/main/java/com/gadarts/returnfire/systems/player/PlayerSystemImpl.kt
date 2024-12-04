@@ -60,7 +60,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     private fun createPlayerMovementHandler(): VehicleMovementHandler {
-        val player = gameSessionData.player
+        val player = gameSessionData.gameplayData.player
         val characterDefinition = ComponentsMapper.character.get(player).definition
         val runsOnMobile = gameSessionData.runsOnMobile
         return if (characterDefinition == SimpleCharacterDefinition.APACHE) {
@@ -149,14 +149,14 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override fun update(deltaTime: Float) {
-        if (ComponentsMapper.boarding.get(gameSessionData.player).isBoarding()) return
+        if (ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).isBoarding()) return
         playerMovementHandler.update(
-            gameSessionData.player,
+            gameSessionData.gameplayData.player,
             deltaTime
         )
         playerShootingHandler.update()
         val position =
-            ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
         val stagePosition =
@@ -174,9 +174,9 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-            && position.x >= stagePosition.x - LANDING_OK_OFFSET
-            && position.z <= stagePosition.z + LANDING_OK_OFFSET
-            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+                && position.x >= stagePosition.x - LANDING_OK_OFFSET
+                && position.z <= stagePosition.z + LANDING_OK_OFFSET
+                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             managers.dispatcher.dispatchMessage(
@@ -187,12 +187,12 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        val onboardingComponent = ComponentsMapper.boarding.get(gameSessionData.player)
+        val onboardingComponent = ComponentsMapper.boarding.get(gameSessionData.gameplayData.player)
         if (onboardingComponent.isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP -> {
-                playerMovementHandler.thrust(gameSessionData.player)
+                playerMovementHandler.thrust(gameSessionData.gameplayData.player)
             }
 
             Input.Keys.DOWN -> {
@@ -231,12 +231,12 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
     }
 
     private fun onboard() {
-        ComponentsMapper.boarding.get(gameSessionData.player).onBoard()
+        ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).onBoard()
         managers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal)
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (ComponentsMapper.boarding.get(gameSessionData.player).isBoarding()) return false
+        if (ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
@@ -296,7 +296,7 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
             map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE }
         val player = playerFactory.create(base!!, gameSessionData.selected)
         engine.addEntity(player)
-        gameSessionData.player = player
+        gameSessionData.gameplayData.player = player
         ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
         initializePlayerHandlers()
         return player
@@ -311,13 +311,13 @@ class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
 
     override fun initInputMethod() {
         if (gameSessionData.runsOnMobile) {
-            gameSessionData.gameSessionDataHud.movementTouchpad.addListener(
+            gameSessionData.hudData.movementTouchpad.addListener(
                 MovementTouchPadListener(
                     playerMovementHandler,
-                    gameSessionData.player
+                    gameSessionData.gameplayData.player
                 )
             )
-            gameSessionData.gameSessionDataHud.turretTouchpad.addListener(
+            gameSessionData.hudData.turretTouchpad.addListener(
                 TurretTouchPadListener(
                     playerMovementHandler,
                     playerShootingHandler

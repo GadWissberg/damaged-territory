@@ -21,10 +21,15 @@ object GeneralUtils {
         builder: ModelBuilder,
         meshName: String,
         size: Float,
-        texture: Texture,
+        texture: Texture?,
         offset: Float = 0F
     ) {
-        val material = Material(TextureAttribute.createDiffuse(texture))
+        val material =
+            if (texture != null) Material(TextureAttribute.createDiffuse(texture)) else Material(
+                TextureAttribute(
+                    TextureAttribute.Diffuse
+                )
+            )
         material.set(BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA))
         val mbp = builder.part(
             meshName,
@@ -59,8 +64,8 @@ object GeneralUtils {
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(
             GL20.GL_COLOR_BUFFER_BIT
-                or GL20.GL_DEPTH_BUFFER_BIT
-                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+                    or GL20.GL_DEPTH_BUFFER_BIT
+                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
     }
 

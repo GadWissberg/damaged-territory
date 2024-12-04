@@ -31,14 +31,14 @@ class PlayerShootingHandler {
     }
 
     fun update() {
-        var armComp: ArmComponent = ComponentsMapper.primaryArm.get(gameSessionData.player)
+        var armComp: ArmComponent = ComponentsMapper.primaryArm.get(gameSessionData.gameplayData.player)
         handleShooting(
             priShooting,
             armComp,
             SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY,
         )
-        if (ComponentsMapper.secondaryArm.has(gameSessionData.player)) {
-            armComp = ComponentsMapper.secondaryArm.get(gameSessionData.player)
+        if (ComponentsMapper.secondaryArm.has(gameSessionData.gameplayData.player)) {
+            armComp = ComponentsMapper.secondaryArm.get(gameSessionData.gameplayData.player)
             handleShooting(
                 secShooting,
                 armComp,
@@ -59,14 +59,14 @@ class PlayerShootingHandler {
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
             val direction =
-                if (!ComponentsMapper.turretBase.has(gameSessionData.player) || ComponentsMapper.turret.get(
+                if (!ComponentsMapper.turretBase.has(gameSessionData.gameplayData.player) || ComponentsMapper.turret.get(
                         ComponentsMapper.turretBase.get(
-                            gameSessionData.player
+                            gameSessionData.gameplayData.player
                         ).turret
                     ).cannon == null
                 ) {
                     val rotation =
-                        ComponentsMapper.modelInstance.get(gameSessionData.player).gameModelInstance.modelInstance.transform.getRotation(
+                        ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance.transform.getRotation(
                             auxQuat
                         )
                     auxMatrix.set(
@@ -74,7 +74,7 @@ class PlayerShootingHandler {
                     )
                 } else {
                     val cannon =
-                        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(gameSessionData.player).turret).cannon
+                        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(gameSessionData.gameplayData.player).turret).cannon
                     val direction = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
                     val particleEffect = EntityBuilder.begin().addParticleEffectComponent(
                         direction.getTranslation(auxVector3_1),
@@ -85,7 +85,7 @@ class PlayerShootingHandler {
                     direction
                 }
             CharacterWeaponShotEventData.setWithDirection(
-                gameSessionData.player,
+                gameSessionData.gameplayData.player,
                 direction
             )
             dispatcher.dispatchMessage(event.ordinal)

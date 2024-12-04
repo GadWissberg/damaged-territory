@@ -1,15 +1,9 @@
 package com.gadarts.returnfire.systems.data
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.graphics.g3d.Model
-import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.Pool
 import com.gadarts.returnfire.assets.GameAssetManager
-import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.model.CharacterDefinition
-import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.data.pools.GameSessionDataPools
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
@@ -22,23 +16,13 @@ class GameSessionData(
     val selected: CharacterDefinition
 ) :
     Disposable {
-    lateinit var player: Entity
-    val gameSessionDataPhysics = GameSessionDataPhysics()
-    val currentMap: GameMap =
-        assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
-    val gameSessionDataHud = GameSessionDataHud(assetsManager, console)
+    val physicsData = GameSessionDataPhysics()
+    val gameplayData = GameSessionDataGameplay()
+    val mapData = GameSessionDataMap(assetsManager)
+    val hudData = GameSessionDataHud(assetsManager, console)
     val pools by lazy { GameSessionDataPools(assetsManager, rigidBodyFactory) }
     val renderData = GameSessionDataRender()
-    lateinit var tilesEntities: Array<Array<Entity?>>
-    var sessionFinished: Boolean = false
-        private set
 
-    lateinit var floorModel: Model
-    val groundBlastPool = object : Pool<GameModelInstance>() {
-        override fun newObject(): GameModelInstance {
-            return GameModelInstance(ModelInstance(floorModel), null)
-        }
-    }
 
     companion object {
         const val UI_TABLE_NAME = "ui_table"
@@ -46,14 +30,15 @@ class GameSessionData(
     }
 
     override fun dispose() {
-        floorModel.dispose()
+        mapData.dispose()
         renderData.dispose()
-        gameSessionDataHud.dispose()
-        gameSessionDataPhysics.dispose()
+        hudData.dispose()
+        physicsData.dispose()
+        pools.dispose()
     }
 
     fun finishSession() {
-        sessionFinished = true
+        gameplayData.sessionFinished = true
         dispose()
     }
 }

@@ -34,14 +34,6 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
     private val billboardParticleBatch: BillboardParticleBatch by lazy { BillboardParticleBatch() }
 
-    override fun resume(delta: Long) {
-    }
-
-    override fun onSystemReady() {
-        billboardParticleBatch.setCamera(gameSessionData.renderData.camera)
-        gameSessionData.renderData.particleSystem.add(billboardParticleBatch)
-    }
-
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         this.gameSessionData.renderData.particleSystem = ParticleSystem()
@@ -49,6 +41,14 @@ class ParticleEffectsSystem : GameEntitySystem() {
         billboardParticleBatch.blendingAttribute.destFunction = GL20.GL_ONE_MINUS_SRC_ALPHA
         managers.assetsManager.loadParticleEffects(billboardParticleBatch)
         engine.addEntityListener(createEntityListener())
+    }
+
+    override fun onSystemReady() {
+        billboardParticleBatch.setCamera(gameSessionData.renderData.camera)
+        gameSessionData.renderData.particleSystem.add(billboardParticleBatch)
+    }
+
+    override fun resume(delta: Long) {
     }
 
     override fun update(deltaTime: Float) {

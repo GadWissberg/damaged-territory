@@ -75,7 +75,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         },
         SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                ComponentsMapper.boarding.get(gameSessionData.player).boardingAnimation?.reset()
+                ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).boardingAnimation?.reset()
             }
 
         }
@@ -106,8 +106,8 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
     }
 
     private fun addFlyingPartsForDamage(character: Entity) {
-        if (MathUtils.random() > 0.75F) {
-            addFlyingParts(character, 0.2F)
+        if (MathUtils.random() > 0.9F) {
+            addFlyingParts(character)
         }
     }
 
@@ -367,7 +367,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
     }
 
-    private fun addFlyingParts(character: Entity, scale: Float = 1F) {
+    private fun addFlyingParts(character: Entity) {
         val transform = if (ComponentsMapper.turretBase.has(character)) {
             val turretModelInstanceComponent =
                 ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
@@ -378,7 +378,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
         val numberOfFlyingParts = MathUtils.random(2, 4)
         transform.getTranslation(auxVector2)
         for (i in 0 until numberOfFlyingParts) {
-            addFlyingPart(auxVector2, scale)
+            addFlyingPart(auxVector2)
         }
     }
 
@@ -397,7 +397,6 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
 
     private fun addFlyingPart(
         @Suppress("SameParameterValue") position: Vector3,
-        scale: Float = 1F
     ) {
         val modelInstance = ModelInstance(
             managers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
@@ -428,7 +427,6 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             )
             .finishAndAddToEngine()
         ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.2F, 0.5F)
-        gameModelInstance.modelInstance.transform.scl(scale)
         makeFlyingPartFlyAway(flyingPart)
     }
 

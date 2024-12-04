@@ -19,19 +19,19 @@ class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
     HandlerOnEvent {
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-        val characterDefinition = ComponentsMapper.character.get(gameSessionData.player).definition
+        val characterDefinition = ComponentsMapper.character.get(gameSessionData.gameplayData.player).definition
         val isApache = characterDefinition == SimpleCharacterDefinition.APACHE
         val playerShape =
             if (isApache) createApacheCollisionShape() else btBoxShape(
                 Vector3(0.5F, 0.15F, 0.35F)
             )
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.player)
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player)
         val modelInstanceTransform =
             modelInstanceComponent.gameModelInstance.modelInstance.transform
         val physicsTransform =
             if (isApache) Matrix4(modelInstanceTransform) else modelInstanceTransform
         val physicsComponent = EntityBuilder.addPhysicsComponent(
-            gameSessionData.player,
+            gameSessionData.gameplayData.player,
             playerShape,
             10F,
             managers,
