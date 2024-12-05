@@ -17,7 +17,8 @@ import com.gadarts.returnfire.systems.EntityBuilder
 
 abstract class CharacterFactory(
     private val assetsManager: GameAssetManager,
-    protected val gameModelInstanceFactory: GameModelInstanceFactory
+    protected val gameModelInstanceFactory: GameModelInstanceFactory,
+    private val entityBuilder: EntityBuilder
 ) {
 
     abstract fun create(base: PlacedElement): Entity
@@ -26,7 +27,7 @@ abstract class CharacterFactory(
         machineGunSparkModel: Model,
         relativePositionCalculator: ArmComponent.RelativePositionCalculator
     ): Entity {
-        return EntityBuilder.begin()
+        return entityBuilder.begin()
             .addModelInstanceComponent(
                 GameModelInstance(ModelInstance(machineGunSparkModel), ModelDefinition.MACHINE_GUN_SPARK),
                 Vector3(),
@@ -45,7 +46,8 @@ abstract class CharacterFactory(
         primaryArmComponentCreator: () -> EntityBuilder,
         boardingAnimation: BoardingAnimation?
     ): GameModelInstance {
-        val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
+        val gameModelInstance =
+            gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
         entityBuilder.addModelInstanceComponent(
             gameModelInstance,
             auxVector3_1.set(base.col.toFloat() + 1F, -2.7F, base.row.toFloat() + 1F),

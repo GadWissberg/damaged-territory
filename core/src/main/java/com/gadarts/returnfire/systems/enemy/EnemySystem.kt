@@ -17,15 +17,14 @@ import com.gadarts.returnfire.components.EnemyComponent
 import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.CharacterType
-import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 
-class EnemySystem : GameEntitySystem() {
-    private val enemyAi by lazy { EnemyAttackLogic(gameSessionData, managers) }
+class EnemySystem(managers: Managers) : GameEntitySystem(managers) {
+    private val enemyAi by lazy { EnemyAttackLogic(gameSessionData, this.managers) }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
@@ -61,7 +60,7 @@ class EnemySystem : GameEntitySystem() {
         modelInstanceComponent.gameModelInstance.setBoundingBox(
             managers.assetsManager.getCachedBoundingBox(randomDeadModel)
         )
-        EntityBuilder.begin()
+        managers.entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)

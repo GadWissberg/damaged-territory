@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
-import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.player.PlayerSystem
@@ -30,7 +29,7 @@ class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
             modelInstanceComponent.gameModelInstance.modelInstance.transform
         val physicsTransform =
             if (isApache) Matrix4(modelInstanceTransform) else modelInstanceTransform
-        val physicsComponent = EntityBuilder.addPhysicsComponent(
+        val physicsComponent = managers.entityBuilder.addPhysicsComponentToEntity(
             gameSessionData.gameplayData.player,
             playerShape,
             10F,

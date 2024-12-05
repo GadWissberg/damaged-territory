@@ -14,7 +14,8 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 class SpecialEffectsFactory(
     private val gameSessionData: GameSessionData,
     private val soundPlayer: SoundPlayer,
-    private val assetsManager: GameAssetManager
+    private val assetsManager: GameAssetManager,
+    private val entityBuilder: EntityBuilder
 ) {
     private val waterSplashSounds by lazy {
         assetsManager.getAllAssetsByDefinition(
@@ -24,7 +25,7 @@ class SpecialEffectsFactory(
     private val waterSplashFloorTexture: Texture by lazy { assetsManager.getTexture("water_splash_floor") }
 
     fun generateWaterSplash(position: Vector3) {
-        EntityBuilder.begin()
+        entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
                 gameSessionData.pools.particleEffectsPools.obtain(
@@ -54,7 +55,7 @@ class SpecialEffectsFactory(
         val textureAttribute =
             material.get(TextureAttribute.Diffuse) as TextureAttribute
         textureAttribute.textureDescription.texture = texture
-        EntityBuilder.begin()
+        entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,

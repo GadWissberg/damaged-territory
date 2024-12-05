@@ -24,7 +24,7 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-class HudSystem : GameEntitySystem() {
+class HudSystem(managers: Managers) : GameEntitySystem(managers) {
     private var onboardButton: ImageButton? = null
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
@@ -37,12 +37,12 @@ class HudSystem : GameEntitySystem() {
             pointer: Int,
             button: Int
         ): Boolean {
-            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED.ordinal)
+            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED.ordinal)
+            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
@@ -55,12 +55,12 @@ class HudSystem : GameEntitySystem() {
             pointer: Int,
             button: Int
         ): Boolean {
-            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED.ordinal)
+            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED.ordinal)
+            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
@@ -73,12 +73,12 @@ class HudSystem : GameEntitySystem() {
             pointer: Int,
             button: Int
         ): Boolean {
-            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_PRESSED.ordinal)
+            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_RELEASED.ordinal)
+            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
@@ -90,7 +90,7 @@ class HudSystem : GameEntitySystem() {
             pointer: Int,
             button: Int
         ): Boolean {
-            managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_ONBOARD_PRESSED.ordinal)
+            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_ONBOARD_PRESSED.ordinal)
             if (onboardButton != null) {
                 onboardButton!!.isVisible = false
             }

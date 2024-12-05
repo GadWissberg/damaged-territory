@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.physics.PhysicsComponent
-import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -18,7 +17,7 @@ import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLL
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.auxVector
 
 
-class PhysicsSystem : GameEntitySystem() {
+class PhysicsSystem(managers: Managers) : GameEntitySystem(managers) {
 
     private lateinit var ghostObject: btPairCachingGhostObject
     private lateinit var contactListener: GameContactListener
@@ -64,7 +63,7 @@ class PhysicsSystem : GameEntitySystem() {
                 halfMapDepth,
             )
         )
-        val water = EntityBuilder.begin().finishAndAddToEngine()
+        val water = managers.entityBuilder.begin().finishAndAddToEngine()
         ghostObject = btPairCachingGhostObject()
         ghostObject.collisionShape = waterShape
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
@@ -117,7 +116,7 @@ class PhysicsSystem : GameEntitySystem() {
     private fun addBoundary(vector: Vector3, planeConstant: Int = 0) {
         val btRigidBody = createBoundaryPhysicsBody(vector, planeConstant)
         gameSessionData.physicsData.collisionWorld.addRigidBody(btRigidBody, COLLISION_GROUP_GROUND, -1)
-        btRigidBody.userData = EntityBuilder.begin().addGroundComponent().finishAndAddToEngine()
+        btRigidBody.userData = managers.entityBuilder.begin().addGroundComponent().finishAndAddToEngine()
     }
 
 }

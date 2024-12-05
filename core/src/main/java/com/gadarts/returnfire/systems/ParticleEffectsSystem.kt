@@ -20,7 +20,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 
-class ParticleEffectsSystem : GameEntitySystem() {
+class ParticleEffectsSystem(managers: Managers) : GameEntitySystem(managers) {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf()
 

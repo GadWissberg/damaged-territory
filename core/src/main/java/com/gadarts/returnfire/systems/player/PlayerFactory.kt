@@ -9,6 +9,7 @@ import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
+import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 
@@ -16,11 +17,12 @@ class PlayerFactory(
     assetsManager: GameAssetManager,
     gameSessionData: GameSessionData,
     playerShootingHandler: PlayerShootingHandler,
-    gameModelInstanceFactory: GameModelInstanceFactory
+    gameModelInstanceFactory: GameModelInstanceFactory,
+    entityBuilder: EntityBuilder
 ) {
     private val apacheFactory =
-        ApacheFactory(assetsManager, playerShootingHandler, gameSessionData, gameModelInstanceFactory)
-    private val tankFactory = TankFactory(assetsManager, gameSessionData, gameModelInstanceFactory)
+        ApacheFactory(assetsManager, playerShootingHandler, gameSessionData, gameModelInstanceFactory, entityBuilder)
+    private val tankFactory = TankFactory(assetsManager, gameSessionData, gameModelInstanceFactory, entityBuilder)
 
     fun create(base: PlacedElement, selected: CharacterDefinition): Entity {
         var player: Entity? = null

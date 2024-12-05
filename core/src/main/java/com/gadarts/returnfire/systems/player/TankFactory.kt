@@ -23,13 +23,14 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 class TankFactory(
     private val assetsManager: GameAssetManager,
     private val gameSessionData: GameSessionData,
-    gameModelInstanceFactory: GameModelInstanceFactory
-) : CharacterFactory(assetsManager, gameModelInstanceFactory) {
-    override fun create(placedPlayer: PlacedElement): Entity {
+    gameModelInstanceFactory: GameModelInstanceFactory,
+    private val entityBuilder: EntityBuilder
+) : CharacterFactory(assetsManager, gameModelInstanceFactory, entityBuilder) {
+    override fun create(base: PlacedElement): Entity {
         val primarySpark = createPrimarySpark(ModelDefinition.CANNON_SPARK, tankPrimaryRelativePositionCalculator)
-        val entityBuilder = EntityBuilder.begin()
+        val entityBuilder = entityBuilder.begin()
         addPlayerBaseComponents(
-            entityBuilder, placedPlayer, TurretCharacterDefinition.TANK, primarySpark,
+            entityBuilder, base, TurretCharacterDefinition.TANK, primarySpark,
             {
                 addTankPrimaryArmComponent(entityBuilder, primarySpark)
             },
@@ -42,7 +43,7 @@ class TankFactory(
         )
         val player = entityBuilder.finish()
         val cannon = addTankCannon(entityBuilder, player)
-        EntityBuilder.begin()
+        entityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
             GameModelInstance(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
@@ -103,7 +104,7 @@ class TankFactory(
         entityBuilder: EntityBuilder,
         player: Entity
     ): Entity {
-        EntityBuilder.begin()
+        entityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
             GameModelInstance(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_CANNON)),

@@ -59,24 +59,10 @@ class GamePlayScreen(
         )
     }
     private val engine: PooledEngine by lazy { PooledEngine() }
-    private val systems: List<GameEntitySystem> = listOf(
-        PhysicsSystem(),
-        CharacterSystemImpl(),
-        ParticleEffectsSystem(),
-        PlayerSystemImpl(),
-        RenderSystem(),
-        CameraSystem(),
-        HudSystem(),
-        ProfilingSystem(),
-        MapSystem(),
-        EnemySystem(),
-        BulletSystem(),
-    )
+    private lateinit var systems: List<GameEntitySystem>
 
     override fun show() {
-        systems.forEach {
-            engine.addSystem(it)
-        }
+        val entityBuilder = EntityBuilder(engine)
         val managers = Managers(
             engine,
             soundPlayer,
@@ -84,12 +70,28 @@ class GamePlayScreen(
             messageDispatcher,
             Factories(
                 RigidBodyFactory(),
-                SpecialEffectsFactory(gameSessionData, soundPlayer, assetsManager),
+                SpecialEffectsFactory(gameSessionData, soundPlayer, assetsManager, entityBuilder),
                 GameModelInstanceFactory(assetsManager)
             ),
-            screensManager
+            screensManager,
+            entityBuilder
         )
-        EntityBuilder.initialize(managers.engine)
+        systems = listOf(
+            PhysicsSystem(managers),
+            CharacterSystemImpl(managers),
+            ParticleEffectsSystem(managers),
+            PlayerSystemImpl(managers),
+            RenderSystem(managers),
+            CameraSystem(managers),
+            HudSystem(managers),
+            ProfilingSystem(managers),
+            MapSystem(managers),
+            EnemySystem(managers),
+            BulletSystem(managers),
+        )
+        systems.forEach {
+            engine.addSystem(it)
+        }
         engine.systems.forEach {
             (it as GameEntitySystem).initialize(
                 gameSessionData, managers
@@ -130,7 +132,6 @@ class GamePlayScreen(
         gameSessionData.finishSession()
         engine.systems.forEach { (it as GameEntitySystem).dispose() }
     }
-
 
 
 }

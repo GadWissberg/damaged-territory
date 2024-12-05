@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.screens.ScreensManager
+import com.gadarts.returnfire.systems.EntityBuilder
 
 class Managers(
     val engine: PooledEngine,
@@ -11,5 +12,6 @@ class Managers(
     val assetsManager: GameAssetManager,
     val dispatcher: MessageDispatcher,
     val factories: Factories,
-    val screensManager: ScreensManager
+    val screensManager: ScreensManager,
+    val entityBuilder: EntityBuilder
 )

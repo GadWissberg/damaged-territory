@@ -24,8 +24,8 @@ import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.AnimatedTextureComponent
-import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
@@ -33,7 +33,6 @@ import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.*
-import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.map.TilesMapping
 
@@ -78,7 +77,7 @@ class MapInflater(
         val gameModelInstance =
             managers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
         val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
-        val entity = EntityBuilder.begin()
+        val entity = managers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -115,7 +114,7 @@ class MapInflater(
     ) {
         val gameModelInstance =
             managers.factories.gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
-        val baseEntity = EntityBuilder.begin()
+        val baseEntity = managers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -139,7 +138,7 @@ class MapInflater(
         gameModelInstance: GameModelInstance,
         collisionFlags: Int
     ): PhysicsComponent {
-        return EntityBuilder.addPhysicsComponent(
+        return managers.entityBuilder.addPhysicsComponentToEntity(
             entity,
             createShapeForStaticObject(gameModelInstance.definition!!),
             0F,
@@ -177,7 +176,7 @@ class MapInflater(
         val modelInstance =
             managers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
         val spark = addTurretSpark(assetsManager, modelInstance.modelInstance)
-        val turret = EntityBuilder.begin()
+        val turret = managers.entityBuilder.begin()
             .addEnemyComponent()
             .addModelInstanceComponent(
                 modelInstance,
@@ -211,7 +210,7 @@ class MapInflater(
                 )
             )
         )
-        EntityBuilder.addPhysicsComponent(
+        managers.entityBuilder.addPhysicsComponentToEntity(
             turret,
             shape,
             10F,
@@ -257,7 +256,7 @@ class MapInflater(
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK)),
             ModelDefinition.CANNON_SPARK,
         )
-        val spark = EntityBuilder.begin()
+        val spark = managers.entityBuilder.begin()
             .addModelInstanceComponent(
                 model,
                 Vector3(),
@@ -337,7 +336,7 @@ class MapInflater(
         }
         val textureDefinition = applyTextureToFloorTile(col, row, entity, modelInstance)
         if (textureDefinition != null && !textureDefinition.fileName.contains("water")) {
-            EntityBuilder.addPhysicsComponent(
+            managers.entityBuilder.addPhysicsComponentToEntity(
                 entity,
                 btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
                 0F,
@@ -386,7 +385,7 @@ class MapInflater(
         modelInstance: GameModelInstance,
         position: Vector3
     ): Entity {
-        return EntityBuilder.begin()
+        return managers.entityBuilder.begin()
             .addModelInstanceComponent(modelInstance, position, null)
             .addGroundComponent()
             .finishAndAddToEngine()

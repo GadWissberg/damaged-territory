@@ -31,7 +31,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
-class BulletSystem : GameEntitySystem() {
+class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
             override fun react(
@@ -57,7 +57,7 @@ class BulletSystem : GameEntitySystem() {
         }
     )
 
-    private val blastRingTexture: Texture by lazy { managers.assetsManager.getTexture("blast_ring") }
+    private val blastRingTexture: Texture by lazy { this.managers.assetsManager.getTexture("blast_ring") }
 
     private val bulletEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
@@ -134,7 +134,7 @@ class BulletSystem : GameEntitySystem() {
         showSpark(spark, position, parentTransform)
         val gameModelInstance =
             gameSessionData.pools.gameModelInstancePools[BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition]!!.obtain()
-        val entityBuilder = EntityBuilder.begin()
+        val entityBuilder = managers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -160,7 +160,7 @@ class BulletSystem : GameEntitySystem() {
     }
 
     private fun addSparkParticleEffect(position: Vector3, arm: ArmComponent) {
-        EntityBuilder.begin()
+        managers.entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
                 arm.armProperties.effectsData.sparkParticleEffect
@@ -194,7 +194,7 @@ class BulletSystem : GameEntitySystem() {
             val yaw = gameModelInstance.modelInstance.transform.getRotation(
                 auxQuat
             ).yaw
-            EntityBuilder.begin()
+            managers.entityBuilder.begin()
                 .addParticleEffectComponent(
                     auxVector3.set(position).sub(
                         auxVector2.set(Vector3.X).rotate(
@@ -215,7 +215,7 @@ class BulletSystem : GameEntitySystem() {
         armProperties: ArmProperties,
     ) {
         val transform = gameModelInstance.modelInstance.transform
-        EntityBuilder.addPhysicsComponentPooled(
+        managers.entityBuilder.addPhysicsComponentPooled(
             bullet,
             armProperties.rigidBodyPool,
             managers.dispatcher,
@@ -286,7 +286,7 @@ class BulletSystem : GameEntitySystem() {
             if (explosive) {
                 managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL))
             }
-            EntityBuilder.begin()
+            managers.entityBuilder.begin()
                 .addParticleEffectComponent(
                     position,
                     gameSessionData.pools.particleEffectsPools.obtain(
@@ -296,7 +296,7 @@ class BulletSystem : GameEntitySystem() {
             addBlastRing(bulletComponent.explosion!!, position)
         } else {
             if (!explosive) {
-                EntityBuilder.begin()
+                managers.entityBuilder.begin()
                     .addParticleEffectComponent(
                         position,
                         gameSessionData.pools.particleEffectsPools.obtain(

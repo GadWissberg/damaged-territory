@@ -33,7 +33,11 @@ import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-class EntityBuilder private constructor() {
+class EntityBuilder(private val engine: PooledEngine) {
+    fun begin(): EntityBuilder {
+        entity = engine.createEntity()
+        return this
+    }
 
     fun addModelInstanceComponent(
         model: GameModelInstance,
@@ -45,7 +49,7 @@ class EntityBuilder private constructor() {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
         modelInstanceComponent.init(model, position, boundingBox, direction, hidden)
         entity!!.add(modelInstanceComponent)
-        return instance
+        return this
     }
 
     fun finishAndAddToEngine(): Entity {
@@ -61,30 +65,30 @@ class EntityBuilder private constructor() {
     ): EntityBuilder {
         val component = ChildDecalComponent(decals, visible)
         entity!!.add(component)
-        return instance
+        return this
     }
 
     fun addAmbSoundComponent(sound: Sound): EntityBuilder {
         Companion.addAmbSoundComponent(entity!!, sound)
-        return instance
+        return this
     }
 
     fun addCharacterComponent(definition: CharacterDefinition): EntityBuilder {
         val characterComponent = CharacterComponent(definition)
         entity!!.add(characterComponent)
-        return instance
+        return this
     }
 
     fun addOnboardingCharacterComponent(boardingAnimation: BoardingAnimation?): EntityBuilder {
         val boardingComponent = BoardingComponent(boardingAnimation)
         entity!!.add(boardingComponent)
-        return instance
+        return this
     }
 
     fun addPlayerComponent(): EntityBuilder {
         val characterComponent = PlayerComponent()
         entity!!.add(characterComponent)
-        return instance
+        return this
     }
 
     fun addPrimaryArmComponent(
@@ -95,7 +99,7 @@ class EntityBuilder private constructor() {
         ComponentsMapper.spark.get(spark).parent = entity!!
         val armComponent = PrimaryArmComponent(armProperties, spark, bulletBehavior)
         entity!!.add(armComponent)
-        return instance
+        return this
     }
 
     fun addSecondaryArmComponent(
@@ -106,7 +110,7 @@ class EntityBuilder private constructor() {
         ComponentsMapper.spark.get(spark).parent = entity!!
         val armComponent = SecondaryArmComponent(armProperties, spark, bulletBehavior)
         entity!!.add(armComponent)
-        return instance
+        return this
     }
 
 
@@ -120,19 +124,19 @@ class EntityBuilder private constructor() {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
         bulletComponent.init(behavior, explosion, explosive, friendly, damage)
         entity!!.add(bulletComponent)
-        return instance
+        return this
     }
 
     fun addAmbComponent(scale: Vector3, rotation: Float): EntityBuilder {
         val ambComponent = AmbComponent(scale, rotation)
         entity!!.add(ambComponent)
-        return instance
+        return this
     }
 
     fun addGroundComponent(): EntityBuilder {
         val groundComponent = engine.createComponent(GroundComponent::class.java)
         entity!!.add(groundComponent)
-        return instance
+        return this
     }
 
 
@@ -165,7 +169,7 @@ class EntityBuilder private constructor() {
             }
         }
         entity!!.add(particleEffectComponent)
-        return instance
+        return this
     }
 
     fun addSparkComponent(
@@ -173,50 +177,50 @@ class EntityBuilder private constructor() {
     ): EntityBuilder {
         val sparkComponent = SparkComponent(relativePositionCalculator)
         entity!!.add(sparkComponent)
-        return instance
+        return this
     }
 
     fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilder {
         val groundBlastComponent = engine.createComponent(GroundBlastComponent::class.java)
         groundBlastComponent.init(scalePace, duration, fadeOutPace)
         entity!!.add(groundBlastComponent)
-        return instance
+        return this
     }
 
     fun addTurretComponent(base: Entity, followBase: Boolean, cannon: Entity?): EntityBuilder {
         val turretComponent = TurretComponent(base, followBase, cannon)
         entity!!.add(turretComponent)
-        return instance
+        return this
     }
 
     fun addEnemyComponent(): EntityBuilder {
         val enemyComponent = engine.createComponent(EnemyComponent::class.java)
         entity!!.add(enemyComponent)
-        return instance
+        return this
     }
 
     fun addStageComponent(): EntityBuilder {
         val enemyComponent = engine.createComponent(StageComponent::class.java)
         entity!!.add(enemyComponent)
-        return instance
+        return this
     }
 
     fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder {
         val baseDoorComponent = BaseDoorComponent(initialX, targetX)
         entity!!.add(baseDoorComponent)
-        return instance
+        return this
     }
 
     fun addTurretBaseComponent(): EntityBuilder {
         val turretComponent = TurretBaseComponent()
         entity!!.add(turretComponent)
-        return instance
+        return this
     }
 
     fun addChildModelInstanceComponent(gameModelInstance: GameModelInstance): EntityBuilder {
         val childModelInstanceComponent = ChildModelInstanceComponent(gameModelInstance)
         entity!!.add(childModelInstanceComponent)
-        return instance
+        return this
     }
 
     fun addPhysicsComponent(
@@ -226,7 +230,7 @@ class EntityBuilder private constructor() {
         transform: Matrix4,
         applyGravity: Boolean,
     ): EntityBuilder {
-        val physicsComponent = addPhysicsComponent(
+        val physicsComponent = addPhysicsComponentToEntity(
             entity!!,
             shape,
             1F,
@@ -236,7 +240,7 @@ class EntityBuilder private constructor() {
             applyGravity,
         )
         entity!!.add(physicsComponent)
-        return instance
+        return this
     }
 
     fun finish(): Entity {
@@ -245,22 +249,79 @@ class EntityBuilder private constructor() {
         return result!!
     }
 
+    fun addPhysicsComponentPooled(
+        entity: Entity,
+        rigidBodyPool: RigidBodyPool,
+        dispatcher: MessageDispatcher,
+        collisionFlag: Int,
+        transform: Matrix4,
+        applyGravity: Boolean = false
+    ): PhysicsComponent {
+        return addPhysicsComponent(
+            entity,
+            rigidBodyPool.obtain(),
+            dispatcher,
+            collisionFlag,
+            transform,
+            applyGravity
+        )
+    }
+
+    private fun addPhysicsComponent(
+        entity: Entity,
+        rigidBody: RigidBody,
+        dispatcher: MessageDispatcher,
+        collisionFlag: Int?,
+        transform: Matrix4?,
+        applyGravity: Boolean,
+    ): PhysicsComponent {
+        rigidBody.angularVelocity = Vector3.Zero
+        rigidBody.clearForces()
+        rigidBody.setSleepingThresholds(1f, 1f)
+        rigidBody.deactivationTime = 5f
+        rigidBody.activate()
+        rigidBody.activationState = Collision.DISABLE_DEACTIVATION
+        rigidBody.angularFactor = Vector3(1F, 1F, 1F)
+        rigidBody.friction = 1.5F
+        if (collisionFlag != null) {
+            rigidBody.collisionFlags = collisionFlag
+        }
+        if (transform != null) {
+            val motionState = rigidBody.motionState as MotionState
+            motionState.transformObject = transform
+            motionState.setWorldTransform(transform)
+        }
+        val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
+        physicsComponent.init(rigidBody)
+        physicsComponent.rigidBody.userData = entity
+        entity.add(physicsComponent)
+        if (applyGravity) {
+            physicsComponent.rigidBody.gravity = auxVector.set(0F, -10F, 0F)
+        }
+        dispatcher.dispatchMessage(
+            SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
+            entity
+        )
+        return physicsComponent
+    }
+
+    fun addPhysicsComponentToEntity(
+        entity: Entity,
+        shape: btCollisionShape,
+        mass: Float,
+        managers: Managers,
+        collisionFlag: Int,
+        transform: Matrix4,
+        applyGravity: Boolean = false
+    ): PhysicsComponent {
+        val rigidBody = managers.factories.rigidBodyFactory.create(mass, shape, null, transform)
+        return addPhysicsComponent(entity, rigidBody, managers.dispatcher, collisionFlag, null, applyGravity)
+    }
 
     companion object {
         private val auxVector = Vector3()
-        private lateinit var instance: EntityBuilder
         var entity: Entity? = null
-        lateinit var engine: PooledEngine
 
-        fun begin(): EntityBuilder {
-            entity = engine.createEntity()
-            return instance
-        }
-
-        fun initialize(engine: PooledEngine) {
-            this.engine = engine
-            this.instance = EntityBuilder()
-        }
 
         fun addAmbSoundComponent(entity: Entity, sound: Sound): Entity {
             val ambSoundComponent = AmbSoundComponent(sound)
@@ -268,73 +329,6 @@ class EntityBuilder private constructor() {
             return entity
         }
 
-        fun addPhysicsComponent(
-            entity: Entity,
-            shape: btCollisionShape,
-            mass: Float,
-            managers: Managers,
-            collisionFlag: Int,
-            transform: Matrix4,
-            applyGravity: Boolean = false
-        ): PhysicsComponent {
-            val rigidBody = managers.factories.rigidBodyFactory.create(mass, shape, null, transform)
-            return addPhysicsComponent(entity, rigidBody, managers.dispatcher, collisionFlag, null, applyGravity)
-        }
 
-        fun addPhysicsComponentPooled(
-            entity: Entity,
-            rigidBodyPool: RigidBodyPool,
-            dispatcher: MessageDispatcher,
-            collisionFlag: Int,
-            transform: Matrix4,
-            applyGravity: Boolean = false
-        ): PhysicsComponent {
-            return addPhysicsComponent(
-                entity,
-                rigidBodyPool.obtain(),
-                dispatcher,
-                collisionFlag,
-                transform,
-                applyGravity
-            )
-        }
-
-        private fun addPhysicsComponent(
-            entity: Entity,
-            rigidBody: RigidBody,
-            dispatcher: MessageDispatcher,
-            collisionFlag: Int?,
-            transform: Matrix4?,
-            applyGravity: Boolean,
-        ): PhysicsComponent {
-            rigidBody.angularVelocity = Vector3.Zero
-            rigidBody.clearForces()
-            rigidBody.setSleepingThresholds(1f, 1f)
-            rigidBody.deactivationTime = 5f
-            rigidBody.activate()
-            rigidBody.activationState = Collision.DISABLE_DEACTIVATION
-            rigidBody.angularFactor = Vector3(1F, 1F, 1F)
-            rigidBody.friction = 1.5F
-            if (collisionFlag != null) {
-                rigidBody.collisionFlags = collisionFlag
-            }
-            if (transform != null) {
-                val motionState = rigidBody.motionState as MotionState
-                motionState.transformObject = transform
-                motionState.setWorldTransform(transform)
-            }
-            val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
-            physicsComponent.init(rigidBody)
-            physicsComponent.rigidBody.userData = entity
-            entity.add(physicsComponent)
-            if (applyGravity) {
-                physicsComponent.rigidBody.gravity = auxVector.set(0F, -10F, 0F)
-            }
-            dispatcher.dispatchMessage(
-                SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
-                entity
-            )
-            return physicsComponent
-        }
     }
 }

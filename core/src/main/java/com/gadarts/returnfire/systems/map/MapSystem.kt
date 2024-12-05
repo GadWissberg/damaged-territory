@@ -25,7 +25,6 @@ import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -34,7 +33,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 /**
  * Responsible to create the map from the loaded map file and manage general map procedures and ambient effects.
  */
-class MapSystem : GameEntitySystem() {
+class MapSystem(managers: Managers) : GameEntitySystem(managers) {
 
     private var doorMoveState: Int = 1
     private var baseDoorSoundId: Long = -1L
@@ -138,7 +137,7 @@ class MapSystem : GameEntitySystem() {
             ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        val door = EntityBuilder.begin()
+        val door = managers.entityBuilder.begin()
             .addModelInstanceComponent(
                 doorModelInstance,
                 basePosition.add(1F, -0.1F, 1F), null
@@ -158,7 +157,7 @@ class MapSystem : GameEntitySystem() {
         val decal = Decal.newDecal(2F, 2F, TextureRegion(managers.assetsManager.getTexture("landing_ok")), true)
         val color = decal.color
         decal.setColor(color.r, color.g, color.b, 0.5F)
-        return EntityBuilder.begin()
+        return managers.entityBuilder.begin()
             .addModelInstanceComponent(
                 stageModelInstance,
                 ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(

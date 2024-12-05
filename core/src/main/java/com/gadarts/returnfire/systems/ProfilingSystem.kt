@@ -14,7 +14,7 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-class ProfilingSystem : GameEntitySystem() {
+class ProfilingSystem(managers: Managers) : GameEntitySystem(managers) {
 
     private val stringBuilder: StringBuilder = StringBuilder()
     private val glProfiler: GLProfiler by lazy { GLProfiler(Gdx.graphics) }

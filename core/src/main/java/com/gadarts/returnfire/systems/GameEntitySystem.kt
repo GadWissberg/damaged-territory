@@ -8,9 +8,8 @@ import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-abstract class GameEntitySystem : Disposable, EntitySystem(), Telegraph {
+abstract class GameEntitySystem(protected val managers: Managers) : Disposable, EntitySystem(), Telegraph {
     lateinit var gameSessionData: GameSessionData
-    protected lateinit var managers: Managers
     protected open val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
 
     open fun addListener() {
@@ -33,7 +32,6 @@ abstract class GameEntitySystem : Disposable, EntitySystem(), Telegraph {
         gameSessionData: GameSessionData,
         managers: Managers
     ) {
-        this.managers = managers
         this.gameSessionData = gameSessionData
     }
 

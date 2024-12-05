@@ -8,7 +8,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-class CameraSystem : GameEntitySystem() {
+class CameraSystem(managers: Managers) : GameEntitySystem(managers) {
 
 
     private var cameraTarget = Vector3()

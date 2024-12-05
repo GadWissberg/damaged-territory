@@ -29,16 +29,17 @@ class ApacheFactory(
     private val assetsManager: GameAssetManager,
     private val playerShootingHandler: PlayerShootingHandler,
     private val gameSessionData: GameSessionData,
-    gameModelInstanceFactory: GameModelInstanceFactory
+    gameModelInstanceFactory: GameModelInstanceFactory,
+    private val entityBuilder: EntityBuilder
 ) :
-    CharacterFactory(assetsManager, gameModelInstanceFactory) {
+    CharacterFactory(assetsManager, gameModelInstanceFactory, entityBuilder) {
 
     override fun create(base: PlacedElement): Entity {
         val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
         val secondarySpark = addSpark(machineGunSparkModel, secRelativePositionCalculator)
         val primarySpark =
             createPrimarySpark(ModelDefinition.MACHINE_GUN_SPARK, apachePrimaryRelativePositionCalculator)
-        val entityBuilder = EntityBuilder.begin()
+        val entityBuilder = entityBuilder.begin()
         addPlayerBaseComponents(
             entityBuilder, base, SimpleCharacterDefinition.APACHE, primarySpark,
             {

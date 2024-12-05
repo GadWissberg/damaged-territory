@@ -35,7 +35,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 /**
  * Responsible for rendering the 3D models, their shadows, decals and collision shapes.
  */
-class RenderSystem : GameEntitySystem(), Disposable {
+class RenderSystem(managers: Managers) : GameEntitySystem(managers), Disposable {
 
     private val renderFlags = RenderFlags()
     private lateinit var relatedEntities: RenderSystemRelatedEntities

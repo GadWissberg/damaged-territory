@@ -22,7 +22,6 @@ import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
-import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnCharacterWeaponShotPrimary
@@ -32,7 +31,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
 
-class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
+class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySystem(managers) {
 
 
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
@@ -57,7 +56,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             Family.all(TurretComponent::class.java).get()
         )
     }
-    private val flyingPartBoundingBox by lazy { managers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART) }
+    private val flyingPartBoundingBox by lazy { this.managers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART) }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
@@ -93,7 +92,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                 addFlyingPartsForDamage(first)
                 ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base).takeDamage(damage)
             }
-            EntityBuilder.begin()
+            managers.entityBuilder.begin()
                 .addParticleEffectComponent(
                     ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
@@ -294,7 +293,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                                 characterTransform.getTranslation(
                                     auxVector1
                                 )
-                            val smoke = EntityBuilder.begin().addParticleEffectComponent(
+                            val smoke = managers.entityBuilder.begin().addParticleEffectComponent(
                                 position = position,
                                 pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
                                 parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
@@ -314,7 +313,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
                     } else {
                         val entity =
                             if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(character).turret else character
-                        EntityBuilder.begin().addParticleEffectComponent(
+                        managers.entityBuilder.begin().addParticleEffectComponent(
                             ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
                                 auxVector1
                             ).add(
@@ -402,7 +401,7 @@ class CharacterSystemImpl : CharacterSystem, GameEntitySystem() {
             managers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
         )
         val gameModelInstance = GameModelInstance(modelInstance, ModelDefinition.FLYING_PART)
-        val flyingPart = EntityBuilder.begin()
+        val flyingPart = managers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,

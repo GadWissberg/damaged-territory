@@ -15,7 +15,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 import kotlin.math.abs
 
-class PlayerShootingHandler {
+class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
     private lateinit var gameSessionData: GameSessionData
     private lateinit var dispatcher: MessageDispatcher
     var secondaryCreationSide = false
@@ -76,7 +76,7 @@ class PlayerShootingHandler {
                     val cannon =
                         ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(gameSessionData.gameplayData.player).turret).cannon
                     val direction = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
-                    val particleEffect = EntityBuilder.begin().addParticleEffectComponent(
+                    val particleEffect = entityBuilder.begin().addParticleEffectComponent(
                         direction.getTranslation(auxVector3_1),
                         gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
                         parentRelativePosition = auxVector3_2.set(0.5F, 0F, 0F),

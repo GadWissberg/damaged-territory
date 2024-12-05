@@ -37,20 +37,21 @@ import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSec
 /**
  * Responsible to initialize input, create the player and updates the player's character according to the input.
  */
-class PlayerSystemImpl : GameEntitySystem(), PlayerSystem, InputProcessor {
+class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerSystem, InputProcessor {
 
     private val stage: Entity by lazy {
         engine.getEntitiesFor(
             Family.all(StageComponent::class.java).get()
         ).first()
     }
-    private val playerShootingHandler = PlayerShootingHandler()
+    private val playerShootingHandler = PlayerShootingHandler(managers.entityBuilder)
     private val playerFactory by lazy {
         PlayerFactory(
             managers.assetsManager,
             gameSessionData,
             playerShootingHandler,
-            managers.factories.gameModelInstanceFactory
+            managers.factories.gameModelInstanceFactory,
+            managers.entityBuilder
         )
     }
     private val playerMovementHandler: VehicleMovementHandler by lazy {
