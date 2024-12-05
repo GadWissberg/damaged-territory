@@ -53,7 +53,7 @@ class BulletEngineHandler(
     override fun entityAdded(entity: Entity) {
     }
 
-    fun addBodyOfEntity(entity: Entity) {
+    fun addBodyOfEntityToCollisionWorld(entity: Entity) {
         if (ComponentsMapper.physics.has(entity)) {
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
             if (ComponentsMapper.bullet.has(entity)) {

@@ -63,13 +63,13 @@ class ProfilingSystem : GameEntitySystem() {
             if (GameDebugSettings.SHOW_OBJECT_POOL_PROFILING) {
                 displayLine("Ground blast pool:", "${gameSessionData.pools.groundBlastPool.free}")
                 gameSessionData.pools.gameModelInstancePools.forEach { pair ->
-                    displayLine("${pair.key} pool:", "${pair.value.free}")
+                    displayLine("GameModelInstance ${pair.key} pool:", "${pair.value.free}")
                 }
                 gameSessionData.pools.particleEffectsPools.pools.forEach { pair ->
-                    displayLine("${pair.key} pool:", "${pair.value.free}")
+                    displayLine("ParticleEffect ${pair.key} pool:", "${pair.value.free}")
                 }
                 gameSessionData.pools.rigidBodyPools.pools.forEach { pair ->
-                    displayLine("${pair.key} pool:", "${pair.value.free}")
+                    displayLine("RigidBody: ${pair.key} pool:", "${pair.value.free}")
                 }
             }
             label.setText(stringBuilder)

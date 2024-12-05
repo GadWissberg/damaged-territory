@@ -34,7 +34,7 @@ class PhysicsSystem : GameEntitySystem() {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                bulletEngineHandler.addBodyOfEntity(msg.extraInfo as Entity)
+                bulletEngineHandler.addBodyOfEntityToCollisionWorld(msg.extraInfo as Entity)
             }
         },
         SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY to object : HandlerOnEvent {
