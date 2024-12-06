@@ -33,7 +33,6 @@ class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
             gameSessionData.gameplayData.player,
             playerShape,
             10F,
-            managers,
             CollisionFlags.CF_CHARACTER_OBJECT,
             physicsTransform,
         )

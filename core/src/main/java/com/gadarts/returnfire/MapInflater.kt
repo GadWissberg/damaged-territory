@@ -142,7 +142,6 @@ class MapInflater(
             entity,
             createShapeForStaticObject(gameModelInstance.definition!!),
             0F,
-            managers,
             collisionFlags,
             Matrix4(gameModelInstance.modelInstance.transform),
         )
@@ -214,7 +213,6 @@ class MapInflater(
             turret,
             shape,
             10F,
-            managers,
             CollisionFlags.CF_KINEMATIC_OBJECT,
             modelInstance.transform,
         )
@@ -340,7 +338,6 @@ class MapInflater(
                 entity,
                 btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
                 0F,
-                managers,
                 CollisionFlags.CF_STATIC_OBJECT,
                 modelInstance.modelInstance.transform
             )

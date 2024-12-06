@@ -43,17 +43,17 @@ class ApacheFactory(
         addPlayerBaseComponents(
             entityBuilder, base, SimpleCharacterDefinition.APACHE, primarySpark,
             {
-                addApachePrimaryArmComponent(entityBuilder, primarySpark)
+                addApachePrimaryArmComponent(primarySpark)
             },
             ApacheBoardingAnimation()
         )
-        addPropeller(entityBuilder)
+        addPropeller()
         val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER)
         gameModelInstance.modelInstance.materials.get(0).set(BlendingAttribute())
         entityBuilder.addChildModelInstanceComponent(
             gameModelInstance,
         )
-        addSecondaryArmComponent(entityBuilder, secondarySpark)
+        addSecondaryArmComponent(secondarySpark)
         val player = entityBuilder.finish()
         ComponentsMapper.spark.get(secondarySpark).parent = player
         return player
@@ -61,7 +61,6 @@ class ApacheFactory(
     }
 
     private fun addApachePrimaryArmComponent(
-        entityBuilder: EntityBuilder,
         primarySpark: Entity,
     ): EntityBuilder {
         entityBuilder.addPrimaryArmComponent(
@@ -119,7 +118,6 @@ class ApacheFactory(
     }
 
     private fun addSecondaryArmComponent(
-        entityBuilder: EntityBuilder,
         secondarySpark: Entity,
     ): EntityBuilder {
         entityBuilder.addSecondaryArmComponent(
@@ -149,7 +147,6 @@ class ApacheFactory(
     }
 
     private fun addPropeller(
-        entityBuilder: EntityBuilder
     ) {
         val definitions = assetsManager.getTexturesDefinitions()
         val propTextureRegion =

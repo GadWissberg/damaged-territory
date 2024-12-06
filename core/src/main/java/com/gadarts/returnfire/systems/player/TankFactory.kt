@@ -42,7 +42,7 @@ class TankFactory(
             engineSound
         )
         val player = entityBuilder.finish()
-        val cannon = addTankCannon(entityBuilder, player)
+        val cannon = addTankCannon(player)
         entityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
             GameModelInstance(
@@ -101,7 +101,6 @@ class TankFactory(
     }
 
     private fun addTankCannon(
-        entityBuilder: EntityBuilder,
         player: Entity
     ): Entity {
         entityBuilder.begin()

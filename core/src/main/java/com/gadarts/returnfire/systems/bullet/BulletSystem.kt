@@ -17,13 +17,12 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -147,7 +146,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
                 BulletCreationRequestEventData.friendly,
                 BulletCreationRequestEventData.armComponent.armProperties.damage
             )
-        addSmokeTrail(BulletCreationRequestEventData.armComponent, entityBuilder, position)
+        addSmokeTrail(BulletCreationRequestEventData.armComponent, position)
         val bullet = entityBuilder.finishAndAddToEngine()
         applyPhysicsToBullet(
             bullet,
@@ -218,7 +217,6 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
         managers.entityBuilder.addPhysicsComponentPooled(
             bullet,
             armProperties.rigidBodyPool,
-            managers.dispatcher,
             CollisionFlags.CF_CHARACTER_OBJECT,
             transform,
         )
@@ -240,17 +238,15 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
 
     private fun addSmokeTrail(
         arm: ArmComponent,
-        entityBuilder: EntityBuilder,
         position: Vector3
     ) {
         val effectsData = arm.armProperties.effectsData
         if (effectsData.smokeTrail != null) {
-            entityBuilder
-                .addParticleEffectComponent(
-                    position = position,
-                    pool = effectsData.smokeTrail,
-                    thisEntityAsParent = true
-                )
+            managers.entityBuilder.addParticleEffectComponent(
+                position = position,
+                pool = effectsData.smokeTrail,
+                thisEntityAsParent = true
+            )
         }
     }
 

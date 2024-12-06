@@ -54,5 +54,7 @@ object ComponentsMapper {
         ComponentMapper.getFor(BaseDoorComponent::class.java)
     val childModelInstanceComponent: ComponentMapper<ChildModelInstanceComponent> =
         ComponentMapper.getFor(ChildModelInstanceComponent::class.java)
+    val autoaim: ComponentMapper<AutoAimComponent> =
+        ComponentMapper.getFor(AutoAimComponent::class.java)
 
 }

@@ -7,7 +7,10 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
+import com.badlogic.gdx.physics.bullet.collision.btConeShape
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
@@ -31,8 +34,6 @@ import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.Movement
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterDied
 import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterOnboarded
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonPrimaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnWeaponButtonSecondaryReleased
 
 /**
  * Responsible to initialize input, create the player and updates the player's character according to the input.
@@ -43,6 +44,19 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
         engine.getEntitiesFor(
             Family.all(StageComponent::class.java).get()
         ).first()
+    }
+    private val autoAim by lazy {
+        val modelInstance =
+            ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance
+        managers.entityBuilder.begin()
+            .addAutoAimComponent()
+            .addPhysicsComponent(
+                btConeShape(1F, 2F),
+                CollisionFlags.CF_NO_CONTACT_RESPONSE,
+                Matrix4(modelInstance.transform),
+                false
+            )
+            .finishAndAddToEngine()
     }
     private val playerShootingHandler = PlayerShootingHandler(managers.entityBuilder)
     private val playerFactory by lazy {
@@ -90,9 +104,11 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
                 playerShootingHandler.startPrimaryShooting()
             }
         },
-        BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnWeaponButtonPrimaryReleased(
-            playerShootingHandler
-        ),
+        BUTTON_WEAPON_PRIMARY_RELEASED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                playerShootingHandler.stopPrimaryShooting()
+            }
+        },
         BUTTON_WEAPON_SECONDARY_PRESSED to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
@@ -102,9 +118,11 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
                 playerShootingHandler.startSecondaryShooting()
             }
         },
-        BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnWeaponButtonSecondaryReleased(
-            playerShootingHandler
-        ),
+        BUTTON_WEAPON_SECONDARY_RELEASED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                playerShootingHandler.stopSecondaryShooting()
+            }
+        },
         BUTTON_REVERSE_PRESSED to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
@@ -175,9 +193,9 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-                && position.x >= stagePosition.x - LANDING_OK_OFFSET
-                && position.z <= stagePosition.z + LANDING_OK_OFFSET
-                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             managers.dispatcher.dispatchMessage(
@@ -298,7 +316,8 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
         val player = playerFactory.create(base!!, gameSessionData.selected)
         engine.addEntity(player)
         gameSessionData.gameplayData.player = player
-        ComponentsMapper.modelInstance.get(player).hidden = GameDebugSettings.HIDE_PLAYER
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
+        modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
         initializePlayerHandlers()
         return player
     }
@@ -306,7 +325,8 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
     private fun initializePlayerHandlers() {
         playerShootingHandler.initialize(
             managers.dispatcher,
-            gameSessionData
+            gameSessionData,
+            autoAim
         )
     }
 

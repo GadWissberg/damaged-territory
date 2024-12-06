@@ -14,6 +14,7 @@ import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.EntityBuilderImpl
 
 abstract class CharacterFactory(
     private val assetsManager: GameAssetManager,
@@ -57,7 +58,7 @@ abstract class CharacterFactory(
         entityBuilder.addOnboardingCharacterComponent(boardingAnimation)
         entityBuilder.addPlayerComponent()
         primaryArmComponentCreator()
-        ComponentsMapper.spark.get(primarySpark).parent = EntityBuilder.entity!!
+        ComponentsMapper.spark.get(primarySpark).parent = EntityBuilderImpl.entity!!
         return gameModelInstance
     }
 

@@ -62,19 +62,21 @@ class GamePlayScreen(
     private lateinit var systems: List<GameEntitySystem>
 
     override fun show() {
-        val entityBuilder = EntityBuilder(engine)
+        val entityBuilderImpl = EntityBuilderImpl()
+        val factories = Factories(
+            RigidBodyFactory(),
+            SpecialEffectsFactory(gameSessionData, soundPlayer, assetsManager, entityBuilderImpl),
+            GameModelInstanceFactory(assetsManager)
+        )
+        entityBuilderImpl.init(engine, factories, messageDispatcher)
         val managers = Managers(
             engine,
             soundPlayer,
             assetsManager,
             messageDispatcher,
-            Factories(
-                RigidBodyFactory(),
-                SpecialEffectsFactory(gameSessionData, soundPlayer, assetsManager, entityBuilder),
-                GameModelInstanceFactory(assetsManager)
-            ),
+            factories,
             screensManager,
-            entityBuilder
+            entityBuilderImpl
         )
         systems = listOf(
             PhysicsSystem(managers),
@@ -92,13 +94,13 @@ class GamePlayScreen(
         systems.forEach {
             engine.addSystem(it)
         }
+        systems.forEach { system ->
+            system.addListener()
+        }
         engine.systems.forEach {
             (it as GameEntitySystem).initialize(
                 gameSessionData, managers
             )
-        }
-        systems.forEach { system ->
-            system.addListener()
         }
         engine.systems.forEach {
             (it as GameEntitySystem).onSystemReady()

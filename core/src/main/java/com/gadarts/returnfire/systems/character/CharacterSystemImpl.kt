@@ -413,7 +413,6 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
                         auxVector1
                     ).scl(0.4F)
                 ),
-                managers,
                 CollisionFlags.CF_CHARACTER_OBJECT,
                 modelInstance.transform,
                 true,

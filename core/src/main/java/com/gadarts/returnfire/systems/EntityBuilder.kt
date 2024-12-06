@@ -1,145 +1,25 @@
 package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.audio.Sound
-import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
-import com.gadarts.returnfire.components.arm.PrimaryArmComponent
-import com.gadarts.returnfire.components.arm.SecondaryArmComponent
 import com.gadarts.returnfire.components.bullet.BulletBehavior
-import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
-import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
-import com.gadarts.returnfire.components.onboarding.BoardingComponent
-import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
-import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
-import com.gadarts.returnfire.systems.events.SystemEvents
 
-class EntityBuilder(private val engine: PooledEngine) {
-    fun begin(): EntityBuilder {
-        entity = engine.createEntity()
-        return this
-    }
-
-    fun addModelInstanceComponent(
-        model: GameModelInstance,
-        position: Vector3,
-        boundingBox: BoundingBox?,
-        direction: Float = 0F,
-        hidden: Boolean = false
-    ): EntityBuilder {
-        val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position, boundingBox, direction, hidden)
-        entity!!.add(modelInstanceComponent)
-        return this
-    }
-
-    fun finishAndAddToEngine(): Entity {
-        engine.addEntity(entity)
-        val result = entity
-        entity = null
-        return result!!
-    }
-
-    fun addChildDecalComponent(
-        decals: List<ChildDecal>,
-        visible: Boolean = true,
-    ): EntityBuilder {
-        val component = ChildDecalComponent(decals, visible)
-        entity!!.add(component)
-        return this
-    }
-
-    fun addAmbSoundComponent(sound: Sound): EntityBuilder {
-        Companion.addAmbSoundComponent(entity!!, sound)
-        return this
-    }
-
-    fun addCharacterComponent(definition: CharacterDefinition): EntityBuilder {
-        val characterComponent = CharacterComponent(definition)
-        entity!!.add(characterComponent)
-        return this
-    }
-
-    fun addOnboardingCharacterComponent(boardingAnimation: BoardingAnimation?): EntityBuilder {
-        val boardingComponent = BoardingComponent(boardingAnimation)
-        entity!!.add(boardingComponent)
-        return this
-    }
-
-    fun addPlayerComponent(): EntityBuilder {
-        val characterComponent = PlayerComponent()
-        entity!!.add(characterComponent)
-        return this
-    }
-
-    fun addPrimaryArmComponent(
-        spark: Entity,
-        armProperties: ArmProperties,
-        bulletBehavior: BulletBehavior
-    ): EntityBuilder {
-        ComponentsMapper.spark.get(spark).parent = entity!!
-        val armComponent = PrimaryArmComponent(armProperties, spark, bulletBehavior)
-        entity!!.add(armComponent)
-        return this
-    }
-
-    fun addSecondaryArmComponent(
-        spark: Entity,
-        armProperties: ArmProperties,
-        bulletBehavior: BulletBehavior
-    ): EntityBuilder {
-        ComponentsMapper.spark.get(spark).parent = entity!!
-        val armComponent = SecondaryArmComponent(armProperties, spark, bulletBehavior)
-        entity!!.add(armComponent)
-        return this
-    }
-
-
-    fun addBulletComponent(
-        behavior: BulletBehavior,
-        explosion: ParticleEffectDefinition?,
-        explosive: Boolean,
-        friendly: Boolean,
-        damage: Int
-    ): EntityBuilder {
-        val bulletComponent = engine.createComponent(BulletComponent::class.java)
-        bulletComponent.init(behavior, explosion, explosive, friendly, damage)
-        entity!!.add(bulletComponent)
-        return this
-    }
-
-    fun addAmbComponent(scale: Vector3, rotation: Float): EntityBuilder {
-        val ambComponent = AmbComponent(scale, rotation)
-        entity!!.add(ambComponent)
-        return this
-    }
-
-    fun addGroundComponent(): EntityBuilder {
-        val groundComponent = engine.createComponent(GroundComponent::class.java)
-        entity!!.add(groundComponent)
-        return this
-    }
-
-
+interface EntityBuilder {
+    fun begin(): EntityBuilder
     fun addParticleEffectComponent(
         position: Vector3,
         pool: GameParticleEffectPool,
@@ -147,188 +27,81 @@ class EntityBuilder(private val engine: PooledEngine) {
         thisEntityAsParent: Boolean = false,
         parentRelativePosition: Vector3 = Vector3.Zero,
         ttlInSeconds: Int = 0
-    ): EntityBuilder {
-        val effect: ParticleEffect = pool.obtain()
-        val particleEffectComponent = engine.createComponent(
-            ParticleEffectComponent::class.java
-        )
-        particleEffectComponent.init(
-            effect,
-            pool.definition,
-            if (thisEntityAsParent) entity else null,
-            ttlInSeconds,
-            parentRelativePosition,
-        )
-        val controllers = effect.controllers
-        for (i in 0 until controllers.size) {
-            val transform = controllers[i].transform
-            transform.idt()
-            transform.setTranslation(position)
-            if (rotationAroundY != 0F) {
-                transform.rotate(Vector3.Y, rotationAroundY)
-            }
-        }
-        entity!!.add(particleEffectComponent)
-        return this
-    }
+    ): EntityBuilder
 
-    fun addSparkComponent(
-        relativePositionCalculator: ArmComponent.RelativePositionCalculator,
-    ): EntityBuilder {
-        val sparkComponent = SparkComponent(relativePositionCalculator)
-        entity!!.add(sparkComponent)
-        return this
-    }
+    fun finishAndAddToEngine(): Entity
+    fun addModelInstanceComponent(
+        model: GameModelInstance,
+        position: Vector3,
+        boundingBox: BoundingBox?,
+        direction: Float = 0F,
+        hidden: Boolean = false
+    ): EntityBuilder
 
-    fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilder {
-        val groundBlastComponent = engine.createComponent(GroundBlastComponent::class.java)
-        groundBlastComponent.init(scalePace, duration, fadeOutPace)
-        entity!!.add(groundBlastComponent)
-        return this
-    }
-
-    fun addTurretComponent(base: Entity, followBase: Boolean, cannon: Entity?): EntityBuilder {
-        val turretComponent = TurretComponent(base, followBase, cannon)
-        entity!!.add(turretComponent)
-        return this
-    }
-
-    fun addEnemyComponent(): EntityBuilder {
-        val enemyComponent = engine.createComponent(EnemyComponent::class.java)
-        entity!!.add(enemyComponent)
-        return this
-    }
-
-    fun addStageComponent(): EntityBuilder {
-        val enemyComponent = engine.createComponent(StageComponent::class.java)
-        entity!!.add(enemyComponent)
-        return this
-    }
-
-    fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder {
-        val baseDoorComponent = BaseDoorComponent(initialX, targetX)
-        entity!!.add(baseDoorComponent)
-        return this
-    }
-
-    fun addTurretBaseComponent(): EntityBuilder {
-        val turretComponent = TurretBaseComponent()
-        entity!!.add(turretComponent)
-        return this
-    }
-
-    fun addChildModelInstanceComponent(gameModelInstance: GameModelInstance): EntityBuilder {
-        val childModelInstanceComponent = ChildModelInstanceComponent(gameModelInstance)
-        entity!!.add(childModelInstanceComponent)
-        return this
-    }
-
+    fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilder
     fun addPhysicsComponent(
         shape: btCollisionShape,
-        managers: Managers,
         collisionFlag: Int,
         transform: Matrix4,
         applyGravity: Boolean,
-    ): EntityBuilder {
-        val physicsComponent = addPhysicsComponentToEntity(
-            entity!!,
-            shape,
-            1F,
-            managers,
-            collisionFlag,
-            transform,
-            applyGravity,
-        )
-        entity!!.add(physicsComponent)
-        return this
-    }
+    ): EntityBuilder
 
-    fun finish(): Entity {
-        val result = entity
-        entity = null
-        return result!!
-    }
+    fun addSparkComponent(relativePositionCalculator: ArmComponent.RelativePositionCalculator): EntityBuilder
+    fun addCharacterComponent(characterDefinition: CharacterDefinition): EntityBuilder
+    fun addOnboardingCharacterComponent(boardingAnimation: BoardingAnimation?): EntityBuilder
+    fun addPlayerComponent(): EntityBuilder
+    fun addTurretBaseComponent(): EntityBuilder
+    fun addAmbSoundComponent(sound: Sound): EntityBuilder
+    fun finish(): Entity
+    fun addTurretComponent(base: Entity, followBase: Boolean, cannon: Entity?): EntityBuilder
+    fun addPrimaryArmComponent(
+        spark: Entity,
+        armProperties: ArmProperties,
+        bulletBehavior: BulletBehavior
+    ): EntityBuilder
 
-    fun addPhysicsComponentPooled(
-        entity: Entity,
-        rigidBodyPool: RigidBodyPool,
-        dispatcher: MessageDispatcher,
-        collisionFlag: Int,
-        transform: Matrix4,
-        applyGravity: Boolean = false
-    ): PhysicsComponent {
-        return addPhysicsComponent(
-            entity,
-            rigidBodyPool.obtain(),
-            dispatcher,
-            collisionFlag,
-            transform,
-            applyGravity
-        )
-    }
+    fun addChildDecalComponent(
+        decals: List<ChildDecal>,
+        visible: Boolean = true,
+    ): EntityBuilder
 
-    private fun addPhysicsComponent(
-        entity: Entity,
-        rigidBody: RigidBody,
-        dispatcher: MessageDispatcher,
-        collisionFlag: Int?,
-        transform: Matrix4?,
-        applyGravity: Boolean,
-    ): PhysicsComponent {
-        rigidBody.angularVelocity = Vector3.Zero
-        rigidBody.clearForces()
-        rigidBody.setSleepingThresholds(1f, 1f)
-        rigidBody.deactivationTime = 5f
-        rigidBody.activate()
-        rigidBody.activationState = Collision.DISABLE_DEACTIVATION
-        rigidBody.angularFactor = Vector3(1F, 1F, 1F)
-        rigidBody.friction = 1.5F
-        if (collisionFlag != null) {
-            rigidBody.collisionFlags = collisionFlag
-        }
-        if (transform != null) {
-            val motionState = rigidBody.motionState as MotionState
-            motionState.transformObject = transform
-            motionState.setWorldTransform(transform)
-        }
-        val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
-        physicsComponent.init(rigidBody)
-        physicsComponent.rigidBody.userData = entity
-        entity.add(physicsComponent)
-        if (applyGravity) {
-            physicsComponent.rigidBody.gravity = auxVector.set(0F, -10F, 0F)
-        }
-        dispatcher.dispatchMessage(
-            SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
-            entity
-        )
-        return physicsComponent
-    }
+    fun addChildModelInstanceComponent(gameModelInstance: GameModelInstance): EntityBuilder
+    fun addSecondaryArmComponent(
+        spark: Entity,
+        armProperties: ArmProperties,
+        bulletBehavior: BulletBehavior
+    ): EntityBuilder
 
+    fun addAmbComponent(scale: Vector3, rotation: Float): EntityBuilder
+    fun addEnemyComponent(): EntityBuilder
     fun addPhysicsComponentToEntity(
         entity: Entity,
         shape: btCollisionShape,
         mass: Float,
-        managers: Managers,
         collisionFlag: Int,
         transform: Matrix4,
         applyGravity: Boolean = false
-    ): PhysicsComponent {
-        val rigidBody = managers.factories.rigidBodyFactory.create(mass, shape, null, transform)
-        return addPhysicsComponent(entity, rigidBody, managers.dispatcher, collisionFlag, null, applyGravity)
-    }
+    ): PhysicsComponent
 
-    companion object {
-        private val auxVector = Vector3()
-        var entity: Entity? = null
+    fun addGroundComponent(): EntityBuilder
+    fun addBulletComponent(
+        bulletBehavior: BulletBehavior,
+        explosion: ParticleEffectDefinition?,
+        explosive: Boolean,
+        friendly: Boolean,
+        damage: Int
+    ): EntityBuilder
 
+    fun addPhysicsComponentPooled(
+        entity: Entity,
+        rigidBodyPool: RigidBodyPool,
+        collisionFlag: Int,
+        transform: Matrix4,
+        applyGravity: Boolean = false
+    ): PhysicsComponent
 
-        fun addAmbSoundComponent(entity: Entity, sound: Sound): Entity {
-            val ambSoundComponent = AmbSoundComponent(sound)
-            entity.add(ambSoundComponent)
-            return entity
-        }
+    fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder
+    fun addStageComponent(): EntityBuilder
+    fun addAutoAimComponent(): EntityBuilder
 
-
-    }
 }

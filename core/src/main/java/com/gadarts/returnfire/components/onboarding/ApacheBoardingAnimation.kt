@@ -10,7 +10,7 @@ import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.EntityBuilderImpl
 
 class ApacheBoardingAnimation : BoardingAnimation {
     private var done: Boolean = false
@@ -106,7 +106,7 @@ class ApacheBoardingAnimation : BoardingAnimation {
             if (transform.getTranslation(auxVector).y >= startHeight) {
                 transform.setTranslation(auxVector.x, startHeight, auxVector.z)
                 ComponentsMapper.childModelInstanceComponent.get(character).visible = false
-                EntityBuilder.addAmbSoundComponent(
+                EntityBuilderImpl.addAmbSoundComponent(
                     character,
                     assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER)
                 )

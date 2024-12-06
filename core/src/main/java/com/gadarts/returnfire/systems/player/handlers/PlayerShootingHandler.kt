@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.systems.player.handlers
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -7,8 +8,9 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
@@ -16,6 +18,7 @@ import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 import kotlin.math.abs
 
 class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
+    private lateinit var autoAim: Entity
     private lateinit var gameSessionData: GameSessionData
     private lateinit var dispatcher: MessageDispatcher
     var secondaryCreationSide = false
@@ -25,9 +28,11 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
     fun initialize(
         dispatcher: MessageDispatcher,
         gameSessionData: GameSessionData,
+        autoAim: Entity,
     ) {
         this.gameSessionData = gameSessionData
         this.dispatcher = dispatcher
+        this.autoAim = autoAim
     }
 
     fun update() {
@@ -54,6 +59,10 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
     ) {
         if (!shooting) return
 
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player)
+        val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
+        val motionState = ComponentsMapper.physics.get(autoAim).rigidBody.motionState as MotionState
+        motionState.setWorldTransform(motionState.transformObject.set(transform))
         val now = TimeUtils.millis()
         if (armComp.loaded <= now) {
             armComp.displaySpark = now
@@ -66,7 +75,7 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
                     ).cannon == null
                 ) {
                     val rotation =
-                        ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance.transform.getRotation(
+                        transform.getRotation(
                             auxQuat
                         )
                     auxMatrix.set(
