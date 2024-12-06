@@ -7,10 +7,10 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btConeShape
+import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
@@ -24,6 +24,8 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.SystemEvents.*
+import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_ENEMY
+import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_PLAYER
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
@@ -46,17 +48,15 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
         ).first()
     }
     private val autoAim by lazy {
-        val modelInstance =
-            ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance
-        managers.entityBuilder.begin()
-            .addAutoAimComponent()
-            .addPhysicsComponent(
-                btConeShape(0.5F, 4F),
-                CollisionFlags.CF_NO_CONTACT_RESPONSE,
-                Matrix4(modelInstance.transform),
-                false
-            )
-            .finishAndAddToEngine()
+        val ghostObject = btPairCachingGhostObject()
+        ghostObject.collisionShape = btConeShape(0.5F, PlayerSystem.AUTO_AIM_HEIGHT)
+        ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
+        gameSessionData.physicsData.collisionWorld.addCollisionObject(
+            ghostObject,
+            COLLISION_GROUP_PLAYER,
+            COLLISION_GROUP_ENEMY
+        )
+        ghostObject
     }
     private val playerShootingHandler = PlayerShootingHandler(managers.entityBuilder)
     private val playerFactory by lazy {
@@ -164,7 +164,7 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
     }
 
     override fun dispose() {
-
+        autoAim.dispose()
     }
 
     override fun update(deltaTime: Float) {

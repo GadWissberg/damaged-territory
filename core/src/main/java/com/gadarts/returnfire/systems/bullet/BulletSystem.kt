@@ -148,14 +148,31 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
             )
         addSmokeTrail(BulletCreationRequestEventData.armComponent, position)
         val bullet = entityBuilder.finishAndAddToEngine()
+        val noTarget = BulletCreationRequestEventData.target == null
+        val aimingTransform =
+            if (noTarget) BulletCreationRequestEventData.direction else calculateDirectionToTarget(
+                position
+            )
         applyPhysicsToBullet(
             bullet,
             gameModelInstance,
-            BulletCreationRequestEventData.direction,
+            aimingTransform,
             BulletCreationRequestEventData.armComponent.armProperties,
         )
         addSmokeEmission(BulletCreationRequestEventData.armComponent.armProperties, gameModelInstance, position)
         addSparkParticleEffect(position, BulletCreationRequestEventData.armComponent)
+    }
+
+    private fun calculateDirectionToTarget(position: Vector3): Matrix4 {
+        val targetModelInstance =
+            ComponentsMapper.modelInstance.get(BulletCreationRequestEventData.target).gameModelInstance.modelInstance
+        val direction =
+            targetModelInstance.transform.getTranslation(
+                auxVector3
+            )
+                .sub(position).nor()
+        auxMatrix.idt().rotate(auxQuat.setFromCross(auxVector3.set(Vector3.X), direction))
+        return auxMatrix
     }
 
     private fun addSparkParticleEffect(position: Vector3, arm: ArmComponent) {
@@ -220,10 +237,12 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
             CollisionFlags.CF_CHARACTER_OBJECT,
             transform,
         )
-        transform.rotate(aimingTransform.getRotation(auxQuat)).rotate(
-            Vector3.Z,
-            armProperties.renderData.initialRotationAroundZ
-        )
+        if (BulletCreationRequestEventData.target == null) {
+            transform.rotate(aimingTransform.getRotation(auxQuat)).rotate(
+                Vector3.Z,
+                armProperties.renderData.initialRotationAroundZ
+            )
+        }
         val physicsComponent = ComponentsMapper.physics.get(bullet)
         physicsComponent.rigidBody.linearVelocity =
             transform.getRotation(auxQuat)
