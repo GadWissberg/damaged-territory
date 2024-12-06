@@ -63,8 +63,10 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
             SystemEvents.PHYSICS_DROWNING to object : HandlerOnEvent {
                 override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
                     val entity = msg.extraInfo as Entity
+                    val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity) ?: return
+
                     val position =
-                        ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                        modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector1
                         )
                     position.set(

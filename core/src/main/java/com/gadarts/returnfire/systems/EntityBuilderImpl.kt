@@ -301,13 +301,11 @@ class EntityBuilderImpl : EntityBuilder {
         physicsComponent.init(rigidBody)
         physicsComponent.rigidBody.userData = entity
         entity.add(physicsComponent)
-        if (applyGravity) {
-            physicsComponent.rigidBody.gravity = auxVector.set(0F, -10F, 0F)
-        }
         messageDispatcher.dispatchMessage(
             SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
             entity
         )
+        physicsComponent.rigidBody.gravity = if (applyGravity) auxVector.set(0F, -10F, 0F) else auxVector.setZero()
         return physicsComponent
     }
 

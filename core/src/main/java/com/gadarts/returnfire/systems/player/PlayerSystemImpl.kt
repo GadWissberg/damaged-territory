@@ -51,7 +51,7 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
         managers.entityBuilder.begin()
             .addAutoAimComponent()
             .addPhysicsComponent(
-                btConeShape(1F, 2F),
+                btConeShape(0.5F, 4F),
                 CollisionFlags.CF_NO_CONTACT_RESPONSE,
                 Matrix4(modelInstance.transform),
                 false
@@ -193,9 +193,9 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-            && position.x >= stagePosition.x - LANDING_OK_OFFSET
-            && position.z <= stagePosition.z + LANDING_OK_OFFSET
-            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+                && position.x >= stagePosition.x - LANDING_OK_OFFSET
+                && position.z <= stagePosition.z + LANDING_OK_OFFSET
+                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             managers.dispatcher.dispatchMessage(

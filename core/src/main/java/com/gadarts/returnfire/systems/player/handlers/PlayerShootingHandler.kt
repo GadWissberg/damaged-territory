@@ -10,7 +10,6 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
-import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
@@ -61,8 +60,8 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
 
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player)
         val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
-        val motionState = ComponentsMapper.physics.get(autoAim).rigidBody.motionState as MotionState
-        motionState.setWorldTransform(motionState.transformObject.set(transform))
+        val rigidBody = ComponentsMapper.physics.get(autoAim).rigidBody
+        rigidBody.worldTransform = rigidBody.worldTransform.set(auxMatrix.set(transform).rotate(Vector3.Z, 90F))
         val now = TimeUtils.millis()
         if (armComp.loaded <= now) {
             armComp.displaySpark = now
