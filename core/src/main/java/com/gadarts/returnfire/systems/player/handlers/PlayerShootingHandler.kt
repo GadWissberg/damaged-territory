@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.player.handlers
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -58,8 +57,14 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
 
     private fun updateAutoAim(armComp: ArmComponent) {
         val rigidBody = autoAim
+        val player = gameSessionData.gameplayData.player
+        val turretBaseComponent = ComponentsMapper.turretBase.get(player)
         val playerModelInstance =
-            ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance
+            if (turretBaseComponent != null) {
+                ComponentsMapper.modelInstance.get(turretBaseComponent.turret).gameModelInstance.modelInstance
+            } else {
+                ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance
+            }
         val rotation = playerModelInstance.transform.getRotation(
             auxQuat2
         )
@@ -87,14 +92,15 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
 
         val now = TimeUtils.millis()
         if (armComp.loaded <= now) {
-            val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player)
+            val player = gameSessionData.gameplayData.player
+            val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
             val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
             armComp.displaySpark = now
             armComp.loaded = now + armComp.armProperties.reloadDuration
             val direction =
-                if (!ComponentsMapper.turretBase.has(gameSessionData.gameplayData.player) || ComponentsMapper.turret.get(
+                if (!ComponentsMapper.turretBase.has(player) || ComponentsMapper.turret.get(
                         ComponentsMapper.turretBase.get(
-                            gameSessionData.gameplayData.player
+                            player
                         ).turret
                     ).cannon == null
                 ) {
@@ -107,7 +113,7 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
                     )
                 } else {
                     val cannon =
-                        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(gameSessionData.gameplayData.player).turret).cannon
+                        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(player).turret).cannon
                     val direction = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
                     val particleEffect = entityBuilder.begin().addParticleEffectComponent(
                         direction.getTranslation(auxVector3_1),
@@ -118,11 +124,14 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
                     direction
                 }
             val target = handleAutoAim(transform)
-            CharacterWeaponShotEventData.setWithDirection(
-                gameSessionData.gameplayData.player,
-                if (target == null) direction else null,
-                target,
-            )
+            if (target == null) {
+                CharacterWeaponShotEventData.setWithDirection(
+                    player,
+                    direction,
+                )
+            } else {
+                CharacterWeaponShotEventData.setWithTarget(player, target)
+            }
             dispatcher.dispatchMessage(event.ordinal)
         }
     }
@@ -131,7 +140,6 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
         val overlappingPairs = autoAim.overlappingPairs
         val size = min(overlappingPairs.size(), 6)
         var closestEnemy: Entity? = null
-        Gdx.app.log("!", "$size")
         if (size > 0) {
             closestEnemy = null
             val playerPosition = transform.getTranslation(auxVector3_2)
@@ -149,10 +157,10 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
                     enemyPosition.dst2(playerPosition)
                 if (distance < closestDistance) {
                     val dot = enemyPosition.sub(playerPosition).nor().dot(playerDirection)
-//                    if (dot > 0.9) {
-                    closestDistance = distance
-                    closestEnemy = enemy
-//                    }
+                    if (dot > 0.9) {
+                        closestDistance = distance
+                        closestEnemy = enemy
+                    }
                 }
             }
         }

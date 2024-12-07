@@ -35,7 +35,7 @@ enum class ModelDefinition(
     ),
     TURRET_CANNON_DEAD_0(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
     TURRET_CANNON_DEAD_1(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
-    TURRET_BASE(physicalShapeCreator = TurretBasePhysicalShapeCreator),
+    TURRET_BASE(centerOfMass = Vector3(0F, 0.5F, -0F), physicalShapeCreator = TurretBasePhysicalShapeCreator),
     MACHINE_GUN_SPARK,
     CANNON_SPARK,
     FLYING_PART(boundingBoxScale = Vector3(0.5F, 0.5F, 0.5F), fileNames = 3),

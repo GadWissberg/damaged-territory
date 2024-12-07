@@ -64,6 +64,7 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
                 override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
                     val entity = msg.extraInfo as Entity
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity) ?: return
+                    if (entity.isRemoving || entity.isScheduledForRemoval) return
 
                     val position =
                         modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(

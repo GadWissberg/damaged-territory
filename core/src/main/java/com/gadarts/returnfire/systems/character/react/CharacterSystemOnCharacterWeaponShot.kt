@@ -59,11 +59,11 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
                 ComponentsMapper.modelInstance.get(shooter).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector4
                 )
-            val directionToTarget = auxVector2.set(
+            val directionToTarget =
                 targetTransform.getTranslation(
                     auxVector3
                 ).add(targetGameModelInstance.definition?.centerOfMass)
-            ).sub(shooterPosition.add(relativePosition)).nor()
+                    .sub(shooterPosition.add(relativePosition)).nor()
             auxMatrix.set(
                 auxQuat.setFromCross(
                     Vector3.X,

@@ -10,12 +10,12 @@ object CharacterWeaponShotEventData {
     lateinit var shooter: Entity
         private set
 
-    fun setWithDirection(shooter: Entity, direction: Matrix4?, target: Entity?) {
+    fun setWithDirection(shooter: Entity, direction: Matrix4?) {
         this.shooter = shooter
         if (direction != null) {
             this.direction.set(direction)
         }
-        this.target = target
+        this.target = null
     }
 
     fun setWithTarget(shooter: Entity, target: Entity) {

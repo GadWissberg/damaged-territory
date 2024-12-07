@@ -133,6 +133,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
         showSpark(spark, position, parentTransform)
         val gameModelInstance =
             gameSessionData.pools.gameModelInstancePools[BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition]!!.obtain()
+        val noTarget = BulletCreationRequestEventData.target == null
         val entityBuilder = managers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
@@ -140,7 +141,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
                 BulletCreationRequestEventData.armComponent.armProperties.renderData.boundingBox
             )
             .addBulletComponent(
-                BulletCreationRequestEventData.armComponent.bulletBehavior,
+                if (noTarget) BulletCreationRequestEventData.armComponent.bulletBehavior else BulletBehavior.REGULAR,
                 BulletCreationRequestEventData.armComponent.armProperties.effectsData.explosion,
                 BulletCreationRequestEventData.armComponent.armProperties.explosive,
                 BulletCreationRequestEventData.friendly,
@@ -148,11 +149,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
             )
         addSmokeTrail(BulletCreationRequestEventData.armComponent, position)
         val bullet = entityBuilder.finishAndAddToEngine()
-        val noTarget = BulletCreationRequestEventData.target == null
-        val aimingTransform =
-            if (noTarget) BulletCreationRequestEventData.direction else calculateDirectionToTarget(
-                position
-            )
+        val aimingTransform = BulletCreationRequestEventData.direction
         applyPhysicsToBullet(
             bullet,
             gameModelInstance,
@@ -161,18 +158,6 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
         )
         addSmokeEmission(BulletCreationRequestEventData.armComponent.armProperties, gameModelInstance, position)
         addSparkParticleEffect(position, BulletCreationRequestEventData.armComponent)
-    }
-
-    private fun calculateDirectionToTarget(position: Vector3): Matrix4 {
-        val targetModelInstance =
-            ComponentsMapper.modelInstance.get(BulletCreationRequestEventData.target).gameModelInstance.modelInstance
-        val direction =
-            targetModelInstance.transform.getTranslation(
-                auxVector3
-            )
-                .sub(position).nor()
-        auxMatrix.idt().rotate(auxQuat.setFromCross(auxVector3.set(Vector3.X), direction))
-        return auxMatrix
     }
 
     private fun addSparkParticleEffect(position: Vector3, arm: ArmComponent) {
@@ -237,8 +222,9 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
             CollisionFlags.CF_CHARACTER_OBJECT,
             transform,
         )
+        transform.rotate(aimingTransform.getRotation(auxQuat))
         if (BulletCreationRequestEventData.target == null) {
-            transform.rotate(aimingTransform.getRotation(auxQuat)).rotate(
+            transform.rotate(
                 Vector3.Z,
                 armProperties.renderData.initialRotationAroundZ
             )
