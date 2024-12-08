@@ -16,7 +16,7 @@ enum class AmbDefinition(
     FLAG(ModelDefinition.FLAG),
     BASE(
         modelDefinition = ModelDefinition.PIT,
-        collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE,
+        collisionFlags = -1,
         placeInMiddleOfCell = false
     );
 

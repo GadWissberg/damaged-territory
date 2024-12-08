@@ -57,6 +57,7 @@ class EnemySystem(managers: Managers) : GameEntitySystem(managers) {
             ModelInstance(managers.assetsManager.getAssetByDefinition(randomDeadModel)),
             ModelDefinition.TURRET_CANNON_DEAD_0,
         )
+        modelInstanceComponent.gameModelInstance.modelInstance.transform.set(auxMatrix)
         modelInstanceComponent.gameModelInstance.setBoundingBox(
             managers.assetsManager.getCachedBoundingBox(randomDeadModel)
         )

@@ -89,7 +89,9 @@ class MapInflater(
                 if (def.isRandomizeRotation()) random(0F, 360F) else 0F,
             )
             .finishAndAddToEngine()
-        addPhysicsToObject(entity, gameModelInstance, def.collisionFlags)
+        if (def.collisionFlags >= 0) {
+            addPhysicsToObject(entity, gameModelInstance, def.collisionFlags)
+        }
     }
 
     private fun excludeTilesUnderBase(
