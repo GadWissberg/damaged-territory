@@ -157,7 +157,7 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
                     enemyPosition.dst2(playerPosition)
                 if (distance < closestDistance) {
                     val dot = enemyPosition.sub(playerPosition).nor().dot(playerDirection)
-                    if (dot > 0.9) {
+                    if (dot > 0.85) {
                         closestDistance = distance
                         closestEnemy = enemy
                     }

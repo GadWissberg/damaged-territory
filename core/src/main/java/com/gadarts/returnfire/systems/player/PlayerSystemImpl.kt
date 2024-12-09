@@ -168,14 +168,16 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
     }
 
     override fun update(deltaTime: Float) {
-        if (ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).isBoarding()) return
+        val player = gameSessionData.gameplayData.player
+        if (ComponentsMapper.boarding.get(player).isBoarding() || ComponentsMapper.character.get(player).dead) return
+
         playerMovementHandler.update(
-            gameSessionData.gameplayData.player,
+            player,
             deltaTime
         )
         playerShootingHandler.update()
         val position =
-            ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
         val stagePosition =
@@ -193,9 +195,9 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-                && position.x >= stagePosition.x - LANDING_OK_OFFSET
-                && position.z <= stagePosition.z + LANDING_OK_OFFSET
-                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             managers.dispatcher.dispatchMessage(
