@@ -52,6 +52,7 @@ interface EntityBuilder {
     fun addPlayerComponent(): EntityBuilder
     fun addTurretBaseComponent(): EntityBuilder
     fun addAmbSoundComponent(sound: Sound): EntityBuilder
+    fun addAmbSoundComponentToEntity(entity: Entity, sound: Sound): EntityBuilder
     fun finish(): Entity
     fun addTurretComponent(base: Entity, followBase: Boolean, cannon: Entity?): EntityBuilder
     fun addPrimaryArmComponent(

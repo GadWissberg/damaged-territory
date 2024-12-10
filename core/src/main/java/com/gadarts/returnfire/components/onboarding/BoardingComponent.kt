@@ -23,5 +23,6 @@ class BoardingComponent(val boardingAnimation: BoardingAnimation?) : Component {
         boardingStatus = 0
     }
 
+    var offBoardSoundId: Long = 0
     private var boardingStatus = 1
 }

@@ -10,9 +10,9 @@ import com.gadarts.returnfire.SoundPlayer
 import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.EntityBuilderImpl
+import com.gadarts.returnfire.systems.EntityBuilder
 
-class ApacheBoardingAnimation : BoardingAnimation {
+class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : BoardingAnimation {
     private var done: Boolean = false
     private var firstUpdate: Boolean = true
     private var boardingSpeed: Float = 0.0f
@@ -93,7 +93,8 @@ class ApacheBoardingAnimation : BoardingAnimation {
         val blending = childModelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
         if (firstUpdate) {
             reset()
-            soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START))
+            ComponentsMapper.boarding.get(character).offBoardSoundId =
+                soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START))
             firstUpdate = false
         }
         updateRotation(childModelInstance, deltaTime)
@@ -106,7 +107,11 @@ class ApacheBoardingAnimation : BoardingAnimation {
             if (transform.getTranslation(auxVector).y >= startHeight) {
                 transform.setTranslation(auxVector.x, startHeight, auxVector.z)
                 ComponentsMapper.childModelInstanceComponent.get(character).visible = false
-                EntityBuilderImpl.addAmbSoundComponent(
+                soundPlayer.stop(
+                    assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START),
+                    ComponentsMapper.boarding.get(character).offBoardSoundId
+                )
+                entityBuilder.addAmbSoundComponentToEntity(
                     character,
                     assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER)
                 )

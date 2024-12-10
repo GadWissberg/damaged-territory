@@ -74,7 +74,12 @@ class EntityBuilderImpl : EntityBuilder {
     }
 
     override fun addAmbSoundComponent(sound: Sound): EntityBuilder {
-        Companion.addAmbSoundComponent(entity!!, sound)
+        addAmbSoundComponent(entity!!, sound)
+        return this
+    }
+
+    override fun addAmbSoundComponentToEntity(entity: Entity, sound: Sound): EntityBuilder {
+        addAmbSoundComponent(entity, sound)
         return this
     }
 
@@ -327,16 +332,19 @@ class EntityBuilderImpl : EntityBuilder {
         this.messageDispatcher = messageDispatcher
     }
 
+    private fun addAmbSoundComponent(entity: Entity, sound: Sound): Entity {
+        val ambSoundComponent = AmbSoundComponent(sound)
+        entity.add(ambSoundComponent)
+        messageDispatcher.dispatchMessage(
+            SystemEvents.AMB_SOUND_COMPONENT_ADDED.ordinal,
+            entity
+        )
+        return entity
+    }
+
     companion object {
         private val auxVector = Vector3()
         var entity: Entity? = null
-
-
-        fun addAmbSoundComponent(entity: Entity, sound: Sound): Entity {
-            val ambSoundComponent = AmbSoundComponent(sound)
-            entity.add(ambSoundComponent)
-            return entity
-        }
 
 
     }

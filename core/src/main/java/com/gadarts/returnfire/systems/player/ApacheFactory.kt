@@ -45,7 +45,7 @@ class ApacheFactory(
             {
                 addApachePrimaryArmComponent(primarySpark)
             },
-            ApacheBoardingAnimation()
+            ApacheBoardingAnimation(entityBuilder)
         )
         addPropeller()
         val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER)

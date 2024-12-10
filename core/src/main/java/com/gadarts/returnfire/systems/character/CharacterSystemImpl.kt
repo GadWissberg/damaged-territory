@@ -76,7 +76,11 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
                 ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).boardingAnimation?.reset()
             }
-
+        },
+        SystemEvents.AMB_SOUND_COMPONENT_ADDED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                playAmbSound(msg.extraInfo as Entity, managers)
+            }
         }
     )
 
@@ -113,20 +117,24 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
         super.initialize(gameSessionData, managers)
         engine.addEntityListener(object : EntityListener {
-            override fun entityAdded(entity: Entity?) {
-                if (ComponentsMapper.ambSound.has(entity)) {
-                    val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
-                    if (ambSoundComponent.soundId == -1L) {
-                        val id = managers.soundPlayer.loopSound(ambSoundComponent.sound)
-                        ambSoundComponent.soundId = id
-                    }
-                }
+            override fun entityAdded(entity: Entity) {
+                playAmbSound(entity, managers)
             }
 
-            override fun entityRemoved(entity: Entity?) {
+            override fun entityRemoved(entity: Entity) {
             }
 
         })
+    }
+
+    private fun playAmbSound(entity: Entity, managers: Managers) {
+        if (ComponentsMapper.ambSound.has(entity)) {
+            val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
+            if (ambSoundComponent.soundId == -1L) {
+                val id = managers.soundPlayer.loopSound(ambSoundComponent.sound)
+                ambSoundComponent.soundId = id
+            }
+        }
     }
 
     override fun positionSpark(
