@@ -118,7 +118,7 @@ class RenderSystem(managers: Managers) : GameEntitySystem(managers), Disposable 
         )
         modelsRenderer.renderWaterWaves()
         renderCollisionShapes()
-        renderDecals()
+        renderDecals(deltaTime)
     }
 
     private fun renderCollisionShapes() {
@@ -138,12 +138,12 @@ class RenderSystem(managers: Managers) : GameEntitySystem(managers), Disposable 
     }
 
 
-    private fun renderDecals() {
+    private fun renderDecals(deltaTime: Float) {
         Gdx.gl.glDepthMask(false)
         batches.decalBatch
         for (entity in relatedEntities.childEntities) {
             if (renderFlags.renderCharacters || !ComponentsMapper.childDecal.has(entity)) {
-                renderChildren(entity)
+                renderChildren(entity, deltaTime)
             }
         }
         renderIndependentDecals()
@@ -176,6 +176,7 @@ class RenderSystem(managers: Managers) : GameEntitySystem(managers), Disposable 
 
     private fun renderChildren(
         entity: Entity,
+        deltaTime: Float,
     ) {
         val childComponent = ComponentsMapper.childDecal.get(entity)
         if (!childComponent.visible) return
@@ -184,20 +185,27 @@ class RenderSystem(managers: Managers) : GameEntitySystem(managers), Disposable 
         val modelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
         val parentPosition = modelInstance.modelInstance.transform.getTranslation(auxVector3_1)
         for (child in children) {
-            renderChild(child, parentPosition)
+            renderChild(child, parentPosition, deltaTime)
         }
     }
 
     private fun renderChild(
         child: ChildDecal,
-        parentPosition: Vector3?
+        parentPosition: Vector3?,
+        deltaTime: Float
     ) {
-        child.decal.position = parentPosition
-        child.decal.position.add(child.relativePosition)
+        if (!child.visible) return
+
+        val decal = child.decal
+        decal.position = parentPosition
+        decal.position.add(child.relativePosition)
         if (child.localRotation != null) {
-            child.decal.rotation = child.localRotation
+            decal.rotation = child.localRotation
         }
-        batches.decalBatch.add(child.decal)
+        if (child.decalAnimation != null) {
+            decal.textureRegion = child.decalAnimation.calculateNextFrame(deltaTime)
+        }
+        batches.decalBatch.add(decal)
     }
 
     companion object {

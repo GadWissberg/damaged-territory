@@ -23,6 +23,7 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.cd.ChildDecal
+import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -35,6 +36,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
  */
 class MapSystem(managers: Managers) : GameEntitySystem(managers) {
 
+    private val landingMark: ChildDecal by lazy { createLandingMark() }
     private var doorMoveState: Int = 1
     private var baseDoorSoundId: Long = -1L
     private lateinit var eastDoor: Entity
@@ -90,6 +92,7 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
             },
             SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE to object : HandlerOnEvent {
                 override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                    landingMark.visible = false
                     closeDoors(managers)
                 }
             },
@@ -100,7 +103,8 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
                         closeDoors(managers)
                     }
                 }
-            })
+            },
+        )
 
     private fun closeDoors(managers: Managers) {
         doorMoveState = -1
@@ -153,31 +157,39 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
     }
 
     private fun addStage(base: Entity): Entity {
-        val stageModelInstance = GameModelInstance(
-            ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
-            ModelDefinition.STAGE
-        )
-        val decal = Decal.newDecal(2F, 2F, TextureRegion(managers.assetsManager.getTexture("landing_ok")), true)
-        val color = decal.color
-        decal.setColor(color.r, color.g, color.b, 0.5F)
         return managers.entityBuilder.begin()
             .addModelInstanceComponent(
-                stageModelInstance,
+                GameModelInstance(
+                    ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
+                    ModelDefinition.STAGE
+                ),
                 ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
                 ).add(1F, StageComponent.BOTTOM_EDGE_Y, 1F), null
             )
             .addChildDecalComponent(
-                listOf(
-                    ChildDecal(
-                        decal,
-                        Vector3(0F, 1F, 0F),
-                        Quaternion().setEulerAngles(0F, 90F, 0F)
-                    )
-                ), false
+                listOf(landingMark), false
             )
             .addStageComponent()
             .finishAndAddToEngine()
+    }
+
+    private fun createLandingMark(): ChildDecal {
+        val definition = managers.assetsManager.getTexturesDefinitions().definitions["landing_mark"]
+        val landingMarkFrame0 = TextureRegion(managers.assetsManager.getTexture(definition!!, 0))
+        val landingMarkFrame1 = TextureRegion(managers.assetsManager.getTexture(definition, 1))
+        val decal = Decal.newDecal(2F, 2F, TextureRegion(landingMarkFrame0), true)
+        decal.setColor(decal.color.r, decal.color.g, decal.color.b, 0.5F)
+        val frames = com.badlogic.gdx.utils.Array<TextureRegion>()
+        frames.add(landingMarkFrame0)
+        frames.add(landingMarkFrame1)
+        return ChildDecal(
+            decal,
+            Vector3(0F, 1F, 0F),
+            Quaternion().setEulerAngles(0F, 90F, 0F),
+            DecalAnimation(1F, frames)
+        )
+
     }
 
 

@@ -10,7 +10,7 @@ enum class SimpleCharacterDefinition(
     private val linearFactor: Vector3,
     private val startHeight: Float,
 ) : CharacterDefinition {
-    APACHE(50, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), 3.9F);
+    APACHE(100, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), 3.9F);
 
     override fun getLinearFactor(output: Vector3): Vector3 {
         return output.set(linearFactor)

@@ -18,7 +18,7 @@ class CameraSystem(managers: Managers) : GameEntitySystem(managers) {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         gameSessionData.renderData.camera.update()
-        followPlayer()
+        followPlayer(deltaTime)
     }
 
     override fun resume(delta: Long) {
@@ -36,21 +36,22 @@ class CameraSystem(managers: Managers) : GameEntitySystem(managers) {
         super.addedToEngine(engine)
     }
 
-    private fun followPlayer() {
+    private fun followPlayer(deltaTime: Float) {
         val player = gameSessionData.gameplayData.player
         val transform =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)
-        followPlayerRegularMovement(playerPosition)
+        followPlayerRegularMovement(playerPosition, deltaTime)
     }
 
     private fun followPlayerRegularMovement(
-        playerPosition: Vector3
+        playerPosition: Vector3,
+        deltaTime: Float
     ) {
         val physicsComponent = ComponentsMapper.physics.get(gameSessionData.gameplayData.player) ?: return
 
         val linearVelocity =
-            auxVector3_2.set(physicsComponent.rigidBody.linearVelocity).scl(5F)
+            auxVector3_2.set(physicsComponent.rigidBody.linearVelocity).scl(gameSessionData.fpsTarget * deltaTime * 4F)
         cameraTarget =
             playerPosition.add(linearVelocity.x, 0F, linearVelocity.z + Z_OFFSET)
         val camera = gameSessionData.renderData.camera

@@ -370,7 +370,9 @@
       "folder": "effects"
     },
     {
-      "file_name": "landing_ok"
+      "file_name": "landing_mark",
+      "animated": true,
+      "frames": 2
     }
   ]
 }
