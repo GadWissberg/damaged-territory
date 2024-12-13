@@ -74,7 +74,7 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
         },
         SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).boardingAnimation?.reset()
+                ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).boardingAnimation?.init(stageEntity)
             }
         },
         SystemEvents.AMB_SOUND_COMPONENT_ADDED to object : HandlerOnEvent {

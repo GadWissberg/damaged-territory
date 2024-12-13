@@ -354,6 +354,6 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
     companion object {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
-        private const val LANDING_OK_OFFSET = 0.45F
+        private const val LANDING_OK_OFFSET = 0.75F
     }
 }

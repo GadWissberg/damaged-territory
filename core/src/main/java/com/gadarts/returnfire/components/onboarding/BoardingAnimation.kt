@@ -7,6 +7,6 @@ import com.gadarts.returnfire.assets.GameAssetManager
 interface BoardingAnimation {
     fun update(deltaTime: Float, character: Entity, soundPlayer: SoundPlayer, assetsManager: GameAssetManager): Boolean
     fun isDone(): Boolean
-    fun reset()
+    fun init(stageEntity: Entity?)
 
 }

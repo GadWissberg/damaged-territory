@@ -51,7 +51,8 @@ class CameraSystem(managers: Managers) : GameEntitySystem(managers) {
         val physicsComponent = ComponentsMapper.physics.get(gameSessionData.gameplayData.player) ?: return
 
         val linearVelocity =
-            auxVector3_2.set(physicsComponent.rigidBody.linearVelocity).scl(gameSessionData.fpsTarget * deltaTime * 4F)
+            auxVector3_2.set(physicsComponent.rigidBody.linearVelocity)
+                .scl(gameSessionData.fpsTarget * deltaTime * 6.5F)
         cameraTarget =
             playerPosition.add(linearVelocity.x, 0F, linearVelocity.z + Z_OFFSET)
         val camera = gameSessionData.renderData.camera
@@ -80,7 +81,7 @@ class CameraSystem(managers: Managers) : GameEntitySystem(managers) {
 
     companion object {
         private const val INITIAL_Y = 9F
-        private const val Z_OFFSET = 3F
+        private const val Z_OFFSET = 2.5F
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
     }

@@ -13,10 +13,11 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
 
 class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : BoardingAnimation {
+    private var stage: Entity? = null
     private var done: Boolean = false
     private var firstUpdate: Boolean = true
     private var boardingSpeed: Float = 0.0f
-    private var rotationSpeed: Float = 0.0f
+    private var propellerRotationSpeed: Float = 0.0f
 
     override fun update(
         deltaTime: Float,
@@ -52,34 +53,49 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         character: Entity
     ): Boolean {
         val childModelInstanceComponent = ComponentsMapper.childModelInstanceComponent.get(character)
-        val childModelInstance =
-            childModelInstanceComponent.gameModelInstance.modelInstance
-        val blending = childModelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
+        val blending = childModelInstanceComponent.gameModelInstance.modelInstance.materials.get(0)
+            .get(BlendingAttribute.Type) as BlendingAttribute
+        handleFirstUpdateForLand(character, soundPlayer, assetsManager)
+        updateRotation(childModelInstanceComponent.gameModelInstance.modelInstance, deltaTime * -1F * 0.5F)
+        if (propellerRotationSpeed < ROTATION_THRESHOLD) {
+            childModelInstanceComponent.visible = true
+            blending.opacity += deltaTime
+            blending.opacity = MathUtils.clamp(blending.opacity, 0F, 1F)
+            updateDecalOpacity(character, deltaTime * -1F)
+        }
+        val transform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
+        val apachePosition = transform.getTranslation(auxVector1)
+        if (apachePosition.y > GROUND_HEIGHT_POSITION) {
+            takeStepForBoarding(deltaTime * -1F, transform)
+        } else {
+            transform.setTranslation(auxVector1.x, GROUND_HEIGHT_POSITION, auxVector1.z)
+        }
+        transform.getTranslation(apachePosition)
+        if (stage != null) {
+            val stagePosition =
+                ComponentsMapper.modelInstance.get(stage).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector2
+                )
+            if (!apachePosition.epsilonEquals(stagePosition.x, apachePosition.y, stagePosition.z)) {
+                auxVector3.set(apachePosition).lerp(stagePosition, 0.1F)
+                transform.setTranslation(auxVector3.x, apachePosition.y, auxVector3.z)
+            }
+        }
+        return propellerRotationSpeed == 0F
+    }
+
+    private fun handleFirstUpdateForLand(
+        character: Entity,
+        soundPlayer: SoundPlayer,
+        assetsManager: GameAssetManager
+    ) {
         if (firstUpdate) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(character)
             soundPlayer.stop(ambSoundComponent.sound, ambSoundComponent.soundId)
             soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_STOP))
-            rotationSpeed = MAX_ROTATION_SPEED
+            propellerRotationSpeed = MAX_ROTATION_SPEED
             firstUpdate = false
         }
-        val negDeltaTime = deltaTime * -1F
-        updateRotation(childModelInstance, negDeltaTime * 0.5F)
-        if (rotationSpeed < ROTATION_THRESHOLD) {
-            childModelInstanceComponent.visible = true
-            blending.opacity += deltaTime
-            blending.opacity = MathUtils.clamp(blending.opacity, 0F, 1F)
-            updateDecalOpacity(character, negDeltaTime)
-        }
-        val transform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
-        if (transform.getTranslation(auxVector).y > GROUND_HEIGHT_POSITION) {
-            takeStepForBoarding(negDeltaTime, transform)
-        } else {
-            transform.setTranslation(auxVector.x, GROUND_HEIGHT_POSITION, auxVector.z)
-        }
-        if (rotationSpeed == 0F) {
-            return true
-        }
-        return false
     }
 
     private fun takeOff(
@@ -92,20 +108,20 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
             ComponentsMapper.childModelInstanceComponent.get(character).gameModelInstance.modelInstance
         val blending = childModelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
         if (firstUpdate) {
-            reset()
+            init(null)
             ComponentsMapper.boarding.get(character).offBoardSoundId =
                 soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START))
             firstUpdate = false
         }
         updateRotation(childModelInstance, deltaTime)
-        if (rotationSpeed > ROTATION_THRESHOLD) {
+        if (propellerRotationSpeed > ROTATION_THRESHOLD) {
             blending.opacity -= deltaTime
             updateDecalOpacity(character, deltaTime)
             val transform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
             takeStepForBoarding(deltaTime, transform)
             val startHeight = ComponentsMapper.character.get(character).definition.getStartHeight()
-            if (transform.getTranslation(auxVector).y >= startHeight) {
-                transform.setTranslation(auxVector.x, startHeight, auxVector.z)
+            if (transform.getTranslation(auxVector1).y >= startHeight) {
+                transform.setTranslation(auxVector1.x, startHeight, auxVector1.z)
                 ComponentsMapper.childModelInstanceComponent.get(character).visible = false
                 soundPlayer.stop(
                     assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START),
@@ -134,21 +150,24 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
     }
 
     private fun updateRotation(childModelInstance: ModelInstance, deltaTime: Float) {
-        childModelInstance.transform.rotate(Vector3.Y, rotationSpeed)
-        rotationSpeed += deltaTime * 4F
-        rotationSpeed = MathUtils.clamp(rotationSpeed, 0F, MAX_ROTATION_SPEED)
+        childModelInstance.transform.rotate(Vector3.Y, propellerRotationSpeed)
+        propellerRotationSpeed += deltaTime * 4F
+        propellerRotationSpeed = MathUtils.clamp(propellerRotationSpeed, 0F, MAX_ROTATION_SPEED)
     }
 
-    override fun reset() {
+    override fun init(stageEntity: Entity?) {
         firstUpdate = true
         boardingSpeed = 0F
-        rotationSpeed = 0F
+        propellerRotationSpeed = 0F
         done = false
+        stage = stageEntity
     }
 
 
     companion object {
-        private val auxVector = Vector3()
+        private val auxVector1 = Vector3()
+        private val auxVector2 = Vector3()
+        private val auxVector3 = Vector3()
         private const val MAX_ROTATION_SPEED = 16F
         private const val ROTATION_THRESHOLD = 8F
         private const val GROUND_HEIGHT_POSITION = 0.2F
