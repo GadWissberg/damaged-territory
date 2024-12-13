@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -17,7 +17,7 @@ import com.gadarts.returnfire.systems.player.PlayerSystem
 class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
     HandlerOnEvent {
 
-    override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+    override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val characterDefinition = ComponentsMapper.character.get(gameSessionData.gameplayData.player).definition
         val isApache = characterDefinition == SimpleCharacterDefinition.APACHE
         val playerShape =
@@ -29,7 +29,7 @@ class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
             modelInstanceComponent.gameModelInstance.modelInstance.transform
         val physicsTransform =
             if (isApache) Matrix4(modelInstanceTransform) else modelInstanceTransform
-        val physicsComponent = managers.entityBuilder.addPhysicsComponentToEntity(
+        val physicsComponent = gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
             gameSessionData.gameplayData.player,
             playerShape,
             10F,

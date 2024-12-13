@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -16,6 +15,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.EnemyComponent
 import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.CharacterType
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -23,18 +23,18 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 
-class EnemySystem(managers: Managers) : GameEntitySystem(managers) {
-    private val enemyAi by lazy { EnemyAttackLogic(gameSessionData, this.managers) }
+class EnemySystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+    private val enemyAi by lazy { EnemyAttackLogic(gameSessionData, this.gamePlayManagers) }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val entity = msg.extraInfo as Entity
                 val characterComponent = ComponentsMapper.character.get(entity)
                 if (characterComponent.definition.getCharacterType() == CharacterType.TURRET
                     && ComponentsMapper.enemy.has(entity)
                 ) {
-                    destroyTurret(entity, managers, gameSessionData)
+                    destroyTurret(entity, gamePlayManagers, gameSessionData)
                 }
             }
 
@@ -43,7 +43,7 @@ class EnemySystem(managers: Managers) : GameEntitySystem(managers) {
 
     private fun destroyTurret(
         entity: Entity,
-        managers: Managers,
+        gamePlayManagers: GamePlayManagers,
         gameSessionData: GameSessionData
     ) {
         val modelInstanceComponent =
@@ -54,21 +54,21 @@ class EnemySystem(managers: Managers) : GameEntitySystem(managers) {
         val randomDeadModel =
             if (MathUtils.randomBoolean()) ModelDefinition.TURRET_CANNON_DEAD_0 else ModelDefinition.TURRET_CANNON_DEAD_1
         modelInstanceComponent.gameModelInstance = GameModelInstance(
-            ModelInstance(managers.assetsManager.getAssetByDefinition(randomDeadModel)),
+            ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(randomDeadModel)),
             ModelDefinition.TURRET_CANNON_DEAD_0,
         )
         modelInstanceComponent.gameModelInstance.modelInstance.transform.set(auxMatrix)
         modelInstanceComponent.gameModelInstance.setBoundingBox(
-            managers.assetsManager.getCachedBoundingBox(randomDeadModel)
+            gamePlayManagers.assetsManager.getCachedBoundingBox(randomDeadModel)
         )
-        managers.entityBuilder.begin()
+        gamePlayManagers.entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
             )
             .finishAndAddToEngine()
-        managers.soundPlayer.play(
-            managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+        gamePlayManagers.soundPlayer.play(
+            gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
         )
     }
 

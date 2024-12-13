@@ -1,13 +1,14 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.factories
 
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.SoundPlayer
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.returnfire.managers.SoundPlayer
+import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.bullet.BulletSystem.Companion.auxBoundingBox
 import com.gadarts.returnfire.systems.data.GameSessionData
 

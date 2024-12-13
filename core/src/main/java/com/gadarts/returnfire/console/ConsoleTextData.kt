@@ -10,9 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.StringBuilder
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.FontDefinition
 import com.gadarts.returnfire.console.ConsoleConstants.TEXT_VIEW_NAME
+import com.gadarts.returnfire.managers.GameAssetManager
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*

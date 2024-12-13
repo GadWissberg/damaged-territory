@@ -16,9 +16,6 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GeneralUtils
-import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.MapInflater
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
@@ -26,15 +23,18 @@ import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.utils.GeneralUtils
+import com.gadarts.returnfire.utils.MapInflater
 
 /**
  * Responsible to create the map from the loaded map file and manage general map procedures and ambient effects.
  */
-class MapSystem(managers: Managers) : GameEntitySystem(managers) {
+class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
     private val landingMark: ChildDecal by lazy { createLandingMark() }
     private var doorMoveState: Int = 1
@@ -63,7 +63,11 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(
             SystemEvents.PHYSICS_DROWNING to object : HandlerOnEvent {
-                override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
                     val entity = msg.extraInfo as Entity
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity) ?: return
                     if (entity.isRemoving || entity.isScheduledForRemoval) return
@@ -77,7 +81,7 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
                         0.05F,
                         position.z + MathUtils.randomSign() * MathUtils.random(0.2F)
                     )
-                    managers.factories.specialEffectsFactory.generateWaterSplash(
+                    gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
                         position
                     )
                     val physicsComponent = ComponentsMapper.physics.get(
@@ -91,29 +95,37 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
                 }
             },
             SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE to object : HandlerOnEvent {
-                override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
                     landingMark.visible = false
-                    closeDoors(managers)
+                    closeDoors(gamePlayManagers)
                 }
             },
             SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
-                override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
                     val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.gameplayData.player)
                     if (boardingComponent.boardingAnimation == null && boardingComponent.isOnboarding()) {
-                        closeDoors(managers)
+                        closeDoors(gamePlayManagers)
                     }
                 }
             },
         )
 
-    private fun closeDoors(managers: Managers) {
+    private fun closeDoors(gamePlayManagers: GamePlayManagers) {
         doorMoveState = -1
         baseDoorSoundId =
-            managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE))
+            gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE))
     }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
         gameSessionData.mapData.tilesEntities =
             Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
@@ -124,27 +136,31 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
 
     override fun onSystemReady() {
         super.onSystemReady()
-        MapInflater(gameSessionData, managers, engine).inflate()
+        MapInflater(gameSessionData, gamePlayManagers, engine).inflate()
         engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
             .find { ComponentsMapper.modelInstance.get(it).gameModelInstance.definition == ModelDefinition.PIT }.let {
                 addStage(it!!)
                 westDoor = addBaseDoor(it, 0F, -1F)
                 eastDoor = addBaseDoor(it, 180F, 1F)
                 baseDoorSoundId =
-                    managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE))
+                    gamePlayManagers.soundPlayer.play(
+                        gamePlayManagers.assetsManager.getAssetByDefinition(
+                            SoundDefinition.BASE_DOOR_MOVE
+                        )
+                    )
             }
     }
 
     private fun addBaseDoor(base: Entity, rotationAroundY: Float, relativeTargetX: Float): Entity {
         val doorModelInstance = GameModelInstance(
-            ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.PIT_DOOR)),
+            ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.PIT_DOOR)),
             ModelDefinition.PIT_DOOR
         )
         val basePosition =
             ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        val door = managers.entityBuilder.begin()
+        val door = gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 doorModelInstance,
                 basePosition.add(1F, -0.1F, 1F), null
@@ -157,10 +173,10 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
     }
 
     private fun addStage(base: Entity): Entity {
-        return managers.entityBuilder.begin()
+        return gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 GameModelInstance(
-                    ModelInstance(managers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
+                    ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
                     ModelDefinition.STAGE
                 ),
                 ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
@@ -175,9 +191,9 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
     }
 
     private fun createLandingMark(): ChildDecal {
-        val definition = managers.assetsManager.getTexturesDefinitions().definitions["landing_mark"]
-        val landingMarkFrame0 = TextureRegion(managers.assetsManager.getTexture(definition!!, 0))
-        val landingMarkFrame1 = TextureRegion(managers.assetsManager.getTexture(definition, 1))
+        val definition = gamePlayManagers.assetsManager.getTexturesDefinitions().definitions["landing_mark"]
+        val landingMarkFrame0 = TextureRegion(gamePlayManagers.assetsManager.getTexture(definition!!, 0))
+        val landingMarkFrame1 = TextureRegion(gamePlayManagers.assetsManager.getTexture(definition, 1))
         val decal = Decal.newDecal(2F, 2F, TextureRegion(landingMarkFrame0), true)
         decal.setColor(decal.color.r, decal.color.g, decal.color.b, 0.5F)
         val frames = com.badlogic.gdx.utils.Array<TextureRegion>()
@@ -200,7 +216,7 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         updateBaseDoors(deltaTime)
-        ambSoundsHandler.update(managers)
+        ambSoundsHandler.update(gamePlayManagers)
         groundTextureAnimationStateTime += deltaTime
         for (entity in animatedFloorsEntities) {
             val keyFrame = ComponentsMapper.animatedTexture.get(entity).animation.getKeyFrame(
@@ -257,11 +273,11 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
             eastDoorTransform.trn(stepSize, 0F, 0F)
         } else {
             doorMoveState = 0
-            managers.soundPlayer.stop(
-                managers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
+            gamePlayManagers.soundPlayer.stop(
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
                 baseDoorSoundId
             )
-            managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE))
+            gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE))
         }
     }
 
@@ -275,7 +291,7 @@ class MapSystem(managers: Managers) : GameEntitySystem(managers) {
         val builder = ModelBuilder()
         builder.begin()
         val texture =
-            managers.assetsManager.getTexture("tile_water")
+            gamePlayManagers.assetsManager.getTexture("tile_water")
         GeneralUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
         return builder.end()
     }

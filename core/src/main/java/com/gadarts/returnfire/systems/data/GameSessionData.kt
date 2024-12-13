@@ -1,15 +1,13 @@
 package com.gadarts.returnfire.systems.data
 
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameSessionDataPools
-import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class GameSessionData(
     assetsManager: GameAssetManager,
-    rigidBodyFactory: RigidBodyFactory,
     val runsOnMobile: Boolean,
     val fpsTarget: Int,
     console: ConsoleImpl,
@@ -20,7 +18,7 @@ class GameSessionData(
     val gameplayData = GameSessionDataGameplay()
     val mapData = GameSessionDataMap(assetsManager)
     val hudData = GameSessionDataHud(assetsManager, console)
-    val pools by lazy { GameSessionDataPools(assetsManager, rigidBodyFactory) }
+    val pools by lazy { GameSessionDataPools(assetsManager) }
     val renderData = GameSessionDataRender()
 
 

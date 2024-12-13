@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.GeneralUtils
+import com.gadarts.returnfire.utils.GeneralUtils
 
 class GameSessionDataRender : Disposable {
     val camera: PerspectiveCamera = GeneralUtils.createCamera(67F)

@@ -1,11 +1,7 @@
-package com.gadarts.returnfire
+package com.gadarts.returnfire.utils
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.PerspectiveCamera
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.VertexAttributes.Usage.*
+import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
@@ -34,7 +30,7 @@ object GeneralUtils {
         val mbp = builder.part(
             meshName,
             GL20.GL_TRIANGLES,
-            (Position or Normal or TextureCoordinates).toLong(),
+            (VertexAttributes.Usage.Position or VertexAttributes.Usage.Normal or VertexAttributes.Usage.TextureCoordinates).toLong(),
             material
         )
         mbp.setUVRange(0F, 0F, 1F, 1F)

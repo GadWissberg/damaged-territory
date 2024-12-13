@@ -9,7 +9,6 @@
     <application
         android:allowBackup="true"
         android:appCategory="game"
-        android:fullBackupContent="true"
         android:icon="@drawable/ic_launcher"
         android:isGame="true"
         android:label="Damaged Territory"

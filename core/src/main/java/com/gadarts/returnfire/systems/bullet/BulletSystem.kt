@@ -14,7 +14,6 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -23,6 +22,7 @@ import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -30,13 +30,17 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
-class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
+/**
+ * Responsible to create, update and destroy all existing bullets in the scene.
+ */
+class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                managers: Managers
+                gamePlayManagers: GamePlayManagers
             ) {
                 handleBulletCollision(
                     PhysicsCollisionEventData.colObj0.userData as Entity,
@@ -49,14 +53,16 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
             }
         },
         SystemEvents.BULLET_CREATION_REQUEST to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 createBullet()
             }
 
         }
     )
 
-    private val blastRingTexture: Texture by lazy { this.managers.assetsManager.getTexture("blast_ring") }
+    private val bulletLogic = BulletLogic()
+
+    private val blastRingTexture: Texture by lazy { this.gamePlayManagers.assetsManager.getTexture("blast_ring") }
 
     private val bulletEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
@@ -64,8 +70,8 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
         )
     }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         engine.addEntityListener(object : EntityListener {
             override fun entityAdded(entity: Entity) {
 
@@ -91,27 +97,8 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
 
     override fun update(deltaTime: Float) {
         for (bullet in bulletEntities) {
-            val bulletComponent = ComponentsMapper.bullet.get(bullet)
-            if (bulletComponent.createdTime + 3000L > TimeUtils.millis()) {
-                if (bulletComponent.behavior == BulletBehavior.CURVE) {
-                    val physicsComponent = ComponentsMapper.physics.get(bullet)
-                    val curveRotationStepSize = CURVE_ROTATION_STEP * deltaTime
-                    if (physicsComponent.rigidBody.worldTransform.getRotation(auxQuat).roll > -90F) {
-                        val worldTransform = physicsComponent.rigidBody.worldTransform
-                        physicsComponent.rigidBody.worldTransform =
-                            auxMatrix.set(worldTransform).rotate(Vector3.Z, curveRotationStepSize)
-                        val orientation =
-                            physicsComponent.rigidBody.worldTransform.getRotation(auxQuat)
-                        val localZ = auxVector1.set(0F, 0F, 1F)
-                        orientation.transform(localZ)
-                        physicsComponent.rigidBody.linearVelocity =
-                            physicsComponent.rigidBody.linearVelocity.rotate(
-                                localZ,
-                                curveRotationStepSize
-                            )
-                    }
-                }
-            } else {
+            val destroyBullet = bulletLogic.update(bullet, deltaTime)
+            if (destroyBullet) {
                 destroyBullet(bullet)
             }
         }
@@ -124,7 +111,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
     }
 
     private fun createBullet() {
-        managers.soundPlayer.play(BulletCreationRequestEventData.armComponent.armProperties.shootingSound)
+        gamePlayManagers.soundPlayer.play(BulletCreationRequestEventData.armComponent.armProperties.shootingSound)
         val spark = BulletCreationRequestEventData.armComponent.spark
         val parentTransform =
             ComponentsMapper.modelInstance.get(ComponentsMapper.spark.get(spark).parent).gameModelInstance.modelInstance.transform
@@ -134,7 +121,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
         val gameModelInstance =
             gameSessionData.pools.gameModelInstancePools[BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition]!!.obtain()
         val noTarget = BulletCreationRequestEventData.target == null
-        val entityBuilder = managers.entityBuilder.begin()
+        val entityBuilder = gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -161,7 +148,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
     }
 
     private fun addSparkParticleEffect(position: Vector3, arm: ArmComponent) {
-        managers.entityBuilder.begin()
+        gamePlayManagers.entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
                 arm.armProperties.effectsData.sparkParticleEffect
@@ -195,7 +182,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
             val yaw = gameModelInstance.modelInstance.transform.getRotation(
                 auxQuat
             ).yaw
-            managers.entityBuilder.begin()
+            gamePlayManagers.entityBuilder.begin()
                 .addParticleEffectComponent(
                     auxVector3.set(position).sub(
                         auxVector2.set(Vector3.X).rotate(
@@ -216,7 +203,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
         armProperties: ArmProperties,
     ) {
         val transform = gameModelInstance.modelInstance.transform
-        managers.entityBuilder.addPhysicsComponentPooled(
+        gamePlayManagers.entityBuilder.addPhysicsComponentPooled(
             bullet,
             armProperties.rigidBodyPool,
             CollisionFlags.CF_CHARACTER_OBJECT,
@@ -247,7 +234,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
     ) {
         val effectsData = arm.armProperties.effectsData
         if (effectsData.smokeTrail != null) {
-            managers.entityBuilder.addParticleEffectComponent(
+            gamePlayManagers.entityBuilder.addParticleEffectComponent(
                 position = position,
                 pool = effectsData.smokeTrail,
                 thisEntityAsParent = true
@@ -267,7 +254,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
                     tileEntity
                 ).water
             ) {
-                managers.factories.specialEffectsFactory.generateWaterSplash(position)
+                gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(position)
             } else {
                 addBulletExplosion(entity0, position)
             }
@@ -285,9 +272,9 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
         val explosive = bulletComponent.explosive
         if (bulletComponent.explosion != null) {
             if (explosive) {
-                managers.soundPlayer.play(managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL))
+                gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL))
             }
-            managers.entityBuilder.begin()
+            gamePlayManagers.entityBuilder.begin()
                 .addParticleEffectComponent(
                     position,
                     gameSessionData.pools.particleEffectsPools.obtain(
@@ -297,7 +284,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
             addBlastRing(bulletComponent.explosion!!, position)
         } else {
             if (!explosive) {
-                managers.entityBuilder.begin()
+                gamePlayManagers.entityBuilder.begin()
                     .addParticleEffectComponent(
                         position,
                         gameSessionData.pools.particleEffectsPools.obtain(
@@ -313,7 +300,7 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
         position: Vector3
     ) {
         if (explosion.hasBlastRing) {
-            managers.factories.specialEffectsFactory.addGroundBlast(
+            gamePlayManagers.factories.specialEffectsFactory.addGroundBlast(
                 position,
                 blastRingTexture,
                 0.1F,
@@ -330,12 +317,10 @@ class BulletSystem(managers: Managers) : GameEntitySystem(managers) {
 
     companion object {
         val auxBoundingBox = BoundingBox()
-        private val auxMatrix = Matrix4()
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
         private val auxQuat = Quaternion()
-        private const val CURVE_ROTATION_STEP = -90F
     }
 
 }

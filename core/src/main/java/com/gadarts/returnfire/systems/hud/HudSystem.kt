@@ -1,4 +1,3 @@
-@file:Suppress("KotlinConstantConditions")
 
 package com.gadarts.returnfire.systems.hud
 
@@ -15,8 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -24,7 +23,7 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-class HudSystem(managers: Managers) : GameEntitySystem(managers) {
+class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
     private var onboardButton: ImageButton? = null
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
@@ -37,12 +36,12 @@ class HudSystem(managers: Managers) : GameEntitySystem(managers) {
             pointer: Int,
             button: Int
         ): Boolean {
-            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED.ordinal)
+            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED.ordinal)
+            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
@@ -55,12 +54,12 @@ class HudSystem(managers: Managers) : GameEntitySystem(managers) {
             pointer: Int,
             button: Int
         ): Boolean {
-            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED.ordinal)
+            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED.ordinal)
+            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
@@ -73,12 +72,12 @@ class HudSystem(managers: Managers) : GameEntitySystem(managers) {
             pointer: Int,
             button: Int
         ): Boolean {
-            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_PRESSED.ordinal)
+            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_PRESSED.ordinal)
             return super.touchDown(event, x, y, pointer, button)
         }
 
         override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_RELEASED.ordinal)
+            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_RELEASED.ordinal)
             super.touchUp(event, x, y, pointer, button)
         }
     }
@@ -90,7 +89,7 @@ class HudSystem(managers: Managers) : GameEntitySystem(managers) {
             pointer: Int,
             button: Int
         ): Boolean {
-            this@HudSystem.managers.dispatcher.dispatchMessage(SystemEvents.BUTTON_ONBOARD_PRESSED.ordinal)
+            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_ONBOARD_PRESSED.ordinal)
             if (onboardButton != null) {
                 onboardButton!!.isVisible = false
             }
@@ -98,8 +97,8 @@ class HudSystem(managers: Managers) : GameEntitySystem(managers) {
         }
     }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         val ui = addUiTable()
         addOnScreenInput(gameSessionData, ui)
         initializeInput()
@@ -163,11 +162,11 @@ class HudSystem(managers: Managers) : GameEntitySystem(managers) {
         rightPadding: Float = 0F,
         visible: Boolean = true
     ): Cell<ImageButton> {
-        val up = TextureRegionDrawable(managers.assetsManager.getTexture("button_up"))
+        val up = TextureRegionDrawable(gamePlayManagers.assetsManager.getTexture("button_up"))
         val down =
-            TextureRegionDrawable(managers.assetsManager.getTexture("button_down"))
+            TextureRegionDrawable(gamePlayManagers.assetsManager.getTexture("button_down"))
         val icon =
-            TextureRegionDrawable(managers.assetsManager.getTexture(iconDefinition))
+            TextureRegionDrawable(gamePlayManagers.assetsManager.getTexture(iconDefinition))
         val button = ImageButton(ImageButton.ImageButtonStyle(up, down, null, icon, null, null))
         val cell = ui.add(button)
         if (rightPadding != 0F) {
@@ -179,7 +178,7 @@ class HudSystem(managers: Managers) : GameEntitySystem(managers) {
     }
 
     private fun addTouchpad(ui: Table, touchpad: Touchpad): Cell<Touchpad> {
-        val joystickTexture = managers.assetsManager.getTexture("joystick")
+        val joystickTexture = gamePlayManagers.assetsManager.getTexture("joystick")
         return ui.add(touchpad)
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
     }
@@ -189,7 +188,7 @@ class HudSystem(managers: Managers) : GameEntitySystem(managers) {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                managers: Managers
+                gamePlayManagers: GamePlayManagers
             ) {
                 if (onboardButton != null) {
                     onboardButton!!.isVisible = msg.extraInfo as Boolean

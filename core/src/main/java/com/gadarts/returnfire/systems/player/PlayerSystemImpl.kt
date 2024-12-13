@@ -12,11 +12,11 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btConeShape
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -34,13 +34,13 @@ import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovement
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.MovementTouchPadListener
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterDied
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterOnboarded
+import com.gadarts.returnfire.systems.player.react.*
 
 /**
  * Responsible to initialize input, create the player and updates the player's character according to the input.
  */
-class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerSystem, InputProcessor {
+class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), PlayerSystem,
+    InputProcessor {
 
     private val stage: Entity by lazy {
         engine.getEntitiesFor(
@@ -58,14 +58,14 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
         )
         ghostObject
     }
-    private val playerShootingHandler = PlayerShootingHandler(managers.entityBuilder)
+    private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.entityBuilder)
     private val playerFactory by lazy {
         PlayerFactory(
-            managers.assetsManager,
+            gamePlayManagers.assetsManager,
             gameSessionData,
             playerShootingHandler,
-            managers.factories.gameModelInstanceFactory,
-            managers.entityBuilder
+            gamePlayManagers.factories.gameModelInstanceFactory,
+            gamePlayManagers.entityBuilder
         )
     }
     private val playerMovementHandler: VehicleMovementHandler by lazy {
@@ -74,60 +74,16 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
         playerMovementHandler
     }
 
-    private fun createPlayerMovementHandler(): VehicleMovementHandler {
-        val player = gameSessionData.gameplayData.player
-        val characterDefinition = ComponentsMapper.character.get(player).definition
-        val runsOnMobile = gameSessionData.runsOnMobile
-        return if (characterDefinition == SimpleCharacterDefinition.APACHE) {
-            if (runsOnMobile) {
-                ApacheMovementHandlerMobile()
-            } else {
-                ApacheMovementHandlerDesktop()
-            }
-        } else {
-            val rigidBody = ComponentsMapper.physics.get(player).rigidBody
-            if (runsOnMobile) {
-                TankMovementHandlerMobile(rigidBody, player)
-            } else {
-                TankMovementHandlerDesktop(rigidBody, player)
-            }
-        }
-    }
-
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        BUTTON_WEAPON_PRIMARY_PRESSED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                managers: Managers
-            ) {
-                playerShootingHandler.startPrimaryShooting()
-            }
-        },
-        BUTTON_WEAPON_PRIMARY_RELEASED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                playerShootingHandler.stopPrimaryShooting()
-            }
-        },
-        BUTTON_WEAPON_SECONDARY_PRESSED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                managers: Managers
-            ) {
-                playerShootingHandler.startSecondaryShooting()
-            }
-        },
-        BUTTON_WEAPON_SECONDARY_RELEASED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                playerShootingHandler.stopSecondaryShooting()
-            }
-        },
+        BUTTON_WEAPON_PRIMARY_PRESSED to PlayerSystemOnButtonWeaponPrimaryPressed(playerShootingHandler),
+        BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnButtonWeaponPrimaryReleased(playerShootingHandler),
+        BUTTON_WEAPON_SECONDARY_PRESSED to PlayerSystemOnButtonWeaponSecondaryPressed(playerShootingHandler),
+        BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnButtonWeaponSecondaryReleased(playerShootingHandler),
         BUTTON_REVERSE_PRESSED to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                managers: Managers
+                gamePlayManagers: GamePlayManagers
             ) {
                 playerMovementHandler.onReverseScreenButtonPressed()
             }
@@ -136,26 +92,18 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                managers: Managers
+                gamePlayManagers: GamePlayManagers
             ) {
                 playerMovementHandler.onReverseScreenButtonReleased()
             }
         },
         CHARACTER_ONBOARDED to PlayerSystemOnCharacterOnboarded(this),
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
-        BUTTON_ONBOARD_PRESSED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                managers: Managers
-            ) {
-                onboard()
-            }
-        }
+        BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(this)
     )
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         addPlayer()
     }
 
@@ -186,25 +134,6 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
             )
         val childDecalComponent = ComponentsMapper.childDecal.get(stage)
         handleLandingIndicatorVisibility(childDecalComponent, position, stagePosition)
-    }
-
-    private fun handleLandingIndicatorVisibility(
-        childDecalComponent: ChildDecalComponent,
-        position: Vector3,
-        stagePosition: Vector3
-    ) {
-        val oldValue = childDecalComponent.visible
-        val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-            && position.x >= stagePosition.x - LANDING_OK_OFFSET
-            && position.z <= stagePosition.z + LANDING_OK_OFFSET
-            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
-        childDecalComponent.visible = newValue
-        if (oldValue != newValue) {
-            managers.dispatcher.dispatchMessage(
-                LANDING_INDICATOR_VISIBILITY_CHANGED.ordinal,
-                newValue
-            )
-        }
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -249,11 +178,6 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
             }
         }
         return false
-    }
-
-    private fun onboard() {
-        ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).onBoard()
-        managers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal)
     }
 
     override fun keyUp(keycode: Int): Boolean {
@@ -311,27 +235,6 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
         return false
     }
 
-    private fun addPlayer(): Entity {
-        val map = managers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
-        val base =
-            map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE }
-        val player = playerFactory.create(base!!, gameSessionData.selected)
-        engine.addEntity(player)
-        gameSessionData.gameplayData.player = player
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
-        modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
-        initializePlayerHandlers()
-        return player
-    }
-
-    private fun initializePlayerHandlers() {
-        playerShootingHandler.initialize(
-            managers.dispatcher,
-            gameSessionData,
-            autoAim
-        )
-    }
-
     override fun initInputMethod() {
         if (gameSessionData.runsOnMobile) {
             gameSessionData.hudData.movementTouchpad.addListener(
@@ -348,6 +251,71 @@ class PlayerSystemImpl(managers: Managers) : GameEntitySystem(managers), PlayerS
             )
         } else {
             (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
+        }
+    }
+
+    override fun onboard() {
+        ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).onBoard()
+        gamePlayManagers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal)
+    }
+
+    private fun createPlayerMovementHandler(): VehicleMovementHandler {
+        val player = gameSessionData.gameplayData.player
+        val characterDefinition = ComponentsMapper.character.get(player).definition
+        val runsOnMobile = gameSessionData.runsOnMobile
+        return if (characterDefinition == SimpleCharacterDefinition.APACHE) {
+            if (runsOnMobile) {
+                ApacheMovementHandlerMobile()
+            } else {
+                ApacheMovementHandlerDesktop()
+            }
+        } else {
+            val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+            if (runsOnMobile) {
+                TankMovementHandlerMobile(rigidBody, player)
+            } else {
+                TankMovementHandlerDesktop(rigidBody, player)
+            }
+        }
+    }
+
+    private fun addPlayer(): Entity {
+        val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
+        val base =
+            map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE }
+        val player = playerFactory.create(base!!, gameSessionData.selected)
+        engine.addEntity(player)
+        gameSessionData.gameplayData.player = player
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
+        modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
+        initializePlayerHandlers()
+        return player
+    }
+
+    private fun initializePlayerHandlers() {
+        playerShootingHandler.initialize(
+            gamePlayManagers.dispatcher,
+            gameSessionData,
+            autoAim
+        )
+    }
+
+    private fun handleLandingIndicatorVisibility(
+        childDecalComponent: ChildDecalComponent,
+        position: Vector3,
+        stagePosition: Vector3
+    ) {
+        val oldValue = childDecalComponent.visible
+        val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+        childDecalComponent.visible = newValue
+        if (oldValue != newValue) {
+            gamePlayManagers.dispatcher.dispatchMessage(
+                LANDING_INDICATOR_VISIBILITY_CHANGED.ordinal,
+                newValue
+            )
         }
     }
 

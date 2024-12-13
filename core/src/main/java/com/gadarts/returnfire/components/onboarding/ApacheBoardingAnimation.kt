@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.SoundPlayer
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.returnfire.managers.SoundPlayer
 import com.gadarts.returnfire.systems.EntityBuilder
 
 class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : BoardingAnimation {

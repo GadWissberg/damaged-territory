@@ -6,12 +6,13 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.physics.bullet.Bullet
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.returnfire.managers.GeneralManagers
+import com.gadarts.returnfire.managers.SoundPlayer
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.screens.HangarScreen
 import com.gadarts.returnfire.screens.ScreensManager
-import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
@@ -19,7 +20,6 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val soundPlayer: SoundPlayer by lazy { SoundPlayer() }
     private val hangarScreen by lazy { HangarScreen(assetsManager, dispatcher, this, soundPlayer, runsOnMobile) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
-    private val rigidBodyFactory = RigidBodyFactory()
 
     @Suppress("SENSELESS_COMPARISON")
     override fun create() {
@@ -42,14 +42,10 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     override fun goToWarScreen(characterDefinition: CharacterDefinition) {
         setScreen(
             GamePlayScreen(
-                assetsManager,
-                rigidBodyFactory,
-                soundPlayer,
                 runsOnMobile,
                 fpsTarget,
+                GeneralManagers(assetsManager, soundPlayer, dispatcher, this),
                 characterDefinition,
-                this,
-                dispatcher
             )
         )
     }

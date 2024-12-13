@@ -6,9 +6,9 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
@@ -19,8 +19,8 @@ import kotlin.math.sqrt
 /**
  * Defines the logic for the enemy attack
  */
-class EnemyAttackLogic(private val gameSessionData: GameSessionData, private val managers: Managers) {
-    private val cannonSound by lazy { managers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
+class EnemyAttackLogic(private val gameSessionData: GameSessionData, private val gamePlayManagers: GamePlayManagers) {
+    private val cannonSound by lazy { gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
 
     fun attack(
         deltaTime: Float,
@@ -77,12 +77,12 @@ class EnemyAttackLogic(private val gameSessionData: GameSessionData, private val
                 if (enemyComponent.attackReady) {
                     enemyComponent.attackReady = false
                     enemyComponent.attackReadyTime = now + 1000L
-                    managers.soundPlayer.play(cannonSound)
+                    gamePlayManagers.soundPlayer.play(cannonSound)
                     CharacterWeaponShotEventData.setWithTarget(
                         enemy,
                         player,
                     )
-                    managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY.ordinal)
+                    gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY.ordinal)
                 } else if (enemyComponent.attackReadyTime <= now) {
                     enemyComponent.attackReady = true
                 }

@@ -2,9 +2,9 @@ package com.gadarts.returnfire.systems.player
 
 import com.badlogic.ashley.core.Entity
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.SimpleCharacterDefinition

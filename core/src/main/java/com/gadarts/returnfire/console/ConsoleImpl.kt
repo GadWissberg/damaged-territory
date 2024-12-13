@@ -22,10 +22,10 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Scaling
 import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.console.ConsoleConstants.TEXT_VIEW_NAME
 import com.gadarts.returnfire.console.commands.CommandInvoke
 import com.gadarts.returnfire.console.commands.ExecutedCommand
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.systems.events.SystemEvents
 import java.util.*
 import java.util.function.Consumer

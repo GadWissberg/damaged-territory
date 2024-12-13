@@ -4,15 +4,14 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.Factories
-import com.gadarts.returnfire.Managers
-import com.gadarts.returnfire.SoundPlayer
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
+import com.gadarts.returnfire.factories.SpecialEffectsFactory
+import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.systems.*
@@ -28,33 +27,28 @@ import com.gadarts.returnfire.systems.player.PlayerSystemImpl
 import com.gadarts.returnfire.systems.render.RenderSystem
 
 class GamePlayScreen(
-    private val assetsManager: GameAssetManager,
-    private val rigidBodyFactory: RigidBodyFactory,
-    private val soundPlayer: SoundPlayer,
-    private val runsOnMobile: Boolean,
-    private val fpsTarget: Int,
+    runsOnMobile: Boolean,
+    fpsTarget: Int,
+    private val generalManagers: GeneralManagers,
     private val selected: CharacterDefinition,
-    private val screensManager: ScreensManager,
-    private val messageDispatcher: MessageDispatcher,
 ) : Screen {
 
     init {
         val fileName = MapDefinition.MAP_0.getPaths()[0]
-        assetsManager.load(
+        generalManagers.assetsManager.load(
             fileName,
             GameMap::class.java
         )
-        assetsManager.finishLoading()
+        generalManagers.assetsManager.finishLoading()
     }
 
     private var pauseTime: Long = 0
     private val gameSessionData: GameSessionData by lazy {
         GameSessionData(
-            assetsManager,
-            rigidBodyFactory,
+            generalManagers.assetsManager,
             runsOnMobile,
             fpsTarget,
-            ConsoleImpl(assetsManager, messageDispatcher),
+            ConsoleImpl(generalManagers.assetsManager, generalManagers.dispatcher),
             selected
         )
     }
@@ -65,31 +59,36 @@ class GamePlayScreen(
         val entityBuilderImpl = EntityBuilderImpl()
         val factories = Factories(
             RigidBodyFactory(),
-            SpecialEffectsFactory(gameSessionData, soundPlayer, assetsManager, entityBuilderImpl),
-            GameModelInstanceFactory(assetsManager)
+            SpecialEffectsFactory(
+                gameSessionData,
+                generalManagers.soundPlayer,
+                generalManagers.assetsManager,
+                entityBuilderImpl
+            ),
+            GameModelInstanceFactory(generalManagers.assetsManager)
         )
-        entityBuilderImpl.init(engine, factories, messageDispatcher)
-        val managers = Managers(
+        entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
+        val gamePlayManagers = GamePlayManagers(
             engine,
-            soundPlayer,
-            assetsManager,
-            messageDispatcher,
+            generalManagers.soundPlayer,
+            generalManagers.assetsManager,
+            generalManagers.dispatcher,
             factories,
-            screensManager,
+            generalManagers.screensManagers,
             entityBuilderImpl
         )
         systems = listOf(
-            PhysicsSystem(managers),
-            CharacterSystemImpl(managers),
-            ParticleEffectsSystem(managers),
-            PlayerSystemImpl(managers),
-            RenderSystem(managers),
-            CameraSystem(managers),
-            HudSystem(managers),
-            ProfilingSystem(managers),
-            MapSystem(managers),
-            EnemySystem(managers),
-            BulletSystem(managers),
+            PhysicsSystem(gamePlayManagers),
+            CharacterSystemImpl(gamePlayManagers),
+            ParticleEffectsSystem(gamePlayManagers),
+            PlayerSystemImpl(gamePlayManagers),
+            RenderSystem(gamePlayManagers),
+            CameraSystem(gamePlayManagers),
+            HudSystem(gamePlayManagers),
+            ProfilingSystem(gamePlayManagers),
+            MapSystem(gamePlayManagers),
+            EnemySystem(gamePlayManagers),
+            BulletSystem(gamePlayManagers),
         )
         systems.forEach {
             engine.addSystem(it)
@@ -99,7 +98,7 @@ class GamePlayScreen(
         }
         engine.systems.forEach {
             (it as GameEntitySystem).initialize(
-                gameSessionData, managers
+                gameSessionData, gamePlayManagers
             )
         }
         engine.systems.forEach {
@@ -110,7 +109,7 @@ class GamePlayScreen(
     override fun render(delta: Float) {
         engine.update(delta)
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.BACK)) {
-            screensManager.goToHangarScreen()
+            generalManagers.screensManagers.goToHangarScreen()
         }
     }
 
@@ -127,7 +126,7 @@ class GamePlayScreen(
     }
 
     override fun hide() {
-        assetsManager.unload(MapDefinition.MAP_0.getPaths()[0])
+        generalManagers.assetsManager.unload(MapDefinition.MAP_0.getPaths()[0])
     }
 
     override fun dispose() {

@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.*
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.physics.PhysicsComponent
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -17,7 +17,7 @@ import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLL
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.auxVector
 
 
-class PhysicsSystem(managers: Managers) : GameEntitySystem(managers) {
+class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
     private lateinit var ghostObject: btPairCachingGhostObject
     private lateinit var contactListener: GameContactListener
@@ -32,21 +32,21 @@ class PhysicsSystem(managers: Managers) : GameEntitySystem(managers) {
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 bulletEngineHandler.addBodyOfEntityToCollisionWorld(msg.extraInfo as Entity)
             }
         },
         SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 bulletEngineHandler.removePhysicsOfComponent(msg.extraInfo as PhysicsComponent)
             }
         }
     )
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         bulletEngineHandler.initialize()
-        contactListener = GameContactListener(managers.dispatcher)
+        contactListener = GameContactListener(gamePlayManagers.dispatcher)
     }
 
     override fun resume(delta: Long) {
@@ -63,7 +63,7 @@ class PhysicsSystem(managers: Managers) : GameEntitySystem(managers) {
                 halfMapDepth,
             )
         )
-        val water = managers.entityBuilder.begin().finishAndAddToEngine()
+        val water = gamePlayManagers.entityBuilder.begin().finishAndAddToEngine()
         ghostObject = btPairCachingGhostObject()
         ghostObject.collisionShape = waterShape
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
@@ -78,7 +78,7 @@ class PhysicsSystem(managers: Managers) : GameEntitySystem(managers) {
         addBoundary(auxVector.set(0F, 0F, 1F))
         addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.mapData.currentMap.tilesMapping.size)
         addBoundary(auxVector.set(0F, 0F, -1F), -gameSessionData.mapData.currentMap.tilesMapping[0].size)
-        managers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_SYSTEM_READY.ordinal)
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_SYSTEM_READY.ordinal)
     }
 
     override fun update(deltaTime: Float) {
@@ -86,7 +86,7 @@ class PhysicsSystem(managers: Managers) : GameEntitySystem(managers) {
         val overlappingPairs = ghostObject.overlappingPairs
         val size = overlappingPairs.size()
         for (i in 5 until size) {
-            managers.dispatcher.dispatchMessage(
+            gamePlayManagers.dispatcher.dispatchMessage(
                 SystemEvents.PHYSICS_DROWNING.ordinal,
                 overlappingPairs.atConst(i).userData
             )
@@ -116,7 +116,7 @@ class PhysicsSystem(managers: Managers) : GameEntitySystem(managers) {
     private fun addBoundary(vector: Vector3, planeConstant: Int = 0) {
         val btRigidBody = createBoundaryPhysicsBody(vector, planeConstant)
         gameSessionData.physicsData.collisionWorld.addRigidBody(btRigidBody, COLLISION_GROUP_GROUND, -1)
-        btRigidBody.userData = managers.entityBuilder.begin().addGroundComponent().finishAndAddToEngine()
+        btRigidBody.userData = gamePlayManagers.entityBuilder.begin().addGroundComponent().finishAndAddToEngine()
     }
 
 }

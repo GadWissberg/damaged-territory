@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -21,6 +20,7 @@ import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -31,7 +31,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
 
-class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySystem(managers) {
+class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem, GameEntitySystem(gamePlayManagers) {
 
 
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
@@ -56,13 +56,13 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
             Family.all(TurretComponent::class.java).get()
         )
     }
-    private val flyingPartBoundingBox by lazy { this.managers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART) }
+    private val flyingPartBoundingBox by lazy { this.gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART) }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
         SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(this),
         SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 handleBulletCharacterCollision(
                     PhysicsCollisionEventData.colObj0.userData as Entity,
                     PhysicsCollisionEventData.colObj1.userData as Entity
@@ -73,13 +73,13 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
             }
         },
         SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).boardingAnimation?.init(stageEntity)
             }
         },
         SystemEvents.AMB_SOUND_COMPONENT_ADDED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
-                playAmbSound(msg.extraInfo as Entity, managers)
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                playAmbSound(msg.extraInfo as Entity, gamePlayManagers)
             }
         }
     )
@@ -96,7 +96,7 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
                 addFlyingPartsForDamage(first)
                 ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base).takeDamage(damage)
             }
-            managers.entityBuilder.begin()
+            gamePlayManagers.entityBuilder.begin()
                 .addParticleEffectComponent(
                     ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
@@ -114,11 +114,11 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
         }
     }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         engine.addEntityListener(object : EntityListener {
             override fun entityAdded(entity: Entity) {
-                playAmbSound(entity, managers)
+                playAmbSound(entity, gamePlayManagers)
             }
 
             override fun entityRemoved(entity: Entity) {
@@ -127,11 +127,11 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
         })
     }
 
-    private fun playAmbSound(entity: Entity, managers: Managers) {
+    private fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
         if (ComponentsMapper.ambSound.has(entity)) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
             if (ambSoundComponent.soundId == -1L) {
-                val id = managers.soundPlayer.loopSound(ambSoundComponent.sound)
+                val id = gamePlayManagers.soundPlayer.loopSound(ambSoundComponent.sound)
                 ambSoundComponent.soundId = id
             }
         }
@@ -267,7 +267,7 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
                         if (modelInstanceComponent.gameModelInstance.shadow != null) {
                             modelInstanceComponent.gameModelInstance.shadow!!.transform = matrix4
                         }
-                        managers.dispatcher.dispatchMessage(
+                        gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY.ordinal,
                             physicsComponent
                         )
@@ -275,12 +275,12 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
                     }
                     if (animationDone) {
                         if (stageTransform.getTranslation(auxVector1).y <= StageComponent.BOTTOM_EDGE_Y) {
-                            managers.screensManager.goToHangarScreen()
+                            gamePlayManagers.screensManager.goToHangarScreen()
                         } else {
                             takeStepForStageWithCharacter(stageTransform, -deltaTime, character)
                         }
                         if (!isAlreadyDone) {
-                            managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE.ordinal)
+                            gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE.ordinal)
                         }
                     }
 
@@ -291,7 +291,7 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
                             auxVector1
                         ).y < -1F
                     ) {
-                        managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+                        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
                     } else {
                         val smokeEmission = characterComponent.smokeEmission
                         if (hp <= 0 && characterComponent.deathSequenceDuration == 0) {
@@ -301,7 +301,7 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
                                 characterTransform.getTranslation(
                                     auxVector1
                                 )
-                            val smoke = managers.entityBuilder.begin().addParticleEffectComponent(
+                            val smoke = gamePlayManagers.entityBuilder.begin().addParticleEffectComponent(
                                 position = position,
                                 pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
                                 parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
@@ -317,11 +317,11 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
                     if (characterComponent.deathSequenceDuration <= 0) {
                         characterComponent.dead = true
                         addFlyingParts(character)
-                        managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+                        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
                     } else {
                         val entity =
                             if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(character).turret else character
-                        managers.entityBuilder.begin().addParticleEffectComponent(
+                        gamePlayManagers.entityBuilder.begin().addParticleEffectComponent(
                             ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
                                 auxVector1
                             ).add(
@@ -334,8 +334,8 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
                                 )
                             ), explosionMedGameParticleEffectPool
                         ).finishAndAddToEngine()
-                        managers.soundPlayer.play(
-                            managers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+                        gamePlayManagers.soundPlayer.play(
+                            gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
                         )
                     }
                 }
@@ -364,14 +364,14 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
         return boardingAnimation.update(
             deltaTime,
             character,
-            managers.soundPlayer,
-            managers.assetsManager
+            gamePlayManagers.soundPlayer,
+            gamePlayManagers.assetsManager
         )
     }
 
     private fun boardingDone(character: Entity) {
         ComponentsMapper.boarding.get(character).boardingDone()
-        managers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
     }
 
     private fun addFlyingParts(character: Entity) {
@@ -406,10 +406,10 @@ class CharacterSystemImpl(managers: Managers) : CharacterSystem, GameEntitySyste
         @Suppress("SameParameterValue") position: Vector3,
     ) {
         val modelInstance = ModelInstance(
-            managers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
+            gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
         )
         val gameModelInstance = GameModelInstance(modelInstance, ModelDefinition.FLYING_PART)
-        val flyingPart = managers.entityBuilder.begin()
+        val flyingPart = gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,

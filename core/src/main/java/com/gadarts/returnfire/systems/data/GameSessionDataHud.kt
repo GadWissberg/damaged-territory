@@ -4,8 +4,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.managers.GameAssetManager
 
 class GameSessionDataHud(assetsManager: GameAssetManager, val console: ConsoleImpl) : Disposable {
     val stage: Stage = Stage()

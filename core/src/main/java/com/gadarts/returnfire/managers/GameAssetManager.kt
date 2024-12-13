@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.assets
+package com.gadarts.returnfire.managers
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Array
+import com.gadarts.returnfire.assets.AssetsTypes
 import com.gadarts.returnfire.assets.definitions.AssetDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition

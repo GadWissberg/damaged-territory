@@ -14,8 +14,6 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.GeneralUtils
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundBlastComponent
 import com.gadarts.returnfire.components.GroundComponent
@@ -26,16 +24,18 @@ import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.console.CommandList
 import com.gadarts.returnfire.console.commands.ExecutedCommand
 import com.gadarts.returnfire.console.commands.SkipDrawingCommand
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.utils.GeneralUtils
 
 /**
  * Responsible for rendering the 3D models, their shadows, decals and collision shapes.
  */
-class RenderSystem(managers: Managers) : GameEntitySystem(managers), Disposable {
+class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), Disposable {
 
     private val renderFlags = RenderFlags()
     private lateinit var relatedEntities: RenderSystemRelatedEntities
@@ -60,7 +60,7 @@ class RenderSystem(managers: Managers) : GameEntitySystem(managers), Disposable 
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CONSOLE_COMMAND_EXECUTED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, managers: Managers) {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val command = msg.extraInfo as ExecutedCommand
                 if (command.command == CommandList.SKIP_DRAWING) {
                     val parameters = command.parameters
@@ -89,8 +89,8 @@ class RenderSystem(managers: Managers) : GameEntitySystem(managers), Disposable 
         }
     )
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         relatedEntities = RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
                 Family.all(ModelInstanceComponent::class.java)

@@ -3,7 +3,7 @@ package com.gadarts.returnfire.model
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.GeneralUtils
+import com.gadarts.returnfire.utils.GeneralUtils
 
 enum class PooledObjectPhysicalDefinition(
     val mass: Float,

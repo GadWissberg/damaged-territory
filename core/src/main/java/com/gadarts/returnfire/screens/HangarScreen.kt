@@ -26,18 +26,18 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.GeneralUtils
-import com.gadarts.returnfire.SoundPlayer
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.FontDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.returnfire.managers.SoundPlayer
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.TurretCharacterDefinition
 import com.gadarts.returnfire.screens.hangar.SelectableVehicle
 import com.gadarts.returnfire.screens.hangar.SelectableVehicleChild
 import com.gadarts.returnfire.screens.hangar.VehicleStage
+import com.gadarts.returnfire.utils.GeneralUtils
 
 
 class HangarScreen(

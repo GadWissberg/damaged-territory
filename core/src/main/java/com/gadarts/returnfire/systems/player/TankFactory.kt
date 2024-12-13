@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems.player
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.GameAssetManager
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -15,6 +14,7 @@ import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder

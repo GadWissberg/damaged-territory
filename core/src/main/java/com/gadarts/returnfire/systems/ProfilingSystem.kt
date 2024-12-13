@@ -1,4 +1,3 @@
-@file:Suppress("KotlinConstantConditions")
 
 package com.gadarts.returnfire.systems
 
@@ -10,11 +9,11 @@ import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.Managers
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-class ProfilingSystem(managers: Managers) : GameEntitySystem(managers) {
+class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
     private val stringBuilder: StringBuilder = StringBuilder()
     private val glProfiler: GLProfiler by lazy { GLProfiler(Gdx.graphics) }
@@ -33,8 +32,8 @@ class ProfilingSystem(managers: Managers) : GameEntitySystem(managers) {
     override fun dispose() {
     }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         setGlProfiler()
         addLabel()
     }

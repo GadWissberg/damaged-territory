@@ -13,14 +13,14 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ParticleEffectComponent
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 
-class ParticleEffectsSystem(managers: Managers) : GameEntitySystem(managers) {
+class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf()
 
@@ -34,12 +34,12 @@ class ParticleEffectsSystem(managers: Managers) : GameEntitySystem(managers) {
 
     private val billboardParticleBatch: BillboardParticleBatch by lazy { BillboardParticleBatch() }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         this.gameSessionData.renderData.particleSystem = ParticleSystem()
         billboardParticleBatch.blendingAttribute.sourceFunction = GL20.GL_SRC_ALPHA
         billboardParticleBatch.blendingAttribute.destFunction = GL20.GL_ONE_MINUS_SRC_ALPHA
-        managers.assetsManager.loadParticleEffects(billboardParticleBatch)
+        gamePlayManagers.assetsManager.loadParticleEffects(billboardParticleBatch)
         engine.addEntityListener(createEntityListener())
     }
 
@@ -59,7 +59,7 @@ class ParticleEffectsSystem(managers: Managers) : GameEntitySystem(managers) {
     }
 
     override fun dispose() {
-        managers.assetsManager.unloadParticleEffects()
+        gamePlayManagers.assetsManager.unloadParticleEffects()
     }
 
     private fun createEntityListener(): EntityListener {

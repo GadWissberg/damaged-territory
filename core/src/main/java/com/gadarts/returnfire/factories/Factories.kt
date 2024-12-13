@@ -1,7 +1,5 @@
-package com.gadarts.returnfire
+package com.gadarts.returnfire.factories
 
-import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.systems.SpecialEffectsFactory
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class Factories(

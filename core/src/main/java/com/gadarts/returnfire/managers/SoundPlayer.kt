@@ -1,8 +1,8 @@
-package com.gadarts.returnfire
+package com.gadarts.returnfire.managers
 
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.math.MathUtils
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 
 class SoundPlayer {

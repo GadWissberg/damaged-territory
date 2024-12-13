@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.Factories
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
@@ -28,6 +27,7 @@ import com.gadarts.returnfire.components.onboarding.BoardingComponent
 import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
+import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool

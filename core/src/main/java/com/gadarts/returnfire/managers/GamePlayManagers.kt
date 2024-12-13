@@ -1,12 +1,12 @@
-package com.gadarts.returnfire
+package com.gadarts.returnfire.managers
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.systems.EntityBuilder
 
-class Managers(
+class GamePlayManagers(
     val engine: PooledEngine,
     val soundPlayer: SoundPlayer,
     val assetsManager: GameAssetManager,

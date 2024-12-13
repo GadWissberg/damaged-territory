@@ -3,12 +3,12 @@ package com.gadarts.returnfire.systems
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.Managers
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-class CameraSystem(managers: Managers) : GameEntitySystem(managers) {
+class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
 
     private var cameraTarget = Vector3()
@@ -27,8 +27,8 @@ class CameraSystem(managers: Managers) : GameEntitySystem(managers) {
     override fun dispose() {
     }
 
-    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
-        super.initialize(gameSessionData, managers)
+    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        super.initialize(gameSessionData, gamePlayManagers)
         initializeCamera()
     }
 

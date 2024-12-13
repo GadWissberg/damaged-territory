@@ -2,7 +2,7 @@ package com.gadarts.returnfire.systems.data
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.GameMap
 
 class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {

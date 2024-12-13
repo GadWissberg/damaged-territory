@@ -1,4 +1,4 @@
-package com.gadarts.returnfire
+package com.gadarts.returnfire.utils
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -9,15 +9,15 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
-import com.badlogic.gdx.math.MathUtils.random
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
-import com.gadarts.returnfire.assets.GameAssetManager
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -32,13 +32,15 @@ import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
+import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.*
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.map.TilesMapping
 
 class MapInflater(
     private val gameSessionData: GameSessionData,
-    private val managers: Managers,
+    private val gamePlayManagers: GamePlayManagers,
     private val engine: Engine
 ) {
     private val ambEntities: ImmutableArray<Entity> by lazy {
@@ -75,9 +77,9 @@ class MapInflater(
             position.add(0.5F, 0F, 0.5F)
         }
         val gameModelInstance =
-            managers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
-        val randomScale = if (def.isRandomizeScale()) random(MIN_SCALE, MAX_SCALE) else 1F
-        val entity = managers.entityBuilder.begin()
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
+        val randomScale = if (def.isRandomizeScale()) MathUtils.random(MIN_SCALE, MAX_SCALE) else 1F
+        val entity = gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -86,7 +88,7 @@ class MapInflater(
             )
             .addAmbComponent(
                 auxVector1.set(randomScale, randomScale, randomScale),
-                if (def.isRandomizeRotation()) random(0F, 360F) else 0F,
+                if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
             )
             .finishAndAddToEngine()
         if (def.collisionFlags >= 0) {
@@ -115,8 +117,8 @@ class MapInflater(
         direction: Int
     ) {
         val gameModelInstance =
-            managers.factories.gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
-        val baseEntity = managers.entityBuilder.begin()
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
+        val baseEntity = gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -128,7 +130,7 @@ class MapInflater(
             .addEnemyComponent()
             .addTurretBaseComponent()
             .finishAndAddToEngine()
-        addPhysicsToObject(baseEntity, gameModelInstance, CollisionFlags.CF_STATIC_OBJECT)
+        addPhysicsToObject(baseEntity, gameModelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
             addTurret(baseEntity)
         }
@@ -140,7 +142,7 @@ class MapInflater(
         gameModelInstance: GameModelInstance,
         collisionFlags: Int
     ): PhysicsComponent {
-        return managers.entityBuilder.addPhysicsComponentToEntity(
+        return gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
             entity,
             createShapeForStaticObject(gameModelInstance.definition!!),
             0F,
@@ -154,7 +156,7 @@ class MapInflater(
         if (modelDefinition.physicalShapeCreator == null) {
             shape = btCompoundShape()
             val dimensions =
-                auxBoundingBox.set(managers.assetsManager.getCachedBoundingBox(modelDefinition))
+                auxBoundingBox.set(gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition))
                     .getDimensions(
                         auxVector3
                     )
@@ -173,11 +175,11 @@ class MapInflater(
     private fun addTurret(
         baseEntity: Entity
     ) {
-        val assetsManager = managers.assetsManager
+        val assetsManager = gamePlayManagers.assetsManager
         val modelInstance =
-            managers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
         val spark = addTurretSpark(assetsManager, modelInstance.modelInstance)
-        val turret = managers.entityBuilder.begin()
+        val turret = gamePlayManagers.entityBuilder.begin()
             .addEnemyComponent()
             .addModelInstanceComponent(
                 modelInstance,
@@ -211,11 +213,11 @@ class MapInflater(
                 )
             )
         )
-        managers.entityBuilder.addPhysicsComponentToEntity(
+        gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
             turret,
             shape,
             10F,
-            CollisionFlags.CF_KINEMATIC_OBJECT,
+            btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT,
             modelInstance.transform,
         )
     }
@@ -256,7 +258,7 @@ class MapInflater(
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK)),
             ModelDefinition.CANNON_SPARK,
         )
-        val spark = managers.entityBuilder.begin()
+        val spark = gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 model,
                 Vector3(),
@@ -336,11 +338,11 @@ class MapInflater(
         }
         val textureDefinition = applyTextureToFloorTile(col, row, entity, modelInstance)
         if (textureDefinition != null && !textureDefinition.fileName.contains("water")) {
-            managers.entityBuilder.addPhysicsComponentToEntity(
+            gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
                 entity,
                 btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
                 0F,
-                CollisionFlags.CF_STATIC_OBJECT,
+                btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
                 modelInstance.modelInstance.transform
             )
         }
@@ -354,7 +356,7 @@ class MapInflater(
         modelInstance: GameModelInstance
     ): TextureDefinition? {
         var textureDefinition: TextureDefinition? = null
-        val assetsManager = managers.assetsManager
+        val assetsManager = gamePlayManagers.assetsManager
         if (isPositionInsideBoundaries(row, col)) {
             gameSessionData.mapData.tilesEntities[row][col] = entity
             val definitions = assetsManager.getTexturesDefinitions()
@@ -384,7 +386,7 @@ class MapInflater(
         modelInstance: GameModelInstance,
         position: Vector3
     ): Entity {
-        return managers.entityBuilder.begin()
+        return gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(modelInstance, position, null)
             .addGroundComponent()
             .finishAndAddToEngine()
@@ -402,7 +404,7 @@ class MapInflater(
                 .get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
         gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
-        val texturesDefinitions = managers.assetsManager.getTexturesDefinitions()
+        val texturesDefinitions = gamePlayManagers.assetsManager.getTexturesDefinitions()
         applyAnimatedTextureComponentToFloor(
             texturesDefinitions.definitions["tile_water"]!!,
             entity
@@ -464,7 +466,7 @@ class MapInflater(
     ) {
         val frames = com.badlogic.gdx.utils.Array<Texture>()
         for (i in 0 until textureDefinition.frames) {
-            frames.add(managers.assetsManager.getTexture(textureDefinition, i))
+            frames.add(gamePlayManagers.assetsManager.getTexture(textureDefinition, i))
         }
         val animation = Animation(0.25F, frames)
         animation.playMode = Animation.PlayMode.NORMAL
