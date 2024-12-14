@@ -11,6 +11,7 @@ import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.cd.ChildDecal
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.components.physics.PhysicsComponent
@@ -47,8 +48,8 @@ interface EntityBuilder {
     ): EntityBuilder
 
     fun addSparkComponent(relativePositionCalculator: ArmComponent.RelativePositionCalculator): EntityBuilder
-    fun addCharacterComponent(characterDefinition: CharacterDefinition): EntityBuilder
-    fun addOnboardingCharacterComponent(boardingAnimation: BoardingAnimation?): EntityBuilder
+    fun addCharacterComponent(characterDefinition: CharacterDefinition, color: CharacterColor): EntityBuilder
+    fun addBoardingCharacterComponent(color: CharacterColor, boardingAnimation: BoardingAnimation?): EntityBuilder
     fun addPlayerComponent(): EntityBuilder
     fun addTurretBaseComponent(): EntityBuilder
     fun addAmbSoundComponent(sound: Sound): EntityBuilder
@@ -102,8 +103,8 @@ interface EntityBuilder {
     ): PhysicsComponent
 
     fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder
-    fun addStageComponent(): EntityBuilder
+    fun addStageComponent(base: Entity): EntityBuilder
     fun addAutoAimComponent(): EntityBuilder
-    fun addBaseComponent(): EntityBuilder
+    fun addBaseComponent(color: CharacterColor): EntityBuilder
 
 }

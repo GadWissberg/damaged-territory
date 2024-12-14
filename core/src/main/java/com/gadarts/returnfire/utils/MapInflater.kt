@@ -30,6 +30,7 @@ import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GameAssetManager
@@ -90,8 +91,10 @@ class MapInflater(
                 auxVector1.set(randomScale, randomScale, randomScale),
                 if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
             )
-        if (def == AmbDefinition.BASE_GREEN || def == AmbDefinition.BASE_BROWN) {
-            entityBuilder.addBaseComponent()
+        val isGreen = def == AmbDefinition.BASE_GREEN
+        val isBrown = def == AmbDefinition.BASE_BROWN
+        if (isGreen || isBrown) {
+            entityBuilder.addBaseComponent(if (isGreen) CharacterColor.GREEN else CharacterColor.BROWN)
         }
         val entity = entityBuilder.finishAndAddToEngine()
         if (def.collisionFlags >= 0) {
@@ -129,7 +132,7 @@ class MapInflater(
                 direction.toFloat(),
                 GameDebugSettings.HIDE_ENEMIES
             )
-            .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON)
+            .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON, CharacterColor.GREEN)
             .addEnemyComponent()
             .addTurretBaseComponent()
             .finishAndAddToEngine()

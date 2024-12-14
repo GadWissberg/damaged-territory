@@ -20,6 +20,7 @@ import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
@@ -83,14 +84,17 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addCharacterComponent(characterDefinition: CharacterDefinition): EntityBuilder {
-        val characterComponent = CharacterComponent(characterDefinition)
+    override fun addCharacterComponent(characterDefinition: CharacterDefinition, color: CharacterColor): EntityBuilder {
+        val characterComponent = CharacterComponent(characterDefinition, color)
         entity!!.add(characterComponent)
         return this
     }
 
-    override fun addOnboardingCharacterComponent(boardingAnimation: BoardingAnimation?): EntityBuilder {
-        val boardingComponent = BoardingComponent(boardingAnimation)
+    override fun addBoardingCharacterComponent(
+        color: CharacterColor,
+        boardingAnimation: BoardingAnimation?
+    ): EntityBuilder {
+        val boardingComponent = BoardingComponent(color, boardingAnimation)
         entity!!.add(boardingComponent)
         return this
     }
@@ -190,7 +194,7 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilderImpl {
+    override fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilder {
         val groundBlastComponent = engine.createComponent(GroundBlastComponent::class.java)
         groundBlastComponent.init(scalePace, duration, fadeOutPace)
         entity!!.add(groundBlastComponent)
@@ -203,15 +207,15 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addEnemyComponent(): EntityBuilderImpl {
+    override fun addEnemyComponent(): EntityBuilder {
         val enemyComponent = engine.createComponent(EnemyComponent::class.java)
         entity!!.add(enemyComponent)
         return this
     }
 
-    override fun addStageComponent(): EntityBuilderImpl {
-        val enemyComponent = engine.createComponent(StageComponent::class.java)
-        entity!!.add(enemyComponent)
+    override fun addStageComponent(base: Entity): EntityBuilder {
+        val stageComponent = StageComponent(base)
+        entity!!.add(stageComponent)
         return this
     }
 
@@ -221,8 +225,8 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addBaseComponent(): EntityBuilder {
-        val baseComponent = BaseComponent()
+    override fun addBaseComponent(color: CharacterColor): EntityBuilder {
+        val baseComponent = BaseComponent(color)
         entity!!.add(baseComponent)
         return this
     }

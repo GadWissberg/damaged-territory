@@ -52,9 +52,13 @@ object ComponentsMapper {
         ComponentMapper.getFor(BoardingComponent::class.java)
     val baseDoor: ComponentMapper<BaseDoorComponent> =
         ComponentMapper.getFor(BaseDoorComponent::class.java)
+    val base: ComponentMapper<BaseComponent> =
+        ComponentMapper.getFor(BaseComponent::class.java)
+    val stage: ComponentMapper<StageComponent> =
+        ComponentMapper.getFor(StageComponent::class.java)
     val childModelInstanceComponent: ComponentMapper<ChildModelInstanceComponent> =
         ComponentMapper.getFor(ChildModelInstanceComponent::class.java)
-    val autoaim: ComponentMapper<AutoAimComponent> =
+    val autoAim: ComponentMapper<AutoAimComponent> =
         ComponentMapper.getFor(AutoAimComponent::class.java)
 
 }

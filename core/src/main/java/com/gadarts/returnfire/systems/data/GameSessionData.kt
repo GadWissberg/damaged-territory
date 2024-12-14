@@ -15,7 +15,7 @@ class GameSessionData(
 ) :
     Disposable {
     val physicsData = GameSessionDataPhysics()
-    val gameplayData = GameSessionDataGameplay()
+    val gamePlayData = GameSessionDataGameplay()
     val mapData = GameSessionDataMap(assetsManager)
     val hudData = GameSessionDataHud(assetsManager, console)
     val pools by lazy { GameSessionDataPools(assetsManager) }
@@ -36,7 +36,7 @@ class GameSessionData(
     }
 
     fun finishSession() {
-        gameplayData.sessionFinished = true
+        gamePlayData.sessionFinished = true
         dispose()
     }
 }

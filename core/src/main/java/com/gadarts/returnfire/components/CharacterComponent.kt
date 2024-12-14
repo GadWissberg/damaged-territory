@@ -4,9 +4,10 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.model.CharacterDefinition
 
-class CharacterComponent(val definition: CharacterDefinition) : Component {
+class CharacterComponent(val definition: CharacterDefinition, val color: CharacterColor) : Component {
     var deathSequenceNextExplosion: Long = 0
         private set
     var deathSequenceDuration: Int = 0

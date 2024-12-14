@@ -155,12 +155,12 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         propellerRotationSpeed = MathUtils.clamp(propellerRotationSpeed, 0F, MAX_ROTATION_SPEED)
     }
 
-    override fun init(stageEntity: Entity?) {
+    override fun init(stage: Entity?) {
         firstUpdate = true
         boardingSpeed = 0F
         propellerRotationSpeed = 0F
         done = false
-        stage = stageEntity
+        this.stage = stage
     }
 
 

@@ -16,6 +16,7 @@ import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
@@ -42,10 +43,10 @@ import com.gadarts.returnfire.systems.player.react.*
 class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), PlayerSystem,
     InputProcessor {
 
-    private val stage: Entity by lazy {
+    private val playerStage: Entity by lazy {
         engine.getEntitiesFor(
             Family.all(StageComponent::class.java).get()
-        ).first()
+        ).find { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color == CharacterColor.BROWN }!!
     }
     private val autoAim by lazy {
         val ghostObject = btPairCachingGhostObject()
@@ -65,7 +66,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             gameSessionData,
             playerShootingHandler,
             gamePlayManagers.factories.gameModelInstanceFactory,
-            gamePlayManagers.entityBuilder
+            gamePlayManagers.entityBuilder,
         )
     }
     private val playerMovementHandler: VehicleMovementHandler by lazy {
@@ -116,7 +117,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun update(deltaTime: Float) {
-        val player = gameSessionData.gameplayData.player
+        val player = gameSessionData.gamePlayData.player
         if (ComponentsMapper.boarding.get(player).isBoarding() || ComponentsMapper.character.get(player).dead) return
 
         playerMovementHandler.update(
@@ -129,20 +130,20 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 auxVector1
             )
         val stagePosition =
-            ComponentsMapper.modelInstance.get(stage).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(playerStage).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector2
             )
-        val childDecalComponent = ComponentsMapper.childDecal.get(stage)
+        val childDecalComponent = ComponentsMapper.childDecal.get(playerStage)
         handleLandingIndicatorVisibility(childDecalComponent, position, stagePosition)
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        val onboardingComponent = ComponentsMapper.boarding.get(gameSessionData.gameplayData.player)
+        val onboardingComponent = ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
         if (onboardingComponent.isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP -> {
-                playerMovementHandler.thrust(gameSessionData.gameplayData.player)
+                playerMovementHandler.thrust(gameSessionData.gamePlayData.player)
             }
 
             Input.Keys.DOWN -> {
@@ -162,7 +163,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.SHIFT_LEFT -> {
-                if (ComponentsMapper.childDecal.get(stage).visible) {
+                if (ComponentsMapper.childDecal.get(playerStage).visible) {
                     onboard()
                 } else {
                     playerShootingHandler.startSecondaryShooting()
@@ -181,7 +182,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).isBoarding()) return false
+        if (ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
@@ -240,7 +241,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             gameSessionData.hudData.movementTouchpad.addListener(
                 MovementTouchPadListener(
                     playerMovementHandler,
-                    gameSessionData.gameplayData.player
+                    gameSessionData.gamePlayData.player
                 )
             )
             gameSessionData.hudData.turretTouchpad.addListener(
@@ -255,12 +256,12 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun onboard() {
-        ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).onBoard()
-        gamePlayManagers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal)
+        ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).onBoard()
+        gamePlayManagers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal, gameSessionData.gamePlayData.player)
     }
 
     private fun createPlayerMovementHandler(): VehicleMovementHandler {
-        val player = gameSessionData.gameplayData.player
+        val player = gameSessionData.gamePlayData.player
         val characterDefinition = ComponentsMapper.character.get(player).definition
         val runsOnMobile = gameSessionData.runsOnMobile
         return if (characterDefinition == SimpleCharacterDefinition.APACHE) {
@@ -285,7 +286,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE_BROWN }
         val player = playerFactory.create(baseBROWN!!, gameSessionData.selected)
         engine.addEntity(player)
-        gameSessionData.gameplayData.player = player
+        gameSessionData.gamePlayData.player = player
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
         modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
         initializePlayerHandlers()

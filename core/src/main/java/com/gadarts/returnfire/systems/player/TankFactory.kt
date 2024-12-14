@@ -12,6 +12,7 @@ import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.managers.GameAssetManager
@@ -24,17 +25,17 @@ class TankFactory(
     private val assetsManager: GameAssetManager,
     private val gameSessionData: GameSessionData,
     gameModelInstanceFactory: GameModelInstanceFactory,
-    private val entityBuilder: EntityBuilder
+    private val entityBuilder: EntityBuilder,
 ) : CharacterFactory(assetsManager, gameModelInstanceFactory, entityBuilder) {
-    override fun create(base: PlacedElement): Entity {
+    override fun create(base: PlacedElement, color: CharacterColor): Entity {
         val primarySpark = createPrimarySpark(ModelDefinition.CANNON_SPARK, tankPrimaryRelativePositionCalculator)
         val entityBuilder = entityBuilder.begin()
         addPlayerBaseComponents(
-            entityBuilder, base, TurretCharacterDefinition.TANK, primarySpark,
+            base, TurretCharacterDefinition.TANK, primarySpark,
             {
                 addTankPrimaryArmComponent(entityBuilder, primarySpark)
             },
-            null
+            null, color
         )
         entityBuilder.addTurretBaseComponent()
         val engineSound = assetsManager.getAssetByDefinition(SoundDefinition.ENGINE)

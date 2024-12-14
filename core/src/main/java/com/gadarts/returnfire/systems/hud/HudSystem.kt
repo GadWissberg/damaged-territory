@@ -115,7 +115,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             val movementPad =
                 addTouchpad(ui, this.gameSessionData.hudData.movementTouchpad)
                     .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, 0F).left()
-            val definition = ComponentsMapper.character.get(gameSessionData.gameplayData.player).definition
+            val definition = ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition
             if (definition == SimpleCharacterDefinition.APACHE) {
                 movementPad.growX()
                 addApacheButtons(ui)
@@ -226,7 +226,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     override fun update(deltaTime: Float) {
-        if (gameSessionData.gameplayData.sessionFinished) return
+        if (gameSessionData.gamePlayData.sessionFinished) return
 
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.update()

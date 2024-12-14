@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.player
 import com.badlogic.ashley.core.Entity
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.CharacterDefinition
@@ -18,18 +19,25 @@ class PlayerFactory(
     gameSessionData: GameSessionData,
     playerShootingHandler: PlayerShootingHandler,
     gameModelInstanceFactory: GameModelInstanceFactory,
-    entityBuilder: EntityBuilder
+    entityBuilder: EntityBuilder,
 ) {
     private val apacheFactory =
-        ApacheFactory(assetsManager, playerShootingHandler, gameSessionData, gameModelInstanceFactory, entityBuilder)
-    private val tankFactory = TankFactory(assetsManager, gameSessionData, gameModelInstanceFactory, entityBuilder)
+        ApacheFactory(
+            assetsManager,
+            playerShootingHandler,
+            gameSessionData,
+            gameModelInstanceFactory,
+            entityBuilder,
+        )
+    private val tankFactory =
+        TankFactory(assetsManager, gameSessionData, gameModelInstanceFactory, entityBuilder)
 
     fun create(base: PlacedElement, selected: CharacterDefinition): Entity {
         var player: Entity? = null
         if (selected == SimpleCharacterDefinition.APACHE) {
-            player = apacheFactory.create(base)
+            player = apacheFactory.create(base, CharacterColor.BROWN)
         } else if (selected == TurretCharacterDefinition.TANK) {
-            player = tankFactory.create(base)
+            player = tankFactory.create(base, CharacterColor.BROWN)
         }
         @Suppress("KotlinConstantConditions")
         if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {

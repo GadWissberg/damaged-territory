@@ -1,8 +1,9 @@
 package com.gadarts.returnfire.components.onboarding
 
 import com.badlogic.ashley.core.Component
+import com.gadarts.returnfire.components.character.CharacterColor
 
-class BoardingComponent(val boardingAnimation: BoardingAnimation?) : Component {
+class BoardingComponent(val color: CharacterColor, val boardingAnimation: BoardingAnimation?) : Component {
     fun isBoarding(): Boolean {
         return boardingStatus != 0
     }

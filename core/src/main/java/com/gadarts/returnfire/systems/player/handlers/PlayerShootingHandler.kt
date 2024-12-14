@@ -38,15 +38,15 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
     }
 
     fun update() {
-        var armComp: ArmComponent = ComponentsMapper.primaryArm.get(gameSessionData.gameplayData.player)
+        var armComp: ArmComponent = ComponentsMapper.primaryArm.get(gameSessionData.gamePlayData.player)
         updateAutoAim(armComp)
         handleShooting(
             priShooting,
             armComp,
             SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY,
         )
-        if (ComponentsMapper.secondaryArm.has(gameSessionData.gameplayData.player)) {
-            armComp = ComponentsMapper.secondaryArm.get(gameSessionData.gameplayData.player)
+        if (ComponentsMapper.secondaryArm.has(gameSessionData.gamePlayData.player)) {
+            armComp = ComponentsMapper.secondaryArm.get(gameSessionData.gamePlayData.player)
             handleShooting(
                 secShooting,
                 armComp,
@@ -57,7 +57,7 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
 
     private fun updateAutoAim(armComp: ArmComponent) {
         val rigidBody = autoAim
-        val player = gameSessionData.gameplayData.player
+        val player = gameSessionData.gamePlayData.player
         val turretBaseComponent = ComponentsMapper.turretBase.get(player)
         val playerModelInstance =
             if (turretBaseComponent != null) {
@@ -92,7 +92,7 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
 
         val now = TimeUtils.millis()
         if (armComp.loaded <= now) {
-            val player = gameSessionData.gameplayData.player
+            val player = gameSessionData.gamePlayData.player
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
             val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
             armComp.displaySpark = now

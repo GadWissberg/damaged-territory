@@ -15,6 +15,7 @@ import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.cd.ChildDecal
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.onboarding.ApacheBoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.managers.GameAssetManager
@@ -30,22 +31,22 @@ class ApacheFactory(
     private val playerShootingHandler: PlayerShootingHandler,
     private val gameSessionData: GameSessionData,
     gameModelInstanceFactory: GameModelInstanceFactory,
-    private val entityBuilder: EntityBuilder
+    private val entityBuilder: EntityBuilder,
 ) :
     CharacterFactory(assetsManager, gameModelInstanceFactory, entityBuilder) {
 
-    override fun create(base: PlacedElement): Entity {
+    override fun create(base: PlacedElement, color: CharacterColor): Entity {
         val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
         val secondarySpark = addSpark(machineGunSparkModel, secRelativePositionCalculator)
         val primarySpark =
             createPrimarySpark(ModelDefinition.MACHINE_GUN_SPARK, apachePrimaryRelativePositionCalculator)
         val entityBuilder = entityBuilder.begin()
         addPlayerBaseComponents(
-            entityBuilder, base, SimpleCharacterDefinition.APACHE, primarySpark,
+            base, SimpleCharacterDefinition.APACHE, primarySpark,
             {
                 addApachePrimaryArmComponent(primarySpark)
             },
-            ApacheBoardingAnimation(entityBuilder)
+            ApacheBoardingAnimation(entityBuilder), color
         )
         addPropeller()
         val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER)
@@ -104,7 +105,7 @@ class ApacheFactory(
             playerShootingHandler.secondaryCreationSide =
                 !playerShootingHandler.secondaryCreationSide
             val transform =
-                ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player).gameModelInstance.modelInstance.transform
+                ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
             val pos =
                 output.set(
                     0.5F,

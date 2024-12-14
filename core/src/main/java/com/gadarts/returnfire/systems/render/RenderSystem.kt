@@ -105,7 +105,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     override fun update(deltaTime: Float) {
-        if (gameSessionData.gameplayData.sessionFinished) return
+        if (gameSessionData.gamePlayData.sessionFinished) return
 
         modelsRenderer.renderShadows()
         GeneralUtils.clearScreen()

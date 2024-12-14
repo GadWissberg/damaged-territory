@@ -18,6 +18,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
@@ -34,15 +35,15 @@ import com.gadarts.returnfire.systems.render.RenderSystem
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem, GameEntitySystem(gamePlayManagers) {
 
 
+    private val stages: Map<CharacterColor, Entity> by lazy {
+        val stageEntities = engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
+        stageEntities.associateBy({ ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color }, { it })
+    }
+
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
         engine!!.getEntitiesFor(
             Family.all(AmbSoundComponent::class.java).get()
         )
-    }
-    private val stageEntity: Entity by lazy {
-        engine!!.getEntitiesFor(
-            Family.all(StageComponent::class.java).get()
-        ).first()
     }
 
     private val charactersEntities: ImmutableArray<Entity> by lazy {
@@ -74,7 +75,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         },
         SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                ComponentsMapper.boarding.get(gameSessionData.gameplayData.player).boardingAnimation?.init(stageEntity)
+                val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
+                boardingComponent.boardingAnimation?.init(stages[boardingComponent.color])
             }
         },
         SystemEvents.AMB_SOUND_COMPONENT_ADDED to object : HandlerOnEvent {
@@ -238,13 +240,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 child.decal.rotateZ(child.rotationStep.angleDeg())
             }
             val hp = characterComponent.hp
-            if (ComponentsMapper.boarding.has(character) && ComponentsMapper.boarding.get(
-                    character
-                ).isBoarding()
-            ) {
-                val boardingComponent = ComponentsMapper.boarding.get(character)
+            val boardingComponent = ComponentsMapper.boarding.get(
+                character
+            )
+            if (boardingComponent != null && boardingComponent.isBoarding()) {
                 val stageTransform =
-                    ComponentsMapper.modelInstance.get(stageEntity).gameModelInstance.modelInstance.transform
+                    ComponentsMapper.modelInstance.get(stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isOffboarding()
                 ) {
                     if (stageTransform.getTranslation(auxVector1).y < -1F) {
@@ -256,7 +257,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         }
                     }
                 } else {
-                    val boardingAnimation = ComponentsMapper.boarding.get(character).boardingAnimation
+                    val boardingAnimation = boardingComponent.boardingAnimation
                     val isAlreadyDone = boardingAnimation?.isDone() ?: true
                     val animationDone = updateBoardingAnimation(deltaTime, character)
                     if (ComponentsMapper.physics.has(character)) {
@@ -280,7 +281,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             takeStepForStageWithCharacter(stageTransform, -deltaTime, character)
                         }
                         if (!isAlreadyDone) {
-                            gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE.ordinal)
+                            gamePlayManagers.dispatcher.dispatchMessage(
+                                SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE.ordinal,
+                                character
+                            )
                         }
                     }
 

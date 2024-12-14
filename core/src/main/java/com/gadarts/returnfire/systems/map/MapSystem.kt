@@ -22,7 +22,6 @@ import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -104,8 +103,10 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
+                    val characterColor = ComponentsMapper.character.get(msg.extraInfo as Entity).color
+                    val base = bases.find { ComponentsMapper.base.get(it).color == characterColor }
+                    closeDoors(base!!, gamePlayManagers)
                     landingMark.visible = false
-                    closeDoors(gamePlayManagers)
                 }
             },
             SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
@@ -114,17 +115,18 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
-                    val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.gameplayData.player)
+                    val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
                     if (boardingComponent.boardingAnimation == null && boardingComponent.isOnboarding()) {
-                        closeDoors(gamePlayManagers)
+                        closeDoors(msg.extraInfo as Entity, gamePlayManagers)
                     }
                 }
             },
         )
 
-    private fun closeDoors(gamePlayManagers: GamePlayManagers) {
-        doorMoveState = -1
-        baseDoorSoundId =
+    private fun closeDoors(base: Entity, gamePlayManagers: GamePlayManagers) {
+        val baseComponent = ComponentsMapper.base.get(base)
+        baseComponent.close()
+        baseComponent.baseDoorSoundId =
             gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE))
     }
 
@@ -141,18 +143,20 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     override fun onSystemReady() {
         super.onSystemReady()
         MapInflater(gameSessionData, gamePlayManagers, engine).inflate()
-        engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
-            .find { ComponentsMapper.modelInstance.get(it).gameModelInstance.definition == ModelDefinition.PIT }.let {
-                addStage(it!!)
-                westDoor = addBaseDoor(it, 0F, -1F)
-                eastDoor = addBaseDoor(it, 180F, 1F)
-                baseDoorSoundId =
-                    gamePlayManagers.soundPlayer.play(
-                        gamePlayManagers.assetsManager.getAssetByDefinition(
-                            SoundDefinition.BASE_DOOR_MOVE
-                        )
+        bases.forEach {
+            addStage(it!!)
+            val baseComponent = ComponentsMapper.base.get(it)
+            baseComponent.init(
+                addBaseDoor(it, 0F, -1F),
+                addBaseDoor(it, 180F, 1F)
+            )
+            baseComponent.baseDoorSoundId =
+                gamePlayManagers.soundPlayer.play(
+                    gamePlayManagers.assetsManager.getAssetByDefinition(
+                        SoundDefinition.BASE_DOOR_MOVE
                     )
-            }
+                )
+        }
     }
 
     private fun addBaseDoor(base: Entity, rotationAroundY: Float, relativeTargetX: Float): Entity {
@@ -190,7 +194,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             .addChildDecalComponent(
                 listOf(landingMark), false
             )
-            .addStageComponent()
+            .addStageComponent(base)
             .finishAndAddToEngine()
     }
 
@@ -219,7 +223,9 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-        updateBaseDoors(deltaTime)
+        for (base in bases) {
+            updateBaseDoors(base, deltaTime)
+        }
         ambSoundsHandler.update(gamePlayManagers)
         groundTextureAnimationStateTime += deltaTime
         for (entity in animatedFloorsEntities) {
@@ -254,18 +260,21 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         }
     }
 
-    private fun updateBaseDoors(deltaTime: Float) {
-        if (doorMoveState == 0) return
+    private fun updateBaseDoors(base: Entity, deltaTime: Float) {
+        val baseComponent = ComponentsMapper.base.get(base)
+        if (baseComponent.isIdle()) return
 
-        val westDoorTransform = ComponentsMapper.modelInstance.get(westDoor).gameModelInstance.modelInstance.transform
-        val eastDoorTransform = ComponentsMapper.modelInstance.get(eastDoor).gameModelInstance.modelInstance.transform
-        val stepSize = deltaTime * 0.3F * doorMoveState
+        val westDoorTransform =
+            ComponentsMapper.modelInstance.get(baseComponent.westDoor).gameModelInstance.modelInstance.transform
+        val eastDoorTransform =
+            ComponentsMapper.modelInstance.get(baseComponent.eastDoor).gameModelInstance.modelInstance.transform
+        val stepSize = deltaTime * 0.3F * baseComponent.doorMoveState
         val westDoorX = westDoorTransform.getTranslation(auxVector1).x
         val eastDoorX = eastDoorTransform.getTranslation(auxVector2).x
-        val westDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(westDoor)
-        val eastDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(eastDoor)
-        val isOpening = doorMoveState > 0
-        val isClosing = doorMoveState < 0
+        val westDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.westDoor)
+        val eastDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.eastDoor)
+        val isOpening = baseComponent.doorMoveState > 0
+        val isClosing = baseComponent.doorMoveState < 0
         if ((isOpening && westDoorX > westDoorBaseDoorComponent.targetX)
             || (isClosing && westDoorX < westDoorBaseDoorComponent.initialX)
         ) {
@@ -276,10 +285,10 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         ) {
             eastDoorTransform.trn(stepSize, 0F, 0F)
         } else {
-            doorMoveState = 0
+            baseComponent.setIdle()
             gamePlayManagers.soundPlayer.stop(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
-                baseDoorSoundId
+                baseComponent.baseDoorSoundId
             )
             gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE))
         }

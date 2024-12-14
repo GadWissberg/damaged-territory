@@ -37,7 +37,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun followPlayer(deltaTime: Float) {
-        val player = gameSessionData.gameplayData.player
+        val player = gameSessionData.gamePlayData.player
         val transform =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)
@@ -48,7 +48,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         playerPosition: Vector3,
         deltaTime: Float
     ) {
-        val physicsComponent = ComponentsMapper.physics.get(gameSessionData.gameplayData.player) ?: return
+        val physicsComponent = ComponentsMapper.physics.get(gameSessionData.gamePlayData.player) ?: return
 
         val linearVelocity =
             auxVector3_2.set(physicsComponent.rigidBody.linearVelocity)
@@ -64,7 +64,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun initializeCamera() {
         val camera = gameSessionData.renderData.camera
         camera.update()
-        val get = ComponentsMapper.modelInstance.get(gameSessionData.gameplayData.player)
+        val get = ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player)
         val playerPosition = get.gameModelInstance.modelInstance.transform.getTranslation(
             auxVector3_1
         )

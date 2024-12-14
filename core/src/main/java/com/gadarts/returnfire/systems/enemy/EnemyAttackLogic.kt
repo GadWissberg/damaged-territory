@@ -30,7 +30,7 @@ class EnemyAttackLogic(private val gameSessionData: GameSessionData, private val
         val transform =
             modelInstanceComponent.gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector3_2)
-        val player = gameSessionData.gameplayData.player
+        val player = gameSessionData.gamePlayData.player
         val playerPosition =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_1
