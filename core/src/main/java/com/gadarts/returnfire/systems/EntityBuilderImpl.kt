@@ -221,6 +221,12 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
+    override fun addBaseComponent(): EntityBuilder {
+        val baseComponent = BaseComponent()
+        entity!!.add(baseComponent)
+        return this
+    }
+
     override fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilderImpl {
         val baseDoorComponent = BaseDoorComponent(initialX, targetX)
         entity!!.add(baseDoorComponent)

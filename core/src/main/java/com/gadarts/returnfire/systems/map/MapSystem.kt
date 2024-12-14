@@ -37,10 +37,6 @@ import com.gadarts.returnfire.utils.MapInflater
 class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
     private val landingMark: ChildDecal by lazy { createLandingMark() }
-    private var doorMoveState: Int = 1
-    private var baseDoorSoundId: Long = -1L
-    private lateinit var eastDoor: Entity
-    private lateinit var westDoor: Entity
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
     private val ambSoundsHandler = AmbSoundsHandler()
     private var groundTextureAnimationStateTime = 0F
@@ -56,6 +52,14 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         engine.getEntitiesFor(
             Family.all(
                 GroundBlastComponent::class.java,
+            ).get()
+        )
+    }
+
+    private val bases: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(
+                BaseComponent::class.java,
             ).get()
         )
     }

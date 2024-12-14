@@ -79,7 +79,7 @@ class MapInflater(
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
         val randomScale = if (def.isRandomizeScale()) MathUtils.random(MIN_SCALE, MAX_SCALE) else 1F
-        val entity = gamePlayManagers.entityBuilder.begin()
+        val entityBuilder = gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -90,7 +90,10 @@ class MapInflater(
                 auxVector1.set(randomScale, randomScale, randomScale),
                 if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
             )
-            .finishAndAddToEngine()
+        if (def == AmbDefinition.BASE_GREEN || def == AmbDefinition.BASE_BROWN) {
+            entityBuilder.addBaseComponent()
+        }
+        val entity = entityBuilder.finishAndAddToEngine()
         if (def.collisionFlags >= 0) {
             addPhysicsToObject(entity, gameModelInstance, def.collisionFlags)
         }
@@ -101,7 +104,7 @@ class MapInflater(
         position: Vector3,
         exculdedTiles: ArrayList<Pair<Int, Int>>
     ) {
-        if (def == AmbDefinition.BASE) {
+        if (def == AmbDefinition.BASE_BROWN || def == AmbDefinition.BASE_GREEN) {
             val x = position.x.toInt()
             val z = position.z.toInt()
             exculdedTiles.add(Pair(x, z))
@@ -288,8 +291,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                    && definition != SimpleCharacterDefinition.APACHE
-                    && definition != TurretCharacterDefinition.TANK
+                && definition != SimpleCharacterDefinition.APACHE
+                && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -456,9 +459,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.currentMap.tilesMapping.size
-            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+        && col >= 0
+        && row < gameSessionData.mapData.currentMap.tilesMapping.size
+        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

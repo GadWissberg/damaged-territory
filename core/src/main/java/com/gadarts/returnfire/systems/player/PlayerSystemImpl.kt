@@ -281,9 +281,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
     private fun addPlayer(): Entity {
         val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
-        val base =
-            map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE }
-        val player = playerFactory.create(base!!, gameSessionData.selected)
+        val baseBROWN =
+            map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE_BROWN }
+        val player = playerFactory.create(baseBROWN!!, gameSessionData.selected)
         engine.addEntity(player)
         gameSessionData.gameplayData.player = player
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)

@@ -104,5 +104,6 @@ interface EntityBuilder {
     fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder
     fun addStageComponent(): EntityBuilder
     fun addAutoAimComponent(): EntityBuilder
+    fun addBaseComponent(): EntityBuilder
 
 }

@@ -14,11 +14,17 @@ enum class AmbDefinition(
     WATCH_TOWER(ModelDefinition.WATCH_TOWER),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
     FLAG(ModelDefinition.FLAG),
-    BASE(
+    BASE_BROWN(
+        modelDefinition = ModelDefinition.PIT,
+        collisionFlags = -1,
+        placeInMiddleOfCell = false
+    ),
+    BASE_GREEN(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
         placeInMiddleOfCell = false
     );
+
 
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition

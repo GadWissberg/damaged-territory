@@ -4349,7 +4349,7 @@
       "textures": [
         {
           "id": "Texture.015",
-          "filename": "stage_texture.png",
+          "filename": "stage_texture_brown.png",
           "type": "DIFFUSE"
         }
       ]
