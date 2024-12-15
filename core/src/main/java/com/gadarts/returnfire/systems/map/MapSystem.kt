@@ -21,6 +21,7 @@ import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.DecalAnimation
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -144,19 +145,21 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         super.onSystemReady()
         MapInflater(gameSessionData, gamePlayManagers, engine).inflate()
         bases.forEach {
-            addStage(it!!)
-            val baseComponent = ComponentsMapper.base.get(it)
-            baseComponent.init(
-                addBaseDoor(it, 0F, -1F),
-                addBaseDoor(it, 180F, 1F)
-            )
-            baseComponent.baseDoorSoundId =
-                gamePlayManagers.soundPlayer.play(
-                    gamePlayManagers.assetsManager.getAssetByDefinition(
-                        SoundDefinition.BASE_DOOR_MOVE
-                    )
-                )
+            initializeBase(it)
         }
+    }
+
+    private fun initializeBase(it: Entity) {
+        addStage(it)
+        val baseComponent = ComponentsMapper.base.get(it)
+        baseComponent.init(
+            addBaseDoor(it, 0F, -1F),
+            addBaseDoor(it, 180F, 1F)
+        )
+        baseComponent.baseDoorSoundId =
+            gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE)
+            )
     }
 
     private fun addBaseDoor(base: Entity, rotationAroundY: Float, relativeTargetX: Float): Entity {
@@ -176,20 +179,34 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             .addBaseDoorComponent(basePosition.x, basePosition.x + relativeTargetX)
             .finishAndAddToEngine()
         doorModelInstance.modelInstance.transform.rotate(Vector3.Y, rotationAroundY)
+        val baseComponent = ComponentsMapper.base.get(base)
+        val color =
+            if (baseComponent.color == CharacterColor.BROWN) "pit_door_texture_brown" else "pit_door_texture_green"
+        val textureAttribute =
+            ComponentsMapper.modelInstance.get(door).gameModelInstance.modelInstance.materials.get(0)
+                .get(TextureAttribute.Diffuse) as TextureAttribute
+        textureAttribute.textureDescription.texture =
+            gamePlayManagers.assetsManager.getTexture(color)
 
         return door
     }
 
     private fun addStage(base: Entity): Entity {
+        val color =
+            if (ComponentsMapper.base.get(base).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
+        val texture =
+            gamePlayManagers.assetsManager.getTexture(color)
         return gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
-                GameModelInstance(
+                model = GameModelInstance(
                     ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
                     ModelDefinition.STAGE
                 ),
-                ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
+                position = ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
-                ).add(1F, StageComponent.BOTTOM_EDGE_Y, 1F), null
+                ).add(1F, StageComponent.BOTTOM_EDGE_Y, 1F),
+                boundingBox = null,
+                texture = texture
             )
             .addChildDecalComponent(
                 listOf(landingMark), false

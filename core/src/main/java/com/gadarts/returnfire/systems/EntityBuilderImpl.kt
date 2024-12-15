@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
@@ -49,10 +50,11 @@ class EntityBuilderImpl : EntityBuilder {
         position: Vector3,
         boundingBox: BoundingBox?,
         direction: Float,
-        hidden: Boolean
+        hidden: Boolean,
+        texture: Texture?
     ): EntityBuilderImpl {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position, boundingBox, direction, hidden)
+        modelInstanceComponent.init(model, position, boundingBox, direction, hidden, texture)
         entity!!.add(modelInstanceComponent)
         return this
     }

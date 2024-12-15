@@ -2757,7 +2757,7 @@
       "textures": [
         {
           "id": "Texture.019",
-          "filename": "pit_door_texture_brown.png",
+          "filename": "pit_door_texture.png",
           "type": "DIFFUSE"
         }
       ]

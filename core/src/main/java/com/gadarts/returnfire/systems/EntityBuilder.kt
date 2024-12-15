@@ -2,6 +2,7 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -36,7 +37,8 @@ interface EntityBuilder {
         position: Vector3,
         boundingBox: BoundingBox?,
         direction: Float = 0F,
-        hidden: Boolean = false
+        hidden: Boolean = false,
+        texture: Texture? = null
     ): EntityBuilder
 
     fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilder
