@@ -30,7 +30,7 @@ class TankFactory(
     override fun create(base: PlacedElement, color: CharacterColor): Entity {
         val primarySpark = createPrimarySpark(ModelDefinition.CANNON_SPARK, tankPrimaryRelativePositionCalculator)
         val entityBuilder = entityBuilder.begin()
-        addPlayerBaseComponents(
+        addCharacterBaseComponents(
             base, TurretCharacterDefinition.TANK, primarySpark,
             {
                 addTankPrimaryArmComponent(entityBuilder, primarySpark)

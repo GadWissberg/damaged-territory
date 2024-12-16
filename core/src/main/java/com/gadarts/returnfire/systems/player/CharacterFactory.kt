@@ -40,7 +40,7 @@ abstract class CharacterFactory(
             .finishAndAddToEngine()
     }
 
-    protected fun addPlayerBaseComponents(
+    protected fun addCharacterBaseComponents(
         base: PlacedElement,
         characterDefinition: CharacterDefinition,
         primarySpark: Entity,
@@ -60,7 +60,6 @@ abstract class CharacterFactory(
             color,
             boardingAnimation,
         )
-        entityBuilder.addPlayerComponent()
         primaryArmComponentCreator()
         ComponentsMapper.spark.get(primarySpark).parent = EntityBuilderImpl.entity!!
         return gameModelInstance

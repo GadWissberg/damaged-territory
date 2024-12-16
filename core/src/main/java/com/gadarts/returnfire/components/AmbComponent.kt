@@ -2,8 +2,9 @@ package com.gadarts.returnfire.components
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.returnfire.model.AmbDefinition
 
-class AmbComponent(scale: Vector3, val rotation: Float) : Component {
+class AmbComponent(val rotation: Float, val def: AmbDefinition, scale: Vector3) : Component {
     private val scale = Vector3()
 
     init {

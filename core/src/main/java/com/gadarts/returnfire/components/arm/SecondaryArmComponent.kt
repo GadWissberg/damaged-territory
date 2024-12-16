@@ -7,4 +7,17 @@ class SecondaryArmComponent(
     armProperties: ArmProperties, spark: Entity, bulletBehavior: BulletBehavior
 ) : ArmComponent(
     armProperties, spark, bulletBehavior
-)
+) {
+    fun flipCreationSide() {
+        creationSide *= -1
+    }
+
+    var creationSide: Int = LEFT
+        private set
+
+    companion object {
+        private const val LEFT = 1
+        private const val RIGHT = -1
+    }
+}
+

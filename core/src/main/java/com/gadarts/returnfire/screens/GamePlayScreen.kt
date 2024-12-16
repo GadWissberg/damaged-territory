@@ -19,7 +19,7 @@ import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
-import com.gadarts.returnfire.systems.enemy.EnemySystem
+import com.gadarts.returnfire.systems.enemy.AiSystem
 import com.gadarts.returnfire.systems.hud.HudSystem
 import com.gadarts.returnfire.systems.map.MapSystem
 import com.gadarts.returnfire.systems.physics.PhysicsSystem
@@ -87,7 +87,7 @@ class GamePlayScreen(
             HudSystem(gamePlayManagers),
             ProfilingSystem(gamePlayManagers),
             MapSystem(gamePlayManagers),
-            EnemySystem(gamePlayManagers),
+            AiSystem(gamePlayManagers),
             BulletSystem(gamePlayManagers),
         )
         systems.forEach {

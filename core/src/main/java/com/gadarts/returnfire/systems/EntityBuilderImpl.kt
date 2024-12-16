@@ -30,6 +30,7 @@ import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.factories.Factories
+import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
@@ -102,9 +103,13 @@ class EntityBuilderImpl : EntityBuilder {
     }
 
     override fun addPlayerComponent(): EntityBuilder {
-        val characterComponent = PlayerComponent()
-        entity!!.add(characterComponent)
+        addPlayerComponentToEntity(entity!!)
         return this
+    }
+
+    override fun addPlayerComponentToEntity(entity: Entity) {
+        val playerComponent = PlayerComponent()
+        entity.add(playerComponent)
     }
 
     override fun addPrimaryArmComponent(
@@ -143,8 +148,8 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addAmbComponent(scale: Vector3, rotation: Float): EntityBuilderImpl {
-        val ambComponent = AmbComponent(scale, rotation)
+    override fun addAmbComponent(rotation: Float, def: AmbDefinition, scale: Vector3): EntityBuilderImpl {
+        val ambComponent = AmbComponent(rotation, def, scale)
         entity!!.add(ambComponent)
         return this
     }

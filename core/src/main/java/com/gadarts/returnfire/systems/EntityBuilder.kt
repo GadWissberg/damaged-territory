@@ -16,6 +16,7 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.components.physics.PhysicsComponent
+import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
@@ -53,6 +54,7 @@ interface EntityBuilder {
     fun addCharacterComponent(characterDefinition: CharacterDefinition, color: CharacterColor): EntityBuilder
     fun addBoardingCharacterComponent(color: CharacterColor, boardingAnimation: BoardingAnimation?): EntityBuilder
     fun addPlayerComponent(): EntityBuilder
+    fun addPlayerComponentToEntity(entity: Entity)
     fun addTurretBaseComponent(): EntityBuilder
     fun addAmbSoundComponent(sound: Sound): EntityBuilder
     fun addAmbSoundComponentToEntity(entity: Entity, sound: Sound): EntityBuilder
@@ -76,7 +78,7 @@ interface EntityBuilder {
         bulletBehavior: BulletBehavior
     ): EntityBuilder
 
-    fun addAmbComponent(scale: Vector3, rotation: Float): EntityBuilder
+    fun addAmbComponent(rotation: Float, def: AmbDefinition, scale: Vector3): EntityBuilder
     fun addEnemyComponent(): EntityBuilder
     fun addPhysicsComponentToEntity(
         entity: Entity,

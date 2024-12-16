@@ -37,6 +37,7 @@ import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.*
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.TilesMapping
 
 class MapInflater(
@@ -55,6 +56,7 @@ class MapInflater(
         addAmbEntities(exculdedTiles)
         addFloor(exculdedTiles)
         addCharacters()
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.MAP_LOADED.ordinal)
     }
 
     private fun applyTransformOnAmbEntities() {
@@ -88,8 +90,9 @@ class MapInflater(
                 direction.toFloat(),
             )
             .addAmbComponent(
-                auxVector1.set(randomScale, randomScale, randomScale),
                 if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
+                def,
+                auxVector1.set(randomScale, randomScale, randomScale),
             )
         val isGreen = def == AmbDefinition.BASE_GREEN
         val isBrown = def == AmbDefinition.BASE_BROWN

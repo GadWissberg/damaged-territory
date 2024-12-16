@@ -80,7 +80,7 @@ class EnemyAttackLogic(private val gameSessionData: GameSessionData, private val
                     gamePlayManagers.soundPlayer.play(cannonSound)
                     CharacterWeaponShotEventData.setWithTarget(
                         enemy,
-                        player,
+                        player!!,
                     )
                     gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY.ordinal)
                 } else if (enemyComponent.attackReadyTime <= now) {

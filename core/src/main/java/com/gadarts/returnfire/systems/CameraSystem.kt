@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Engine
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -13,7 +14,12 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     private var cameraTarget = Vector3()
 
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
+        mapOf(SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                initializeCamera()
+            }
+        })
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
@@ -27,17 +33,14 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     override fun dispose() {
     }
 
-    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        super.initialize(gameSessionData, gamePlayManagers)
-        initializeCamera()
-    }
 
     override fun addedToEngine(engine: Engine?) {
         super.addedToEngine(engine)
     }
 
     private fun followPlayer(deltaTime: Float) {
-        val player = gameSessionData.gamePlayData.player
+        val player = gameSessionData.gamePlayData.player ?: return
+
         val transform =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)

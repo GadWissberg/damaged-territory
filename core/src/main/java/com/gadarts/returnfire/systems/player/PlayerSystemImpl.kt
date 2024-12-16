@@ -11,14 +11,11 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btConeShape
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
-import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.AmbDefinition
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -60,15 +57,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         ghostObject
     }
     private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.entityBuilder)
-    private val playerFactory by lazy {
-        PlayerFactory(
-            gamePlayManagers.assetsManager,
-            gameSessionData,
-            playerShootingHandler,
-            gamePlayManagers.factories.gameModelInstanceFactory,
-            gamePlayManagers.entityBuilder,
-        )
-    }
     private val playerMovementHandler: VehicleMovementHandler by lazy {
         val playerMovementHandler = createPlayerMovementHandler()
         playerMovementHandler.initialize(gameSessionData.renderData.camera)
@@ -100,13 +88,19 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         },
         CHARACTER_ONBOARDED to PlayerSystemOnCharacterOnboarded(this),
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
-        BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(this)
-    )
+        BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(this),
+        OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                val entity = msg.extraInfo as Entity
+                if (ComponentsMapper.character.get(entity).color == CharacterColor.BROWN) {
+                    gamePlayManagers.entityBuilder.addPlayerComponentToEntity(entity)
+                    initializePlayerHandlers()
+                    gamePlayManagers.dispatcher.dispatchMessage(PLAYER_ADDED.ordinal)
+                }
+            }
 
-    override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        super.initialize(gameSessionData, gamePlayManagers)
-        addPlayer()
-    }
+        }
+    )
 
     override fun resume(delta: Long) {
 
@@ -118,7 +112,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
     override fun update(deltaTime: Float) {
         val player = gameSessionData.gamePlayData.player
-        if (ComponentsMapper.boarding.get(player).isBoarding() || ComponentsMapper.character.get(player).dead) return
+        if (player == null || ComponentsMapper.boarding.get(player).isBoarding() || ComponentsMapper.character.get(
+                player
+            ).dead
+        ) return
 
         playerMovementHandler.update(
             player,
@@ -143,7 +140,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
         when (keycode) {
             Input.Keys.UP -> {
-                playerMovementHandler.thrust(gameSessionData.gamePlayData.player)
+                playerMovementHandler.thrust(gameSessionData.gamePlayData.player!!)
             }
 
             Input.Keys.DOWN -> {
@@ -241,7 +238,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             gameSessionData.hudData.movementTouchpad.addListener(
                 MovementTouchPadListener(
                     playerMovementHandler,
-                    gameSessionData.gamePlayData.player
+                    gameSessionData.gamePlayData.player!!
                 )
             )
             gameSessionData.hudData.turretTouchpad.addListener(
@@ -273,24 +270,11 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         } else {
             val rigidBody = ComponentsMapper.physics.get(player).rigidBody
             if (runsOnMobile) {
-                TankMovementHandlerMobile(rigidBody, player)
+                TankMovementHandlerMobile(rigidBody, player!!)
             } else {
-                TankMovementHandlerDesktop(rigidBody, player)
+                TankMovementHandlerDesktop(rigidBody, player!!)
             }
         }
-    }
-
-    private fun addPlayer(): Entity {
-        val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
-        val baseBROWN =
-            map.placedElements.find { placedElement -> placedElement.definition == AmbDefinition.BASE_BROWN }
-        val player = playerFactory.create(baseBROWN!!, gameSessionData.selected)
-        engine.addEntity(player)
-        gameSessionData.gamePlayData.player = player
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
-        modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
-        initializePlayerHandlers()
-        return player
     }
 
     private fun initializePlayerHandlers() {

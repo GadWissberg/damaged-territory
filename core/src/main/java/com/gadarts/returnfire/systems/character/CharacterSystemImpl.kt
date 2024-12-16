@@ -13,6 +13,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.GameDebugSettings
+import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -30,10 +32,20 @@ import com.gadarts.returnfire.systems.character.react.CharacterSystemOnCharacter
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.returnfire.systems.player.OpponentCharacterFactory
 import com.gadarts.returnfire.systems.render.RenderSystem
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem, GameEntitySystem(gamePlayManagers) {
 
+
+    private val opponentCharacterFactory by lazy {
+        OpponentCharacterFactory(
+            gamePlayManagers.assetsManager,
+            gameSessionData,
+            gamePlayManagers.factories.gameModelInstanceFactory,
+            gamePlayManagers.entityBuilder,
+        )
+    }
 
     private val stages: Map<CharacterColor, Entity> by lazy {
         val stageEntities = engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
@@ -43,6 +55,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
         engine!!.getEntitiesFor(
             Family.all(AmbSoundComponent::class.java).get()
+        )
+    }
+
+    private val baseEntities: ImmutableArray<Entity> by lazy {
+        engine!!.getEntitiesFor(
+            Family.all(BaseComponent::class.java).get()
         )
     }
 
@@ -82,6 +100,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         SystemEvents.AMB_SOUND_COMPONENT_ADDED to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 playAmbSound(msg.extraInfo as Entity, gamePlayManagers)
+            }
+        },
+        SystemEvents.MAP_LOADED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                addOpponents()
             }
         }
     )
@@ -127,6 +150,20 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
 
         })
+    }
+
+    private fun addOpponents() {
+        val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
+        baseEntities.forEach {
+            val base =
+                map.placedElements.find { placedElement -> placedElement.definition == ComponentsMapper.amb.get(it).def }
+            val opponent = opponentCharacterFactory.create(base!!, gameSessionData.selected)
+            engine.addEntity(opponent)
+            gameSessionData.gamePlayData.player = opponent
+            val modelInstanceComponent = ComponentsMapper.modelInstance.get(opponent)
+            modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
+            gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.OPPONENT_CHARACTER_CREATED.ordinal, opponent)
+        }
     }
 
     private fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {

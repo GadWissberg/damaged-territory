@@ -30,7 +30,7 @@ class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
         val physicsTransform =
             if (isApache) Matrix4(modelInstanceTransform) else modelInstanceTransform
         val physicsComponent = gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
-            gameSessionData.gamePlayData.player,
+            gameSessionData.gamePlayData.player!!,
             playerShape,
             10F,
             CollisionFlags.CF_CHARACTER_OBJECT,

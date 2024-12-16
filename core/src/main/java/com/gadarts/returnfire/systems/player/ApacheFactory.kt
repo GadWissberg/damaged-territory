@@ -24,11 +24,9 @@ import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.GameSessionData.Companion.APACHE_SPARK_HEIGHT_BIAS
-import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 
 class ApacheFactory(
     private val assetsManager: GameAssetManager,
-    private val playerShootingHandler: PlayerShootingHandler,
     private val gameSessionData: GameSessionData,
     gameModelInstanceFactory: GameModelInstanceFactory,
     private val entityBuilder: EntityBuilder,
@@ -41,7 +39,7 @@ class ApacheFactory(
         val primarySpark =
             createPrimarySpark(ModelDefinition.MACHINE_GUN_SPARK, apachePrimaryRelativePositionCalculator)
         val entityBuilder = entityBuilder.begin()
-        addPlayerBaseComponents(
+        addCharacterBaseComponents(
             base, SimpleCharacterDefinition.APACHE, primarySpark,
             {
                 addApachePrimaryArmComponent(primarySpark)
@@ -102,15 +100,15 @@ class ApacheFactory(
 
     private val secRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
         override fun calculate(parent: Entity, output: Vector3): Vector3 {
-            playerShootingHandler.secondaryCreationSide =
-                !playerShootingHandler.secondaryCreationSide
+            val secondaryArmComponent = ComponentsMapper.secondaryArm.get(parent)
+            secondaryArmComponent.flipCreationSide()
             val transform =
                 ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
             val pos =
                 output.set(
                     0.5F,
                     0F,
-                    if (playerShootingHandler.secondaryCreationSide) 1F else -1F
+                    secondaryArmComponent.creationSide.toFloat()
                 )
                     .rot(transform).scl(SECONDARY_POSITION_BIAS)
             pos.y -= APACHE_SPARK_HEIGHT_BIAS

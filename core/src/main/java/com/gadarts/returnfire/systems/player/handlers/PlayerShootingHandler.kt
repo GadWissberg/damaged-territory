@@ -12,6 +12,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
@@ -19,11 +20,10 @@ import com.gadarts.returnfire.systems.player.PlayerSystem
 import kotlin.math.abs
 import kotlin.math.min
 
-class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
+class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : CharacterShootingHandler() {
     private lateinit var autoAim: btPairCachingGhostObject
     private lateinit var gameSessionData: GameSessionData
     private lateinit var dispatcher: MessageDispatcher
-    var secondaryCreationSide = false
     private var priShooting: Boolean = false
     private var secShooting: Boolean = false
 
@@ -126,11 +126,11 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) {
             val target = handleAutoAim(transform)
             if (target == null) {
                 CharacterWeaponShotEventData.setWithDirection(
-                    player,
+                    player!!,
                     direction,
                 )
             } else {
-                CharacterWeaponShotEventData.setWithTarget(player, target)
+                CharacterWeaponShotEventData.setWithTarget(player!!, target)
             }
             dispatcher.dispatchMessage(event.ordinal)
         }
