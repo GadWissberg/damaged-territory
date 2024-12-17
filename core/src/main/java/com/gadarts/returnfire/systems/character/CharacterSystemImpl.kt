@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -157,11 +156,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         baseEntities.forEach {
             val base =
                 map.placedElements.find { placedElement -> placedElement.definition == ComponentsMapper.amb.get(it).def }
-            val opponent = opponentCharacterFactory.create(base!!, gameSessionData.selected)
+            val opponent =
+                opponentCharacterFactory.create(base!!, gameSessionData.selected, ComponentsMapper.base.get(it).color)
             engine.addEntity(opponent)
-            gameSessionData.gamePlayData.player = opponent
-            val modelInstanceComponent = ComponentsMapper.modelInstance.get(opponent)
-            modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
             gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.OPPONENT_CHARACTER_CREATED.ordinal, opponent)
         }
     }

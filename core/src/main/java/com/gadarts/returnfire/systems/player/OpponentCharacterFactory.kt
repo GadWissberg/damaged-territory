@@ -29,12 +29,12 @@ class OpponentCharacterFactory(
     private val tankFactory =
         TankFactory(assetsManager, gameSessionData, gameModelInstanceFactory, entityBuilder)
 
-    fun create(base: PlacedElement, selected: CharacterDefinition): Entity {
+    fun create(base: PlacedElement, selected: CharacterDefinition, characterColor: CharacterColor): Entity {
         var opponent: Entity? = null
         if (selected == SimpleCharacterDefinition.APACHE) {
-            opponent = apacheFactory.create(base, CharacterColor.BROWN)
+            opponent = apacheFactory.create(base, characterColor)
         } else if (selected == TurretCharacterDefinition.TANK) {
-            opponent = tankFactory.create(base, CharacterColor.BROWN)
+            opponent = tankFactory.create(base, characterColor)
         }
         @Suppress("KotlinConstantConditions")
         if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {

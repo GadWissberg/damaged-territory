@@ -1,6 +1,6 @@
 package com.gadarts.returnfire
 
-import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.TurretCharacterDefinition
 
 object GameDebugSettings {
 
@@ -18,5 +18,5 @@ object GameDebugSettings {
     const val AVOID_PARTICLE_EFFECTS_DRAWING = false
     const val ENABLE_PROFILER = true
     const val DISABLE_HUD = false
-    val SELECTED_VEHICLE = SimpleCharacterDefinition.APACHE
+    val SELECTED_VEHICLE = TurretCharacterDefinition.TANK
 }

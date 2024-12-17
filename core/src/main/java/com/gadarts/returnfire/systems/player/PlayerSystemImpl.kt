@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btConeShape
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
@@ -93,6 +94,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val entity = msg.extraInfo as Entity
                 if (ComponentsMapper.character.get(entity).color == CharacterColor.BROWN) {
+                    gameSessionData.gamePlayData.player = entity
+                    val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
+                    modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
                     gamePlayManagers.entityBuilder.addPlayerComponentToEntity(entity)
                     initializePlayerHandlers()
                     gamePlayManagers.dispatcher.dispatchMessage(PLAYER_ADDED.ordinal)
