@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.player.handlers.movement
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -17,7 +16,6 @@ abstract class VehicleMovementHandler(
     private val reverseForceSize: Float,
     private val maxVelocity: Float
 ) {
-    abstract fun initialize(camera: PerspectiveCamera)
 
     protected open fun pushForward(rigidBody: btRigidBody, forwardDirection: Int) {
         val newVelocity = auxVector3_1.set(rigidBody.linearVelocity)
@@ -76,8 +74,8 @@ abstract class VehicleMovementHandler(
 
     abstract fun applyRotation(clockwise: Int)
 
-    private fun applyLateralDamping(player: Entity) {
-        val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+    private fun applyLateralDamping(character: Entity) {
+        val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         val velocity: Vector3 = rigidBody.linearVelocity
         val lateralVelocity = auxVector3_1.set(velocity.x, 0f, velocity.z)
         val dampingForce: Vector3 = lateralVelocity.scl(lateralVelocityScale)

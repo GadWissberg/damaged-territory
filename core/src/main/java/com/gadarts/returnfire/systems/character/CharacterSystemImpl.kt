@@ -409,7 +409,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
     private fun boardingDone(character: Entity) {
         ComponentsMapper.boarding.get(character).boardingDone()
-        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_ONBOARDED.ordinal, character)
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_OFF_BOARDED.ordinal, character)
     }
 
     private fun addFlyingParts(character: Entity) {

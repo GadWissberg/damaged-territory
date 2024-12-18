@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.enemy
+package com.gadarts.returnfire.systems.ai
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
@@ -19,7 +19,7 @@ import kotlin.math.sqrt
 /**
  * Defines the logic for the enemy attack
  */
-class EnemyAttackLogic(private val gameSessionData: GameSessionData, private val gamePlayManagers: GamePlayManagers) {
+class TurretLogic(private val gameSessionData: GameSessionData, private val gamePlayManagers: GamePlayManagers) {
     private val cannonSound by lazy { gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
 
     fun attack(
@@ -72,7 +72,7 @@ class EnemyAttackLogic(private val gameSessionData: GameSessionData, private val
                     6F
                 )
             ) {
-                val enemyComponent = ComponentsMapper.enemy.get(enemy)
+                val enemyComponent = ComponentsMapper.ai.get(enemy)
                 val now = TimeUtils.millis()
                 if (enemyComponent.attackReady) {
                     enemyComponent.attackReady = false

@@ -60,7 +60,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.entityBuilder)
     private val playerMovementHandler: VehicleMovementHandler by lazy {
         val playerMovementHandler = createPlayerMovementHandler()
-        playerMovementHandler.initialize(gameSessionData.renderData.camera)
         playerMovementHandler
     }
 
@@ -87,7 +86,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 playerMovementHandler.onReverseScreenButtonReleased()
             }
         },
-        CHARACTER_ONBOARDED to PlayerSystemOnCharacterOnboarded(this),
+        CHARACTER_OFF_BOARDED to PlayerSystemOnCharacterOffBoarded(this),
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
         BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(this),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {

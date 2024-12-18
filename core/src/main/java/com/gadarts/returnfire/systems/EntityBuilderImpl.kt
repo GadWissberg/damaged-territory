@@ -214,10 +214,16 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addEnemyComponent(): EntityBuilder {
-        val enemyComponent = engine.createComponent(EnemyComponent::class.java)
-        entity!!.add(enemyComponent)
+    override fun addAiComponent(target: Entity?): EntityBuilder {
+        addAiComponentToEntity(entity!!, target)
         return this
+    }
+
+    override fun addAiComponentToEntity(entity: Entity, target: Entity?): AiComponent {
+        val aiComponent = engine.createComponent(AiComponent::class.java)
+        aiComponent.init(target)
+        entity.add(aiComponent)
+        return aiComponent
     }
 
     override fun addStageComponent(base: Entity): EntityBuilder {

@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.player.handlers.movement.tank
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
@@ -12,7 +11,6 @@ import com.gadarts.returnfire.components.physics.RigidBody
 class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
     TankMovementHandler(rigidBody, player) {
     private val desiredDirection = Vector2()
-    private lateinit var camera: PerspectiveCamera
     private var desiredDirectionChanged: Boolean = false
     private var reverse = false
 
@@ -102,9 +100,6 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
     }
 
 
-    override fun initialize(camera: PerspectiveCamera) {
-        this.camera = camera
-    }
 
 
     private fun updateDesiredDirection(directionX: Float, directionY: Float) {

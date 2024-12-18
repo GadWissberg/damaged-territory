@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
@@ -79,7 +80,8 @@ interface EntityBuilder {
     ): EntityBuilder
 
     fun addAmbComponent(rotation: Float, def: AmbDefinition, scale: Vector3): EntityBuilder
-    fun addEnemyComponent(): EntityBuilder
+    fun addAiComponent(target: Entity? = null): EntityBuilder
+    fun addAiComponentToEntity(entity: Entity, target: Entity? = null): AiComponent
     fun addPhysicsComponentToEntity(
         entity: Entity,
         shape: btCollisionShape,

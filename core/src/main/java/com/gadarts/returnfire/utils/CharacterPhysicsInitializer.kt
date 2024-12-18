@@ -1,37 +1,31 @@
-package com.gadarts.returnfire.systems.player.react
+package com.gadarts.returnfire.utils
 
-import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.player.PlayerSystem
+import com.gadarts.returnfire.systems.EntityBuilder
 
-
-class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
-    HandlerOnEvent {
-
-    override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        val characterDefinition = ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition
+class CharacterPhysicsInitializer {
+    fun initialize(entityBuilder: EntityBuilder, character: Entity) {
+        val characterDefinition = ComponentsMapper.character.get(character).definition
         val isApache = characterDefinition == SimpleCharacterDefinition.APACHE
-        val playerShape =
+        val shape =
             if (isApache) createApacheCollisionShape() else btBoxShape(
                 Vector3(0.5F, 0.15F, 0.35F)
             )
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player)
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
         val modelInstanceTransform =
             modelInstanceComponent.gameModelInstance.modelInstance.transform
         val physicsTransform =
             if (isApache) Matrix4(modelInstanceTransform) else modelInstanceTransform
-        val physicsComponent = gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
-            gameSessionData.gamePlayData.player!!,
-            playerShape,
+        val physicsComponent = entityBuilder.addPhysicsComponentToEntity(
+            character,
+            shape,
             10F,
             CollisionFlags.CF_CHARACTER_OBJECT,
             physicsTransform,
@@ -46,11 +40,10 @@ class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
         }
         physicsComponent.rigidBody.angularFactor = if (isApache) Vector3.Y else Vector3.Zero
         physicsComponent.rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
-        playerSystem.initInputMethod()
     }
 
     private fun createApacheCollisionShape(): btCompoundShape {
-        val playerShape = btCompoundShape()
+        val shape = btCompoundShape()
         val bodyShape = btBoxShape(
             Vector3(0.4F, 0.08F, 0.1F)
         )
@@ -60,19 +53,19 @@ class PlayerSystemOnCharacterOnboarded(private val playerSystem: PlayerSystem) :
         val wing = btBoxShape(
             Vector3(0.1F, 0.05F, 0.1F)
         )
-        playerShape.addChildShape(
+        shape.addChildShape(
             Matrix4().translate(Vector3(0.05F, -0.15F, 0F)).rotate(Vector3.Z, -15F), bodyShape
         )
-        playerShape.addChildShape(
+        shape.addChildShape(
             Matrix4().translate(Vector3(-0.6F, 0F, 0F)).rotate(Vector3.Z, -15F), tailShape
         )
-        playerShape.addChildShape(
+        shape.addChildShape(
             Matrix4().translate(Vector3(0F, -0.2F, 0.2F)).rotate(Vector3.Z, -10F), wing
         )
-        playerShape.addChildShape(
+        shape.addChildShape(
             Matrix4().translate(Vector3(0F, -0.2F, -0.2F)).rotate(Vector3.Z, -10F), wing
         )
-        return playerShape
+        return shape
     }
 
 }

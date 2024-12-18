@@ -2,7 +2,6 @@ package com.gadarts.returnfire.systems.player.handlers.movement.tank
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.physics.RigidBody
@@ -48,9 +47,6 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
         }
     }
 
-
-    override fun initialize(camera: PerspectiveCamera) {
-    }
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float) {
         movement = MOVEMENT_FORWARD

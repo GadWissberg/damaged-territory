@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.player
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
@@ -34,29 +35,37 @@ class ApacheFactory(
     CharacterFactory(assetsManager, gameModelInstanceFactory, entityBuilder) {
 
     override fun create(base: PlacedElement, color: CharacterColor): Entity {
-        val machineGunSparkModel = assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK)
-        val secondarySpark = addSpark(machineGunSparkModel, secRelativePositionCalculator)
+        val secondarySpark = addSpark(
+            assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK),
+            secRelativePositionCalculator
+        )
         val primarySpark =
             createPrimarySpark(ModelDefinition.MACHINE_GUN_SPARK, apachePrimaryRelativePositionCalculator)
         val entityBuilder = entityBuilder.begin()
         addCharacterBaseComponents(
-            base, SimpleCharacterDefinition.APACHE, primarySpark,
+            base,
+            SimpleCharacterDefinition.APACHE,
+            primarySpark,
             {
                 addApachePrimaryArmComponent(primarySpark)
             },
-            ApacheBoardingAnimation(entityBuilder), color
+            ApacheBoardingAnimation(entityBuilder),
+            color
         )
         addPropeller()
-        val gameModelInstance = gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER)
-        gameModelInstance.modelInstance.materials.get(0).set(BlendingAttribute())
-        entityBuilder.addChildModelInstanceComponent(
-            gameModelInstance,
-        )
         addSecondaryArmComponent(secondarySpark)
-        val player = entityBuilder.finish()
-        ComponentsMapper.spark.get(secondarySpark).parent = player
-        return player
-
+        val character = entityBuilder.finish()
+        ComponentsMapper.spark.get(secondarySpark).parent = character
+        val textureAttribute =
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.materials.find {
+                it.has(
+                    TextureAttribute.Diffuse
+                )
+            }
+                ?.get(TextureAttribute.Diffuse) as TextureAttribute
+        textureAttribute.textureDescription.texture =
+            assetsManager.getTexture(if (color == CharacterColor.BROWN) "apache_texture_brown" else "apache_texture_green")
+        return character
     }
 
     private fun addApachePrimaryArmComponent(
@@ -156,6 +165,11 @@ class ApacheFactory(
         val childDecal = ChildDecal(propDec, Vector3.Zero, null)
         val decals = listOf(childDecal)
         entityBuilder.addChildDecalComponent(decals)
+        val propellerGameModelInstance = gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER)
+        propellerGameModelInstance.modelInstance.materials.get(0).set(BlendingAttribute())
+        entityBuilder.addChildModelInstanceComponent(
+            propellerGameModelInstance,
+        )
     }
 
     companion object {

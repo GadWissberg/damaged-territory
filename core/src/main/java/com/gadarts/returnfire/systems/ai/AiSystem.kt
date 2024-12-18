@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.enemy
+package com.gadarts.returnfire.systems.ai
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
@@ -11,9 +11,10 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.EnemyComponent
 import com.gadarts.returnfire.components.TurretComponent
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.CharacterType
@@ -21,10 +22,13 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_OFF_BOARDED
+import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
 
 
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
-    private val enemyAi by lazy { EnemyAttackLogic(gameSessionData, this.gamePlayManagers) }
+    private val turretLogic by lazy { TurretLogic(gameSessionData, this.gamePlayManagers) }
+    private val aiApacheLogic by lazy { AiApacheLogic(gameSessionData) }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
@@ -32,13 +36,26 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                 val entity = msg.extraInfo as Entity
                 val characterComponent = ComponentsMapper.character.get(entity)
                 if (characterComponent.definition.getCharacterType() == CharacterType.TURRET
-                    && ComponentsMapper.enemy.has(entity)
+                    && ComponentsMapper.ai.has(entity)
                 ) {
                     destroyTurret(entity, gamePlayManagers, gameSessionData)
                 }
             }
-
-        }
+        },
+        SystemEvents.OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                val entity = msg.extraInfo as Entity
+                val characterComponent = ComponentsMapper.character.get(entity)
+                if (characterComponent.color == CharacterColor.GREEN) {
+                    gamePlayManagers.entityBuilder.addAiComponentToEntity(entity)
+                }
+            }
+        },
+        CHARACTER_OFF_BOARDED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                CharacterPhysicsInitializer().initialize(gamePlayManagers.entityBuilder, msg.extraInfo as Entity)
+            }
+        },
     )
 
     private fun destroyTurret(
@@ -74,7 +91,11 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
 
     private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(Family.all(TurretComponent::class.java, EnemyComponent::class.java).get())
+        engine.getEntitiesFor(Family.all(TurretComponent::class.java, AiComponent::class.java).get())
+    }
+
+    private val aiCharacterEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(Family.all(AiComponent::class.java).exclude(TurretComponent::class.java).get())
     }
 
 
@@ -85,7 +106,10 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
             val characterComponent = ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base)
             if (characterComponent.dead || characterComponent.deathSequenceDuration > 0) continue
 
-            enemyAi.attack(deltaTime, turret)
+            turretLogic.attack(deltaTime, turret)
+        }
+        for (character in aiCharacterEntities) {
+            aiApacheLogic.updateCharacter(character, deltaTime)
         }
     }
 

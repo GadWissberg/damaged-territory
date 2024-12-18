@@ -2,13 +2,11 @@ package com.gadarts.returnfire.systems.player.handlers.movement.apache
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.gadarts.returnfire.components.ComponentsMapper
 
 class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var movement: Int = 0
     private var rotation: Int = 0
-    private lateinit var camera: PerspectiveCamera
 
     override fun onMovementTouchPadTouchUp(keycode: Int) {
         when (keycode) {
@@ -49,10 +47,6 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
 
     override fun onTurretTouchPadTouchUp() {
 
-    }
-
-    override fun initialize(camera: PerspectiveCamera) {
-        this.camera = camera
     }
 
     override fun thrust(player: Entity, directionX: Float, directionY: Float) {

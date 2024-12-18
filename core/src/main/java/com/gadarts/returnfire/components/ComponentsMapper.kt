@@ -34,8 +34,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(AnimatedTextureComponent::class.java)
     val physics: ComponentMapper<PhysicsComponent> =
         ComponentMapper.getFor(PhysicsComponent::class.java)
-    val enemy: ComponentMapper<EnemyComponent> =
-        ComponentMapper.getFor(EnemyComponent::class.java)
+    val ai: ComponentMapper<AiComponent> =
+        ComponentMapper.getFor(AiComponent::class.java)
     val character: ComponentMapper<CharacterComponent> =
         ComponentMapper.getFor(CharacterComponent::class.java)
     val spark: ComponentMapper<SparkComponent> =

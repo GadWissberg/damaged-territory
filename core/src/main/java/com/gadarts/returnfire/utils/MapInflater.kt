@@ -136,7 +136,7 @@ class MapInflater(
                 GameDebugSettings.HIDE_ENEMIES
             )
             .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON, CharacterColor.GREEN)
-            .addEnemyComponent()
+            .addAiComponent()
             .addTurretBaseComponent()
             .finishAndAddToEngine()
         addPhysicsToObject(baseEntity, gameModelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT)
@@ -189,7 +189,7 @@ class MapInflater(
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
         val spark = addTurretSpark(assetsManager, modelInstance.modelInstance)
         val turret = gamePlayManagers.entityBuilder.begin()
-            .addEnemyComponent()
+            .addAiComponent()
             .addModelInstanceComponent(
                 modelInstance,
                 calculateTurretPosition(baseEntity, assetsManager),
