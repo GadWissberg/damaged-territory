@@ -51,14 +51,14 @@ abstract class VehicleMovementHandler(
     }
 
     abstract fun thrust(
-        player: Entity,
+        character: Entity,
         directionX: Float = 0F,
         directionY: Float = 0F,
     )
 
     abstract fun reverse()
 
-    abstract fun onMovementTouchPadTouchUp(keycode: Int = -1)
+    abstract fun onMovementTouchUp(keycode: Int = -1)
 
     protected fun rotate(rigidBody: btRigidBody, clockwise: Int) {
         val newVelocity = auxVector3_1.set(rigidBody.angularVelocity)
@@ -98,6 +98,9 @@ abstract class VehicleMovementHandler(
     abstract fun onTurretTouchPadTouchUp()
     open fun onReverseScreenButtonPressed() {}
     open fun onReverseScreenButtonReleased() {}
+    open fun stopMovement() {
+
+    }
 
     companion object {
         private val auxVector3_1 = Vector3()

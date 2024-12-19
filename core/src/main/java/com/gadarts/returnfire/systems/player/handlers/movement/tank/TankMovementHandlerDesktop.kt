@@ -16,7 +16,7 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
         movement = 0
     }
 
-    override fun onMovementTouchPadTouchUp(keycode: Int) {
+    override fun onMovementTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
@@ -48,7 +48,7 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
     }
 
 
-    override fun thrust(player: Entity, directionX: Float, directionY: Float) {
+    override fun thrust(character: Entity, directionX: Float, directionY: Float) {
         movement = MOVEMENT_FORWARD
     }
 

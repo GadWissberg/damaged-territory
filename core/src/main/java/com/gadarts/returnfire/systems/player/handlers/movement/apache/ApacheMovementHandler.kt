@@ -17,7 +17,7 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
     protected var tiltAnimationHandler = TiltAnimationHandler()
 
     override fun thrust(
-        player: Entity,
+        character: Entity,
         directionX: Float,
         directionY: Float,
     ) {

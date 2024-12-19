@@ -8,19 +8,17 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var movement: Int = 0
     private var rotation: Int = 0
 
-    override fun onMovementTouchPadTouchUp(keycode: Int) {
+    override fun onMovementTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
-                    movement = 0
-                    tiltAnimationHandler.returnToRollIdle()
+                    stopMovement()
                 }
             }
 
             Input.Keys.DOWN -> {
                 if (movement == MOVEMENT_REVERSE) {
-                    movement = 0
-                    tiltAnimationHandler.returnToRollIdle()
+                    stopMovement()
                 }
             }
 
@@ -41,6 +39,11 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         }
     }
 
+    override fun stopMovement() {
+        movement = 0
+        tiltAnimationHandler.returnToRollIdle()
+    }
+
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
 
     }
@@ -49,8 +52,8 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
 
     }
 
-    override fun thrust(player: Entity, directionX: Float, directionY: Float) {
-        super.thrust(player, directionX, directionY)
+    override fun thrust(character: Entity, directionX: Float, directionY: Float) {
+        super.thrust(character, directionX, directionY)
         movement = MOVEMENT_FORWARD
     }
 

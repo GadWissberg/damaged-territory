@@ -186,7 +186,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
-                playerMovementHandler.onMovementTouchPadTouchUp(keycode)
+                playerMovementHandler.onMovementTouchUp(keycode)
             }
 
             Input.Keys.CONTROL_LEFT -> {

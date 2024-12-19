@@ -13,6 +13,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.TurretBaseComponent
 import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -95,7 +96,10 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     }
 
     private val aiCharacterEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(Family.all(AiComponent::class.java).exclude(TurretComponent::class.java).get())
+        engine.getEntitiesFor(
+            Family.all(AiComponent::class.java).exclude(TurretComponent::class.java, TurretBaseComponent::class.java)
+                .get()
+        )
     }
 
 

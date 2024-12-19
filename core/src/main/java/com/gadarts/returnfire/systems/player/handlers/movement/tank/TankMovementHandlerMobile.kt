@@ -15,7 +15,7 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
     private var reverse = false
 
 
-    override fun thrust(player: Entity, directionX: Float, directionY: Float) {
+    override fun thrust(character: Entity, directionX: Float, directionY: Float) {
         if (directionX != 0F || directionY != 0F) {
             updateDesiredDirection(directionX, directionY)
             reverse = false
@@ -71,7 +71,7 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
 
     }
 
-    override fun onMovementTouchPadTouchUp(keycode: Int) {
+    override fun onMovementTouchUp(keycode: Int) {
         stopMoving()
     }
 

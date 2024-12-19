@@ -12,8 +12,8 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
     private var desiredDirectionChanged: Boolean = false
 
 
-    override fun thrust(player: Entity, directionX: Float, directionY: Float) {
-        super.thrust(player, directionX, directionY)
+    override fun thrust(character: Entity, directionX: Float, directionY: Float) {
+        super.thrust(character, directionX, directionY)
         if (directionX != 0F || directionY != 0F) {
             updateDesiredDirection(directionX, directionY)
         }
@@ -50,7 +50,7 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
 
     }
 
-    override fun onMovementTouchPadTouchUp(keycode: Int) {
+    override fun onMovementTouchUp(keycode: Int) {
         desiredDirection.setZero()
         tiltAnimationHandler.returnToRollIdle()
         tiltAnimationHandler.returnToPitchIdle()
