@@ -35,7 +35,7 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
             relativePosition
         )
         initiateTurretKickoff(shooter)
-        val bulletDirection: Matrix4 = calculateBulletDirection(shooter, relativePosition)
+        val bulletDirection: Matrix4 = calculateBulletDirection(shooter, relativePosition, arm)
         BulletCreationRequestEventData.set(
             arm,
             ComponentsMapper.player.has(CharacterWeaponShotEventData.shooter),
@@ -49,18 +49,17 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
     private fun calculateBulletDirection(
         shooter: Entity,
         relativePosition: Vector3,
+        arm: ArmComponent,
     ): Matrix4 {
         val bulletDirection: Matrix4 = if (CharacterWeaponShotEventData.target != null) {
             val targetGameModelInstance =
                 ComponentsMapper.modelInstance.get(CharacterWeaponShotEventData.target).gameModelInstance
-            val targetTransform =
-                targetGameModelInstance.modelInstance.transform
             val shooterPosition =
                 ComponentsMapper.modelInstance.get(shooter).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector4
                 )
             val directionToTarget =
-                targetTransform.getTranslation(
+                targetGameModelInstance.modelInstance.transform.getTranslation(
                     auxVector3
                 ).add(targetGameModelInstance.definition?.centerOfMass)
                     .sub(shooterPosition.add(relativePosition)).nor()
@@ -71,7 +70,15 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
                 )
             )
         } else {
-            CharacterWeaponShotEventData.direction
+            val armProperties = arm.armProperties
+            if (!CharacterWeaponShotEventData.aimSky && armProperties.renderData.initialRotationAroundZ != 0F) {
+                CharacterWeaponShotEventData.direction.rotate(
+                    Vector3.Z,
+                    armProperties.renderData.initialRotationAroundZ
+                )
+            } else {
+                CharacterWeaponShotEventData.direction
+            }
         }
         return bulletDirection
     }

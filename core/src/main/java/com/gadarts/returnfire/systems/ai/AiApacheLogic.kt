@@ -28,8 +28,10 @@ class AiApacheLogic(private val gameSessionData: GameSessionData) {
         characterPosition.y = 0F
         targetPosition.y = 0F
         val distance = characterPosition.dst2(targetPosition)
-        if (distance > 12) {
+        if (distance > 14F) {
             movementHandler.thrust(character)
+        } else if (distance < 5F) {
+            movementHandler.reverse()
         } else {
             movementHandler.stopMovement()
         }

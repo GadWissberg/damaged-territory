@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.player.handlers
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -21,6 +22,7 @@ import kotlin.math.abs
 import kotlin.math.min
 
 class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : CharacterShootingHandler() {
+    private var aimSky: Boolean = false
     private lateinit var autoAim: btPairCachingGhostObject
     private lateinit var gameSessionData: GameSessionData
     private lateinit var dispatcher: MessageDispatcher
@@ -128,6 +130,7 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
                 CharacterWeaponShotEventData.setWithDirection(
                     player!!,
                     direction,
+                    aimSky
                 )
             } else {
                 CharacterWeaponShotEventData.setWithTarget(player!!, target)
@@ -190,6 +193,11 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
 
     fun onTurretTouchPadTouchUp() {
         priShooting = false
+    }
+
+    fun toggleSkyAim() {
+        Gdx.app.log("$aimSky", "$aimSky")
+        aimSky = !aimSky
     }
 
     companion object {

@@ -177,6 +177,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             Input.Keys.D -> {
                 playerMovementHandler.letterPressedD()
             }
+
+            Input.Keys.ALT_LEFT -> {
+                playerShootingHandler.toggleSkyAim()
+            }
         }
         return false
     }

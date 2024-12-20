@@ -210,12 +210,6 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             transform,
         )
         transform.rotate(aimingTransform.getRotation(auxQuat))
-        if (BulletCreationRequestEventData.target == null) {
-            transform.rotate(
-                Vector3.Z,
-                armProperties.renderData.initialRotationAroundZ
-            )
-        }
         val physicsComponent = ComponentsMapper.physics.get(bullet)
         physicsComponent.rigidBody.linearVelocity =
             transform.getRotation(auxQuat)
