@@ -19,9 +19,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.DamagedTerritory
@@ -219,18 +217,53 @@ class HangarScreen(
             "Arrows - Movement, CTRL - Primary attack, SHIFT - Secondary attack/return to base, '~' - Open console"
         val androidText =
             "An on-screen game-pad will appear in-game"
+        addDescription(if (runsOnMobile) androidText else desktopText)
+        addDescription("Select aiming:")
+        addAimingOptions()
+        stage.addActor(textTable)
+        stage.addActor(console)
+        console.toFront()
+    }
+
+    private fun addAimingOptions() {
+        val buttonGroup: ButtonGroup<TextButton> = ButtonGroup()
+        val buttonsTable = Table()
+        addAimingButton("Auto-aim", buttonGroup, buttonsTable)
+        addAimingButton("Manual", buttonGroup, buttonsTable)
+        textTable.add(buttonsTable).expand().top().left()
+        buttonGroup.setMaxCheckCount(1)
+        buttonGroup.setMinCheckCount(1)
+    }
+
+    private fun addAimingButton(
+        text: String,
+        buttonGroup: ButtonGroup<TextButton>,
+        buttonsTable: Table
+    ): Cell<TextButton> {
+        val button = TextButton(
+            text,
+            TextButton.TextButtonStyle(
+                TextureRegionDrawable(assetsManager.getTexture("button_up")),
+                TextureRegionDrawable(assetsManager.getTexture("button_down")),
+                TextureRegionDrawable(assetsManager.getTexture("button_checked")),
+                assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL)
+            )
+        )
+        val cell = buttonsTable.add(button).top().left().size(100F, 100F).pad(10F)
+        buttonGroup.add(button)
+        return cell
+    }
+
+    private fun addDescription(text: String) {
         textTable.add(
             Label(
-                if (runsOnMobile) androidText else desktopText,
+                text,
                 Label.LabelStyle(
                     assetsManager.getAssetByDefinition(FontDefinition.CONSOLA),
                     Color.WHITE
                 )
             )
-        ).expand().top().left().row()
-        stage.addActor(textTable)
-        stage.addActor(console)
-        console.toFront()
+        ).expandX().top().left().row()
     }
 
     private fun initializeEnvironment() {
