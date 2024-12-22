@@ -288,7 +288,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         playerShootingHandler.initialize(
             gamePlayManagers.dispatcher,
             gameSessionData,
-            autoAim
+            if (gameSessionData.autoAim) autoAim else null
         )
     }
 

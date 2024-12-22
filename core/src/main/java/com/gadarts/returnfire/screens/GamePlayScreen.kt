@@ -31,6 +31,7 @@ class GamePlayScreen(
     fpsTarget: Int,
     private val generalManagers: GeneralManagers,
     private val selected: CharacterDefinition,
+    autoAim: Boolean,
 ) : Screen {
 
     init {
@@ -49,7 +50,8 @@ class GamePlayScreen(
             runsOnMobile,
             fpsTarget,
             ConsoleImpl(generalManagers.assetsManager, generalManagers.dispatcher),
-            selected
+            selected,
+            autoAim
         )
     }
     private val engine: PooledEngine by lazy { PooledEngine() }

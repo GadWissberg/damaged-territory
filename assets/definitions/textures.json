@@ -362,6 +362,14 @@
       "folder": "hud"
     },
     {
+      "file_name": "icon_manual_aim_sky",
+      "folder": "hud"
+    },
+    {
+      "file_name": "icon_manual_aim_ground",
+      "folder": "hud"
+    },
+    {
       "file_name": "icon_reverse",
       "folder": "hud"
     },

@@ -23,7 +23,7 @@ import kotlin.math.min
 
 class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : CharacterShootingHandler() {
     private var aimSky: Boolean = false
-    private lateinit var autoAim: btPairCachingGhostObject
+    private var autoAim: btPairCachingGhostObject? = null
     private lateinit var gameSessionData: GameSessionData
     private lateinit var dispatcher: MessageDispatcher
     private var priShooting: Boolean = false
@@ -32,7 +32,7 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
     fun initialize(
         dispatcher: MessageDispatcher,
         gameSessionData: GameSessionData,
-        autoAim: btPairCachingGhostObject,
+        autoAim: btPairCachingGhostObject?,
     ) {
         this.gameSessionData = gameSessionData
         this.dispatcher = dispatcher
@@ -58,6 +58,8 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
     }
 
     private fun updateAutoAim(armComp: ArmComponent) {
+        if (autoAim == null) return
+
         val rigidBody = autoAim
         val player = gameSessionData.gamePlayData.player
         val turretBaseComponent = ComponentsMapper.turretBase.get(player)
@@ -82,7 +84,7 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
             90F + armComp.armProperties.renderData.initialRotationAroundZ
         )
             .translate(0F, -PlayerSystem.AUTO_AIM_HEIGHT / 2F, 0F)
-        rigidBody.worldTransform = autoAimTransform
+        rigidBody!!.worldTransform = autoAimTransform
     }
 
     private fun handleShooting(
@@ -140,7 +142,9 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
     }
 
     private fun handleAutoAim(transform: Matrix4): Entity? {
-        val overlappingPairs = autoAim.overlappingPairs
+        if (autoAim == null) return null
+
+        val overlappingPairs = autoAim!!.overlappingPairs
         val size = min(overlappingPairs.size(), 6)
         var closestEnemy: Entity? = null
         if (size > 0) {

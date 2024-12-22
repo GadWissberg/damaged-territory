@@ -1,4 +1,3 @@
-
 package com.gadarts.returnfire.systems.hud
 
 import com.badlogic.gdx.Gdx
@@ -138,7 +137,20 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ).size(150F)
             onboardButton = cell.actor
             cell.left().bottom().padBottom(JOYSTICK_PADDING)
+            addManualAimButton(ui)
         }
+    }
+
+    private fun addManualAimButton(ui: Table) {
+        if (gameSessionData.autoAim) return
+
+        val cell = addButton(
+            ui,
+            "icon_manual_aim_sky",
+            onBoardButtonClickListener,
+        ).size(150F)
+        onboardButton = cell.actor
+        cell.left().bottom().padBottom(JOYSTICK_PADDING)
     }
 
     private fun addApacheButtons(ui: Table) {

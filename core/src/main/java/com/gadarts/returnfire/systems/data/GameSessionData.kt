@@ -11,7 +11,8 @@ class GameSessionData(
     val runsOnMobile: Boolean,
     val fpsTarget: Int,
     console: ConsoleImpl,
-    val selected: CharacterDefinition
+    val selected: CharacterDefinition,
+    val autoAim: Boolean
 ) :
     Disposable {
     val physicsData = GameSessionDataPhysics()

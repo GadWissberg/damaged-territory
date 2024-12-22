@@ -21,7 +21,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val hangarScreen by lazy { HangarScreen(assetsManager, dispatcher, this, soundPlayer, runsOnMobile) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
 
-    @Suppress("SENSELESS_COMPARISON")
+    @Suppress("SENSELESS_COMPARISON", "UNREACHABLE_CODE")
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
         val screenHeight = Gdx.graphics.displayMode.height
@@ -33,19 +33,23 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         Gdx.input.inputProcessor = InputMultiplexer()
         Bullet.init()
         if (GameDebugSettings.SELECTED_VEHICLE != null) {
-            goToWarScreen(GameDebugSettings.SELECTED_VEHICLE)
+            goToWarScreen(
+                GameDebugSettings.SELECTED_VEHICLE!!,
+                true
+            )
         } else {
             setScreen(hangarScreen)
         }
     }
 
-    override fun goToWarScreen(characterDefinition: CharacterDefinition) {
+    override fun goToWarScreen(characterDefinition: CharacterDefinition, autoAim: Boolean) {
         setScreen(
             GamePlayScreen(
                 runsOnMobile,
                 fpsTarget,
                 GeneralManagers(assetsManager, soundPlayer, dispatcher, this),
                 characterDefinition,
+                autoAim
             )
         )
     }

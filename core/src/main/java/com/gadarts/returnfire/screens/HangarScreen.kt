@@ -45,6 +45,7 @@ class HangarScreen(
     private val soundPlayer: SoundPlayer,
     private val runsOnMobile: Boolean,
 ) : Screen {
+    private val aimButtonGroup: ButtonGroup<TextButton> = ButtonGroup()
     private var deployingState = 0
     private var initialized: Boolean = false
     private var selected: VehicleStage? = null
@@ -226,13 +227,12 @@ class HangarScreen(
     }
 
     private fun addAimingOptions() {
-        val buttonGroup: ButtonGroup<TextButton> = ButtonGroup()
         val buttonsTable = Table()
-        addAimingButton("Auto-aim", buttonGroup, buttonsTable)
-        addAimingButton("Manual", buttonGroup, buttonsTable)
+        addAimingButton(AIM_BUTTON_AUTOAIM, aimButtonGroup, buttonsTable)
+        addAimingButton(AIM_BUTTON_MANUAL, aimButtonGroup, buttonsTable)
         textTable.add(buttonsTable).expand().top().left()
-        buttonGroup.setMaxCheckCount(1)
-        buttonGroup.setMinCheckCount(1)
+        aimButtonGroup.setMaxCheckCount(1)
+        aimButtonGroup.setMinCheckCount(1)
     }
 
     private fun addAimingButton(
@@ -328,7 +328,8 @@ class HangarScreen(
             if (reachedDestination) {
                 if (deployingState > 0) {
                     screenManager.goToWarScreen(
-                        if (selected == stageTank) TurretCharacterDefinition.TANK else SimpleCharacterDefinition.APACHE
+                        if (selected == stageTank) TurretCharacterDefinition.TANK else SimpleCharacterDefinition.APACHE,
+                        aimButtonGroup.checked.text.equals(AIM_BUTTON_AUTOAIM)
                     )
                 } else {
                     selected = null
@@ -435,5 +436,7 @@ class HangarScreen(
     companion object {
         private val auxVector = Vector3()
         private val auxMatrix = Matrix4()
+        private const val AIM_BUTTON_AUTOAIM = "Auto-Aim"
+        private const val AIM_BUTTON_MANUAL = "Manual"
     }
 }
