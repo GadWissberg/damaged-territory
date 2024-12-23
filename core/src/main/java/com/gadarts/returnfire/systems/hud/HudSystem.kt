@@ -4,11 +4,10 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.ui.Cell
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
-import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
@@ -24,6 +23,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
     private var onboardButton: ImageButton? = null
+    private var manualAimButton: ImageButton? = null
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
 
@@ -95,11 +95,21 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             return super.touchDown(event, x, y, pointer, button)
         }
     }
+    private val manualAimButtonClickListener = object : ClickListener() {
+        override fun touchDown(
+            event: InputEvent,
+            x: Float,
+            y: Float,
+            pointer: Int,
+            button: Int
+        ): Boolean {
+            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_MANUAL_AIM_PRESSED.ordinal)
+            return super.touchDown(event, x, y, pointer, button)
+        }
+    }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
-        val ui = addUiTable()
-        addOnScreenInput(gameSessionData, ui)
         initializeInput()
         val console = gameSessionData.hudData.console
         gameSessionData.hudData.stage.addActor(console)
@@ -114,7 +124,8 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             val movementPad =
                 addTouchpad(ui, this.gameSessionData.hudData.movementTouchpad)
                     .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, 0F).left()
-            val definition = ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition
+            val definition =
+                ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition
             if (definition == SimpleCharacterDefinition.APACHE) {
                 movementPad.growX()
                 addApacheButtons(ui)
@@ -147,9 +158,9 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val cell = addButton(
             ui,
             "icon_manual_aim_sky",
-            onBoardButtonClickListener,
+            manualAimButtonClickListener,
         ).size(150F)
-        onboardButton = cell.actor
+        manualAimButton = cell.actor
         cell.left().bottom().padBottom(JOYSTICK_PADDING)
     }
 
@@ -206,6 +217,45 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     onboardButton!!.isVisible = msg.extraInfo as Boolean
                 }
             }
+        },
+        SystemEvents.PLAYER_AIM_SKY to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                val name =
+                    if (msg.extraInfo as Boolean) "icon_manual_aim_sky" else "icon_manual_aim_ground"
+                if (!gameSessionData.runsOnMobile) {
+                    val texture =
+                        gamePlayManagers.assetsManager.getTexture(name)
+                    val icon = Image(texture)
+                    icon.setPosition(
+                        Gdx.graphics.width / 2F - texture.width / 2F,
+                        Gdx.graphics.height / 2F - texture.height / 2F
+                    )
+                    gameSessionData.hudData.stage.addActor(icon)
+                    icon.addAction(
+                        Actions.sequence(
+                            Actions.fadeOut(1F, Interpolation.fade),
+                            Actions.run { icon.remove() })
+                    )
+                } else {
+                    manualAimButton!!.image.drawable =
+                        TextureRegionDrawable(gamePlayManagers.assetsManager.getTexture(name))
+                }
+            }
+        },
+        SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                val ui = addUiTable()
+                addOnScreenInput(gameSessionData, ui)
+            }
+
         }
     )
 
@@ -217,6 +267,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
 
+    @Suppress("KotlinConstantConditions")
     private fun initializeInput() {
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.autoUpdate = true
@@ -226,6 +277,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         }
     }
 
+    @Suppress("KotlinConstantConditions")
     private fun addUiTable(): Table {
         val uiTable = Table()
         uiTable.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)
@@ -237,6 +289,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         return uiTable
     }
 
+    @Suppress("KotlinConstantConditions")
     override fun update(deltaTime: Float) {
         if (gameSessionData.gamePlayData.sessionFinished) return
 

@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.player.handlers
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -200,8 +199,8 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
     }
 
     fun toggleSkyAim() {
-        Gdx.app.log("$aimSky", "$aimSky")
         aimSky = !aimSky
+        dispatcher.dispatchMessage(SystemEvents.PLAYER_AIM_SKY.ordinal, aimSky)
     }
 
     companion object {

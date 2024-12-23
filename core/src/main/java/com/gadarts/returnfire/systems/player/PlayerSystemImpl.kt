@@ -101,7 +101,15 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                     gamePlayManagers.dispatcher.dispatchMessage(PLAYER_ADDED.ordinal)
                 }
             }
-
+        },
+        BUTTON_MANUAL_AIM_PRESSED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                playerShootingHandler.toggleSkyAim()
+            }
         }
     )
 
@@ -170,6 +178,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 }
             }
 
+            Input.Keys.ALT_LEFT -> {
+                playerShootingHandler.toggleSkyAim()
+            }
+
             Input.Keys.A -> {
                 playerMovementHandler.letterPressedA()
             }
@@ -178,9 +190,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 playerMovementHandler.letterPressedD()
             }
 
-            Input.Keys.ALT_LEFT -> {
-                playerShootingHandler.toggleSkyAim()
-            }
         }
         return false
     }
@@ -299,9 +308,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-            && position.x >= stagePosition.x - LANDING_OK_OFFSET
-            && position.z <= stagePosition.z + LANDING_OK_OFFSET
-            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+                && position.x >= stagePosition.x - LANDING_OK_OFFSET
+                && position.z <= stagePosition.z + LANDING_OK_OFFSET
+                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(

@@ -41,7 +41,8 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
             ComponentsMapper.player.has(CharacterWeaponShotEventData.shooter),
             relativePosition,
             bulletDirection,
-            CharacterWeaponShotEventData.target
+            CharacterWeaponShotEventData.target,
+            CharacterWeaponShotEventData.aimSky
         )
         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BULLET_CREATION_REQUEST.ordinal)
     }

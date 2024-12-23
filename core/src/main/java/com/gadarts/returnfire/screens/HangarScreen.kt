@@ -231,6 +231,7 @@ class HangarScreen(
         addAimingButton(AIM_BUTTON_AUTOAIM, aimButtonGroup, buttonsTable)
         addAimingButton(AIM_BUTTON_MANUAL, aimButtonGroup, buttonsTable)
         textTable.add(buttonsTable).expand().top().left()
+        aimButtonGroup.setChecked(AIM_BUTTON_AUTOAIM)
         aimButtonGroup.setMaxCheckCount(1)
         aimButtonGroup.setMinCheckCount(1)
     }
@@ -329,7 +330,7 @@ class HangarScreen(
                 if (deployingState > 0) {
                     screenManager.goToWarScreen(
                         if (selected == stageTank) TurretCharacterDefinition.TANK else SimpleCharacterDefinition.APACHE,
-                        aimButtonGroup.checked.text.equals(AIM_BUTTON_AUTOAIM)
+                        aimButtonGroup.checked.text.toString() == AIM_BUTTON_AUTOAIM
                     )
                 } else {
                     selected = null

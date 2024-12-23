@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.arm.ArmComponent
 
 object BulletCreationRequestEventData {
+    var aimSky: Boolean = false
+        private set
     var target: Entity? = null
         private set
     val direction: Matrix4 = Matrix4()
@@ -15,12 +17,20 @@ object BulletCreationRequestEventData {
     lateinit var armComponent: ArmComponent
         private set
 
-    fun set(arm: ArmComponent, friendly: Boolean, relativePosition: Vector3, direction: Matrix4, target: Entity?) {
+    fun set(
+        arm: ArmComponent,
+        friendly: Boolean,
+        relativePosition: Vector3,
+        direction: Matrix4,
+        target: Entity?,
+        aimSky: Boolean
+    ) {
         this.armComponent = arm
         this.friendly = friendly
         this.relativePosition.set(relativePosition)
         this.direction.set(direction)
         this.target = target
+        this.aimSky = aimSky
     }
 
 }

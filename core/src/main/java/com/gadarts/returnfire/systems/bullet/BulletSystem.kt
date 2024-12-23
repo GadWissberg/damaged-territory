@@ -121,6 +121,9 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val gameModelInstance =
             gameSessionData.pools.gameModelInstancePools[BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition]!!.obtain()
         val noTarget = BulletCreationRequestEventData.target == null
+        val aimSky = BulletCreationRequestEventData.aimSky
+        val bulletBehavior =
+            if (noTarget && !aimSky) BulletCreationRequestEventData.armComponent.bulletBehavior else BulletBehavior.REGULAR
         val entityBuilder = gamePlayManagers.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
@@ -128,7 +131,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 BulletCreationRequestEventData.armComponent.armProperties.renderData.boundingBox
             )
             .addBulletComponent(
-                if (noTarget) BulletCreationRequestEventData.armComponent.bulletBehavior else BulletBehavior.REGULAR,
+                bulletBehavior,
                 BulletCreationRequestEventData.armComponent.armProperties.effectsData.explosion,
                 BulletCreationRequestEventData.armComponent.armProperties.explosive,
                 BulletCreationRequestEventData.friendly,
