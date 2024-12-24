@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.managers
 
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.GameDebugSettings
@@ -31,6 +32,14 @@ class SoundPlayer {
 
     fun stop(sound: Sound, id: Long) {
         sound.stop(id)
+    }
+
+    fun play(music: Music) {
+        if (!GameDebugSettings.SFX) return
+
+        music.play()
+        music.volume = 0.05F
+        music.isLooping = true
     }
 
     companion object {

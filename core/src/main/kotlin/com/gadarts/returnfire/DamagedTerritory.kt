@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.physics.bullet.Bullet
+import com.gadarts.returnfire.assets.definitions.MusicDefinition
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.managers.SoundPlayer
@@ -21,7 +22,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val hangarScreen by lazy { HangarScreen(assetsManager, dispatcher, this, soundPlayer, runsOnMobile) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
 
-    @Suppress("SENSELESS_COMPARISON", "UNREACHABLE_CODE")
+    @Suppress("SENSELESS_COMPARISON")
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
         val screenHeight = Gdx.graphics.displayMode.height
@@ -30,12 +31,13 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         Gdx.graphics.setWindowedMode(targetWidth, targetHeight)
         Gdx.input.setCatchKey(Input.Keys.BACK, true)
         assetsManager.loadAssets()
+        soundPlayer.play(assetsManager.getAssetByDefinition(MusicDefinition.TEST))
         Gdx.input.inputProcessor = InputMultiplexer()
         Bullet.init()
         if (GameDebugSettings.SELECTED_VEHICLE != null) {
             goToWarScreen(
-                GameDebugSettings.SELECTED_VEHICLE!!,
-                true
+                GameDebugSettings.SELECTED_VEHICLE,
+                GameDebugSettings.FORCE_AIM > 0
             )
         } else {
             setScreen(hangarScreen)

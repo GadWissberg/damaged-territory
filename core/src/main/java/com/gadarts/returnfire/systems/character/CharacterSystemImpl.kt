@@ -156,8 +156,13 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         baseEntities.forEach {
             val base =
                 map.placedElements.find { placedElement -> placedElement.definition == ComponentsMapper.amb.get(it).def }
+            val characterColor = ComponentsMapper.base.get(it).color
             val opponent =
-                opponentCharacterFactory.create(base!!, gameSessionData.selected, ComponentsMapper.base.get(it).color)
+                opponentCharacterFactory.create(
+                    base!!,
+                    if (characterColor == CharacterColor.GREEN) SimpleCharacterDefinition.APACHE else gameSessionData.selected,
+                    characterColor
+                )
             engine.addEntity(opponent)
             gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.OPPONENT_CHARACTER_CREATED.ordinal, opponent)
         }

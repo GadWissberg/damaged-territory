@@ -7,8 +7,10 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
+import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.physics.bullet.collision.btConeShape
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.gadarts.returnfire.GameDebugSettings
@@ -48,7 +50,15 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
     private val autoAim by lazy {
         val ghostObject = btPairCachingGhostObject()
-        ghostObject.collisionShape = btConeShape(0.5F, PlayerSystem.AUTO_AIM_HEIGHT)
+        ghostObject.collisionShape = btCompoundShape()
+        (ghostObject.collisionShape as btCompoundShape).addChildShape(
+            Matrix4(),
+            btConeShape(AUTO_AIM_RADIUS, PlayerSystem.AUTO_AIM_HEIGHT)
+        )
+        (ghostObject.collisionShape as btCompoundShape).addChildShape(
+            Matrix4().translate(1.5F, 2.5F, 0F).rotate(Vector3.Z, 45F),
+            btConeShape(AUTO_AIM_RADIUS, PlayerSystem.AUTO_AIM_HEIGHT / 2F)
+        )
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
         gameSessionData.physicsData.collisionWorld.addCollisionObject(
             ghostObject,
@@ -179,7 +189,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.ALT_LEFT -> {
-                playerShootingHandler.toggleSkyAim()
+                if (!gameSessionData.autoAim) {
+                    playerShootingHandler.toggleSkyAim()
+                }
             }
 
             Input.Keys.A -> {
@@ -308,9 +320,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-                && position.x >= stagePosition.x - LANDING_OK_OFFSET
-                && position.z <= stagePosition.z + LANDING_OK_OFFSET
-                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(
@@ -321,6 +333,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     companion object {
+        private val AUTO_AIM_RADIUS: Float = 0.5F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private const val LANDING_OK_OFFSET = 0.75F

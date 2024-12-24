@@ -124,6 +124,9 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
                         parentRelativePosition = auxVector3_2.set(0.5F, 0F, 0F),
                     ).finishAndAddToEngine()
                     ComponentsMapper.particleEffect.get(particleEffect).parent = cannon
+                    if (aimSky) {
+                        direction.rotate(Vector3.Z, 55F)
+                    }
                     direction
                 }
             val target = handleAutoAim(transform)
@@ -149,12 +152,10 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
         if (size > 0) {
             closestEnemy = null
             val playerPosition = transform.getTranslation(auxVector3_2)
-            val playerDirection = transform.getRotation(auxQuat).transform(auxVector3_3.set(Vector3.X))
             var closestDistance = Float.MAX_VALUE
             for (i in 0 until size) {
                 val enemy = overlappingPairs.atConst(i).userData
-                val gameModelInstance =
-                    ComponentsMapper.modelInstance.get(enemy as Entity).gameModelInstance
+                val gameModelInstance = ComponentsMapper.modelInstance.get(enemy as Entity).gameModelInstance
                 val enemyPosition = gameModelInstance.modelInstance
                     .transform.getTranslation(
                         auxVector3_1
@@ -162,7 +163,9 @@ class PlayerShootingHandler(private val entityBuilder: EntityBuilder) : Characte
                 val distance =
                     enemyPosition.dst2(playerPosition)
                 if (distance < closestDistance) {
-                    val dot = enemyPosition.sub(playerPosition).nor().dot(playerDirection)
+                    val dot =
+                        enemyPosition.set(enemyPosition.x, playerPosition.y, enemyPosition.z).sub(playerPosition).nor()
+                            .dot(transform.getRotation(auxQuat).transform(auxVector3_3.set(Vector3.X)))
                     if (dot > 0.85) {
                         closestDistance = distance
                         closestEnemy = enemy
