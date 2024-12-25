@@ -256,8 +256,11 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addChildModelInstanceComponent(gameModelInstance: GameModelInstance): EntityBuilder {
-        val childModelInstanceComponent = ChildModelInstanceComponent(gameModelInstance)
+    override fun addChildModelInstanceComponent(
+        gameModelInstance: GameModelInstance,
+        relativePosition: Vector3
+    ): EntityBuilder {
+        val childModelInstanceComponent = ChildModelInstanceComponent(gameModelInstance, relativePosition)
         entity!!.add(childModelInstanceComponent)
         return this
     }

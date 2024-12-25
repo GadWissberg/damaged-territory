@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.player
+package com.gadarts.returnfire.systems.character.factories
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g3d.ModelInstance
@@ -31,19 +31,27 @@ class TankFactory(
         val primarySpark = createPrimarySpark(ModelDefinition.CANNON_SPARK, tankPrimaryRelativePositionCalculator)
         val entityBuilder = entityBuilder.begin()
         addCharacterBaseComponents(
-            base, TurretCharacterDefinition.TANK, primarySpark,
+            base,
+            TurretCharacterDefinition.TANK,
+            primarySpark,
             {
                 addTankPrimaryArmComponent(entityBuilder, primarySpark)
             },
-            null, color
+            null,
+            color
         )
         entityBuilder.addTurretBaseComponent()
-        val engineSound = assetsManager.getAssetByDefinition(SoundDefinition.ENGINE)
-        entityBuilder.addAmbSoundComponent(
-            engineSound
-        )
+        entityBuilder.addAmbSoundComponent(assetsManager.getAssetByDefinition(SoundDefinition.ENGINE))
         val player = entityBuilder.finish()
         val cannon = addTankCannon(player)
+        addTurret(player, cannon)
+        return player
+    }
+
+    private fun addTurret(
+        player: Entity,
+        cannon: Entity
+    ) {
         entityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
             GameModelInstance(
@@ -56,9 +64,12 @@ class TankFactory(
             null
         )
         entityBuilder.addTurretComponent(player, true, cannon)
+        entityBuilder.addChildModelInstanceComponent(
+            gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TANK_MISSILE_LAUNCHER),
+            Vector3(-0.1F, 0.1F, -0.05F)
+        )
         val turret = entityBuilder.finishAndAddToEngine()
         ComponentsMapper.turretBase.get(player).turret = turret
-        return player
     }
 
     private fun addTankPrimaryArmComponent(

@@ -26,12 +26,12 @@ import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnCharacterWeaponShotPrimary
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnCharacterWeaponShotSecondary
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
-import com.gadarts.returnfire.systems.player.OpponentCharacterFactory
 import com.gadarts.returnfire.systems.render.RenderSystem
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem, GameEntitySystem(gamePlayManagers) {

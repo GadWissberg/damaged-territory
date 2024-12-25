@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.player
+package com.gadarts.returnfire.systems.character.factories
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g3d.Model

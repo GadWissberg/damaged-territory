@@ -1,10 +1,10 @@
-package com.gadarts.returnfire.systems.player
+package com.gadarts.returnfire.systems.character.factories
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
-import com.badlogic.gdx.graphics.g3d.decals.Decal.newDecal
+import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -24,7 +24,6 @@ import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.data.GameSessionData.Companion.APACHE_SPARK_HEIGHT_BIAS
 
 class ApacheFactory(
     private val assetsManager: GameAssetManager,
@@ -102,7 +101,7 @@ class ApacheFactory(
             val transform =
                 ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform
             val pos = output.set(0.3F, 0F, 0F).rot(transform)
-            pos.y -= APACHE_SPARK_HEIGHT_BIAS
+            pos.y -= GameSessionData.APACHE_SPARK_HEIGHT_BIAS
             return pos
         }
     }
@@ -120,7 +119,7 @@ class ApacheFactory(
                     secondaryArmComponent.creationSide.toFloat()
                 )
                     .rot(transform).scl(SECONDARY_POSITION_BIAS)
-            pos.y -= APACHE_SPARK_HEIGHT_BIAS
+            pos.y -= GameSessionData.APACHE_SPARK_HEIGHT_BIAS
             return pos
         }
     }
@@ -159,7 +158,7 @@ class ApacheFactory(
         val definitions = assetsManager.getTexturesDefinitions()
         val propTextureRegion =
             TextureRegion(assetsManager.getTexture(definitions.definitions["propeller_blurred"]!!))
-        val propDec = newDecal(PROP_SIZE, PROP_SIZE, propTextureRegion, true)
+        val propDec = Decal.newDecal(PROP_SIZE, PROP_SIZE, propTextureRegion, true)
         propDec.rotateX(90F)
         propDec.setColor(propDec.color.r, propDec.color.g, propDec.color.b, 0F)
         val childDecal = ChildDecal(propDec, Vector3.Zero, null)

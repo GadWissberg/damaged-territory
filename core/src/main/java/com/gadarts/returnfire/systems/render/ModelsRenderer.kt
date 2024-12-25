@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
@@ -80,14 +81,15 @@ class ModelsRenderer(
             val childModelInstanceComponent = ComponentsMapper.childModelInstanceComponent.get(entity)
             if (childModelInstanceComponent != null && childModelInstanceComponent.visible
             ) {
-                val gameModelInstance = childModelInstanceComponent.gameModelInstance
-                gameModelInstance.modelInstance.transform.setTranslation(
+                val childGameModelInstance = childModelInstanceComponent.gameModelInstance
+                childGameModelInstance.modelInstance.transform.setToTranslation(
                     modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector3_1
                     )
-                )
+                ).rotate(modelInstanceComponent.gameModelInstance.modelInstance.transform.getRotation(auxQuat))
+                    .translate(auxVector3_2.set(childModelInstanceComponent.relativePosition))
                 renderGameModelInstance(
-                    gameModelInstance,
+                    childGameModelInstance,
                     forShadow,
                     applyEnvironment,
                     batch
@@ -197,4 +199,7 @@ class ModelsRenderer(
         environment.shadowMap = shadowLight
     }
 
+    companion object {
+        private val auxQuat = Quaternion()
+    }
 }

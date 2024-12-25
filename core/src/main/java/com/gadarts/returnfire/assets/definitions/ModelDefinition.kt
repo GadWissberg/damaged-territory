@@ -42,6 +42,7 @@ enum class ModelDefinition(
     TANK_BODY,
     TANK_TURRET,
     TANK_CANNON,
+    TANK_MISSILE_LAUNCHER,
     TANK_CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.TANK_CANNON_BULLET),
     SCENE,
     HOOK,
