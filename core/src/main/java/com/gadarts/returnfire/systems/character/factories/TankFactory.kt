@@ -24,18 +24,29 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 class TankFactory(
     private val assetsManager: GameAssetManager,
     private val gameSessionData: GameSessionData,
-    gameModelInstanceFactory: GameModelInstanceFactory,
     private val entityBuilder: EntityBuilder,
-) : CharacterFactory(assetsManager, gameModelInstanceFactory, entityBuilder) {
+    gameModelInstanceFactory: GameModelInstanceFactory,
+) : CharacterFactory(gameModelInstanceFactory, entityBuilder) {
     override fun create(base: PlacedElement, color: CharacterColor): Entity {
-        val primarySpark = createPrimarySpark(ModelDefinition.CANNON_SPARK, tankPrimaryRelativePositionCalculator)
+        val primarySpark = addSpark(
+            assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK),
+            tankPrimaryRelativePositionCalculator
+        )
+        val secondarySpark = addSpark(
+            assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK),
+            tankSecondaryRelativePositionCalculator
+        )
         val entityBuilder = entityBuilder.begin()
         addCharacterBaseComponents(
             base,
             TurretCharacterDefinition.TANK,
             primarySpark,
+            secondarySpark,
             {
                 addTankPrimaryArmComponent(entityBuilder, primarySpark)
+            },
+            {
+                addTankSecondaryArmComponent(entityBuilder, secondarySpark)
             },
             null,
             color
@@ -66,6 +77,7 @@ class TankFactory(
         entityBuilder.addTurretComponent(player, true, cannon)
         entityBuilder.addChildModelInstanceComponent(
             gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TANK_MISSILE_LAUNCHER),
+            true,
             Vector3(-0.1F, 0.1F, -0.05F)
         )
         val turret = entityBuilder.finishAndAddToEngine()
@@ -101,6 +113,36 @@ class TankFactory(
         return entityBuilder
     }
 
+    private fun addTankSecondaryArmComponent(
+        entityBuilder: EntityBuilder,
+        spark: Entity,
+    ): EntityBuilder {
+        entityBuilder.addSecondaryArmComponent(
+            spark,
+            ArmProperties(
+                5,
+                assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
+                TANK_SEC_RELOAD_DUR,
+                TANK_SEC_BULLET_SPEED,
+                ArmEffectsData(
+                    ParticleEffectDefinition.EXPLOSION,
+                    null,
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
+                ),
+                ArmRenderData(
+                    ModelDefinition.MISSILE,
+                    assetsManager.getCachedBoundingBox(ModelDefinition.MISSILE),
+                    45F
+                ),
+                true,
+                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
+            ),
+            BulletBehavior.REGULAR
+        )
+        return entityBuilder
+    }
+
     private val tankPrimaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
         override fun calculate(parent: Entity, output: Vector3): Vector3 {
             val turret = ComponentsMapper.turretBase.get(parent).turret
@@ -108,6 +150,16 @@ class TankFactory(
                 ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
             val pos = output.set(0.7F, 0F, 0F).rot(transform)
             pos.y += 0.1F
+            return pos
+        }
+    }
+
+    private val tankSecondaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
+        override fun calculate(parent: Entity, output: Vector3): Vector3 {
+            val turret = ComponentsMapper.turretBase.get(parent).turret
+            val transform =
+                ComponentsMapper.childModelInstance.get(turret).gameModelInstance.modelInstance.transform
+            val pos = output.set(-0.1F, 0.4F, -0.05F).rot(transform)
             return pos
         }
     }
@@ -133,7 +185,9 @@ class TankFactory(
     companion object {
         private val auxVector3_1 = Vector3()
         private const val TANK_PRI_RELOAD_DUR = 2000L
+        private const val TANK_SEC_RELOAD_DUR = 1500L
         private const val TANK_PRI_BULLET_SPEED = 8F
+        private const val TANK_SEC_BULLET_SPEED = 10F
 
     }
 }

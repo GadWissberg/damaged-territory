@@ -52,7 +52,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         assetsManager: GameAssetManager,
         character: Entity
     ): Boolean {
-        val childModelInstanceComponent = ComponentsMapper.childModelInstanceComponent.get(character)
+        val childModelInstanceComponent = ComponentsMapper.childModelInstance.get(character)
         val blending = childModelInstanceComponent.gameModelInstance.modelInstance.materials.get(0)
             .get(BlendingAttribute.Type) as BlendingAttribute
         handleFirstUpdateForLand(character, soundPlayer, assetsManager)
@@ -105,7 +105,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         character: Entity
     ): Boolean {
         val childModelInstance =
-            ComponentsMapper.childModelInstanceComponent.get(character).gameModelInstance.modelInstance
+            ComponentsMapper.childModelInstance.get(character).gameModelInstance.modelInstance
         val blending = childModelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
         if (firstUpdate) {
             init(null)
@@ -122,7 +122,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
             val startHeight = ComponentsMapper.character.get(character).definition.getStartHeight()
             if (transform.getTranslation(auxVector1).y >= startHeight) {
                 transform.setTranslation(auxVector1.x, startHeight, auxVector1.z)
-                ComponentsMapper.childModelInstanceComponent.get(character).visible = false
+                ComponentsMapper.childModelInstance.get(character).visible = false
                 soundPlayer.stop(
                     assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START),
                     ComponentsMapper.boarding.get(character).offBoardSoundId

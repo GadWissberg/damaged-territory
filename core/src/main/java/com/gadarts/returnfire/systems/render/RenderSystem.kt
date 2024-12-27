@@ -143,7 +143,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         batches.decalBatch
         for (entity in relatedEntities.childEntities) {
             if (renderFlags.renderCharacters || !ComponentsMapper.childDecal.has(entity)) {
-                renderChildren(entity, deltaTime)
+                renderDecalChildren(entity, deltaTime)
             }
         }
         renderIndependentDecals()
@@ -174,7 +174,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
 
-    private fun renderChildren(
+    private fun renderDecalChildren(
         entity: Entity,
         deltaTime: Float,
     ) {

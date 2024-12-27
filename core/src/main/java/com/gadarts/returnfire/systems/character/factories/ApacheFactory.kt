@@ -28,43 +28,55 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 class ApacheFactory(
     private val assetsManager: GameAssetManager,
     private val gameSessionData: GameSessionData,
-    gameModelInstanceFactory: GameModelInstanceFactory,
     private val entityBuilder: EntityBuilder,
+    gameModelInstanceFactory: GameModelInstanceFactory,
 ) :
-    CharacterFactory(assetsManager, gameModelInstanceFactory, entityBuilder) {
+    CharacterFactory(gameModelInstanceFactory, entityBuilder) {
 
     override fun create(base: PlacedElement, color: CharacterColor): Entity {
+        val primarySpark =
+            addSpark(
+                assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK),
+                apachePrimaryRelativePositionCalculator
+            )
         val secondarySpark = addSpark(
             assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK),
             secRelativePositionCalculator
         )
-        val primarySpark =
-            createPrimarySpark(ModelDefinition.MACHINE_GUN_SPARK, apachePrimaryRelativePositionCalculator)
         val entityBuilder = entityBuilder.begin()
         addCharacterBaseComponents(
             base,
             SimpleCharacterDefinition.APACHE,
             primarySpark,
+            secondarySpark,
             {
                 addApachePrimaryArmComponent(primarySpark)
+            },
+            {
+                addSecondaryArmComponent(secondarySpark)
             },
             ApacheBoardingAnimation(entityBuilder),
             color
         )
         addPropeller()
-        addSecondaryArmComponent(secondarySpark)
         val character = entityBuilder.finish()
         ComponentsMapper.spark.get(secondarySpark).parent = character
-        val textureAttribute =
-            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.materials.find {
-                it.has(
-                    TextureAttribute.Diffuse
-                )
-            }
-                ?.get(TextureAttribute.Diffuse) as TextureAttribute
-        textureAttribute.textureDescription.texture =
-            assetsManager.getTexture(if (color == CharacterColor.BROWN) "apache_texture_brown" else "apache_texture_green")
+        applyOpponentColor(character, color)
         return character
+    }
+
+    private fun applyOpponentColor(
+        character: Entity,
+        color: CharacterColor
+    ) {
+        (ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.materials.find {
+            it.has(
+                TextureAttribute.Diffuse
+            )
+        }
+            ?.get(TextureAttribute.Diffuse) as TextureAttribute
+            ).textureDescription.texture =
+            assetsManager.getTexture(if (color == CharacterColor.BROWN) "apache_texture_brown" else "apache_texture_green")
     }
 
     private fun addApachePrimaryArmComponent(
@@ -168,6 +180,7 @@ class ApacheFactory(
         propellerGameModelInstance.modelInstance.materials.get(0).set(BlendingAttribute())
         entityBuilder.addChildModelInstanceComponent(
             propellerGameModelInstance,
+            false
         )
     }
 

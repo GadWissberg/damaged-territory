@@ -124,7 +124,9 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             },
         )
 
-    private fun closeDoors(base: Entity, gamePlayManagers: GamePlayManagers) {
+    private fun closeDoors(boardingCharacter: Entity, gamePlayManagers: GamePlayManagers) {
+        val base =
+            bases.find { ComponentsMapper.base.get(it).color == ComponentsMapper.character.get(boardingCharacter).color }
         val baseComponent = ComponentsMapper.base.get(base)
         baseComponent.close()
         baseComponent.baseDoorSoundId =

@@ -34,7 +34,7 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance,
             relativePosition
         )
-        initiateTurretKickoff(shooter)
+        initiateTurretKickoff(shooter, arm)
         val bulletDirection: Matrix4 = calculateBulletDirection(shooter, relativePosition, arm)
         BulletCreationRequestEventData.set(
             arm,
@@ -84,8 +84,8 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
         return bulletDirection
     }
 
-    private fun initiateTurretKickoff(shooter: Entity) {
-        if (ComponentsMapper.turretBase.has(shooter)) {
+    private fun initiateTurretKickoff(shooter: Entity, arm: ArmComponent) {
+        if (ComponentsMapper.turretBase.has(shooter) && arm.isPrimary()) {
             val turret = ComponentsMapper.turretBase.get(shooter).turret
             val turretComponent = ComponentsMapper.turret.get(turret)
             turretComponent.baseOffsetApplied = true

@@ -10,6 +10,8 @@ abstract class ArmComponent(
     val spark: Entity,
     val bulletBehavior: BulletBehavior
 ) : Component {
+    abstract fun isPrimary(): Boolean
+
     var displaySpark: Long = 0L
     var loaded: Long = 0L
 

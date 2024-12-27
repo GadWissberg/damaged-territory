@@ -4,7 +4,11 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.model.GameModelInstance
 
-class ChildModelInstanceComponent(val gameModelInstance: GameModelInstance, relativePosition: Vector3) : Component {
+class ChildModelInstanceComponent(
+    val gameModelInstance: GameModelInstance,
+    val followParentRotation: Boolean,
+    relativePosition: Vector3
+) : Component {
     var visible: Boolean = true
     val relativePosition = Vector3()
 

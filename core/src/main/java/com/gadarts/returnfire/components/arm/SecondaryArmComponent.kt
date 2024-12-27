@@ -17,7 +17,10 @@ class SecondaryArmComponent(
 
     companion object {
         private const val LEFT = 1
-        private const val RIGHT = -1
+    }
+
+    override fun isPrimary(): Boolean {
+        return false
     }
 }
 

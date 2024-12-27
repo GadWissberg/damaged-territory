@@ -115,9 +115,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             val damage = ComponentsMapper.bullet.get(first).damage
             if (isSecondCharacter) {
                 ComponentsMapper.character.get(second).takeDamage(damage)
-                addFlyingPartsForDamage(second)
             } else {
-                addFlyingPartsForDamage(first)
                 ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base).takeDamage(damage)
             }
             gamePlayManagers.entityBuilder.begin()
@@ -130,12 +128,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             return true
         }
         return false
-    }
-
-    private fun addFlyingPartsForDamage(character: Entity) {
-        if (MathUtils.random() > 0.9F) {
-            addFlyingParts(character)
-        }
     }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {

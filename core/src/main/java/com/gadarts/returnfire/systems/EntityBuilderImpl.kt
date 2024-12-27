@@ -258,9 +258,11 @@ class EntityBuilderImpl : EntityBuilder {
 
     override fun addChildModelInstanceComponent(
         gameModelInstance: GameModelInstance,
+        followParentRotation: Boolean,
         relativePosition: Vector3
     ): EntityBuilder {
-        val childModelInstanceComponent = ChildModelInstanceComponent(gameModelInstance, relativePosition)
+        val childModelInstanceComponent =
+            ChildModelInstanceComponent(gameModelInstance, followParentRotation, relativePosition)
         entity!!.add(childModelInstanceComponent)
         return this
     }

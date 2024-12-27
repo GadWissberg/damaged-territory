@@ -11,14 +11,12 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.EntityBuilderImpl
 
 abstract class CharacterFactory(
-    private val assetsManager: GameAssetManager,
     protected val gameModelInstanceFactory: GameModelInstanceFactory,
     private val entityBuilder: EntityBuilder,
 ) {
@@ -44,7 +42,9 @@ abstract class CharacterFactory(
         base: PlacedElement,
         characterDefinition: CharacterDefinition,
         primarySpark: Entity,
+        secondarySpark: Entity?,
         primaryArmComponentCreator: () -> EntityBuilder,
+        secondaryArmComponentCreator: () -> EntityBuilder,
         boardingAnimation: BoardingAnimation?,
         color: CharacterColor
     ): GameModelInstance {
@@ -61,15 +61,10 @@ abstract class CharacterFactory(
             boardingAnimation,
         )
         primaryArmComponentCreator()
+        secondaryArmComponentCreator()
         ComponentsMapper.spark.get(primarySpark).parent = EntityBuilderImpl.entity!!
+        ComponentsMapper.spark.get(secondarySpark).parent = EntityBuilderImpl.entity!!
         return gameModelInstance
-    }
-
-    protected fun createPrimarySpark(
-        sparkModel: ModelDefinition,
-        calculator: ArmComponent.RelativePositionCalculator
-    ): Entity {
-        return addSpark(assetsManager.getAssetByDefinition(sparkModel), calculator)
     }
 
     companion object {

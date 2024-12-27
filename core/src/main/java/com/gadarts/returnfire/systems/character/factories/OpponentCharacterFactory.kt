@@ -23,11 +23,11 @@ class OpponentCharacterFactory(
         ApacheFactory(
             assetsManager,
             gameSessionData,
-            gameModelInstanceFactory,
             entityBuilder,
+            gameModelInstanceFactory,
         )
     private val tankFactory =
-        TankFactory(assetsManager, gameSessionData, gameModelInstanceFactory, entityBuilder)
+        TankFactory(assetsManager, gameSessionData, entityBuilder, gameModelInstanceFactory)
 
     fun create(base: PlacedElement, selected: CharacterDefinition, characterColor: CharacterColor): Entity {
         var opponent: Entity? = null

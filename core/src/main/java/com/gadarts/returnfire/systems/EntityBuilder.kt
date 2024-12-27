@@ -74,8 +74,10 @@ interface EntityBuilder {
 
     fun addChildModelInstanceComponent(
         gameModelInstance: GameModelInstance,
+        followParentRotation: Boolean,
         relativePosition: Vector3 = Vector3.Zero
     ): EntityBuilder
+
     fun addSecondaryArmComponent(
         spark: Entity,
         armProperties: ArmProperties,

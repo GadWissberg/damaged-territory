@@ -7,4 +7,8 @@ class PrimaryArmComponent(
     armProperties: ArmProperties, spark: Entity, bulletBehavior: BulletBehavior
 ) : ArmComponent(
     armProperties, spark, bulletBehavior
-)
+) {
+    override fun isPrimary(): Boolean {
+        return true
+    }
+}
