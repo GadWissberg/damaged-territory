@@ -1,18 +1,32 @@
 package com.gadarts.returnfire.systems.ai
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 
-class AiApacheLogic(private val gameSessionData: GameSessionData) {
+class AiApacheLogic(
+    private val gameSessionData: GameSessionData,
+    entityBuilder: EntityBuilder,
+    dispatcher: MessageDispatcher,
+    autoAim: btPairCachingGhostObject
+) {
+    private val shootingHandler = CharacterShootingHandler(entityBuilder)
     private val movementHandler: VehicleMovementHandler by lazy {
         val movementHandler = ApacheMovementHandlerDesktop()
         movementHandler
+    }
+
+    init {
+        shootingHandler.initialize(dispatcher, gameSessionData, autoAim)
     }
 
     fun updateCharacter(character: Entity, deltaTime: Float) {
@@ -34,11 +48,13 @@ class AiApacheLogic(private val gameSessionData: GameSessionData) {
             movementHandler.reverse()
         } else {
             movementHandler.stopMovement()
+            shootingHandler.startPrimaryShooting()
         }
         movementHandler.update(
             character,
             deltaTime
         )
+        shootingHandler.update(character)
     }
 
     private fun handleRotation(

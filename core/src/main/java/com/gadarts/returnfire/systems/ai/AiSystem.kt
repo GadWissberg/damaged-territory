@@ -28,8 +28,20 @@ import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
 
 
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+    private val autoAim by lazy {
+        gamePlayManagers.factories.autoAimShapeFactory.generate()
+    }
+
+
     private val turretLogic by lazy { TurretLogic(gameSessionData, this.gamePlayManagers) }
-    private val aiApacheLogic by lazy { AiApacheLogic(gameSessionData) }
+    private val aiApacheLogic by lazy {
+        AiApacheLogic(
+            gameSessionData,
+            gamePlayManagers.entityBuilder,
+            gamePlayManagers.dispatcher,
+            autoAim
+        )
+    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
@@ -122,6 +134,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     }
 
     override fun dispose() {
+        autoAim.dispose()
     }
 
     companion object {

@@ -36,7 +36,6 @@ import com.gadarts.returnfire.systems.render.RenderSystem
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem, GameEntitySystem(gamePlayManagers) {
 
-
     private val opponentCharacterFactory by lazy {
         OpponentCharacterFactory(
             gamePlayManagers.assetsManager,
@@ -472,7 +471,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     override fun dispose() {
-
     }
 
     companion object {

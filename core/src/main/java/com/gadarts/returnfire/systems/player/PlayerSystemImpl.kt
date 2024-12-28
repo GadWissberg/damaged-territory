@@ -7,12 +7,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
-import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
-import com.badlogic.gdx.physics.bullet.collision.btConeShape
-import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
@@ -25,8 +20,6 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.SystemEvents.*
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_ENEMY
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_PLAYER
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
@@ -49,23 +42,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         ).find { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color == CharacterColor.BROWN }!!
     }
     private val autoAim by lazy {
-        val ghostObject = btPairCachingGhostObject()
-        ghostObject.collisionShape = btCompoundShape()
-        (ghostObject.collisionShape as btCompoundShape).addChildShape(
-            Matrix4(),
-            btConeShape(AUTO_AIM_RADIUS, PlayerSystem.AUTO_AIM_HEIGHT)
-        )
-        (ghostObject.collisionShape as btCompoundShape).addChildShape(
-            Matrix4().translate(1.5F, 2.5F, 0F).rotate(Vector3.Z, 45F),
-            btConeShape(AUTO_AIM_RADIUS, PlayerSystem.AUTO_AIM_HEIGHT / 2F)
-        )
-        ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
-        gameSessionData.physicsData.collisionWorld.addCollisionObject(
-            ghostObject,
-            COLLISION_GROUP_PLAYER,
-            COLLISION_GROUP_ENEMY
-        )
-        ghostObject
+        gamePlayManagers.factories.autoAimShapeFactory.generate()
     }
     private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.entityBuilder)
     private val playerMovementHandler: VehicleMovementHandler by lazy {
@@ -142,7 +119,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             player,
             deltaTime
         )
-        playerShootingHandler.update()
+        playerShootingHandler.update(player)
         val position =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
@@ -333,7 +310,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     companion object {
-        private val AUTO_AIM_RADIUS: Float = 0.5F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private const val LANDING_OK_OFFSET = 0.75F

@@ -6,4 +6,5 @@ class Factories(
     val rigidBodyFactory: RigidBodyFactory,
     val specialEffectsFactory: SpecialEffectsFactory,
     val gameModelInstanceFactory: GameModelInstanceFactory,
+    val autoAimShapeFactory: AutoAimShapeFactory,
 )

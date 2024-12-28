@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.factories.AutoAimShapeFactory
 import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
@@ -67,7 +68,8 @@ class GamePlayScreen(
                 generalManagers.assetsManager,
                 entityBuilderImpl
             ),
-            GameModelInstanceFactory(generalManagers.assetsManager)
+            GameModelInstanceFactory(generalManagers.assetsManager),
+            AutoAimShapeFactory(gameSessionData)
         )
         entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
         val gamePlayManagers = GamePlayManagers(
