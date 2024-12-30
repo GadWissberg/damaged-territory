@@ -246,20 +246,25 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
                 )
-            val tileEntity = gameSessionData.mapData.tilesEntities[position.z.toInt()][position.x.toInt()]
-            if (ComponentsMapper.ground.has(entity1) && tileEntity != null && ComponentsMapper.ground.get(
-                    tileEntity
-                ).water
-            ) {
-                gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(position)
-            } else {
-                addBulletExplosion(entity0, position)
+            val z = position.z.toInt()
+            val x = position.x.toInt()
+            val tilesEntities = gameSessionData.mapData.tilesEntities
+            if (z >= 0 && z < tilesEntities.size && x >= 0 && x < tilesEntities[0].size) {
+                val tileEntity = tilesEntities[z][x]
+                if (ComponentsMapper.ground.has(entity1) && tileEntity != null && ComponentsMapper.ground.get(
+                        tileEntity
+                    ).water
+                ) {
+                    gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(position)
+                } else {
+                    addBulletExplosion(entity0, position)
+                }
+                destroyBullet(entity0)
+                if (ComponentsMapper.bullet.has(entity1)) {
+                    destroyBullet(entity1)
+                }
+                return true
             }
-            destroyBullet(entity0)
-            if (ComponentsMapper.bullet.has(entity1)) {
-                destroyBullet(entity1)
-            }
-            return true
         }
         return false
     }

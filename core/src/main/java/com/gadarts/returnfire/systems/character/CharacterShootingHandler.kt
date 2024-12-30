@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObjectArray
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -85,18 +86,17 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
         }
     }
 
-    private fun updateAutoAim() {
+    private fun updateAutoAim(character: Entity) {
         if (autoAim == null) return
 
         val armComp: ArmComponent = ComponentsMapper.primaryArm.get(gameSessionData.gamePlayData.player)
         val rigidBody = autoAim
-        val player = gameSessionData.gamePlayData.player
-        val turretBaseComponent = ComponentsMapper.turretBase.get(player)
+        val turretBaseComponent = ComponentsMapper.turretBase.get(character)
         val playerModelInstance =
             if (turretBaseComponent != null) {
                 ComponentsMapper.modelInstance.get(turretBaseComponent.turret).gameModelInstance.modelInstance
             } else {
-                ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance
+                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance
             }
         val rotation = playerModelInstance.transform.getRotation(
             auxQuat2
@@ -121,14 +121,25 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
 
         val overlappingPairs = autoAim!!.overlappingPairs
         val size = min(overlappingPairs.size(), 6)
-        var closestEnemy: Entity? = null
+        var closestCharacter: Entity? = null
         if (size > 0) {
-            closestEnemy = null
-            val playerPosition = transform.getTranslation(auxVector3_2)
-            var closestDistance = Float.MAX_VALUE
-            for (i in 0 until size) {
-                val enemy = overlappingPairs.atConst(i).userData
-                val gameModelInstance = ComponentsMapper.modelInstance.get(enemy as Entity).gameModelInstance
+            closestCharacter = findClosestCharacter(transform, size, overlappingPairs)
+        }
+        return closestCharacter
+    }
+
+    private fun findClosestCharacter(
+        transform: Matrix4,
+        size: Int,
+        overlappingPairs: btCollisionObjectArray
+    ): Entity? {
+        var closestCharacter: Entity? = null
+        val playerPosition = transform.getTranslation(auxVector3_2)
+        var closestDistance = Float.MAX_VALUE
+        for (i in 0 until size) {
+            val character = overlappingPairs.atConst(i).userData
+            if (character != null) {
+                val gameModelInstance = ComponentsMapper.modelInstance.get(character as Entity).gameModelInstance
                 val enemyPosition = gameModelInstance.modelInstance
                     .transform.getTranslation(
                         auxVector3_1
@@ -137,19 +148,20 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
                     enemyPosition.dst2(playerPosition)
                 if (distance < closestDistance) {
                     val dot =
-                        enemyPosition.set(enemyPosition.x, playerPosition.y, enemyPosition.z).sub(playerPosition).nor()
+                        enemyPosition.set(enemyPosition.x, playerPosition.y, enemyPosition.z).sub(playerPosition)
+                            .nor()
                             .dot(
                                 transform.getRotation(auxQuat)
                                     .transform(auxVector3_3.set(Vector3.X))
                             )
                     if (dot > 0.85) {
                         closestDistance = distance
-                        closestEnemy = enemy
+                        closestCharacter = character
                     }
                 }
             }
         }
-        return closestEnemy
+        return closestCharacter
     }
 
     fun stopPrimaryShooting() {
@@ -165,7 +177,7 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
     }
 
     open fun update(character: Entity) {
-        updateAutoAim()
+        updateAutoAim(character)
         var armComp: ArmComponent = ComponentsMapper.primaryArm.get(character)
         handleShooting(
             priShooting,

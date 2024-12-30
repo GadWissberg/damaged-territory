@@ -24,12 +24,16 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_OFF_BOARDED
+import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
 
 
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
     private val autoAim by lazy {
-        gamePlayManagers.factories.autoAimShapeFactory.generate()
+        gamePlayManagers.factories.autoAimShapeFactory.generate(
+            BulletEngineHandler.COLLISION_GROUP_ENEMY,
+            BulletEngineHandler.COLLISION_GROUP_PLAYER,
+        )
     }
 
 

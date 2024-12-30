@@ -7,12 +7,10 @@ import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.physics.bullet.collision.btConeShape
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_ENEMY
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_PLAYER
 import com.gadarts.returnfire.systems.player.PlayerSystem
 
 class AutoAimShapeFactory(private val gameSessionData: GameSessionData) {
-    fun generate(): btPairCachingGhostObject {
+    fun generate(collisionFilterGroup: Int, collisionFilterMask: Int): btPairCachingGhostObject {
         val ghostObject = btPairCachingGhostObject()
         ghostObject.collisionShape = btCompoundShape()
         (ghostObject.collisionShape as btCompoundShape).addChildShape(
@@ -26,8 +24,8 @@ class AutoAimShapeFactory(private val gameSessionData: GameSessionData) {
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
         gameSessionData.physicsData.collisionWorld.addCollisionObject(
             ghostObject,
-            COLLISION_GROUP_PLAYER,
-            COLLISION_GROUP_ENEMY
+            collisionFilterGroup,
+            collisionFilterMask
         )
         return ghostObject
     }

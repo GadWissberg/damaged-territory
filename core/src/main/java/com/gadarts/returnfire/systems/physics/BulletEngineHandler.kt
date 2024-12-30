@@ -57,7 +57,8 @@ class BulletEngineHandler(
         if (ComponentsMapper.physics.has(entity)) {
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
             if (ComponentsMapper.bullet.has(entity)) {
-                val friendly = ComponentsMapper.bullet.get(entity).friendly
+                val bulletComponent = ComponentsMapper.bullet.get(entity)
+                val friendly = bulletComponent.friendly
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET,

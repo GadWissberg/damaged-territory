@@ -20,6 +20,7 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.SystemEvents.*
+import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
@@ -42,7 +43,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         ).find { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color == CharacterColor.BROWN }!!
     }
     private val autoAim by lazy {
-        gamePlayManagers.factories.autoAimShapeFactory.generate()
+        gamePlayManagers.factories.autoAimShapeFactory.generate(
+            BulletEngineHandler.COLLISION_GROUP_PLAYER,
+            BulletEngineHandler.COLLISION_GROUP_ENEMY
+        )
     }
     private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.entityBuilder)
     private val playerMovementHandler: VehicleMovementHandler by lazy {
