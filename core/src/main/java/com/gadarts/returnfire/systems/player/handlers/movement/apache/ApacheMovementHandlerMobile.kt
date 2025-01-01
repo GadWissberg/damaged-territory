@@ -64,6 +64,10 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
 
     }
 
+    override fun strafe(left: Boolean) {
+        TODO("Not yet implemented")
+    }
+
 
     private fun updateDesiredDirection(directionX: Float, directionY: Float) {
         desiredDirectionChanged = true

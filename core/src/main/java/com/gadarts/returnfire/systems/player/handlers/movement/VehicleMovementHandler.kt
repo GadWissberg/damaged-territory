@@ -102,6 +102,8 @@ abstract class VehicleMovementHandler(
 
     }
 
+    abstract fun strafe(left: Boolean)
+
     companion object {
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()

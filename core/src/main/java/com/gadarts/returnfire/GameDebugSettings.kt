@@ -20,4 +20,5 @@ object GameDebugSettings {
     const val DISABLE_HUD = false
     val SELECTED_VEHICLE = TurretCharacterDefinition.TANK
     const val FORCE_AIM = 1
+    const val AI_DISABLED = true
 }

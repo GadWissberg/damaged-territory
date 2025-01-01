@@ -79,6 +79,10 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
 
     }
 
+    override fun strafe(left: Boolean) {
+        TODO("Not yet implemented")
+    }
+
     override fun letterPressedA() {
         turretRotating = 1
     }

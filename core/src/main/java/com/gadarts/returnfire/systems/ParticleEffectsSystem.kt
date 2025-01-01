@@ -104,15 +104,11 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
             val effect = particleEffectComponent.effect
             if ((particleEffectComponent.parent == null && effect.isComplete)
                 || (parent != null
-                        && ComponentsMapper.character.has(parent)
-                        && ComponentsMapper.character.get(parent).dead)
+                    && ComponentsMapper.character.has(parent)
+                    && ComponentsMapper.character.get(parent).dead)
                 || timeToLeave
-                || (parent != null && ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector1
-                ).y <= -1F)
             ) {
                 particleEntitiesToRemove.add(entity)
-                return
             } else if (parent != null) {
                 auxMatrix.set(ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform)
                     .translate(particleEffectComponent.parentRelativePosition)

@@ -377,6 +377,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         }
     }
 
+    override fun onSystemReady() {
+        super.onSystemReady()
+        addFlyingPart(Vector3(30F, 4F, 20F))
+    }
+
     private fun takeStepForStageWithCharacter(
         stageTransform: Matrix4,
         deltaTime: Float,
@@ -463,7 +468,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 modelInstance.transform.getTranslation(auxVector1),
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
                 thisEntityAsParent = true,
-                ttlInSeconds = MathUtils.random(10, 15)
+                ttlInSeconds = MathUtils.random(20, 25)
             )
             .finishAndAddToEngine()
         ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.2F, 0.5F)

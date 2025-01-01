@@ -22,6 +22,7 @@ import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -251,11 +252,14 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             val tilesEntities = gameSessionData.mapData.tilesEntities
             if (z >= 0 && z < tilesEntities.size && x >= 0 && x < tilesEntities[0].size) {
                 val tileEntity = tilesEntities[z][x]
-                if (ComponentsMapper.ground.has(entity1) && tileEntity != null && ComponentsMapper.ground.get(
+                val isGround = ComponentsMapper.ground.has(entity1)
+                if (isGround && tileEntity != null && ComponentsMapper.ground.get(
                         tileEntity
-                    ).water
+                    ).isWater
                 ) {
-                    gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(position)
+                    gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
+                        position.set(position.x, SpecialEffectsFactory.WATER_SPLASH_Y, position.z)
+                    )
                 } else {
                     addBulletExplosion(entity0, position)
                 }

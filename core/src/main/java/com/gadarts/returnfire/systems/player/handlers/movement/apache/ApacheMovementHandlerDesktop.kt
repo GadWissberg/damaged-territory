@@ -6,6 +6,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 
 class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var movement: Int = 0
+    private var strafe: Int = 0
     private var rotation: Int = 0
 
     override fun onMovementTouchUp(keycode: Int) {
@@ -44,6 +45,10 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         tiltAnimationHandler.returnToRollIdle()
     }
 
+    override fun strafe(left: Boolean) {
+        strafe = if (left) STRAFE_LEFT else STRAFE_RIGHT
+    }
+
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
 
     }
@@ -67,6 +72,13 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         if (rotation != ROTATION_IDLE) {
             rotate(rigidBody, rotation)
         }
+        if (strafe != 0) {
+            pushSideWay()
+        }
+    }
+
+    private fun pushSideWay() {
+
     }
 
 
@@ -84,5 +96,7 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         private const val MOVEMENT_FORWARD = 1
         private const val MOVEMENT_REVERSE = -1
         private const val ROTATION_IDLE = 0
+        private const val STRAFE_LEFT = 1
+        private const val STRAFE_RIGHT = -1
     }
 }

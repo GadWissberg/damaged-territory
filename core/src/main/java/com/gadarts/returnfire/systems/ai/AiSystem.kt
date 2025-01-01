@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -120,7 +121,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
 
     override fun update(deltaTime: Float) {
-        if (gameSessionData.hudData.console.isActive || gameSessionData.gamePlayData.player == null) return
+        if (GameDebugSettings.AI_DISABLED || gameSessionData.hudData.console.isActive || gameSessionData.gamePlayData.player == null) return
 
         for (turret in enemyTurretEntities) {
             val characterComponent = ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base)

@@ -67,4 +67,8 @@ class SpecialEffectsFactory(
         modelInstance.transform.scl(startingScale)
     }
 
+    companion object {
+        const val WATER_SPLASH_Y = 0.05F
+    }
+
 }

@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
@@ -23,6 +24,7 @@ import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -72,6 +74,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
+                    Gdx.app.log("!", "!")
                     val entity = msg.extraInfo as Entity
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity) ?: return
                     if (entity.isRemoving || entity.isScheduledForRemoval) return
@@ -82,7 +85,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                         )
                     position.set(
                         position.x + MathUtils.randomSign() * MathUtils.random(0.2F),
-                        0.05F,
+                        SpecialEffectsFactory.WATER_SPLASH_Y,
                         position.z + MathUtils.randomSign() * MathUtils.random(0.2F)
                     )
                     gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(

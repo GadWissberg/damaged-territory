@@ -385,7 +385,7 @@ class MapInflater(
                 applyAnimatedTextureComponentToFloor(textureDefinition, entity)
             }
             if (textureDefinition.fileName.contains("water")) {
-                ComponentsMapper.ground.get(entity).water = true
+                ComponentsMapper.ground.get(entity).isWater = true
             }
         }
         return textureDefinition

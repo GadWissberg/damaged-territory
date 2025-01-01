@@ -10,7 +10,6 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 
 class AiApacheLogic(
@@ -20,7 +19,7 @@ class AiApacheLogic(
     autoAim: btPairCachingGhostObject
 ) {
     private val shootingHandler = CharacterShootingHandler(entityBuilder)
-    private val movementHandler: VehicleMovementHandler by lazy {
+    private val movementHandler: ApacheMovementHandlerDesktop by lazy {
         val movementHandler = ApacheMovementHandlerDesktop()
         movementHandler
     }
@@ -48,7 +47,10 @@ class AiApacheLogic(
             movementHandler.reverse()
         } else {
             movementHandler.stopMovement()
+        }
+        if (distance < 9F) {
             shootingHandler.startPrimaryShooting()
+            shootingHandler.startSecondaryShooting()
         }
         movementHandler.update(
             character,

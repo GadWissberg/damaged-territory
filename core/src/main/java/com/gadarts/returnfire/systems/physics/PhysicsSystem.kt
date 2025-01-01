@@ -57,16 +57,16 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         super.onSystemReady()
         val halfMapDepth = gameSessionData.mapData.currentMap.tilesMapping.size.toFloat() / 2F
         val halfMapWidth = gameSessionData.mapData.currentMap.tilesMapping[0].size.toFloat() / 2F
-        val waterShape = btBoxShape(
+        val seaShape = btBoxShape(
             Vector3(
                 halfMapWidth,
                 0.02F,
                 halfMapDepth,
             )
         )
-        val water = gamePlayManagers.entityBuilder.begin().finishAndAddToEngine()
+        val water = gamePlayManagers.entityBuilder.begin().addGroundComponent().finishAndAddToEngine()
         ghostObject = btPairCachingGhostObject()
-        ghostObject.collisionShape = waterShape
+        ghostObject.collisionShape = seaShape
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
         ghostObject.worldTransform = Matrix4().translate(halfMapWidth, -1F, halfMapDepth)
         ghostObject.userData = water
