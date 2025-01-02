@@ -9,10 +9,10 @@ import com.gadarts.returnfire.components.ComponentsMapper
 class TiltAnimationHandler {
 
     private var rollTarget: Float = ROLL_IDLE
-    private var pitchTarget: Float = 0F
+    var pitchTarget: Float = 0F
 
-    fun update(player: Entity) {
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
+    fun update(character: Entity) {
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
         val rotation = modelInstanceComponent.gameModelInstance.modelInstance.transform.getRotation(
             auxQuaternion
         )

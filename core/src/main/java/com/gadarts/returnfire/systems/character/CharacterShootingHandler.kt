@@ -123,12 +123,12 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
         val size = min(overlappingPairs.size(), 6)
         var closestCharacter: Entity? = null
         if (size > 0) {
-            closestCharacter = findClosestCharacter(transform, size, overlappingPairs)
+            closestCharacter = findClosestAliveCharacter(transform, size, overlappingPairs)
         }
         return closestCharacter
     }
 
-    private fun findClosestCharacter(
+    private fun findClosestAliveCharacter(
         transform: Matrix4,
         size: Int,
         overlappingPairs: btCollisionObjectArray
@@ -138,8 +138,11 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
         var closestDistance = Float.MAX_VALUE
         for (i in 0 until size) {
             val character = overlappingPairs.atConst(i).userData
-            if (character != null) {
-                val gameModelInstance = ComponentsMapper.modelInstance.get(character as Entity).gameModelInstance
+            if (character != null && ComponentsMapper.character.has(character as Entity) && !ComponentsMapper.character.get(
+                    character
+                ).dead
+            ) {
+                val gameModelInstance = ComponentsMapper.modelInstance.get(character).gameModelInstance
                 val enemyPosition = gameModelInstance.modelInstance
                     .transform.getTranslation(
                         auxVector3_1

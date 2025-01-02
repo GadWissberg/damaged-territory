@@ -83,6 +83,14 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
         TODO("Not yet implemented")
     }
 
+    override fun isStrafing(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun stopStrafe() {
+        TODO("Not yet implemented")
+    }
+
     override fun letterPressedA() {
         turretRotating = 1
     }

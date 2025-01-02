@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
@@ -74,7 +73,6 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
-                    Gdx.app.log("!", "!")
                     val entity = msg.extraInfo as Entity
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity) ?: return
                     if (entity.isRemoving || entity.isScheduledForRemoval) return
@@ -107,9 +105,8 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
-                    val characterColor = ComponentsMapper.character.get(msg.extraInfo as Entity).color
-                    val base = bases.find { ComponentsMapper.base.get(it).color == characterColor }
-                    closeDoors(base!!, gamePlayManagers)
+                    val base = findBase(msg.extraInfo as Entity)
+                    closeDoors(base, gamePlayManagers)
                     landingMark.visible = false
                 }
             },
@@ -121,15 +118,19 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 ) {
                     val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
                     if (boardingComponent.boardingAnimation == null && boardingComponent.isOnboarding()) {
-                        closeDoors(msg.extraInfo as Entity, gamePlayManagers)
+                        val base = findBase(msg.extraInfo as Entity)
+                        closeDoors(base, gamePlayManagers)
                     }
                 }
             },
         )
 
-    private fun closeDoors(boardingCharacter: Entity, gamePlayManagers: GamePlayManagers) {
-        val base =
-            bases.find { ComponentsMapper.base.get(it).color == ComponentsMapper.character.get(boardingCharacter).color }
+    private fun findBase(entity: Entity): Entity {
+        val characterColor = ComponentsMapper.character.get(entity).color
+        return bases.find { ComponentsMapper.base.get(it).color == characterColor }!!
+    }
+
+    private fun closeDoors(base: Entity, gamePlayManagers: GamePlayManagers) {
         val baseComponent = ComponentsMapper.base.get(base)
         baseComponent.close()
         baseComponent.baseDoorSoundId =

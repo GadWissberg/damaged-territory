@@ -18,14 +18,24 @@ abstract class VehicleMovementHandler(
 ) {
 
     protected open fun pushForward(rigidBody: btRigidBody, forwardDirection: Int) {
+        val direction = auxVector3_2.set(forwardDirection * 1F, 0F, 0F)
+        val scale = if (forwardDirection > 0) forwardForceSize else reverseForceSize
+        push(rigidBody, direction, scale)
+    }
+
+    protected fun push(
+        rigidBody: btRigidBody,
+        direction: Vector3,
+        scale: Float
+    ) {
         val newVelocity = auxVector3_1.set(rigidBody.linearVelocity)
         if (newVelocity.len2() < maxVelocity) {
-            val forward =
+            val pushDirectionRelativeToFacing =
                 rigidBody.worldTransform.getRotation(auxQuaternion1)
-                    .transform(auxVector3_2.set(forwardDirection * 1F, 0F, 0F))
+                    .transform(direction)
             rigidBody.applyCentralForce(
-                auxVector3_1.set(forward.x, 0F, forward.z)
-                    .scl(if (forwardDirection > 0) forwardForceSize else reverseForceSize)
+                auxVector3_1.set(pushDirectionRelativeToFacing.x, 0F, pushDirectionRelativeToFacing.z)
+                    .scl(scale)
             )
         }
     }
@@ -103,6 +113,8 @@ abstract class VehicleMovementHandler(
     }
 
     abstract fun strafe(left: Boolean)
+    abstract fun isStrafing(): Boolean
+    abstract fun stopStrafe()
 
     companion object {
         private val auxVector3_1 = Vector3()

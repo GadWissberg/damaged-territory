@@ -2,7 +2,9 @@ package com.gadarts.returnfire.systems.player.handlers.movement.apache
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.physics.RigidBody
 
 class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var movement: Int = 0
@@ -49,6 +51,15 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         strafe = if (left) STRAFE_LEFT else STRAFE_RIGHT
     }
 
+    override fun isStrafing(): Boolean {
+        return strafe != 0
+    }
+
+    override fun stopStrafe() {
+        tiltAnimationHandler.returnToPitchIdle()
+        strafe = 0
+    }
+
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
 
     }
@@ -73,12 +84,14 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
             rotate(rigidBody, rotation)
         }
         if (strafe != 0) {
-            pushSideWay()
+            pushSideWay(rigidBody)
         }
     }
 
-    private fun pushSideWay() {
-
+    private fun pushSideWay(rigidBody: RigidBody) {
+        val direction = auxVector.set(0F, 0F, strafe * 1F)
+        push(rigidBody, direction, 25F)
+        tiltAnimationHandler.lateralTilt(strafe)
     }
 
 
@@ -98,5 +111,6 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         private const val ROTATION_IDLE = 0
         private const val STRAFE_LEFT = 1
         private const val STRAFE_RIGHT = -1
+        private val auxVector = Vector3()
     }
 }

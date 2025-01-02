@@ -24,11 +24,11 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
         tiltAnimationHandler.tiltForward()
     }
 
-    private fun syncModelInstanceTransformToRigidBody(player: Entity) {
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(player)
+    private fun syncModelInstanceTransformToRigidBody(character: Entity) {
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
         modelInstanceComponent.gameModelInstance.modelInstance.transform.getRotation(auxQuaternion1)
         auxQuaternion1.setEulerAngles(0F, auxQuaternion1.pitch, auxQuaternion1.roll)
-        val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+        val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         modelInstanceComponent.gameModelInstance.modelInstance.transform.setToTranslation(
             rigidBody.worldTransform.getTranslation(
                 auxVector3_1
@@ -52,6 +52,7 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
     }
 
     override fun applyRotation(clockwise: Int) {
+        if (clockwise == 0) return
         tiltAnimationHandler.lateralTilt(clockwise)
     }
 

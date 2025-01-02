@@ -121,7 +121,11 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
 
     override fun update(deltaTime: Float) {
-        if (GameDebugSettings.AI_DISABLED || gameSessionData.hudData.console.isActive || gameSessionData.gamePlayData.player == null) return
+        if (GameDebugSettings.AI_DISABLED
+            || gameSessionData.hudData.console.isActive
+            || gameSessionData.gamePlayData.player == null
+            || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()
+        ) return
 
         for (turret in enemyTurretEntities) {
             val characterComponent = ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base)

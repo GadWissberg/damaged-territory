@@ -59,6 +59,14 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
         TODO("Not yet implemented")
     }
 
+    override fun isStrafing(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun stopStrafe() {
+        TODO("Not yet implemented")
+    }
+
     override fun onReverseScreenButtonPressed() {
         val direction = auxVector2.set(Vector2.X).setAngleDeg(
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(
@@ -102,8 +110,6 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
     override fun onTurretTouchPadTouchUp() {
         turretRotating = 0
     }
-
-
 
 
     private fun updateDesiredDirection(directionX: Float, directionY: Float) {
