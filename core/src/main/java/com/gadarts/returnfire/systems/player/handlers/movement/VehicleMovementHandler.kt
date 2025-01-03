@@ -26,7 +26,7 @@ abstract class VehicleMovementHandler(
     protected fun push(
         rigidBody: btRigidBody,
         direction: Vector3,
-        scale: Float
+        scale: Float,
     ) {
         val newVelocity = auxVector3_1.set(rigidBody.linearVelocity)
         if (newVelocity.len2() < maxVelocity) {

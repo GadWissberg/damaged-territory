@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
@@ -31,6 +32,8 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.MapInflater
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Responsible to create the map from the loaded map file and manage general map procedures and ambient effects.
@@ -292,21 +295,28 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val eastDoorTransform =
             ComponentsMapper.modelInstance.get(baseComponent.eastDoor).gameModelInstance.modelInstance.transform
         val stepSize = deltaTime * 0.3F * baseComponent.doorMoveState
-        val westDoorX = westDoorTransform.getTranslation(auxVector1).x
-        val eastDoorX = eastDoorTransform.getTranslation(auxVector2).x
         val westDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.westDoor)
         val eastDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.eastDoor)
+        updateWestDoor(baseComponent, westDoorBaseDoorComponent, westDoorTransform, stepSize)
+        updateEastDoor(baseComponent, eastDoorBaseDoorComponent, eastDoorTransform, stepSize)
+    }
+
+    private fun updateEastDoor(
+        baseComponent: BaseComponent,
+        eastDoorBaseDoorComponent: BaseDoorComponent,
+        eastDoorTransform: Matrix4,
+        stepSize: Float,
+    ) {
+        val eastDoorX = eastDoorTransform.getTranslation(auxVector2).x
         val isOpening = baseComponent.doorMoveState > 0
         val isClosing = baseComponent.doorMoveState < 0
-        if ((isOpening && westDoorX > westDoorBaseDoorComponent.targetX)
-            || (isClosing && westDoorX < westDoorBaseDoorComponent.initialX)
-        ) {
-            westDoorTransform.trn(-stepSize, 0F, 0F)
-        }
         if ((isOpening && eastDoorX < eastDoorBaseDoorComponent.targetX)
             || (isClosing && eastDoorX > eastDoorBaseDoorComponent.initialX)
         ) {
-            eastDoorTransform.trn(stepSize, 0F, 0F)
+            eastDoorTransform.trn(stepSize, 0F, 0F).getTranslation(auxVector1)
+            auxVector1.x = max(eastDoorBaseDoorComponent.initialX, auxVector1.x)
+            auxVector1.x = min(eastDoorBaseDoorComponent.targetX, auxVector1.x)
+            eastDoorTransform.setTranslation(auxVector1)
         } else {
             baseComponent.setIdle()
             gamePlayManagers.soundPlayer.stop(
@@ -314,6 +324,25 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 baseComponent.baseDoorSoundId
             )
             gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE))
+        }
+    }
+
+    private fun updateWestDoor(
+        baseComponent: BaseComponent,
+        westDoorBaseDoorComponent: BaseDoorComponent,
+        westDoorTransform: Matrix4,
+        stepSize: Float
+    ) {
+        val isOpening = baseComponent.doorMoveState > 0
+        val isClosing = baseComponent.doorMoveState < 0
+        val westDoorX = westDoorTransform.getTranslation(auxVector1).x
+        if ((isOpening && westDoorX > westDoorBaseDoorComponent.targetX)
+            || (isClosing && westDoorX < westDoorBaseDoorComponent.initialX)
+        ) {
+            westDoorTransform.trn(-stepSize, 0F, 0F).getTranslation(auxVector1)
+            auxVector1.x = max(westDoorBaseDoorComponent.targetX, auxVector1.x)
+            auxVector1.x = min(westDoorBaseDoorComponent.initialX, auxVector1.x)
+            westDoorTransform.setTranslation(auxVector1)
         }
     }
 

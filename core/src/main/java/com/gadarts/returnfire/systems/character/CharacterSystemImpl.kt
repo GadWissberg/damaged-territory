@@ -436,10 +436,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         rigidBody.applyTorque(createRandomDirectionUpwards())
     }
 
-    private fun createRandomDirectionUpwards(): Vector3 = auxVector1.set(1F, 0F, 0F).mul(
-        auxQuat.idt()
-            .setEulerAngles(MathUtils.random(360F), MathUtils.random(360F), MathUtils.random(45F, 135F))
-    ).scl(MathUtils.random(4F, 6F))
+    private fun createRandomDirectionUpwards(): Vector3 {
+        return auxVector1.set(1F, 0F, 0F).mul(
+            auxQuat.idt()
+                .setEulerAngles(MathUtils.random(360F), MathUtils.random(360F), MathUtils.random(45F, 135F))
+        ).scl(MathUtils.random(3F, 5F))
+    }
 
     private fun addFlyingPart(
         @Suppress("SameParameterValue") position: Vector3,

@@ -7,7 +7,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.physics.RigidBody
 
 class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
-    private val strafeActivated: Boolean = false
+    private var strafeActivated: Boolean = false
     private var movement: Int = 0
     private var strafe: Int = 0
     private var rotation: Int = 0
@@ -27,19 +27,23 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
             }
 
             Input.Keys.LEFT -> {
-                if (rotation > 0F) {
-                    rotation = 0
-                    tiltAnimationHandler.returnToPitchIdle()
-                }
+                applyFunctionalityForHorizontalKeyRelease(rotation > 0F)
             }
 
             Input.Keys.RIGHT -> {
-                if (rotation < 0F) {
-                    rotation = 0
-                    tiltAnimationHandler.returnToPitchIdle()
-                }
+                applyFunctionalityForHorizontalKeyRelease(rotation < 0F)
             }
 
+        }
+    }
+
+    private fun applyFunctionalityForHorizontalKeyRelease(rotationCheck: Boolean) {
+        if (strafeActivated) {
+            strafe = 0
+            tiltAnimationHandler.returnToPitchIdle()
+        } else if (rotationCheck) {
+            applyRotation(0)
+            tiltAnimationHandler.returnToPitchIdle()
         }
     }
 
@@ -62,21 +66,35 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     }
 
     override fun pressedAlt() {
-        TODO("Not yet implemented")
+        strafeActivated = true
+        if (rotation != 0) {
+            strafe(rotation > 0)
+            applyRotation(0)
+        }
     }
 
     override fun pressedLeft() {
-        if (strafeActivated) {
+        applyHorizontalKeyFunctionality(true)
+    }
 
+    private fun applyHorizontalKeyFunctionality(left: Boolean) {
+        if (strafeActivated) {
+            strafe(left)
+        } else {
+            applyRotation(if (left) 1 else -1)
         }
     }
 
     override fun pressedRight() {
-        TODO("Not yet implemented")
+        applyHorizontalKeyFunctionality(false)
     }
 
     override fun releasedAlt() {
-        TODO("Not yet implemented")
+        strafeActivated = false
+        if (isStrafing()) {
+            applyRotation(strafe * -1)
+            strafe = 0
+        }
     }
 
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
@@ -110,7 +128,7 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private fun pushSideWay(rigidBody: RigidBody) {
         val direction = auxVector.set(0F, 0F, strafe * 1F)
         push(rigidBody, direction, 25F)
-        tiltAnimationHandler.lateralTilt(strafe)
+        tiltAnimationHandler.lateralTilt(strafe * -1)
     }
 
 
@@ -128,8 +146,8 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         private const val MOVEMENT_FORWARD = 1
         private const val MOVEMENT_REVERSE = -1
         private const val ROTATION_IDLE = 0
-        private const val STRAFE_LEFT = 1
-        private const val STRAFE_RIGHT = -1
+        private const val STRAFE_LEFT = -1
+        private const val STRAFE_RIGHT = 1
         private val auxVector = Vector3()
     }
 }

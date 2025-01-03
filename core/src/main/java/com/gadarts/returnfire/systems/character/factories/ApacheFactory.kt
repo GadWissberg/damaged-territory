@@ -187,7 +187,7 @@ class ApacheFactory(
     companion object {
         private const val SEC_RELOAD_DUR = 2000L
         private const val PROP_SIZE = 1.5F
-        private const val SEC_BULLET_SPEED = 5F
+        private const val SEC_BULLET_SPEED = 7F
         private const val SECONDARY_POSITION_BIAS = 0.2F
         private const val APACHE_PRI_RELOAD_DUR = 125L
         private const val APACHE_PRI_BULLET_SPEED = 16F
