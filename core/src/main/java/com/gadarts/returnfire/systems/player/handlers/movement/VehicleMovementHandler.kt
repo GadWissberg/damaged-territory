@@ -92,18 +92,6 @@ abstract class VehicleMovementHandler(
         rigidBody.applyCentralForce(dampingForce)
     }
 
-    open fun letterPressedA() {
-    }
-
-    open fun letterPressedD() {
-    }
-
-    open fun letterReleasedA() {
-    }
-
-    open fun letterReleasedD() {
-    }
-
     abstract fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float)
     abstract fun onTurretTouchPadTouchUp()
     open fun onReverseScreenButtonPressed() {}
@@ -115,6 +103,10 @@ abstract class VehicleMovementHandler(
     abstract fun strafe(left: Boolean)
     abstract fun isStrafing(): Boolean
     abstract fun stopStrafe()
+    abstract fun pressedAlt()
+    abstract fun pressedLeft()
+    abstract fun pressedRight()
+    abstract fun releasedAlt()
 
     companion object {
         private val auxVector3_1 = Vector3()

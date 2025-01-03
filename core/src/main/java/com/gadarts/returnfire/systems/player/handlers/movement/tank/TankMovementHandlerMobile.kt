@@ -67,6 +67,22 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
         TODO("Not yet implemented")
     }
 
+    override fun pressedAlt() {
+        TODO("Not yet implemented")
+    }
+
+    override fun pressedLeft() {
+        TODO("Not yet implemented")
+    }
+
+    override fun pressedRight() {
+        TODO("Not yet implemented")
+    }
+
+    override fun releasedAlt() {
+        TODO("Not yet implemented")
+    }
+
     override fun onReverseScreenButtonPressed() {
         val direction = auxVector2.set(Vector2.X).setAngleDeg(
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(

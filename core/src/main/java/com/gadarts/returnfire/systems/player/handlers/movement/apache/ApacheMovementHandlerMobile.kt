@@ -76,6 +76,22 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
         TODO("Not yet implemented")
     }
 
+    override fun pressedAlt() {
+        TODO("Not yet implemented")
+    }
+
+    override fun pressedLeft() {
+        TODO("Not yet implemented")
+    }
+
+    override fun pressedRight() {
+        TODO("Not yet implemented")
+    }
+
+    override fun releasedAlt() {
+        TODO("Not yet implemented")
+    }
+
 
     private fun updateDesiredDirection(directionX: Float, directionY: Float) {
         desiredDirectionChanged = true

@@ -7,6 +7,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.physics.RigidBody
 
 class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
+    private val strafeActivated: Boolean = false
     private var movement: Int = 0
     private var strafe: Int = 0
     private var rotation: Int = 0
@@ -58,6 +59,24 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     override fun stopStrafe() {
         tiltAnimationHandler.returnToPitchIdle()
         strafe = 0
+    }
+
+    override fun pressedAlt() {
+        TODO("Not yet implemented")
+    }
+
+    override fun pressedLeft() {
+        if (strafeActivated) {
+
+        }
+    }
+
+    override fun pressedRight() {
+        TODO("Not yet implemented")
+    }
+
+    override fun releasedAlt() {
+        TODO("Not yet implemented")
     }
 
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {

@@ -8,6 +8,7 @@ import com.gadarts.returnfire.components.physics.RigidBody
 
 class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entity) :
     TankMovementHandler(rigidBody, player) {
+    private var turretRotationEnabled: Boolean = false
     private var movement: Int = 0
     private var rotation: Int = 0
 
@@ -19,31 +20,36 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
     override fun onMovementTouchUp(keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
-                if (movement == MOVEMENT_FORWARD) {
-                    idleEngineSound()
-                }
+                stopFunctionForVerticalKey(MOVEMENT_FORWARD)
             }
 
             Input.Keys.DOWN -> {
-                if (movement == MOVEMENT_REVERSE) {
-                    idleEngineSound()
-                }
+                stopFunctionForVerticalKey(MOVEMENT_REVERSE)
             }
 
             Input.Keys.LEFT -> {
-                if (rotation > 0F) {
-                    rotation = 0
-                    rigidBody.angularFactor = Vector3.Zero
-                }
+                stopFunctionForSideKey(rotation > 0F)
             }
 
             Input.Keys.RIGHT -> {
-                if (rotation < 0F) {
-                    rotation = 0
-                    rigidBody.angularFactor = Vector3.Zero
-                }
+                stopFunctionForSideKey(rotation < 0F)
             }
 
+        }
+    }
+
+    private fun stopFunctionForVerticalKey(movementConstant: Int) {
+        if (movement == movementConstant) {
+            idleEngineSound()
+        }
+    }
+
+    private fun stopFunctionForSideKey(rotationCheck: Boolean) {
+        if (turretRotationEnabled) {
+            turretRotating = 0
+        } else if (rotationCheck) {
+            rotation = 0
+            rigidBody.angularFactor = Vector3.Zero
         }
     }
 
@@ -63,14 +69,6 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
         }
     }
 
-    override fun letterPressedD() {
-        turretRotating = -1
-    }
-
-    override fun letterReleasedD() {
-        turretRotating = 0
-    }
-
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
 
     }
@@ -80,22 +78,44 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
     }
 
     override fun strafe(left: Boolean) {
-        TODO("Not yet implemented")
     }
 
     override fun isStrafing(): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun stopStrafe() {
-        TODO("Not yet implemented")
     }
 
-    override fun letterPressedA() {
-        turretRotating = 1
+    override fun pressedAlt() {
+        turretRotationEnabled = true
+        if (rotation != 0) {
+            turretRotating = rotation
+            applyRotation(0)
+        }
     }
 
-    override fun letterReleasedA() {
+    override fun pressedLeft() {
+        if (turretRotationEnabled) {
+            turretRotating = 1
+        } else {
+            applyRotation(1)
+        }
+    }
+
+    override fun pressedRight() {
+        if (turretRotationEnabled) {
+            turretRotating = -1
+        } else {
+            applyRotation(-1)
+        }
+    }
+
+    override fun releasedAlt() {
+        turretRotationEnabled = false
+        if (turretRotating != 0) {
+            applyRotation(turretRotating)
+        }
         turretRotating = 0
     }
 

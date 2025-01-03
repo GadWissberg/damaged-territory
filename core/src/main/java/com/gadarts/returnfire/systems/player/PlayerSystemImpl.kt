@@ -150,11 +150,11 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.LEFT -> {
-                playerMovementHandler.applyRotation(1)
+                playerMovementHandler.pressedLeft()
             }
 
             Input.Keys.RIGHT -> {
-                playerMovementHandler.applyRotation(-1)
+                playerMovementHandler.pressedRight()
             }
 
             Input.Keys.CONTROL_LEFT -> {
@@ -169,18 +169,14 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 }
             }
 
-            Input.Keys.ALT_LEFT -> {
+            Input.Keys.ENTER -> {
                 if (!gameSessionData.autoAim) {
                     playerShootingHandler.toggleSkyAim()
                 }
             }
 
-            Input.Keys.A -> {
-                playerMovementHandler.letterPressedA()
-            }
-
-            Input.Keys.D -> {
-                playerMovementHandler.letterPressedD()
+            Input.Keys.ALT_LEFT -> {
+                playerMovementHandler.pressedAlt()
             }
 
         }
@@ -203,13 +199,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 playerShootingHandler.stopSecondaryShooting()
             }
 
-            Input.Keys.A -> {
-                playerMovementHandler.letterReleasedA()
+            Input.Keys.ALT_LEFT -> {
+                playerMovementHandler.releasedAlt()
             }
 
-            Input.Keys.D -> {
-                playerMovementHandler.letterReleasedD()
-            }
         }
         return false
     }
