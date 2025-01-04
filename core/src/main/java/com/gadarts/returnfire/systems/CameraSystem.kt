@@ -55,7 +55,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
         val linearVelocity =
             auxVector3_2.set(physicsComponent.rigidBody.linearVelocity)
-                .scl(gameSessionData.fpsTarget * deltaTime * 6.5F)
+                .scl(gameSessionData.fpsTarget * deltaTime * 3F)
         cameraTarget =
             playerPosition.add(linearVelocity.x, 0F, linearVelocity.z + Z_OFFSET)
         val camera = gameSessionData.renderData.camera

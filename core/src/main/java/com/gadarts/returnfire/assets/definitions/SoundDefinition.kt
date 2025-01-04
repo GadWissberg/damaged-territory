@@ -17,6 +17,7 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
     EXPLOSION(3),
     EXPLOSION_SMALL,
     CANNON,
+    CANNON_TANK,
     WATER_SPLASH(3),
     ENGINE,
     STAGE_DEPLOY,

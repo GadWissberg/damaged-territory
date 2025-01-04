@@ -1,11 +1,14 @@
 package com.gadarts.returnfire.factories
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.SoundPlayer
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -18,6 +21,12 @@ class SpecialEffectsFactory(
     private val assetsManager: GameAssetManager,
     private val entityBuilder: EntityBuilder
 ) {
+    private val explosionMedGameParticleEffectPool by lazy {
+        gameSessionData.pools.particleEffectsPools.obtain(
+            ParticleEffectDefinition.EXPLOSION_MED
+        )
+    }
+
     private val waterSplashSounds by lazy {
         assetsManager.getAllAssetsByDefinition(
             SoundDefinition.WATER_SPLASH
@@ -67,8 +76,30 @@ class SpecialEffectsFactory(
         modelInstance.transform.scl(startingScale)
     }
 
+    fun generateExplosion(entity: Entity) {
+        entityBuilder.begin().addParticleEffectComponent(
+            ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector
+            ).add(
+                MathUtils.random(
+                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                ), MathUtils.random(
+                    MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                ), MathUtils.random(
+                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                )
+            ), explosionMedGameParticleEffectPool
+        ).finishAndAddToEngine()
+        soundPlayer.play(
+            assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+        )
+
+    }
+
     companion object {
         const val WATER_SPLASH_Y = 0.05F
+        val auxVector = Vector3()
+        private const val MED_EXPLOSION_DEATH_SEQUENCE_BIAS = 0.1F
     }
 
 }

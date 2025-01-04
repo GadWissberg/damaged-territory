@@ -16,8 +16,12 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.AmbSoundComponent
+import com.gadarts.returnfire.components.BaseComponent
+import com.gadarts.returnfire.components.CharacterComponent
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.StageComponent
+import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -34,7 +38,8 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
 
-class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem, GameEntitySystem(gamePlayManagers) {
+class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
+    GameEntitySystem(gamePlayManagers) {
 
     private val opponentCharacterFactory by lazy {
         OpponentCharacterFactory(
@@ -47,7 +52,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
     private val stages: Map<CharacterColor, Entity> by lazy {
         val stageEntities = engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
-        stageEntities.associateBy({ ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color }, { it })
+        stageEntities.associateBy(
+            { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color },
+            { it })
     }
 
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
@@ -73,13 +80,25 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             Family.all(TurretComponent::class.java).get()
         )
     }
-    private val flyingPartBoundingBox by lazy { this.gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.FLYING_PART) }
+    private val flyingPartBoundingBox by lazy {
+        this.gamePlayManagers.assetsManager.getCachedBoundingBox(
+            ModelDefinition.FLYING_PART
+        )
+    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
-        SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(this),
+        SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(
+            this
+        ),
+        SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(
+            this
+        ),
         SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
                 handleBulletCharacterCollision(
                     PhysicsCollisionEventData.colObj0.userData as Entity,
                     PhysicsCollisionEventData.colObj1.userData as Entity
@@ -90,18 +109,31 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         },
         SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                val boardingComponent =
+                    ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
                 boardingComponent.boardingAnimation?.init(stages[boardingComponent.color])
             }
         },
         SystemEvents.AMB_SOUND_COMPONENT_ADDED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
                 playAmbSound(msg.extraInfo as Entity, gamePlayManagers)
             }
         },
         SystemEvents.MAP_LOADED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
                 addOpponents()
             }
         }
@@ -115,13 +147,15 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             if (isSecondCharacter) {
                 ComponentsMapper.character.get(second).takeDamage(damage)
             } else {
-                ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base).takeDamage(damage)
+                ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base)
+                    .takeDamage(damage)
             }
             gamePlayManagers.entityBuilder.begin()
                 .addParticleEffectComponent(
                     ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
-                    ), gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.RICOCHET)
+                    ),
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.RICOCHET)
                 )
                 .finishAndAddToEngine()
             return true
@@ -146,7 +180,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
         baseEntities.forEach {
             val base =
-                map.placedElements.find { placedElement -> placedElement.definition == ComponentsMapper.amb.get(it).def }
+                map.placedElements.find { placedElement ->
+                    placedElement.definition == ComponentsMapper.amb.get(
+                        it
+                    ).def
+                }
             val characterColor = ComponentsMapper.base.get(it).color
             val opponent =
                 opponentCharacterFactory.create(
@@ -155,7 +193,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     characterColor
                 )
             engine.addEntity(opponent)
-            gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.OPPONENT_CHARACTER_CREATED.ordinal, opponent)
+            gamePlayManagers.dispatcher.dispatchMessage(
+                SystemEvents.OPPONENT_CHARACTER_CREATED.ordinal,
+                opponent
+            )
         }
     }
 
@@ -212,7 +253,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             val turretComponent = ComponentsMapper.turret.get(turret)
             if (turretComponent.followBase) {
                 val base = turretComponent.base
-                val baseTransform = ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
+                val baseTransform =
+                    ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
                 baseTransform.getTranslation(auxVector1)
                 val turretTransform =
                     ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
@@ -230,7 +272,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 )
                 ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform.setToTranslation(
                     auxVector1
-                ).rotate(turretTransform.getRotation(auxQuat.idt())).translate(auxVector2.set(0.31F, 0F, 0F))
+                ).rotate(turretTransform.getRotation(auxQuat.idt()))
+                    .translate(auxVector2.set(0.31F, 0F, 0F))
             }
         }
     }
@@ -250,11 +293,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         }
     }
 
-    private val explosionMedGameParticleEffectPool by lazy {
-        gameSessionData.pools.particleEffectsPools.obtain(
-            ParticleEffectDefinition.EXPLOSION_MED
-        )
-    }
 
     private fun updateCharacters(deltaTime: Float) {
         for (character in charactersEntities) {
@@ -325,7 +363,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             auxVector1
                         ).y < -1F
                     ) {
-                        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+                        gamePlayManagers.dispatcher.dispatchMessage(
+                            SystemEvents.CHARACTER_DIED.ordinal,
+                            character
+                        )
                     } else {
                         val smokeEmission = characterComponent.smokeEmission
                         if (hp <= 0 && characterComponent.deathSequenceDuration == 0) {
@@ -335,13 +376,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                 characterTransform.getTranslation(
                                     auxVector1
                                 )
-                            val smoke = gamePlayManagers.entityBuilder.begin().addParticleEffectComponent(
-                                position = position,
-                                pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_LOOP),
-                                parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
-                                    auxVector2
-                                )
-                            ).finishAndAddToEngine()
+                            val smoke =
+                                gamePlayManagers.entityBuilder.begin().addParticleEffectComponent(
+                                    position = position,
+                                    pool = gameSessionData.pools.particleEffectsPools.obtain(
+                                        ParticleEffectDefinition.SMOKE_LOOP
+                                    ),
+                                    parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
+                                        auxVector2
+                                    )
+                                ).finishAndAddToEngine()
                             ComponentsMapper.particleEffect.get(smoke).parent = character
                             characterComponent.smokeEmission = smoke
                         }
@@ -351,30 +395,24 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     if (characterComponent.deathSequenceDuration <= 0) {
                         characterComponent.dead = true
                         addFlyingParts(character)
-                        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
-                    } else {
-                        val entity =
-                            if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(character).turret else character
-                        gamePlayManagers.entityBuilder.begin().addParticleEffectComponent(
-                            ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
-                                auxVector1
-                            ).add(
-                                MathUtils.random(
-                                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
-                                ), MathUtils.random(
-                                    MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
-                                ), MathUtils.random(
-                                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
-                                )
-                            ), explosionMedGameParticleEffectPool
-                        ).finishAndAddToEngine()
-                        gamePlayManagers.soundPlayer.play(
-                            gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+                        gamePlayManagers.dispatcher.dispatchMessage(
+                            SystemEvents.CHARACTER_DIED.ordinal,
+                            character
                         )
+                    } else {
+                        addExplosion(character)
                     }
                 }
             }
         }
+    }
+
+    private fun addExplosion(character: Entity) {
+        val entity =
+            if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(
+                character
+            ).turret else character
+        gamePlayManagers.factories.specialEffectsFactory.generateExplosion(entity)
     }
 
     override fun onSystemReady() {
@@ -388,7 +426,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         character: Entity
     ) {
         stageTransform.trn(0F, deltaTime, 0F)
-        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(0F, deltaTime, 0F)
+        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
+            0F,
+            deltaTime,
+            0F
+        )
     }
 
     private fun updateBoardingAnimation(
@@ -410,7 +452,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
     private fun boardingDone(character: Entity) {
         ComponentsMapper.boarding.get(character).boardingDone()
-        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_OFF_BOARDED.ordinal, character)
+        gamePlayManagers.dispatcher.dispatchMessage(
+            SystemEvents.CHARACTER_OFF_BOARDED.ordinal,
+            character
+        )
     }
 
     private fun addFlyingParts(character: Entity) {
@@ -439,7 +484,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     private fun createRandomDirectionUpwards(): Vector3 {
         return auxVector1.set(1F, 0F, 0F).mul(
             auxQuat.idt()
-                .setEulerAngles(MathUtils.random(360F), MathUtils.random(360F), MathUtils.random(45F, 135F))
+                .setEulerAngles(
+                    MathUtils.random(360F),
+                    MathUtils.random(360F),
+                    MathUtils.random(45F, 135F)
+                )
         ).scl(MathUtils.random(3F, 5F))
     }
 
@@ -481,7 +530,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     companion object {
-        private const val MED_EXPLOSION_DEATH_SEQUENCE_BIAS = 0.1F
         private val auxQuat = Quaternion()
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
