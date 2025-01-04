@@ -1,6 +1,10 @@
 {
   "definitions": [
     {
+      "file_name": "logo",
+      "folder": "hud"
+    },
+    {
       "file_name": "button_up",
       "folder": "hud"
     },

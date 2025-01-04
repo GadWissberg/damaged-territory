@@ -85,6 +85,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 val entity = msg.extraInfo as Entity
                 if (ComponentsMapper.character.get(entity).color == CharacterColor.BROWN) {
                     gameSessionData.gamePlayData.player = entity
+                    @Suppress("KotlinConstantConditions")
+                    if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {
+                        ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_PLAYER_HP
+                    }
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
                     modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
                     gamePlayManagers.entityBuilder.addPlayerComponentToEntity(entity)

@@ -16,12 +16,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.components.AmbSoundComponent
-import com.gadarts.returnfire.components.BaseComponent
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.StageComponent
-import com.gadarts.returnfire.components.TurretComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -37,6 +32,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
+import kotlin.math.min
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     GameEntitySystem(gamePlayManagers) {
@@ -395,6 +391,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     if (characterComponent.deathSequenceDuration <= 0) {
                         characterComponent.dead = true
                         addFlyingParts(character)
+                        for (i in 0 until MathUtils.random(3, 4)) {
+                            addExplosion(character)
+                        }
+                        engine.removeEntity(character)
                         gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.CHARACTER_DIED.ordinal,
                             character
@@ -425,10 +425,14 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         deltaTime: Float,
         character: Entity
     ) {
+        val oldStagePosition = stageTransform.getTranslation(auxVector3)
         stageTransform.trn(0F, deltaTime, 0F)
+        val newPosition = stageTransform.getTranslation(auxVector1)
+        newPosition.y = min(0F, newPosition.y)
+        stageTransform.setTranslation(newPosition)
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,
-            deltaTime,
+            newPosition.y - oldStagePosition.y,
             0F
         )
     }

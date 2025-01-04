@@ -1,8 +1,6 @@
 package com.gadarts.returnfire.systems.character.factories
 
 import com.badlogic.ashley.core.Entity
-import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.managers.GameAssetManager
@@ -35,10 +33,6 @@ class OpponentCharacterFactory(
             opponent = apacheFactory.create(base, characterColor)
         } else if (selected == TurretCharacterDefinition.TANK) {
             opponent = tankFactory.create(base, characterColor)
-        }
-        @Suppress("KotlinConstantConditions")
-        if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {
-            ComponentsMapper.character.get(opponent).hp = GameDebugSettings.FORCE_PLAYER_HP
         }
         return opponent!!
     }

@@ -110,9 +110,11 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
             ) {
                 particleEntitiesToRemove.add(entity)
             } else if (parent != null) {
-                auxMatrix.set(ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform)
-                    .translate(particleEffectComponent.parentRelativePosition)
-                effect.setTransform(auxMatrix)
+                if (ComponentsMapper.modelInstance.has(parent)) {
+                    auxMatrix.set(ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform)
+                        .translate(particleEffectComponent.parentRelativePosition)
+                    effect.setTransform(auxMatrix)
+                }
             }
         }
     }
