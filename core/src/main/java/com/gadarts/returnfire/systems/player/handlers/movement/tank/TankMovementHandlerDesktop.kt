@@ -119,6 +119,10 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
         turretRotating = 0
     }
 
+    override fun isThrusting(): Boolean {
+        return movement > 0
+    }
+
     override fun applyRotation(clockwise: Int) {
         super.applyRotation(clockwise)
         rotation = clockwise

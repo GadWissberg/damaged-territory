@@ -97,6 +97,10 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         }
     }
 
+    override fun isThrusting(): Boolean {
+        return movement > 0
+    }
+
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
 
     }

@@ -42,8 +42,8 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     private val aiApacheLogic by lazy {
         AiApacheLogic(
             gameSessionData,
-            gamePlayManagers.entityBuilder,
             gamePlayManagers.dispatcher,
+            gamePlayManagers.entityBuilder,
             autoAim
         )
     }

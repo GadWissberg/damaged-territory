@@ -46,12 +46,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         )
     }
 
-    private val stages: Map<CharacterColor, Entity> by lazy {
-        val stageEntities = engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
-        stageEntities.associateBy(
-            { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color },
-            { it })
-    }
 
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
         engine!!.getEntitiesFor(
@@ -104,15 +98,17 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 )
             }
         },
-        SystemEvents.CHARACTER_BOARDING to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
+        SystemEvents.CHARACTER_REQUEST_BOARDING to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                val character = msg.extraInfo as Entity
+                ComponentsMapper.boarding.get(character).onBoard()
                 val boardingComponent =
-                    ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
-                boardingComponent.boardingAnimation?.init(stages[boardingComponent.color])
+                    ComponentsMapper.boarding.get(character)
+                boardingComponent.boardingAnimation?.init(gameSessionData.mapData.stages[boardingComponent.color])
+                gamePlayManagers.dispatcher.dispatchMessage(
+                    SystemEvents.CHARACTER_BOARDING.ordinal,
+                    character
+                )
             }
         },
         SystemEvents.AMB_SOUND_COMPONENT_ADDED to object : HandlerOnEvent {
@@ -131,6 +127,15 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 gamePlayManagers: GamePlayManagers
             ) {
                 addOpponents()
+            }
+        },
+        SystemEvents.MAP_SYSTEM_READY to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                val stageEntities = engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
+                gameSessionData.mapData.stages =
+                    stageEntities.associateBy(
+                        { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color },
+                        { it })
             }
         }
     )
@@ -223,7 +228,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     override fun update(deltaTime: Float) {
-        super.update(deltaTime)
         updateCharacters(deltaTime)
         updateTurrets()
         for (entity in ambSoundEntities) {
@@ -309,9 +313,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             )
             if (boardingComponent != null && boardingComponent.isBoarding()) {
                 val stageTransform =
-                    ComponentsMapper.modelInstance.get(stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
-                if (boardingComponent.isOffboarding()
-                ) {
+                    ComponentsMapper.modelInstance.get(gameSessionData.mapData.stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
+                if (boardingComponent.isOffboarding()) {
                     if (stageTransform.getTranslation(auxVector1).y < -1F) {
                         takeStepForStageWithCharacter(stageTransform, deltaTime, character)
                     } else {
@@ -340,7 +343,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     }
                     if (animationDone) {
                         if (stageTransform.getTranslation(auxVector1).y <= StageComponent.BOTTOM_EDGE_Y) {
-                            gamePlayManagers.screensManager.goToHangarScreen()
+                            gamePlayManagers.dispatcher.dispatchMessage(
+                                SystemEvents.CHARACTER_ONBOARDING_FINISHED.ordinal,
+                                character
+                            )
                         } else {
                             takeStepForStageWithCharacter(stageTransform, -deltaTime, character)
                         }
@@ -351,7 +357,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             )
                         }
                     }
-
                 }
             } else if (!characterComponent.dead) {
                 if (characterComponent.deathSequenceDuration <= 0) {

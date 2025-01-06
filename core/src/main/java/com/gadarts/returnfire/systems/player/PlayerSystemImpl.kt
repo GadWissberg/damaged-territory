@@ -49,10 +49,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         )
     }
     private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.entityBuilder)
-    private val playerMovementHandler: VehicleMovementHandler by lazy {
-        val playerMovementHandler = createPlayerMovementHandler()
-        playerMovementHandler
-    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         BUTTON_WEAPON_PRIMARY_PRESSED to PlayerSystemOnButtonWeaponPrimaryPressed(playerShootingHandler),
@@ -65,7 +61,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                playerMovementHandler.onReverseScreenButtonPressed()
+                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonPressed()
             }
         },
         BUTTON_REVERSE_RELEASED to object : HandlerOnEvent {
@@ -74,12 +70,12 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                playerMovementHandler.onReverseScreenButtonReleased()
+                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonReleased()
             }
         },
         CHARACTER_OFF_BOARDED to PlayerSystemOnCharacterOffBoarded(this),
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
-        BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(this),
+        BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val entity = msg.extraInfo as Entity
@@ -105,6 +101,13 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             ) {
                 playerShootingHandler.toggleSkyAim()
             }
+        },
+        CHARACTER_ONBOARDING_FINISHED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
+                    gamePlayManagers.screensManager.goToHangarScreen()
+                }
+            }
         }
     )
 
@@ -123,7 +126,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             ).dead
         ) return
 
-        playerMovementHandler.update(
+        gameSessionData.gamePlayData.playerMovementHandler.update(
             player,
             deltaTime
         )
@@ -146,19 +149,19 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
         when (keycode) {
             Input.Keys.UP -> {
-                playerMovementHandler.thrust(gameSessionData.gamePlayData.player!!)
+                gameSessionData.gamePlayData.playerMovementHandler.thrust(gameSessionData.gamePlayData.player!!)
             }
 
             Input.Keys.DOWN -> {
-                playerMovementHandler.reverse()
+                gameSessionData.gamePlayData.playerMovementHandler.reverse()
             }
 
             Input.Keys.LEFT -> {
-                playerMovementHandler.pressedLeft()
+                gameSessionData.gamePlayData.playerMovementHandler.pressedLeft()
             }
 
             Input.Keys.RIGHT -> {
-                playerMovementHandler.pressedRight()
+                gameSessionData.gamePlayData.playerMovementHandler.pressedRight()
             }
 
             Input.Keys.CONTROL_LEFT -> {
@@ -167,7 +170,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
             Input.Keys.SHIFT_LEFT -> {
                 if (ComponentsMapper.childDecal.get(playerStage).visible) {
-                    onboard()
+                    gamePlayManagers.dispatcher.dispatchMessage(
+                        CHARACTER_REQUEST_BOARDING.ordinal,
+                        gameSessionData.gamePlayData.player
+                    )
                 } else {
                     playerShootingHandler.startSecondaryShooting()
                 }
@@ -180,7 +186,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.ALT_LEFT -> {
-                playerMovementHandler.pressedAlt()
+                gameSessionData.gamePlayData.playerMovementHandler.pressedAlt()
             }
 
         }
@@ -192,7 +198,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
-                playerMovementHandler.onMovementTouchUp(keycode)
+                gameSessionData.gamePlayData.playerMovementHandler.onMovementTouchUp(keycode)
             }
 
             Input.Keys.CONTROL_LEFT -> {
@@ -204,7 +210,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.ALT_LEFT -> {
-                playerMovementHandler.releasedAlt()
+                gameSessionData.gamePlayData.playerMovementHandler.releasedAlt()
             }
 
         }
@@ -243,24 +249,19 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         if (gameSessionData.runsOnMobile) {
             gameSessionData.hudData.movementTouchpad.addListener(
                 MovementTouchPadListener(
-                    playerMovementHandler,
+                    gameSessionData.gamePlayData.playerMovementHandler,
                     gameSessionData.gamePlayData.player!!
                 )
             )
             gameSessionData.hudData.turretTouchpad.addListener(
                 TurretTouchPadListener(
-                    playerMovementHandler,
+                    gameSessionData.gamePlayData.playerMovementHandler,
                     playerShootingHandler
                 )
             )
         } else {
             (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
         }
-    }
-
-    override fun onboard() {
-        ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).onBoard()
-        gamePlayManagers.dispatcher.dispatchMessage(CHARACTER_BOARDING.ordinal, gameSessionData.gamePlayData.player)
     }
 
     private fun createPlayerMovementHandler(): VehicleMovementHandler {
@@ -284,6 +285,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     private fun initializePlayerHandlers() {
+        gameSessionData.gamePlayData.playerMovementHandler = createPlayerMovementHandler()
         playerShootingHandler.initialize(
             gamePlayManagers.dispatcher,
             gameSessionData,

@@ -83,6 +83,10 @@ class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
         TODO("Not yet implemented")
     }
 
+    override fun isThrusting(): Boolean {
+        return !desiredDirection.isZero
+    }
+
     override fun onReverseScreenButtonPressed() {
         val direction = auxVector2.set(Vector2.X).setAngleDeg(
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(

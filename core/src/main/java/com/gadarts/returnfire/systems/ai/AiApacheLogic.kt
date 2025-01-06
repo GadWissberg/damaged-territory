@@ -13,14 +13,16 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 
 class AiApacheLogic(
     private val gameSessionData: GameSessionData,
+    private val dispatcher: MessageDispatcher,
     entityBuilder: EntityBuilder,
-    dispatcher: MessageDispatcher,
     autoAim: btPairCachingGhostObject
 ) {
+    private var returnToBase: Boolean = false
     private var nextStrafeActivation: Long = 0
     private val shootingHandler = CharacterShootingHandler(entityBuilder)
     private val movementHandler: ApacheMovementHandlerDesktop by lazy {
@@ -38,9 +40,34 @@ class AiApacheLogic(
 
         val targetModelInstance =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
-        val targetPosition = targetModelInstance.transform.getTranslation(auxVector1)
+        val targetPosition =
+            if (!returnToBase) targetModelInstance.transform.getTranslation(auxVector1) else ComponentsMapper.modelInstance.get(
+                gameSessionData.mapData.stages[boardingComponent.color]
+            ).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
         val characterTransform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         handleRotation(targetPosition, characterTransform)
+        if (!returnToBase) {
+            applyMainLogic(characterTransform, targetPosition, character)
+        } else {
+            movementHandler.thrust(character)
+            val characterPosition = characterTransform.getTranslation(auxVector2)
+            if (characterPosition.epsilonEquals(targetPosition.x, characterPosition.y, targetPosition.z, 0.4F)) {
+                dispatcher.dispatchMessage(
+                    SystemEvents.CHARACTER_REQUEST_BOARDING.ordinal,
+                    character
+                )
+            }
+        }
+        updateHandlers(character, deltaTime)
+    }
+
+    private fun applyMainLogic(
+        characterTransform: Matrix4,
+        targetPosition: Vector3,
+        character: Entity
+    ) {
         val characterPosition = characterTransform.getTranslation(auxVector2)
         characterPosition.y = 0F
         targetPosition.y = 0F
@@ -49,7 +76,10 @@ class AiApacheLogic(
             shootingHandler.startPrimaryShooting()
             shootingHandler.startSecondaryShooting()
         }
-        updateHandlers(character, deltaTime)
+        val characterComponent = ComponentsMapper.character.get(character)
+        if (characterComponent.hp <= characterComponent.definition.getHP() / 4F) {
+            returnToBase = true
+        }
     }
 
     private fun decideMovement(

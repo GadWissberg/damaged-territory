@@ -88,6 +88,10 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
     override fun releasedAlt() {
     }
 
+    override fun isThrusting(): Boolean {
+        return !desiredDirection.isZero
+    }
+
 
     private fun updateDesiredDirection(directionX: Float, directionY: Float) {
         desiredDirectionChanged = true

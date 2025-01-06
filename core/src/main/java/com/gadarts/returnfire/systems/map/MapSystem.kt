@@ -156,6 +156,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         bases.forEach {
             initializeBase(it)
         }
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.MAP_SYSTEM_READY.ordinal)
     }
 
     private fun initializeBase(it: Entity) {
