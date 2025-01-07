@@ -93,8 +93,7 @@ class ModelsRenderer(
         if (childModelInstanceComponent != null && childModelInstanceComponent.visible) {
             val childGameModelInstance = childModelInstanceComponent.gameModelInstance
             val childModelInstance = childGameModelInstance.modelInstance
-            childModelInstance.transform.getRotation(auxQuat2)
-            childModelInstance.transform.setToTranslation(
+            childModelInstance.transform.setTranslation(
                 modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector3_1
                 )
@@ -105,8 +104,6 @@ class ModelsRenderer(
                         auxQuat1
                     )
                 )
-            } else {
-                childModelInstance.transform.rotate(auxQuat2)
             }
             childModelInstance.transform.translate(auxVector3_2.set(childModelInstanceComponent.relativePosition))
             renderGameModelInstance(
@@ -221,6 +218,5 @@ class ModelsRenderer(
 
     companion object {
         private val auxQuat1 = Quaternion()
-        private val auxQuat2 = Quaternion()
     }
 }

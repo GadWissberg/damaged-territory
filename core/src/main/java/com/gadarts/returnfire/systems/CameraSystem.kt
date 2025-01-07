@@ -2,7 +2,6 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -29,7 +28,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         super.update(deltaTime)
         gameSessionData.renderData.camera.update()
         if (gameSessionData.gamePlayData.playerMovementHandler.isThrusting()) {
-            followPlayer(4F)
+            followPlayer(3F)
         } else {
             followPlayer(0F)
         }
@@ -59,7 +58,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 )
             )
         ).nor()
-        val zOffset = Z_OFFSET * max(abs(direction.x), 0F)
+        val zOffset = Z_OFFSET * max(abs(direction.x), max(direction.z, 0F))
         val relativePosition =
             direction.scl(gap)
         cameraTarget =
@@ -67,7 +66,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
         val camera = gameSessionData.renderData.camera
         cameraTarget.y = camera.position.y
-        camera.position.interpolate(cameraTarget, 0.01F, Interpolation.linear)
+        camera.position.lerp(cameraTarget, if (gap == 0F) 0.005F else 0.01F)
     }
 
 

@@ -129,7 +129,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
         for (turret in enemyTurretEntities) {
             val characterComponent = ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base)
-            if (characterComponent.dead || characterComponent.deathSequenceDuration > 0) continue
+            if (characterComponent == null || characterComponent.dead || characterComponent.deathSequenceDuration > 0) continue
 
             turretLogic.attack(deltaTime, turret)
         }

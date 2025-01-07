@@ -21,5 +21,5 @@ object GameDebugSettings {
     val SELECTED_VEHICLE = SimpleCharacterDefinition.APACHE
     const val FORCE_AIM = 1
     const val AI_DISABLED = false
-    const val AI_ATTACK_DISABLED = true
+    const val AI_ATTACK_DISABLED = false
 }
