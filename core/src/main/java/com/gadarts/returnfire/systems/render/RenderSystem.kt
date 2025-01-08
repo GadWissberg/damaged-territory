@@ -119,6 +119,11 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         modelsRenderer.renderWaterWaves()
         renderCollisionShapes()
         renderDecals(deltaTime)
+        if (!GameDebugSettings.AVOID_PARTICLE_EFFECTS_DRAWING) {
+            gameSessionData.renderData.particleSystem.begin()
+            gameSessionData.renderData.particleSystem.draw()
+            gameSessionData.renderData.particleSystem.end()
+        }
     }
 
     private fun renderCollisionShapes() {

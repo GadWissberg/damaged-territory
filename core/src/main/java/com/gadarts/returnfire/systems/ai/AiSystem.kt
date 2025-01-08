@@ -71,7 +71,10 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         },
         CHARACTER_OFF_BOARDED to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                CharacterPhysicsInitializer().initialize(gamePlayManagers.entityBuilder, msg.extraInfo as Entity)
+                val character = msg.extraInfo as Entity
+                if (!ComponentsMapper.player.has(character)) {
+                    CharacterPhysicsInitializer().initialize(gamePlayManagers.entityBuilder, character)
+                }
             }
         },
     )

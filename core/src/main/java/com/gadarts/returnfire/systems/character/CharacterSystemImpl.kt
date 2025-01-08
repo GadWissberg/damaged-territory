@@ -420,11 +420,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         gamePlayManagers.factories.specialEffectsFactory.generateExplosion(entity)
     }
 
-    override fun onSystemReady() {
-        super.onSystemReady()
-        addFlyingPart(Vector3(30F, 4F, 20F))
-    }
-
     private fun takeStepForStageWithCharacter(
         stageTransform: Matrix4,
         deltaTime: Float,

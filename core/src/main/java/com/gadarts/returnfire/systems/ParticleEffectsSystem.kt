@@ -10,9 +10,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter
 import com.badlogic.gdx.math.Matrix4
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ParticleEffectComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
@@ -138,15 +136,9 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
 
     private fun updateSystem(deltaTime: Float) {
         gameSessionData.renderData.particleSystem.update(deltaTime)
-        if (!GameDebugSettings.AVOID_PARTICLE_EFFECTS_DRAWING) {
-            gameSessionData.renderData.particleSystem.begin()
-            gameSessionData.renderData.particleSystem.draw()
-            gameSessionData.renderData.particleSystem.end()
-        }
     }
 
     companion object {
-        private val auxVector1 = Vector3()
         private val auxMatrix = Matrix4()
     }
 }
