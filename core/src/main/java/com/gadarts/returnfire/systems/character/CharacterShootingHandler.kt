@@ -72,7 +72,13 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
                     }
                     direction
                 }
-            val target = handleAutoAim(transform)
+            val target = handleAutoAim(
+                if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.modelInstance.get(
+                    ComponentsMapper.turretBase.get(
+                        character
+                    ).turret
+                ).gameModelInstance.modelInstance.transform else transform
+            )
             if (target == null) {
                 CharacterWeaponShotEventData.setWithDirection(
                     character,
@@ -89,7 +95,7 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
     private fun updateAutoAim(character: Entity) {
         if (autoAim == null) return
 
-        val armComp: ArmComponent = ComponentsMapper.primaryArm.get(gameSessionData.gamePlayData.player)
+        val armComp: ArmComponent = ComponentsMapper.primaryArm.get(character)
         val rigidBody = autoAim
         val turretBaseComponent = ComponentsMapper.turretBase.get(character)
         val playerModelInstance =

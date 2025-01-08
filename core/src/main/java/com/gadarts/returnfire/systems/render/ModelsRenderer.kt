@@ -93,17 +93,18 @@ class ModelsRenderer(
         if (childModelInstanceComponent != null && childModelInstanceComponent.visible) {
             val childGameModelInstance = childModelInstanceComponent.gameModelInstance
             val childModelInstance = childGameModelInstance.modelInstance
+            val modelInstancePosition = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            )
             childModelInstance.transform.setTranslation(
-                modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector3_1
-                )
+                modelInstancePosition
             )
             if (childModelInstanceComponent.followParentRotation) {
-                childModelInstance.transform.rotate(
+                childModelInstance.transform.set(
                     modelInstanceComponent.gameModelInstance.modelInstance.transform.getRotation(
                         auxQuat1
                     )
-                )
+                ).trn(modelInstancePosition)
             }
             childModelInstance.transform.translate(auxVector3_2.set(childModelInstanceComponent.relativePosition))
             renderGameModelInstance(

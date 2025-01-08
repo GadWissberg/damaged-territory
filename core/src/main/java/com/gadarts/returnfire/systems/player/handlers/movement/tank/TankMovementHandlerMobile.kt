@@ -6,10 +6,9 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerMobile(rigidBody: RigidBody, player: Entity) :
-    TankMovementHandler(rigidBody, player) {
+class TankMovementHandlerMobile(player: Entity) :
+    TankMovementHandler(player) {
     private val desiredDirection = Vector2()
     private var desiredDirectionChanged: Boolean = false
     private var reverse = false

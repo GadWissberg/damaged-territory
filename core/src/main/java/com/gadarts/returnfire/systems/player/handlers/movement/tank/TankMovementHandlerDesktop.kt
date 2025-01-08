@@ -4,10 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.physics.RigidBody
 
-class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entity) :
-    TankMovementHandler(rigidBody, player) {
+class TankMovementHandlerDesktop(player: Entity) :
+    TankMovementHandler(player) {
     private var turretRotationEnabled: Boolean = false
     private var movement: Int = 0
     private var rotation: Int = 0
@@ -49,6 +48,7 @@ class TankMovementHandlerDesktop(private val rigidBody: RigidBody, player: Entit
             turretRotating = 0
         } else if (rotationCheck) {
             rotation = 0
+            val rigidBody = ComponentsMapper.physics.get(player).rigidBody
             rigidBody.angularFactor = Vector3.Zero
         }
     }

@@ -275,11 +275,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 ApacheMovementHandlerDesktop()
             }
         } else {
-            val rigidBody = ComponentsMapper.physics.get(player).rigidBody
             if (runsOnMobile) {
-                TankMovementHandlerMobile(rigidBody, player!!)
+                TankMovementHandlerMobile(player!!)
             } else {
-                TankMovementHandlerDesktop(rigidBody, player!!)
+                TankMovementHandlerDesktop(player!!)
             }
         }
     }

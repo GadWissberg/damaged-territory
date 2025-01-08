@@ -4,10 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 
-abstract class TankMovementHandler(private val rigidBody: RigidBody, protected val player: Entity) :
+abstract class TankMovementHandler(protected val player: Entity) :
     VehicleMovementHandler(
         -30F,
         4F,
@@ -22,6 +21,7 @@ abstract class TankMovementHandler(private val rigidBody: RigidBody, protected v
     }
 
     override fun applyRotation(clockwise: Int) {
+        val rigidBody = ComponentsMapper.physics.get(player).rigidBody
         rigidBody.angularFactor = Vector3.Y
     }
 
