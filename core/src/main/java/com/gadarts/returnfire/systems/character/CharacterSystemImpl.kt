@@ -145,12 +145,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val isSecondTurret = if (!isSecondCharacter) ComponentsMapper.turret.has(second) else false
         if (ComponentsMapper.bullet.has(first) && (isSecondCharacter || isSecondTurret)) {
             val damage = ComponentsMapper.bullet.get(first).damage
-            if (isSecondCharacter) {
-                ComponentsMapper.character.get(second).takeDamage(damage)
+            val damagedCharacter = if (isSecondCharacter) {
+                ComponentsMapper.character.get(second)
             } else {
                 ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base)
-                    .takeDamage(damage)
             }
+            damagedCharacter.takeDamage(damage)
             gamePlayManagers.entityBuilder.begin()
                 .addParticleEffectComponent(
                     ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(

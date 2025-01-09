@@ -85,8 +85,8 @@ interface EntityBuilder {
     ): EntityBuilder
 
     fun addAmbComponent(rotation: Float, def: AmbDefinition, scale: Vector3): EntityBuilder
-    fun addAiComponent(target: Entity? = null): EntityBuilder
-    fun addAiComponentToEntity(entity: Entity, target: Entity? = null): AiComponent
+    fun addAiComponent(initialHp: Int, target: Entity? = null): EntityBuilder
+    fun addAiComponentToEntity(entity: Entity, initialHp: Int, target: Entity? = null): AiComponent
     fun addPhysicsComponentToEntity(
         entity: Entity,
         shape: btCollisionShape,

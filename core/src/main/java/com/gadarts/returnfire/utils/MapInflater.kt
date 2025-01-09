@@ -136,7 +136,7 @@ class MapInflater(
                 GameDebugSettings.HIDE_ENEMIES
             )
             .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON, CharacterColor.GREEN)
-            .addAiComponent()
+            .addAiComponent(characterDefinition.getHP())
             .addTurretBaseComponent()
             .finishAndAddToEngine()
         addPhysicsToObject(baseEntity, gameModelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT)
@@ -189,7 +189,7 @@ class MapInflater(
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
         val spark = addTurretSpark(assetsManager, modelInstance.modelInstance)
         val turret = gamePlayManagers.entityBuilder.begin()
-            .addAiComponent()
+            .addAiComponent(0)
             .addModelInstanceComponent(
                 modelInstance,
                 calculateTurretPosition(baseEntity, assetsManager),
@@ -297,8 +297,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                && definition != SimpleCharacterDefinition.APACHE
-                && definition != TurretCharacterDefinition.TANK
+                    && definition != SimpleCharacterDefinition.APACHE
+                    && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -465,9 +465,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-        && col >= 0
-        && row < gameSessionData.mapData.currentMap.tilesMapping.size
-        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+            && col >= 0
+            && row < gameSessionData.mapData.currentMap.tilesMapping.size
+            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

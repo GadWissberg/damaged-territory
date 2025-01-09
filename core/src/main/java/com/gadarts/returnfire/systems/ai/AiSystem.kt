@@ -65,7 +65,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                 val entity = msg.extraInfo as Entity
                 val characterComponent = ComponentsMapper.character.get(entity)
                 if (characterComponent.color == CharacterColor.GREEN) {
-                    gamePlayManagers.entityBuilder.addAiComponentToEntity(entity)
+                    gamePlayManagers.entityBuilder.addAiComponentToEntity(entity, characterComponent.definition.getHP())
                 }
             }
         },

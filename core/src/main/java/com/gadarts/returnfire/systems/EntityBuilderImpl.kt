@@ -214,14 +214,14 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addAiComponent(target: Entity?): EntityBuilder {
-        addAiComponentToEntity(entity!!, target)
+    override fun addAiComponent(initialHp: Int, target: Entity?): EntityBuilder {
+        addAiComponentToEntity(entity!!, initialHp, target)
         return this
     }
 
-    override fun addAiComponentToEntity(entity: Entity, target: Entity?): AiComponent {
+    override fun addAiComponentToEntity(entity: Entity, initialHp: Int, target: Entity?): AiComponent {
         val aiComponent = engine.createComponent(AiComponent::class.java)
-        aiComponent.init(target)
+        aiComponent.init(target, initialHp)
         entity.add(aiComponent)
         return aiComponent
     }
