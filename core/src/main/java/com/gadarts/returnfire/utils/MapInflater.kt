@@ -247,7 +247,7 @@ class MapInflater(
             assetsManager.getCachedBoundingBox(ModelDefinition.CANNON_BULLET),
         ),
         true,
-        gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.CANNON_BULLET)
+        gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.CANNON_BULLET),
     )
 
     private fun calculateTurretPosition(
@@ -297,8 +297,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                    && definition != SimpleCharacterDefinition.APACHE
-                    && definition != TurretCharacterDefinition.TANK
+                && definition != SimpleCharacterDefinition.APACHE
+                && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -465,9 +465,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.currentMap.tilesMapping.size
-            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+        && col >= 0
+        && row < gameSessionData.mapData.currentMap.tilesMapping.size
+        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

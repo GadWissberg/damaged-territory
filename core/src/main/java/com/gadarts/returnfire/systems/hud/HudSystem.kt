@@ -7,7 +7,11 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.Cell
+import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
+import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
@@ -135,20 +139,17 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     ui,
                     "icon_reverse",
                     reverseButtonClickListener
-                ).size(150F)
+                )
                 imageButtonCell.growX().left().bottom().padBottom(JOYSTICK_PADDING)
+                addButton(
+                    ui,
+                    "icon_missiles",
+                    secWeaponButtonClickListener,
+                    JOYSTICK_PADDING,
+                )
                 addTouchpad(ui, touchpad).padRight(JOYSTICK_PADDING).padBottom(JOYSTICK_PADDING)
                     .right()
             }
-            val cell = addButton(
-                ui,
-                "icon_reverse",
-                onBoardButtonClickListener,
-                visible = false
-            ).size(150F)
-            onboardButton = cell.actor
-            cell.left().bottom().padBottom(JOYSTICK_PADDING)
-            addManualAimButton(ui)
         }
     }
 
@@ -161,7 +162,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             manualAimButtonClickListener,
         ).size(150F)
         manualAimButton = cell.actor
-        cell.left().bottom().padBottom(JOYSTICK_PADDING)
+        cell.right().top().padBottom(JOYSTICK_PADDING)
     }
 
     private fun addApacheButtons(ui: Table) {
@@ -197,6 +198,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         }
         button.addListener(clickListener)
         button.isVisible = visible
+        cell.size(BUTTON_SIZE)
         return cell
     }
 
@@ -253,11 +255,30 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 gamePlayManagers: GamePlayManagers
             ) {
                 val ui = addUiTable()
-                addOnScreenInput(gameSessionData, ui)
+                val hudTable = Table()
+                val topRowTable = Table()
+                hudTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+                addBoardingButton(topRowTable)
+                addManualAimButton(topRowTable)
+                ui.add(topRowTable).expandX()
+                ui.row()
+                ui.add(hudTable)
+                addOnScreenInput(gameSessionData, hudTable)
             }
 
         }
     )
+
+    private fun addBoardingButton(ui: Table) {
+        val cell = addButton(
+            ui,
+            "icon_reverse",
+            onBoardButtonClickListener,
+            visible = false
+        )
+        onboardButton = cell.actor
+        cell.right().top().padBottom(JOYSTICK_PADDING)
+    }
 
     override fun resume(delta: Long) {
 
@@ -267,7 +288,6 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
 
-    @Suppress("KotlinConstantConditions")
     private fun initializeInput() {
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.autoUpdate = true
@@ -277,19 +297,18 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         }
     }
 
-    @Suppress("KotlinConstantConditions")
     private fun addUiTable(): Table {
         val uiTable = Table()
         uiTable.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)
         uiTable.name = GameSessionData.UI_TABLE_NAME
         uiTable.setFillParent(true)
-        uiTable.setSize(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+        val stage = gameSessionData.hudData.stage
+        uiTable.setSize(stage.width, stage.height)
         uiTable.align(Align.bottom)
-        gameSessionData.hudData.stage.addActor(uiTable)
+        stage.addActor(uiTable)
         return uiTable
     }
 
-    @Suppress("KotlinConstantConditions")
     override fun update(deltaTime: Float) {
         if (gameSessionData.gamePlayData.sessionFinished) return
 
@@ -304,5 +323,6 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
     companion object {
         private const val JOYSTICK_PADDING = 64F
+        private const val BUTTON_SIZE = 150F
     }
 }

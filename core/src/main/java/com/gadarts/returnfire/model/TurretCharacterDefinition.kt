@@ -13,6 +13,10 @@ enum class TurretCharacterDefinition(
     TURRET_CANNON(40, ModelDefinition.TURRET_BASE, Vector3(0F, 2F, 0F), Vector3.Zero, Vector3.Zero),
     TANK(100, ModelDefinition.TANK_BODY, Vector3.Zero, Vector3(0F, -10F, 0F), Vector3(1F, 1F, 1F));
 
+    override fun isFlyer(): Boolean {
+        return false
+    }
+
     override fun getModelDefinition(): ModelDefinition {
         return baseModelDefinition
     }

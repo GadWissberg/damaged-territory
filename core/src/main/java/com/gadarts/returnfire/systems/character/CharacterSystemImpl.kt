@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.MathUtils
@@ -16,7 +17,12 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.AmbSoundComponent
+import com.gadarts.returnfire.components.BaseComponent
+import com.gadarts.returnfire.components.CharacterComponent
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.StageComponent
+import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -99,7 +105,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         },
         SystemEvents.CHARACTER_REQUEST_BOARDING to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
                 val character = msg.extraInfo as Entity
                 ComponentsMapper.boarding.get(character).onBoard()
                 val boardingComponent =
@@ -130,8 +140,13 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         },
         SystemEvents.MAP_SYSTEM_READY to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                val stageEntities = engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                val stageEntities =
+                    engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
                 gameSessionData.mapData.stages =
                     stageEntities.associateBy(
                         { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color },
@@ -428,8 +443,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val oldStagePosition = stageTransform.getTranslation(auxVector3)
         stageTransform.trn(0F, deltaTime, 0F)
         val newPosition = stageTransform.getTranslation(auxVector1)
-        newPosition.y = min(0F, newPosition.y)
+        newPosition.y = min(-1F, newPosition.y)
         stageTransform.setTranslation(newPosition)
+        Gdx.app.log("!", "${newPosition.y}")
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,
             newPosition.y - oldStagePosition.y,

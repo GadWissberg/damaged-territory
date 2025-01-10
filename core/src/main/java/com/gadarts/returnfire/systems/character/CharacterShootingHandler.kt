@@ -12,6 +12,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.character.factories.AimingRestriction
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
@@ -77,7 +78,8 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
                     ComponentsMapper.turretBase.get(
                         character
                     ).turret
-                ).gameModelInstance.modelInstance.transform else transform
+                ).gameModelInstance.modelInstance.transform else transform,
+                armComp.armProperties.aimingRestriction
             )
             if (target == null) {
                 CharacterWeaponShotEventData.setWithDirection(
@@ -122,14 +124,15 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
         rigidBody!!.worldTransform = autoAimTransform
     }
 
-    private fun handleAutoAim(transform: Matrix4): Entity? {
+    private fun handleAutoAim(transform: Matrix4, aimingRestriction: AimingRestriction?): Entity? {
         if (autoAim == null) return null
 
         val overlappingPairs = autoAim!!.overlappingPairs
         val size = min(overlappingPairs.size(), 6)
         var closestCharacter: Entity? = null
         if (size > 0) {
-            closestCharacter = findClosestAliveCharacter(transform, size, overlappingPairs)
+            closestCharacter =
+                findClosestAliveCharacter(transform, size, overlappingPairs, aimingRestriction)
         }
         return closestCharacter
     }
@@ -137,35 +140,45 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
     private fun findClosestAliveCharacter(
         transform: Matrix4,
         size: Int,
-        overlappingPairs: btCollisionObjectArray
+        overlappingPairs: btCollisionObjectArray,
+        aimingRestriction: AimingRestriction?
     ): Entity? {
         var closestCharacter: Entity? = null
         val playerPosition = transform.getTranslation(auxVector3_2)
         var closestDistance = Float.MAX_VALUE
         for (i in 0 until size) {
             val character = overlappingPairs.atConst(i).userData
-            if (character != null && ComponentsMapper.character.has(character as Entity) && !ComponentsMapper.character.get(
+            if (character != null && ComponentsMapper.character.has(character as Entity)) {
+                val characterComponent = ComponentsMapper.character.get(
                     character
-                ).dead
-            ) {
-                val gameModelInstance = ComponentsMapper.modelInstance.get(character).gameModelInstance
-                val enemyPosition = gameModelInstance.modelInstance
-                    .transform.getTranslation(
-                        auxVector3_1
-                    )
-                val distance =
-                    enemyPosition.dst2(playerPosition)
-                if (distance < closestDistance) {
-                    val dot =
-                        enemyPosition.set(enemyPosition.x, playerPosition.y, enemyPosition.z).sub(playerPosition)
-                            .nor()
-                            .dot(
-                                transform.getRotation(auxQuat)
-                                    .transform(auxVector3_3.set(Vector3.X))
-                            )
-                    if (dot > 0.85) {
-                        closestDistance = distance
-                        closestCharacter = character
+                )
+                val isFlyer = characterComponent.definition.isFlyer()
+                if ((aimingRestriction == null
+                        || (isFlyer && aimingRestriction == AimingRestriction.ONLY_SKY)
+                        || (!isFlyer && aimingRestriction == AimingRestriction.ONLY_GROUND))
+                    && !characterComponent.dead
+                ) {
+                    val gameModelInstance =
+                        ComponentsMapper.modelInstance.get(character).gameModelInstance
+                    val enemyPosition = gameModelInstance.modelInstance
+                        .transform.getTranslation(
+                            auxVector3_1
+                        )
+                    val distance =
+                        enemyPosition.dst2(playerPosition)
+                    if (distance < closestDistance) {
+                        val dot =
+                            enemyPosition.set(enemyPosition.x, playerPosition.y, enemyPosition.z)
+                                .sub(playerPosition)
+                                .nor()
+                                .dot(
+                                    transform.getRotation(auxQuat)
+                                        .transform(auxVector3_3.set(Vector3.X))
+                                )
+                        if (dot > 0.85) {
+                            closestDistance = distance
+                            closestCharacter = character
+                        }
                     }
                 }
             }

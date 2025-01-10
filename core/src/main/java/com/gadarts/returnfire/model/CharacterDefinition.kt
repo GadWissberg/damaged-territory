@@ -13,4 +13,5 @@ interface CharacterDefinition : ElementDefinition {
     fun getGravity(output: Vector3): Vector3
     fun getLinearFactor(output: Vector3): Vector3
     fun getStartHeight(): Float
+    fun isFlyer(): Boolean
 }
