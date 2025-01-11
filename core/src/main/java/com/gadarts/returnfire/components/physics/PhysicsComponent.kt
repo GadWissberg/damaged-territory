@@ -5,6 +5,8 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.Pool.Poolable
 
 class PhysicsComponent : Component, Poolable, Disposable {
+    var disposed: Boolean = false
+        private set
     lateinit var rigidBody: RigidBody
 
     override fun reset() {
@@ -23,6 +25,7 @@ class PhysicsComponent : Component, Poolable, Disposable {
             rigidBody.collisionShape.dispose()
             rigidBody.dispose()
         }
+        disposed = true
     }
 
 }

@@ -92,9 +92,15 @@ class AiApacheLogic(
         characterPosition.y = 0F
         targetPosition.y = 0F
         val distance = decideMovement(characterPosition, targetPosition, character)
-        if (distance < 9F && !GameDebugSettings.AI_ATTACK_DISABLED) {
+        val player = gameSessionData.gamePlayData.player
+        if (distance < 9F && !GameDebugSettings.AI_ATTACK_DISABLED && player != null && !ComponentsMapper.character.get(
+                player
+            ).dead
+        ) {
             shootingHandler.startPrimaryShooting()
             shootingHandler.startSecondaryShooting()
+        } else {
+            stopAttack()
         }
         val characterComponent = ComponentsMapper.character.get(character)
         val quarter = characterComponent.definition.getHP() / 4F

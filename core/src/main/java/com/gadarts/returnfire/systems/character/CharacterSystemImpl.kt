@@ -411,7 +411,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             addExplosion(character)
                         }
                         if (definition == SimpleCharacterDefinition.APACHE || definition == TurretCharacterDefinition.TANK) {
-                            engine.removeEntity(character)
+                            if (!ComponentsMapper.player.has(character)) {
+                                engine.removeEntity(character)
+                            }
                         }
                         gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.CHARACTER_DIED.ordinal,

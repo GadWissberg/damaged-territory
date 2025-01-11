@@ -87,8 +87,9 @@ class BulletEngineHandler(
     }
 
     override fun entityRemoved(entity: Entity) {
-        if (ComponentsMapper.physics.has(entity)) {
-            removePhysicsOfComponent(ComponentsMapper.physics.get(entity))
+        val physicsComponent = ComponentsMapper.physics.get(entity)
+        if (physicsComponent != null && !physicsComponent.disposed) {
+            removePhysicsOfComponent(physicsComponent)
         }
     }
 
@@ -97,6 +98,7 @@ class BulletEngineHandler(
         gameSessionData.physicsData.collisionWorld.removeCollisionObject(
             physicsComponent.rigidBody
         )
+
         physicsComponent.dispose()
     }
 

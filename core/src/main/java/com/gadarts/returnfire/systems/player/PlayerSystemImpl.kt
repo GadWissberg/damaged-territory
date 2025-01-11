@@ -120,12 +120,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun update(deltaTime: Float) {
-        val player = gameSessionData.gamePlayData.player
-        if (player == null || ComponentsMapper.boarding.get(player).isBoarding() || ComponentsMapper.character.get(
-                player
-            ).dead
-        ) return
+        if (shouldSkipUpdate()) return
 
+        val player = gameSessionData.gamePlayData.player!!
         gameSessionData.gamePlayData.playerMovementHandler.update(
             player,
             deltaTime
@@ -141,6 +138,13 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             )
         val childDecalComponent = ComponentsMapper.childDecal.get(playerStage)
         handleLandingIndicatorVisibility(childDecalComponent, position, stagePosition)
+    }
+
+    private fun shouldSkipUpdate(): Boolean {
+        val player = gameSessionData.gamePlayData.player
+        return (player == null
+                || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player).isBoarding())
+                || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -299,9 +303,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-            && position.x >= stagePosition.x - LANDING_OK_OFFSET
-            && position.z <= stagePosition.z + LANDING_OK_OFFSET
-            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+                && position.x >= stagePosition.x - LANDING_OK_OFFSET
+                && position.z <= stagePosition.z + LANDING_OK_OFFSET
+                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(
