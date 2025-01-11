@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.MathUtils
@@ -17,18 +16,14 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.components.AmbSoundComponent
-import com.gadarts.returnfire.components.BaseComponent
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.StageComponent
-import com.gadarts.returnfire.components.TurretComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
@@ -315,7 +310,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
             val characterTransform =
                 modelInstanceComponent.gameModelInstance.modelInstance.transform
-            if (characterComponent.definition == SimpleCharacterDefinition.APACHE) {
+            val definition = characterComponent.definition
+            if (definition == SimpleCharacterDefinition.APACHE) {
                 val child = ComponentsMapper.childDecal.get(character).decals[0]
                 child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
                 child.decal.rotation = characterTransform.getRotation(auxQuat)
@@ -387,7 +383,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         val smokeEmission = characterComponent.smokeEmission
                         if (hp <= 0 && characterComponent.deathSequenceDuration == 0) {
                             characterComponent.beginDeathSequence()
-                        } else if (hp <= characterComponent.definition.getHP() / 2F && smokeEmission == null) {
+                        } else if (hp <= definition.getHP() / 2F && smokeEmission == null) {
                             val position =
                                 characterTransform.getTranslation(
                                     auxVector1
@@ -398,7 +394,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                     pool = gameSessionData.pools.particleEffectsPools.obtain(
                                         ParticleEffectDefinition.SMOKE_LOOP
                                     ),
-                                    parentRelativePosition = characterComponent.definition.getSmokeEmissionRelativePosition(
+                                    parentRelativePosition = definition.getSmokeEmissionRelativePosition(
                                         auxVector2
                                     )
                                 ).finishAndAddToEngine()
@@ -414,7 +410,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         for (i in 0 until MathUtils.random(3, 4)) {
                             addExplosion(character)
                         }
-                        engine.removeEntity(character)
+                        if (definition == SimpleCharacterDefinition.APACHE || definition == TurretCharacterDefinition.TANK) {
+                            engine.removeEntity(character)
+                        }
                         gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.CHARACTER_DIED.ordinal,
                             character
@@ -445,7 +443,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val newPosition = stageTransform.getTranslation(auxVector1)
         newPosition.y = min(-1F, newPosition.y)
         stageTransform.setTranslation(newPosition)
-        Gdx.app.log("!", "${newPosition.y}")
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,
             newPosition.y - oldStagePosition.y,
@@ -547,6 +544,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     override fun dispose() {
+        opponentCharacterFactory.dispose()
     }
 
     companion object {

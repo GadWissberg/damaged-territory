@@ -65,6 +65,9 @@ class ApacheFactory(
         return character
     }
 
+    override fun dispose() {
+    }
+
     private fun applyOpponentColor(
         character: Entity,
         color: CharacterColor
@@ -82,6 +85,7 @@ class ApacheFactory(
     private fun addApachePrimaryArmComponent(
         primarySpark: Entity,
     ): EntityBuilder {
+        val modelDefinition = ModelDefinition.CANNON_BULLET
         entityBuilder.addPrimaryArmComponent(
             primarySpark,
             ArmProperties(
@@ -96,12 +100,12 @@ class ApacheFactory(
                     null
                 ),
                 ArmRenderData(
-                    ModelDefinition.BULLET,
-                    assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
+                    modelDefinition,
+                    assetsManager.getCachedBoundingBox(modelDefinition),
                     -45F,
                 ),
                 false,
-                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.BULLET),
+                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(modelDefinition),
             ),
             BulletBehavior.REGULAR
         )
@@ -190,6 +194,6 @@ class ApacheFactory(
         private const val SEC_BULLET_SPEED = 7F
         private const val SECONDARY_POSITION_BIAS = 0.2F
         private const val APACHE_PRI_RELOAD_DUR = 125L
-        private const val APACHE_PRI_BULLET_SPEED = 16F
+        private const val APACHE_PRI_BULLET_SPEED = 32F
     }
 }

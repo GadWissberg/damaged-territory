@@ -59,6 +59,10 @@ class TankFactory(
         return player
     }
 
+    override fun dispose() {
+
+    }
+
     private fun addTurret(
         player: Entity,
         cannon: Entity

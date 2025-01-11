@@ -7,11 +7,7 @@ import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.scenes.scene2d.ui.Cell
-import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
-import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
@@ -124,32 +120,32 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         gameSessionData: GameSessionData,
         ui: Table
     ) {
-        if (gameSessionData.runsOnMobile) {
-            val movementPad =
-                addTouchpad(ui, this.gameSessionData.hudData.movementTouchpad)
-                    .pad(0F, JOYSTICK_PADDING, JOYSTICK_PADDING, 0F).left()
-            val definition =
-                ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition
-            if (definition == SimpleCharacterDefinition.APACHE) {
-                movementPad.growX()
-                addApacheButtons(ui)
-            } else if (definition == TurretCharacterDefinition.TANK) {
-                val touchpad = this.gameSessionData.hudData.turretTouchpad
-                val imageButtonCell = addButton(
-                    ui,
-                    "icon_reverse",
-                    reverseButtonClickListener
-                )
-                imageButtonCell.growX().left().bottom().padBottom(JOYSTICK_PADDING)
-                addButton(
-                    ui,
-                    "icon_missiles",
-                    secWeaponButtonClickListener,
-                    JOYSTICK_PADDING,
-                )
-                addTouchpad(ui, touchpad).padRight(JOYSTICK_PADDING).padBottom(JOYSTICK_PADDING)
-                    .right()
-            }
+        val movementPad =
+            addTouchpad(ui, this.gameSessionData.hudData.movementTouchpad)
+                .pad(0F, JOYSTICK_PADDING, 32F, 0F).bottom()
+        val definition =
+            ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition
+        if (definition == SimpleCharacterDefinition.APACHE) {
+            movementPad.expandX().left()
+            addApacheButtons(ui)
+        } else if (definition == TurretCharacterDefinition.TANK) {
+            val touchpad = this.gameSessionData.hudData.turretTouchpad
+            val imageButtonCell = addButton(
+                ui,
+                "icon_reverse",
+                reverseButtonClickListener
+            )
+            imageButtonCell.grow().left().bottom().padBottom(32F)
+            val attackButtonsTable = Table()
+            attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+            addButton(
+                attackButtonsTable,
+                "icon_missiles",
+                secWeaponButtonClickListener,
+            ).center().row()
+            addManualAimButton(attackButtonsTable)
+            ui.add(attackButtonsTable).right()
+            addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
         }
     }
 
@@ -162,7 +158,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             manualAimButtonClickListener,
         ).size(150F)
         manualAimButton = cell.actor
-        cell.right().top().padBottom(JOYSTICK_PADDING)
+        cell.right().top()
     }
 
     private fun addApacheButtons(ui: Table) {
@@ -177,6 +173,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             secWeaponButtonClickListener,
             JOYSTICK_PADDING,
         )
+        addManualAimButton(ui)
     }
 
     private fun addButton(
@@ -184,7 +181,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         iconDefinition: String,
         clickListener: ClickListener,
         rightPadding: Float = 0F,
-        visible: Boolean = true
+        visible: Boolean = true,
     ): Cell<ImageButton> {
         val up = TextureRegionDrawable(gamePlayManagers.assetsManager.getTexture("button_up"))
         val down =
@@ -254,15 +251,16 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
+                if (!gameSessionData.runsOnMobile) return
                 val ui = addUiTable()
                 val hudTable = Table()
                 val topRowTable = Table()
                 hudTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+                topRowTable.setDebug(GameDebugSettings.UI_DEBUG, true)
                 addBoardingButton(topRowTable)
-                addManualAimButton(topRowTable)
-                ui.add(topRowTable).expandX()
+                ui.add(topRowTable).expandX().growX()
                 ui.row()
-                ui.add(hudTable)
+                ui.add(hudTable).bottom().growX().expandY()
                 addOnScreenInput(gameSessionData, hudTable)
             }
 
@@ -274,10 +272,11 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ui,
             "icon_reverse",
             onBoardButtonClickListener,
-            visible = false
+            visible = false,
         )
         onboardButton = cell.actor
-        cell.right().top().padBottom(JOYSTICK_PADDING)
+        cell.expandX().align(Align.right).padTop(BOARDING_BUTTON_PADDING)
+            .padRight(BOARDING_BUTTON_PADDING)
     }
 
     override fun resume(delta: Long) {
@@ -304,7 +303,6 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         uiTable.setFillParent(true)
         val stage = gameSessionData.hudData.stage
         uiTable.setSize(stage.width, stage.height)
-        uiTable.align(Align.bottom)
         stage.addActor(uiTable)
         return uiTable
     }
@@ -323,6 +321,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
     companion object {
         private const val JOYSTICK_PADDING = 64F
+        private const val BOARDING_BUTTON_PADDING = 25F
         private const val BUTTON_SIZE = 150F
     }
 }

@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.character.factories
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.managers.GameAssetManager
@@ -16,7 +17,7 @@ class OpponentCharacterFactory(
     gameSessionData: GameSessionData,
     gameModelInstanceFactory: GameModelInstanceFactory,
     entityBuilder: EntityBuilder,
-) {
+) : Disposable {
     private val apacheFactory =
         ApacheFactory(
             assetsManager,
@@ -35,6 +36,11 @@ class OpponentCharacterFactory(
             opponent = tankFactory.create(base, characterColor)
         }
         return opponent!!
+    }
+
+    override fun dispose() {
+        apacheFactory.dispose()
+        tankFactory.dispose()
     }
 
 

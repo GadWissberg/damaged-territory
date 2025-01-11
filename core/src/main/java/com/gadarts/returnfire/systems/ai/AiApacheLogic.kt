@@ -58,7 +58,7 @@ class AiApacheLogic(
         if (returnToBase) {
             movementHandler.thrust(character)
             val characterPosition = characterTransform.getTranslation(auxVector2)
-            if (characterPosition.epsilonEquals(targetPosition.x, characterPosition.y, targetPosition.z, 0.4F)) {
+            if (characterPosition.epsilonEquals(targetPosition.x, characterPosition.y, targetPosition.z, 0.8F)) {
                 dispatcher.dispatchMessage(
                     SystemEvents.CHARACTER_REQUEST_BOARDING.ordinal,
                     character

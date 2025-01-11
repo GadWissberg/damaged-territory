@@ -57,7 +57,7 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
                             auxQuat
                         )
                     auxMatrix.set(
-                        rotation.setEulerAngles(rotation.yaw, 0F, 0F)
+                        rotation.setEulerAngles(rotation.yaw, 0F, 6F)
                     )
                 } else {
                     val cannon =

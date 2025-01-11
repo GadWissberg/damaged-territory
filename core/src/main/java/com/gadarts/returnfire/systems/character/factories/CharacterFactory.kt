@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
@@ -19,7 +20,7 @@ import com.gadarts.returnfire.systems.EntityBuilderImpl
 abstract class CharacterFactory(
     protected val gameModelInstanceFactory: GameModelInstanceFactory,
     private val entityBuilder: EntityBuilder,
-) {
+) : Disposable {
 
     abstract fun create(base: PlacedElement, color: CharacterColor): Entity
 

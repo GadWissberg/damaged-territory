@@ -20,8 +20,8 @@ enum class ModelDefinition(
     AssetDefinition<Model> {
 
     APACHE(centerOfMass = Vector3(0F, -0.2F, 0F), separateModelForShadow = true),
-    BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
-    CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET),
+    BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT),
+    CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT),
     MISSILE(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.MISSILE),
     PALM_TREE(fileNames = 3, boundingBoxScale = Vector3(0.25F, 1F, 0.25F), separateModelForShadow = true),
     WATCH_TOWER,

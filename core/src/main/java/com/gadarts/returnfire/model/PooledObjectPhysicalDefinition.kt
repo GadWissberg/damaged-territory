@@ -9,7 +9,7 @@ enum class PooledObjectPhysicalDefinition(
     val mass: Float,
     val shapeCreator: ShapeCreator,
 ) {
-    BULLET(
+    BULLET_FLAT(
         0.035F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
