@@ -148,8 +148,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        val onboardingComponent = ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
-        if (onboardingComponent.isBoarding()) return false
+        if (gameSessionData.gamePlayData.player == null || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
+                .isBoarding()
+        ) return false
 
         when (keycode) {
             Input.Keys.UP -> {
@@ -198,7 +199,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()) return false
+        if (gameSessionData.gamePlayData.player == null || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
+                .isBoarding()
+        ) return false
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {

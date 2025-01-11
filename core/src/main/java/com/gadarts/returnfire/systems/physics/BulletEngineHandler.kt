@@ -88,7 +88,7 @@ class BulletEngineHandler(
 
     override fun entityRemoved(entity: Entity) {
         val physicsComponent = ComponentsMapper.physics.get(entity)
-        if (physicsComponent != null && !physicsComponent.disposed) {
+        if (physicsComponent != null) {
             removePhysicsOfComponent(physicsComponent)
         }
     }

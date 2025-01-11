@@ -406,7 +406,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     characterComponent.incrementDeathSequence()
                     if (characterComponent.deathSequenceDuration <= 0) {
                         characterComponent.dead = true
-                        addFlyingParts(character)
+                        if (ComponentsMapper.ambSound.has(character)) {
+                            val ambSoundComponent = ComponentsMapper.ambSound.get(character)
+                            ambSoundComponent.sound.stop(ambSoundComponent.soundId)
+                        }
+//                        addFlyingParts(character)
                         for (i in 0 until MathUtils.random(3, 4)) {
                             addExplosion(character)
                         }
