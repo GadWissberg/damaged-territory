@@ -143,7 +143,6 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 "icon_missiles",
                 secWeaponButtonClickListener,
             ).center().row()
-            addManualAimButton(attackButtonsTable)
             ui.add(attackButtonsTable).right()
             addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
         }

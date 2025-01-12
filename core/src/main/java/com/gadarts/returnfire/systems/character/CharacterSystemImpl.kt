@@ -410,7 +410,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             val ambSoundComponent = ComponentsMapper.ambSound.get(character)
                             ambSoundComponent.sound.stop(ambSoundComponent.soundId)
                         }
-//                        addFlyingParts(character)
+                        addFlyingParts(character)
                         for (i in 0 until MathUtils.random(3, 4)) {
                             addExplosion(character)
                         }
@@ -429,6 +429,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 }
             }
         }
+    }
+
+    override fun onSystemReady() {
+        super.onSystemReady()
+        addFlyingPart(Vector3(28F, 2F, 22F))
     }
 
     private fun addExplosion(character: Entity) {

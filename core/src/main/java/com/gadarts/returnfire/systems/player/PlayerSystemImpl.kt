@@ -43,10 +43,14 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         ).find { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color == CharacterColor.BROWN }!!
     }
     private val autoAim by lazy {
-        gamePlayManagers.factories.autoAimShapeFactory.generate(
-            BulletEngineHandler.COLLISION_GROUP_PLAYER,
-            BulletEngineHandler.COLLISION_GROUP_ENEMY
-        )
+        if (gameSessionData.autoAim) {
+            gamePlayManagers.factories.autoAimShapeFactory.generate(
+                BulletEngineHandler.COLLISION_GROUP_PLAYER,
+                BulletEngineHandler.COLLISION_GROUP_ENEMY
+            )
+        } else {
+            null
+        }
     }
     private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.entityBuilder)
 
@@ -116,7 +120,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun dispose() {
-        autoAim.dispose()
+        autoAim?.dispose()
     }
 
     override fun update(deltaTime: Float) {
@@ -185,7 +189,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.ENTER -> {
-                if (!gameSessionData.autoAim) {
+                if (!gameSessionData.autoAim && gameSessionData.gamePlayData.player != null && ComponentsMapper.character.get(
+                        gameSessionData.gamePlayData.player
+                    ).definition == SimpleCharacterDefinition.APACHE
+                ) {
                     playerShootingHandler.toggleSkyAim()
                 }
             }

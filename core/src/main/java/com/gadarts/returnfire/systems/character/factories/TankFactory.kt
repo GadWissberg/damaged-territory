@@ -95,7 +95,7 @@ class TankFactory(
         entityBuilder.addPrimaryArmComponent(
             primarySpark,
             ArmProperties(
-                40,
+                30,
                 assetsManager.getAssetByDefinition(SoundDefinition.CANNON_TANK),
                 TANK_PRI_RELOAD_DUR,
                 TANK_PRI_BULLET_SPEED,
