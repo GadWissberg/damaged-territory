@@ -22,7 +22,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val hangarScreen by lazy { HangarScreen(assetsManager, dispatcher, this, soundPlayer, runsOnMobile) }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
 
-    @Suppress("SENSELESS_COMPARISON")
+    @Suppress("KotlinConstantConditions")
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
         val screenHeight = Gdx.graphics.displayMode.height
@@ -64,7 +64,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     }
 
     companion object {
-        const val VERSION: String = "0.8"
+        const val VERSION: String = "0.9"
         private const val MAX_RESOLUTION_WIDTH = 1920
         private const val MAX_RESOLUTION_HEIGHT = 1080
 

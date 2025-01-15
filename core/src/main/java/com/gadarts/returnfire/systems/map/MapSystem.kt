@@ -295,7 +295,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ComponentsMapper.modelInstance.get(baseComponent.westDoor).gameModelInstance.modelInstance.transform
         val eastDoorTransform =
             ComponentsMapper.modelInstance.get(baseComponent.eastDoor).gameModelInstance.modelInstance.transform
-        val stepSize = deltaTime * 0.3F * baseComponent.doorMoveState
+        val stepSize = deltaTime * 0.5F * baseComponent.doorMoveState
         val westDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.westDoor)
         val eastDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.eastDoor)
         updateWestDoor(baseComponent, westDoorBaseDoorComponent, westDoorTransform, stepSize)
@@ -308,6 +308,8 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         eastDoorTransform: Matrix4,
         stepSize: Float,
     ) {
+        if (TimeUtils.timeSinceMillis(baseComponent.latestCloseTime) < DOORS_DELAY) return
+
         val eastDoorX = eastDoorTransform.getTranslation(auxVector2).x
         val isOpening = baseComponent.doorMoveState > 0
         val isClosing = baseComponent.doorMoveState < 0
@@ -334,6 +336,8 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         westDoorTransform: Matrix4,
         stepSize: Float
     ) {
+        if (TimeUtils.timeSinceMillis(baseComponent.latestCloseTime) < DOORS_DELAY) return
+
         val isOpening = baseComponent.doorMoveState > 0
         val isClosing = baseComponent.doorMoveState < 0
         val westDoorX = westDoorTransform.getTranslation(auxVector1).x
@@ -363,6 +367,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     companion object {
+        val DOORS_DELAY = 1000F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
     }

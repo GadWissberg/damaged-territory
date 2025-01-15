@@ -2,9 +2,13 @@ package com.gadarts.returnfire.components
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.character.CharacterColor
 
 class BaseComponent(val color: CharacterColor) : Component {
+    var latestCloseTime: Long = 0
+        private set
+
     fun init(westDoor: Entity, eastDoor: Entity) {
         this.westDoor = westDoor
         this.eastDoor = eastDoor
@@ -15,6 +19,7 @@ class BaseComponent(val color: CharacterColor) : Component {
 
     fun close() {
         doorMoveState = -1
+        latestCloseTime = TimeUtils.millis()
     }
 
     fun isIdle(): Boolean {
