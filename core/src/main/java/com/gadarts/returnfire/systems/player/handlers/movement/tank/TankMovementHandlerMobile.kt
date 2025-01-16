@@ -83,7 +83,7 @@ class TankMovementHandlerMobile(player: Entity) :
     }
 
     override fun isThrusting(): Boolean {
-        return !desiredDirection.isZero
+        return !reverse
     }
 
     override fun onReverseScreenButtonPressed() {

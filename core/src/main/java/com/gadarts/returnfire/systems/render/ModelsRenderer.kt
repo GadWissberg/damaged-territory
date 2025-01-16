@@ -156,7 +156,7 @@ class ModelsRenderer(
         val center: Vector3 =
             gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
         if (extendBoundingBoxSize) {
-            dims.scl(6.8F)
+            dims.scl(8.3F)
         }
         val frustum = renderData.camera.frustum
         return if (gameModelInstance.sphere) frustum.sphereInFrustum(

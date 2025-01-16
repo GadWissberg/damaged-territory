@@ -392,7 +392,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                 gamePlayManagers.entityBuilder.begin().addParticleEffectComponent(
                                     position = position,
                                     pool = gameSessionData.pools.particleEffectsPools.obtain(
-                                        ParticleEffectDefinition.SMOKE_LOOP
+                                        ParticleEffectDefinition.SMOKE_UP_LOOP
                                     ),
                                     parentRelativePosition = definition.getSmokeEmissionRelativePosition(
                                         auxVector2
@@ -429,11 +429,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 }
             }
         }
-    }
-
-    override fun onSystemReady() {
-        super.onSystemReady()
-        addFlyingPart(Vector3(28F, 2F, 22F))
     }
 
     private fun addExplosion(character: Entity) {
