@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -20,7 +19,6 @@ import kotlin.math.sqrt
  * Defines the logic for the enemy attack
  */
 class TurretLogic(private val gameSessionData: GameSessionData, private val gamePlayManagers: GamePlayManagers) {
-    private val cannonSound by lazy { gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.CANNON) }
 
     fun attack(
         deltaTime: Float,
@@ -76,8 +74,10 @@ class TurretLogic(private val gameSessionData: GameSessionData, private val game
                 val now = TimeUtils.millis()
                 if (enemyComponent.attackReady) {
                     enemyComponent.attackReady = false
-                    enemyComponent.attackReadyTime = now + 1000L
-                    gamePlayManagers.soundPlayer.play(cannonSound)
+                    val armProperties = ComponentsMapper.primaryArm.get(enemy).armProperties
+                    enemyComponent.attackReadyTime =
+                        now + armProperties.reloadDuration
+                    gamePlayManagers.soundPlayer.play(armProperties.shootingSound)
                     CharacterWeaponShotEventData.setWithTarget(
                         enemy,
                         player!!,

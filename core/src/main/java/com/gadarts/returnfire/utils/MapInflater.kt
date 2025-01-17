@@ -231,24 +231,28 @@ class MapInflater(
         )
     }
 
-    private fun createTurretArmProperties(assetsManager: GameAssetManager) = ArmProperties(
-        2,
-        assetsManager.getAssetByDefinition(SoundDefinition.CANNON),
-        3000L,
-        20F,
-        ArmEffectsData(
-            null,
-            null,
-            gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
-            null,
-        ),
-        ArmRenderData(
-            ModelDefinition.CANNON_BULLET,
-            assetsManager.getCachedBoundingBox(ModelDefinition.CANNON_BULLET),
-        ),
-        true,
-        gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.CANNON_BULLET),
-    )
+    private fun createTurretArmProperties(assetsManager: GameAssetManager): ArmProperties {
+        val bulletModelDefinition = ModelDefinition.TANK_CANNON_BULLET
+        val particleEffectsPools = gameSessionData.pools.particleEffectsPools
+        return ArmProperties(
+            8,
+            assetsManager.getAssetByDefinition(SoundDefinition.CANNON_B),
+            5000L,
+            10F,
+            ArmEffectsData(
+                ParticleEffectDefinition.EXPLOSION_MED,
+                null,
+                particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
+                particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
+            ),
+            ArmRenderData(
+                bulletModelDefinition,
+                assetsManager.getCachedBoundingBox(bulletModelDefinition),
+            ),
+            true,
+            gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(bulletModelDefinition),
+        )
+    }
 
     private fun calculateTurretPosition(
         baseEntity: Entity,

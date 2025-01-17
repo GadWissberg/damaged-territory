@@ -96,7 +96,7 @@ class TankFactory(
             primarySpark,
             ArmProperties(
                 30,
-                assetsManager.getAssetByDefinition(SoundDefinition.CANNON_TANK),
+                assetsManager.getAssetByDefinition(SoundDefinition.CANNON_A),
                 TANK_PRI_RELOAD_DUR,
                 TANK_PRI_BULLET_SPEED,
                 ArmEffectsData(
