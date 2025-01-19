@@ -263,12 +263,12 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 } else {
                     addBulletExplosion(entity0, position)
                 }
-                destroyBullet(entity0)
-                if (ComponentsMapper.bullet.has(entity1)) {
-                    destroyBullet(entity1)
-                }
-                return true
             }
+            destroyBullet(entity0)
+            if (ComponentsMapper.bullet.has(entity1)) {
+                destroyBullet(entity1)
+            }
+            return true
         }
         return false
     }

@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -212,7 +213,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     private fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
-        if (ComponentsMapper.ambSound.has(entity)) {
+        if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
             if (ambSoundComponent.soundId == -1L) {
                 val id = gamePlayManagers.soundPlayer.loopSound(ambSoundComponent.sound)
@@ -436,7 +437,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(
                 character
             ).turret else character
-        gamePlayManagers.factories.specialEffectsFactory.generateExplosion(entity)
+        gamePlayManagers.factories.specialEffectsFactory.generateExplosion(entity, true)
     }
 
     private fun takeStepForStageWithCharacter(

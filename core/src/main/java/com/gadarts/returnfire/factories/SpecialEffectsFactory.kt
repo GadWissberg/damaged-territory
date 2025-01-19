@@ -26,6 +26,7 @@ class SpecialEffectsFactory(
             ParticleEffectDefinition.EXPLOSION_MED
         )
     }
+    private val blastRingTexture: Texture by lazy { this.assetsManager.getTexture("blast_ring") }
 
     private val waterSplashSounds by lazy {
         assetsManager.getAllAssetsByDefinition(
@@ -76,11 +77,23 @@ class SpecialEffectsFactory(
         modelInstance.transform.scl(startingScale)
     }
 
-    fun generateExplosion(entity: Entity) {
-        entityBuilder.begin().addParticleEffectComponent(
+    fun generateExplosion(entity: Entity, blastRing: Boolean = false) {
+        val position =
             ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector
-            ).add(
+            )
+        if (blastRing) {
+            addGroundBlast(
+                position,
+                blastRingTexture,
+                0.1F,
+                8F,
+                500,
+                0.03F
+            )
+        }
+        entityBuilder.begin().addParticleEffectComponent(
+            position.add(
                 MathUtils.random(
                     MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
                 ), MathUtils.random(
@@ -93,7 +106,6 @@ class SpecialEffectsFactory(
         soundPlayer.play(
             assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
         )
-
     }
 
     companion object {
