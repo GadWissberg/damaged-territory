@@ -32,9 +32,6 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.utils.GeneralUtils
 
-/**
- * Responsible for rendering the 3D models, their shadows, decals and collision shapes.
- */
 class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), Disposable {
 
     private val renderFlags = RenderFlags()

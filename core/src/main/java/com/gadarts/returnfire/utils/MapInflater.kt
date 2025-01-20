@@ -36,6 +36,10 @@ import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.*
+import com.gadarts.returnfire.model.definitions.AmbDefinition
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.TilesMapping
@@ -82,7 +86,7 @@ class MapInflater(
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
         val randomScale = if (def.isRandomizeScale()) MathUtils.random(MIN_SCALE, MAX_SCALE) else 1F
-        val entityBuilder = gamePlayManagers.entityBuilder.begin()
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -127,7 +131,7 @@ class MapInflater(
     ) {
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
-        val baseEntity = gamePlayManagers.entityBuilder.begin()
+        val baseEntity = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -151,7 +155,7 @@ class MapInflater(
         gameModelInstance: GameModelInstance,
         collisionFlags: Int
     ): PhysicsComponent {
-        return gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
+        return gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
             entity,
             createShapeForStaticObject(gameModelInstance.definition!!),
             0F,
@@ -188,7 +192,7 @@ class MapInflater(
         val modelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
         val spark = addTurretSpark(assetsManager, modelInstance.modelInstance)
-        val turret = gamePlayManagers.entityBuilder.begin()
+        val turret = gamePlayManagers.ecs.entityBuilder.begin()
             .addAiComponent(0)
             .addModelInstanceComponent(
                 modelInstance,
@@ -222,7 +226,7 @@ class MapInflater(
                 )
             )
         )
-        gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
+        gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
             turret,
             shape,
             10F,
@@ -271,7 +275,7 @@ class MapInflater(
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK)),
             ModelDefinition.CANNON_SPARK,
         )
-        val spark = gamePlayManagers.entityBuilder.begin()
+        val spark = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 model,
                 Vector3(),
@@ -351,7 +355,7 @@ class MapInflater(
         }
         val textureDefinition = applyTextureToFloorTile(col, row, entity, modelInstance)
         if (textureDefinition != null && !textureDefinition.fileName.contains("water")) {
-            gamePlayManagers.entityBuilder.addPhysicsComponentToEntity(
+            gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
                 entity,
                 btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
                 0F,
@@ -399,7 +403,7 @@ class MapInflater(
         modelInstance: GameModelInstance,
         position: Vector3
     ): Entity {
-        return gamePlayManagers.entityBuilder.begin()
+        return gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(modelInstance, position, null)
             .addGroundComponent()
             .finishAndAddToEngine()

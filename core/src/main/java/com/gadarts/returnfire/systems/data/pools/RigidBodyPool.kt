@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Pool
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.PooledObjectPhysicalDefinition
+import com.gadarts.returnfire.model.definitions.PooledObjectPhysicalDefinition
 
 class RigidBodyPool(
     val definition: ModelDefinition,

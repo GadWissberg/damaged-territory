@@ -1,7 +1,7 @@
 package com.gadarts.returnfire
 
-import com.gadarts.returnfire.model.CharacterDefinition
-import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 
 @Suppress("RedundantNullableReturnType")
 object GameDebugSettings {

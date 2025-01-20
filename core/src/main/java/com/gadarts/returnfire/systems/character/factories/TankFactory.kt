@@ -17,7 +17,7 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.PlacedElement
-import com.gadarts.returnfire.model.TurretCharacterDefinition
+import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 

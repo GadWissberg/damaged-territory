@@ -1,8 +1,9 @@
-package com.gadarts.returnfire.model
+package com.gadarts.returnfire.model.definitions
 
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
+import com.gadarts.returnfire.model.ShapeCreator
 import com.gadarts.returnfire.utils.GeneralUtils
 
 enum class PooledObjectPhysicalDefinition(

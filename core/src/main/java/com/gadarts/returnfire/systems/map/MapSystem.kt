@@ -35,9 +35,6 @@ import com.gadarts.returnfire.utils.MapInflater
 import kotlin.math.max
 import kotlin.math.min
 
-/**
- * Responsible to create the map from the loaded map file and manage general map procedures and ambient effects.
- */
 class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
     private val landingMark: ChildDecal by lazy { createLandingMark() }
@@ -181,7 +178,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        val door = gamePlayManagers.entityBuilder.begin()
+        val door = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 doorModelInstance,
                 basePosition.add(1F, -0.1F, 1F), null
@@ -206,7 +203,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             if (ComponentsMapper.base.get(base).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
         val texture =
             gamePlayManagers.assetsManager.getTexture(color)
-        return gamePlayManagers.entityBuilder.begin()
+        return gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 model = GameModelInstance(
                     ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
@@ -367,7 +364,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     companion object {
-        val DOORS_DELAY = 1000F
+        const val DOORS_DELAY = 1000F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
     }

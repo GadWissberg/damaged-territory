@@ -1,7 +1,8 @@
-package com.gadarts.returnfire.model
+package com.gadarts.returnfire.model.definitions
 
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.model.CharacterType
 
 enum class SimpleCharacterDefinition(
     private val hp: Int,

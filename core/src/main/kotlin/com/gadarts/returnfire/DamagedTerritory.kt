@@ -10,7 +10,7 @@ import com.gadarts.returnfire.assets.definitions.MusicDefinition
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.managers.SoundPlayer
-import com.gadarts.returnfire.model.CharacterDefinition
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.screens.HangarScreen
 import com.gadarts.returnfire.screens.ScreensManager

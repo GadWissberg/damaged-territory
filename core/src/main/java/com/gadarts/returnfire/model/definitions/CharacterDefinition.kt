@@ -1,6 +1,8 @@
-package com.gadarts.returnfire.model
+package com.gadarts.returnfire.model.definitions
 
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.returnfire.model.CharacterType
+import com.gadarts.returnfire.model.ElementType
 
 interface CharacterDefinition : ElementDefinition {
     override fun getType(): ElementType {

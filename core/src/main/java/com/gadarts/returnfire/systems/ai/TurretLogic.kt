@@ -15,9 +15,6 @@ import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
 
-/**
- * Defines the logic for the enemy attack
- */
 class TurretLogic(private val gameSessionData: GameSessionData, private val gamePlayManagers: GamePlayManagers) {
 
     fun attack(

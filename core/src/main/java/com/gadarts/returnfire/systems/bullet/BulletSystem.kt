@@ -31,9 +31,6 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
-/**
- * Responsible to create, update and destroy all existing bullets in the scene.
- */
 class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
@@ -125,7 +122,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val aimSky = BulletCreationRequestEventData.aimSky
         val bulletBehavior =
             if (noTarget && !aimSky) BulletCreationRequestEventData.armComponent.bulletBehavior else BulletBehavior.REGULAR
-        val entityBuilder = gamePlayManagers.entityBuilder.begin()
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -152,7 +149,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun addSparkParticleEffect(position: Vector3, arm: ArmComponent) {
-        gamePlayManagers.entityBuilder.begin()
+        gamePlayManagers.ecs.entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
                 arm.armProperties.effectsData.sparkParticleEffect
@@ -186,7 +183,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             val yaw = gameModelInstance.modelInstance.transform.getRotation(
                 auxQuat
             ).yaw
-            gamePlayManagers.entityBuilder.begin()
+            gamePlayManagers.ecs.entityBuilder.begin()
                 .addParticleEffectComponent(
                     auxVector3.set(position).sub(
                         auxVector2.set(Vector3.X).rotate(
@@ -207,7 +204,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         armProperties: ArmProperties,
     ) {
         val transform = gameModelInstance.modelInstance.transform
-        gamePlayManagers.entityBuilder.addPhysicsComponentPooled(
+        gamePlayManagers.ecs.entityBuilder.addPhysicsComponentPooled(
             bullet,
             armProperties.rigidBodyPool,
             CollisionFlags.CF_CHARACTER_OBJECT,
@@ -232,7 +229,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     ) {
         val effectsData = arm.armProperties.effectsData
         if (effectsData.smokeTrail != null) {
-            gamePlayManagers.entityBuilder.addParticleEffectComponent(
+            gamePlayManagers.ecs.entityBuilder.addParticleEffectComponent(
                 position = position,
                 pool = effectsData.smokeTrail,
                 thisEntityAsParent = true
@@ -280,7 +277,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             if (explosive) {
                 gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL))
             }
-            gamePlayManagers.entityBuilder.begin()
+            gamePlayManagers.ecs.entityBuilder.begin()
                 .addParticleEffectComponent(
                     position,
                     gameSessionData.pools.particleEffectsPools.obtain(
@@ -290,7 +287,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             addBlastRing(bulletComponent.explosion!!, position)
         } else {
             if (!explosive) {
-                gamePlayManagers.entityBuilder.begin()
+                gamePlayManagers.ecs.entityBuilder.begin()
                     .addParticleEffectComponent(
                         position,
                         gameSessionData.pools.particleEffectsPools.obtain(

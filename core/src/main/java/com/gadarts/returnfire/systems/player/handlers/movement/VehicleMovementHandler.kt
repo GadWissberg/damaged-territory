@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.model.TurretCharacterDefinition
+import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 
 
 abstract class VehicleMovementHandler(

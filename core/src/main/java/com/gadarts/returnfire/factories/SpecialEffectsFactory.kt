@@ -78,19 +78,10 @@ class SpecialEffectsFactory(
     }
 
     fun generateExplosion(entity: Entity, blastRing: Boolean = false) {
-        val position =
-            ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
-                auxVector
-            )
+        val transform = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
+        val position = transform.getTranslation(auxVector)
         if (blastRing) {
-            addGroundBlast(
-                position,
-                blastRingTexture,
-                0.1F,
-                8F,
-                500,
-                0.03F
-            )
+            addGroundBlast(position, blastRingTexture, 0.1F, 8F, 500, 0.03F)
         }
         entityBuilder.begin().addParticleEffectComponent(
             position.add(

@@ -16,7 +16,7 @@ class PlayerSystemOnCharacterOffBoarded(private val playerSystem: PlayerSystem) 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
             characterPhysicsInitializer.initialize(
-                gamePlayManagers.entityBuilder,
+                gamePlayManagers.ecs.entityBuilder,
                 gameSessionData.gamePlayData.player!!
             )
             playerSystem.initInputMethod()

@@ -23,8 +23,8 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.TurretCharacterDefinition
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
@@ -39,19 +39,13 @@ import kotlin.math.min
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     GameEntitySystem(gamePlayManagers) {
 
+    private val characterAmbSoundPitchUpdater = CharacterAmbSoundPitchUpdater(gamePlayManagers.ecs.engine)
     private val opponentCharacterFactory by lazy {
         OpponentCharacterFactory(
             gamePlayManagers.assetsManager,
             gameSessionData,
             gamePlayManagers.factories.gameModelInstanceFactory,
-            gamePlayManagers.entityBuilder,
-        )
-    }
-
-
-    private val ambSoundEntities: ImmutableArray<Entity> by lazy {
-        engine!!.getEntitiesFor(
-            Family.all(AmbSoundComponent::class.java).get()
+            gamePlayManagers.ecs.entityBuilder,
         )
     }
 
@@ -162,7 +156,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base)
             }
             damagedCharacter.takeDamage(damage)
-            gamePlayManagers.entityBuilder.begin()
+            gamePlayManagers.ecs.entityBuilder.begin()
                 .addParticleEffectComponent(
                     ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
@@ -241,23 +235,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     override fun update(deltaTime: Float) {
         updateCharacters(deltaTime)
         updateTurrets()
-        for (entity in ambSoundEntities) {
-            val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
-            val sound = ambSoundComponent.sound
-            val pitchTarget = ambSoundComponent.pitchTarget
-            val pitch = ambSoundComponent.pitch
-            if (!MathUtils.isEqual(pitchTarget, pitch, 0.1F)) {
-                val calculatePitchStep = calculateNewPitch(pitchTarget, pitch, deltaTime)
-                ambSoundComponent.pitch = calculatePitchStep
-                sound.setPitch(ambSoundComponent.soundId, calculatePitchStep)
-            }
-        }
+        characterAmbSoundPitchUpdater.update(deltaTime)
     }
 
-    private fun calculateNewPitch(pitchTarget: Float, pitch: Float, deltaTime: Float): Float {
-        val stepSize = PITCH_STEP_SIZE * deltaTime * 60F * (if (pitch < pitchTarget) 1F else -1F)
-        return pitch + stepSize
-    }
 
     private fun updateTurrets() {
         for (turret in turretEntities) {
@@ -337,7 +317,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     }
                 } else {
                     val boardingAnimation = boardingComponent.boardingAnimation
-                    val isAlreadyDone = boardingAnimation?.isDone() ?: true
+                    val isAlreadyDone = boardingAnimation?.isDone() != false
                     val animationDone = updateBoardingAnimation(deltaTime, character)
                     if (ComponentsMapper.physics.has(character)) {
                         val physicsComponent = ComponentsMapper.physics.get(character)
@@ -390,7 +370,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                     auxVector1
                                 )
                             val smoke =
-                                gamePlayManagers.entityBuilder.begin().addParticleEffectComponent(
+                                gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
                                     position = position,
                                     pool = gameSessionData.pools.particleEffectsPools.obtain(
                                         ParticleEffectDefinition.SMOKE_UP_LOOP
@@ -523,7 +503,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
         )
         val gameModelInstance = GameModelInstance(modelInstance, ModelDefinition.FLYING_PART)
-        val flyingPart = gamePlayManagers.entityBuilder.begin()
+        val flyingPart = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -561,7 +541,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
         const val ROT_STEP = 1600F
-        private const val PITCH_STEP_SIZE = 0.05F
     }
 
 }

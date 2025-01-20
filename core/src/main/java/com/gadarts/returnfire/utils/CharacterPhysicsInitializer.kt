@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 
 class CharacterPhysicsInitializer {

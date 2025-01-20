@@ -17,8 +17,8 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.components.physics.PhysicsComponent
-import com.gadarts.returnfire.model.AmbDefinition
-import com.gadarts.returnfire.model.CharacterDefinition
+import com.gadarts.returnfire.model.definitions.AmbDefinition
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
 

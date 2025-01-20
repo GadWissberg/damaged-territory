@@ -1,13 +1,14 @@
-package com.gadarts.returnfire.model
+package com.gadarts.returnfire.model.definitions
 
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.model.ElementType
 
 enum class AmbDefinition(
     private val modelDefinition: ModelDefinition,
     private val randomizeScale: Boolean = false,
     private val randomizeRotation: Boolean = false,
-    val collisionFlags: Int = CollisionFlags.CF_STATIC_OBJECT,
+    val collisionFlags: Int = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
     val placeInMiddleOfCell: Boolean = true,
 ) : ElementDefinition {
     PALM_TREE(ModelDefinition.PALM_TREE, true, true),

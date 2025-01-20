@@ -11,10 +11,11 @@ import com.gadarts.returnfire.factories.AutoAimShapeFactory
 import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
+import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
-import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.GameMap
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.*
 import com.gadarts.returnfire.systems.ai.AiSystem
 import com.gadarts.returnfire.systems.bullet.BulletSystem
@@ -73,13 +74,15 @@ class GamePlayScreen(
         )
         entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
         val gamePlayManagers = GamePlayManagers(
-            engine,
             generalManagers.soundPlayer,
             generalManagers.assetsManager,
             generalManagers.dispatcher,
             factories,
             generalManagers.screensManagers,
-            entityBuilderImpl
+            EcsManager(
+                engine,
+                entityBuilderImpl
+            )
         )
         systems = listOf(
             PhysicsSystem(gamePlayManagers),

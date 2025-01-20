@@ -12,8 +12,8 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.model.CharacterDefinition
 import com.gadarts.returnfire.model.PlacedElement
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.EntityBuilderImpl
 

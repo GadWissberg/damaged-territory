@@ -43,7 +43,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         AiApacheLogic(
             gameSessionData,
             gamePlayManagers.dispatcher,
-            gamePlayManagers.entityBuilder,
+            gamePlayManagers.ecs.entityBuilder,
             autoAim
         )
     }
@@ -65,7 +65,10 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                 val entity = msg.extraInfo as Entity
                 val characterComponent = ComponentsMapper.character.get(entity)
                 if (characterComponent.color == CharacterColor.GREEN) {
-                    gamePlayManagers.entityBuilder.addAiComponentToEntity(entity, characterComponent.definition.getHP())
+                    gamePlayManagers.ecs.entityBuilder.addAiComponentToEntity(
+                        entity,
+                        characterComponent.definition.getHP()
+                    )
                 }
             }
         },
@@ -73,7 +76,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val character = msg.extraInfo as Entity
                 if (!ComponentsMapper.player.has(character)) {
-                    CharacterPhysicsInitializer().initialize(gamePlayManagers.entityBuilder, character)
+                    CharacterPhysicsInitializer().initialize(gamePlayManagers.ecs.entityBuilder, character)
                 }
             }
         },
@@ -99,7 +102,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         modelInstanceComponent.gameModelInstance.setBoundingBox(
             gamePlayManagers.assetsManager.getCachedBoundingBox(randomDeadModel)
         )
-        gamePlayManagers.entityBuilder.begin()
+        gamePlayManagers.ecs.entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)

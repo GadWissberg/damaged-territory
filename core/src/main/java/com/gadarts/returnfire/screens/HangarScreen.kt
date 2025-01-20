@@ -30,8 +30,8 @@ import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.SoundPlayer
-import com.gadarts.returnfire.model.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.TurretCharacterDefinition
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.screens.hangar.SelectableVehicle
 import com.gadarts.returnfire.screens.hangar.SelectableVehicleChild
 import com.gadarts.returnfire.screens.hangar.VehicleStage

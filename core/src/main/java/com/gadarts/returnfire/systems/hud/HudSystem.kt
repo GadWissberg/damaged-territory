@@ -14,8 +14,8 @@ import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.TurretCharacterDefinition
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape
-import com.gadarts.returnfire.model.PooledObjectPhysicalDefinition
+import com.gadarts.returnfire.model.definitions.PooledObjectPhysicalDefinition
 
 
 enum class ModelDefinition(

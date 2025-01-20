@@ -3,7 +3,7 @@ package com.gadarts.returnfire.systems.data
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.CharacterDefinition
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameSessionDataPools
 
 class GameSessionData(

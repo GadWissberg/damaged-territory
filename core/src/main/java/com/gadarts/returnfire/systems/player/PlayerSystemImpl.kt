@@ -14,7 +14,7 @@ import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -31,9 +31,6 @@ import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.Movement
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
 import com.gadarts.returnfire.systems.player.react.*
 
-/**
- * Responsible to initialize input, create the player and updates the player's character according to the input.
- */
 class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), PlayerSystem,
     InputProcessor {
 
@@ -52,7 +49,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             null
         }
     }
-    private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.entityBuilder)
+    private val playerShootingHandler = PlayerShootingHandler(gamePlayManagers.ecs.entityBuilder)
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         BUTTON_WEAPON_PRIMARY_PRESSED to PlayerSystemOnButtonWeaponPrimaryPressed(playerShootingHandler),
@@ -91,7 +88,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                     }
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
                     modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
-                    gamePlayManagers.entityBuilder.addPlayerComponentToEntity(entity)
+                    gamePlayManagers.ecs.entityBuilder.addPlayerComponentToEntity(entity)
                     initializePlayerHandlers()
                     gamePlayManagers.dispatcher.dispatchMessage(PLAYER_ADDED.ordinal)
                 }

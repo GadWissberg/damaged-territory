@@ -21,7 +21,7 @@ import com.gadarts.returnfire.components.onboarding.ApacheBoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.PlacedElement
-import com.gadarts.returnfire.model.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 
