@@ -34,11 +34,12 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
+import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
 import kotlin.math.min
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     GameEntitySystem(gamePlayManagers) {
-
+    private val characterPhysicsInitializer = CharacterPhysicsInitializer()
     private val characterAmbSoundPitchUpdater = CharacterAmbSoundPitchUpdater(gamePlayManagers.ecs.engine)
     private val opponentCharacterFactory by lazy {
         OpponentCharacterFactory(
@@ -456,6 +457,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
     private fun boardingDone(character: Entity) {
         ComponentsMapper.boarding.get(character).boardingDone()
+        characterPhysicsInitializer.initialize(
+            gamePlayManagers.ecs.entityBuilder,
+            character
+        )
         gamePlayManagers.dispatcher.dispatchMessage(
             SystemEvents.CHARACTER_OFF_BOARDED.ordinal,
             character

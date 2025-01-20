@@ -24,9 +24,7 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_OFF_BOARDED
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler
-import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
 
 
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
@@ -69,14 +67,6 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                         entity,
                         characterComponent.definition.getHP()
                     )
-                }
-            }
-        },
-        CHARACTER_OFF_BOARDED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                val character = msg.extraInfo as Entity
-                if (!ComponentsMapper.player.has(character)) {
-                    CharacterPhysicsInitializer().initialize(gamePlayManagers.ecs.entityBuilder, character)
                 }
             }
         },
