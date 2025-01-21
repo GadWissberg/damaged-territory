@@ -92,7 +92,12 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         if (firstUpdate) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(character)
             soundPlayer.stop(ambSoundComponent.sound, ambSoundComponent.soundId)
-            soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_STOP))
+            soundPlayer.play(
+                assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_STOP),
+                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+            )
             propellerRotationSpeed = MAX_ROTATION_SPEED
             firstUpdate = false
         }
@@ -110,7 +115,12 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         if (firstUpdate) {
             init(null)
             ComponentsMapper.boarding.get(character).offBoardSoundId =
-                soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START))
+                soundPlayer.play(
+                    assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START),
+                    ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector1
+                    )
+                )
             firstUpdate = false
         }
         updateRotation(childModelInstance, deltaTime)

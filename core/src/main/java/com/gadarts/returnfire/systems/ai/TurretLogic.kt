@@ -74,7 +74,7 @@ class TurretLogic(private val gameSessionData: GameSessionData, private val game
                     val armProperties = ComponentsMapper.primaryArm.get(enemy).armProperties
                     enemyComponent.attackReadyTime =
                         now + armProperties.reloadDuration
-                    gamePlayManagers.soundPlayer.play(armProperties.shootingSound)
+                    gamePlayManagers.soundPlayer.play(armProperties.shootingSound, position)
                     CharacterWeaponShotEventData.setWithTarget(
                         enemy,
                         player!!,

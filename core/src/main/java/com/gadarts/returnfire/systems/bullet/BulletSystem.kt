@@ -109,11 +109,14 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun createBullet() {
-        gamePlayManagers.soundPlayer.play(BulletCreationRequestEventData.armComponent.armProperties.shootingSound)
         val spark = BulletCreationRequestEventData.armComponent.spark
         val parentTransform =
             ComponentsMapper.modelInstance.get(ComponentsMapper.spark.get(spark).parent).gameModelInstance.modelInstance.transform
         val position = parentTransform.getTranslation(auxVector1)
+        gamePlayManagers.soundPlayer.play(
+            BulletCreationRequestEventData.armComponent.armProperties.shootingSound,
+            position
+        )
         position.add(BulletCreationRequestEventData.relativePosition)
         showSpark(spark, position, parentTransform)
         val gameModelInstance =
@@ -275,7 +278,10 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val explosive = bulletComponent.explosive
         if (bulletComponent.explosion != null) {
             if (explosive) {
-                gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL))
+                gamePlayManagers.soundPlayer.play(
+                    gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL),
+                    position
+                )
             }
             gamePlayManagers.ecs.entityBuilder.begin()
                 .addParticleEffectComponent(

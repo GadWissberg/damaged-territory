@@ -100,6 +100,9 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
             .finishAndAddToEngine()
         gamePlayManagers.soundPlayer.play(
             gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+            ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            ),
         )
     }
 

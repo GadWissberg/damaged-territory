@@ -45,6 +45,7 @@ class SpecialEffectsFactory(
             ).finishAndAddToEngine()
         soundPlayer.play(
             waterSplashSounds.random(),
+            position
         )
         addGroundBlast(position, waterSplashFloorTexture, 0.5F, 1.01F, 2000, 0.01F)
     }
@@ -96,6 +97,7 @@ class SpecialEffectsFactory(
         ).finishAndAddToEngine()
         soundPlayer.play(
             assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+            position
         )
     }
 

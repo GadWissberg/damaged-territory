@@ -134,7 +134,12 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val baseComponent = ComponentsMapper.base.get(base)
         baseComponent.close()
         baseComponent.baseDoorSoundId =
-            gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE))
+            gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
+                ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+            )
     }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
@@ -156,16 +161,22 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.MAP_SYSTEM_READY.ordinal)
     }
 
-    private fun initializeBase(it: Entity) {
-        addStage(it)
-        val baseComponent = ComponentsMapper.base.get(it)
+    private fun initializeBase(base: Entity) {
+        addStage(base)
+        val baseComponent = ComponentsMapper.base.get(base)
         baseComponent.init(
-            addBaseDoor(it, 0F, -1F),
-            addBaseDoor(it, 180F, 1F)
+            addBaseDoor(base, 0F, -1F),
+            addBaseDoor(base, 180F, 1F)
         )
+        val sourcePosition =
+            ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+
         baseComponent.baseDoorSoundId =
             gamePlayManagers.soundPlayer.play(
-                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE)
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
+                sourcePosition
             )
     }
 
@@ -323,7 +334,10 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
                 baseComponent.baseDoorSoundId
             )
-            gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE))
+            gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE),
+                auxVector2
+            )
         }
     }
 

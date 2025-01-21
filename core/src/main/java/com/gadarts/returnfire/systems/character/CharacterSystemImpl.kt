@@ -288,10 +288,20 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
     private fun updateCharacters(deltaTime: Float) {
         for (character in charactersEntities) {
-            val characterComponent = ComponentsMapper.character.get(character)
+            val hasAmbSound = ComponentsMapper.ambSound.has(character)
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
             val characterTransform =
                 modelInstanceComponent.gameModelInstance.modelInstance.transform
+            if (hasAmbSound) {
+                val ambSoundComponent = ComponentsMapper.ambSound.get(character)
+                if (ambSoundComponent.soundId >= 0) {
+                    val volume = gamePlayManagers.soundPlayer.calculateVolumeBasedOnPosition(
+                        characterTransform.getTranslation(auxVector1)
+                    )
+                    ambSoundComponent.sound.setVolume(ambSoundComponent.soundId, volume)
+                }
+            }
+            val characterComponent = ComponentsMapper.character.get(character)
             val definition = characterComponent.definition
             if (definition == SimpleCharacterDefinition.APACHE) {
                 val child = ComponentsMapper.childDecal.get(character).decals[0]
@@ -388,7 +398,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     characterComponent.incrementDeathSequence()
                     if (characterComponent.deathSequenceDuration <= 0) {
                         characterComponent.dead = true
-                        if (ComponentsMapper.ambSound.has(character)) {
+                        if (hasAmbSound) {
                             val ambSoundComponent = ComponentsMapper.ambSound.get(character)
                             ambSoundComponent.sound.stop(ambSoundComponent.soundId)
                         }

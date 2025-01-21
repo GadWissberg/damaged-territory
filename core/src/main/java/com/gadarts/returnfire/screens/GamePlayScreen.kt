@@ -72,6 +72,7 @@ class GamePlayScreen(
             GameModelInstanceFactory(generalManagers.assetsManager),
             AutoAimShapeFactory(gameSessionData)
         )
+        generalManagers.soundPlayer.sessionInitialize(gameSessionData.renderData.camera)
         entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
         val gamePlayManagers = GamePlayManagers(
             generalManagers.soundPlayer,
