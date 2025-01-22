@@ -12,7 +12,7 @@ enum class SimpleCharacterDefinition(
     private val startHeight: Float,
     private val flyer: Boolean,
 ) : CharacterDefinition {
-    APACHE(100, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), 3.9F, true);
+    APACHE(100, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), CharacterDefinition.FLYER_HEIGHT, true);
 
     override fun isFlyer(): Boolean {
         return flyer
@@ -22,7 +22,7 @@ enum class SimpleCharacterDefinition(
         return output.set(linearFactor)
     }
 
-    override fun getStartHeight(): Float {
+    override fun getMovementHeight(): Float {
         return startHeight
     }
 

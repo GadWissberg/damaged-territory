@@ -24,12 +24,14 @@ import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
+
 
 class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
@@ -95,6 +97,12 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     override fun update(deltaTime: Float) {
         for (bullet in bulletEntities) {
+            val rigidBody = ComponentsMapper.physics.get(bullet).rigidBody
+            val position = rigidBody.worldTransform.getTranslation(auxVector1)
+            val velocity: Vector3 = rigidBody.linearVelocity
+            if (velocity.y > 0F && position.y > CharacterDefinition.FLYER_HEIGHT) {
+                rigidBody.linearVelocity = auxVector2.set(velocity.x, 0f, velocity.z)
+            }
             val destroyBullet = bulletLogic.update(bullet, deltaTime)
             if (destroyBullet) {
                 destroyBullet(bullet)
@@ -330,6 +338,8 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
         private val auxQuat = Quaternion()
+        private val auxMatrix = Matrix4()
+
     }
 
 }

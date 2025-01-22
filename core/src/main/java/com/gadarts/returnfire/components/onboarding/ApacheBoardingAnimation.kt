@@ -129,7 +129,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
             updateDecalOpacity(character, deltaTime)
             val transform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
             takeStepForBoarding(deltaTime, transform)
-            val startHeight = ComponentsMapper.character.get(character).definition.getStartHeight()
+            val startHeight = ComponentsMapper.character.get(character).definition.getMovementHeight()
             if (transform.getTranslation(auxVector1).y >= startHeight) {
                 transform.setTranslation(auxVector1.x, startHeight, auxVector1.z)
                 ComponentsMapper.childModelInstance.get(character).visible = false

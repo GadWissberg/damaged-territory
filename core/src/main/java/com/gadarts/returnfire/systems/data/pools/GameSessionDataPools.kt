@@ -42,5 +42,8 @@ class GameSessionDataPools(
 
     override fun dispose() {
         floorModel.dispose()
+        rigidBodyPools.pools.forEach {
+            it.value.clear()
+        }
     }
 }

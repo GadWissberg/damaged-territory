@@ -22,7 +22,7 @@ enum class TurretCharacterDefinition(
         return baseModelDefinition
     }
 
-    override fun getStartHeight(): Float {
+    override fun getMovementHeight(): Float {
         return 0.1F
     }
 

@@ -1,12 +1,14 @@
 package com.gadarts.returnfire.systems.physics
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.*
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo
+import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -98,6 +100,9 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         bulletEngineHandler.dispose()
         contactListener.dispose()
         ghostObject.dispose()
+        engine.getEntitiesFor(Family.all(PhysicsComponent::class.java).get()).forEach {
+            ComponentsMapper.physics.get(it).dispose()
+        }
     }
 
     private fun createBoundaryPhysicsBody(vector: Vector3, planeConstant: Int): btRigidBody {
