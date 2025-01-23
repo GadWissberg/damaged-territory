@@ -2,6 +2,7 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -11,6 +12,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 
 class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
@@ -28,9 +30,9 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         super.update(deltaTime)
         gameSessionData.renderData.camera.update()
         if (gameSessionData.gamePlayData.playerMovementHandler.isThrusting()) {
-            followPlayer(3F)
+            followPlayer(2F, deltaTime)
         } else {
-            followPlayer(0F)
+            followPlayer(0F, deltaTime)
         }
     }
 
@@ -45,28 +47,39 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         super.addedToEngine(engine)
     }
 
-    private fun followPlayer(gap: Float) {
+    private var followProgress = 0F  // Track movement progress
+
+    private fun followPlayer(gap: Float, deltaTime: Float) {
         val player = gameSessionData.gamePlayData.player ?: return
 
-        val transform =
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+        val transform = ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val playerPosition = transform.getTranslation(auxVector3_1)
-        val direction = auxVector3_2.set(Vector3.X).rot(
-            auxMatrix.set(
-                transform.getRotation(
-                    auxQuat
-                )
-            )
-        ).nor()
+        val direction = auxVector3_2.set(Vector3.X).rot(auxMatrix.set(transform.getRotation(auxQuat))).nor()
         val zOffset = Z_OFFSET * max(abs(direction.x), max(direction.z, 0F))
-        val relativePosition =
-            direction.scl(gap)
-        cameraTarget =
-            playerPosition.add(relativePosition.x, 0F, relativePosition.z + zOffset)
+        val relativePosition = direction.scl(gap)
 
+        val targetPosition = playerPosition.add(relativePosition.x, 0F, relativePosition.z + zOffset)
         val camera = gameSessionData.renderData.camera
-        cameraTarget.y = camera.position.y
-        camera.position.lerp(cameraTarget, if (gap == 0F) 0.005F else 0.01F)
+        cameraTarget.set(targetPosition.x, camera.position.y, targetPosition.z)
+
+        // Calculate the squared distance to avoid unnecessary sqrt operations
+        val distanceSquared = camera.position.dst2(cameraTarget)
+
+        if (distanceSquared > 0.0001F) {  // Reduced threshold for smoother final approach
+            followProgress = min(followProgress + deltaTime * 0.2F, 1F)  // Increase progress smoothly
+
+            val distance = kotlin.math.sqrt(distanceSquared)
+
+            // Introduce a max speed limit to prevent fast snapping
+            val maxSpeed = 2F  // Units per second
+            val smoothFactor = Interpolation.smooth.apply(followProgress) * 0.1F
+            val clampedFactor = min(smoothFactor, maxSpeed * deltaTime / distance)
+
+            camera.position.lerp(cameraTarget, clampedFactor)
+        } else {
+            followProgress = max(followProgress - deltaTime * 0.5F, 0F)  // Slow decay to prevent snapping
+            camera.position.lerp(cameraTarget, 0.02F)  // Small value to avoid jittering
+        }
     }
 
 
