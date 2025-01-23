@@ -35,6 +35,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
+import kotlin.math.max
 import kotlin.math.min
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
@@ -150,7 +151,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val isSecondCharacter = ComponentsMapper.character.has(second)
         val isSecondTurret = if (!isSecondCharacter) ComponentsMapper.turret.has(second) else false
         if (ComponentsMapper.bullet.has(first) && (isSecondCharacter || isSecondTurret)) {
-            val damage = ComponentsMapper.bullet.get(first).damage
+            val damage = max(ComponentsMapper.bullet.get(first).damage + MathUtils.random(-2, 2), 1)
             val damagedCharacter = if (isSecondCharacter) {
                 ComponentsMapper.character.get(second)
             } else {
