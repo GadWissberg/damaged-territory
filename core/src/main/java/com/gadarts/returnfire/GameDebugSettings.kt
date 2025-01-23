@@ -13,6 +13,7 @@ object GameDebugSettings {
     const val DEBUG_INPUT = false
     const val UI_DEBUG = false
     const val SFX = false
+    const val DISABLE_MUSIC = true
     const val HIDE_PLAYER = false
     const val HIDE_FLOOR = false
     const val HIDE_ENEMIES = false
@@ -25,5 +26,4 @@ object GameDebugSettings {
     const val AI_DISABLED = false
     const val AI_ATTACK_DISABLED = false
     const val DISABLE_AMB_SOUNDS = false
-    const val DISABLE_MUSIC = true
 }

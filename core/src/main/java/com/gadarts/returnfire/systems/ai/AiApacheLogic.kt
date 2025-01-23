@@ -93,7 +93,10 @@ class AiApacheLogic(
         targetPosition.y = 0F
         val distance = decideMovement(characterPosition, targetPosition, character)
         val player = gameSessionData.gamePlayData.player
-        if (distance < 9F && !GameDebugSettings.AI_ATTACK_DISABLED && player != null && !ComponentsMapper.character.get(
+        if (distance < MAX_DISTANCE_TO_THRUST_TO_TARGET
+            && !GameDebugSettings.AI_ATTACK_DISABLED
+            && player != null
+            && !ComponentsMapper.character.get(
                 player
             ).dead
         ) {
@@ -137,7 +140,7 @@ class AiApacheLogic(
         character: Entity
     ): Float {
         val distance = characterPosition.dst2(targetPosition)
-        if (distance > 14F) {
+        if (distance > MAX_DISTANCE_TO_THRUST_TO_TARGET) {
             movementHandler.thrust(character)
         } else if (distance < 5F) {
             movementHandler.reverse()
@@ -192,6 +195,7 @@ class AiApacheLogic(
     }
 
     companion object {
+        val MAX_DISTANCE_TO_THRUST_TO_TARGET = 14F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
