@@ -2,7 +2,6 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -12,12 +11,9 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.min
 
 class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
-
-    private var cameraTarget = Vector3()
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
@@ -29,11 +25,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         gameSessionData.renderData.camera.update()
-        if (gameSessionData.gamePlayData.playerMovementHandler.isThrusting()) {
-            followPlayer(2F, deltaTime)
-        } else {
-            followPlayer(0F, deltaTime)
-        }
+        followPlayer(deltaTime)
     }
 
     override fun resume(delta: Long) {
@@ -47,39 +39,37 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         super.addedToEngine(engine)
     }
 
-    private var followProgress = 0F  // Track movement progress
+    private fun followPlayer(deltaTime: Float) {
+        val player = gameSessionData.gamePlayData.player
+        if (player == null || !ComponentsMapper.physics.has(player)) return
 
-    private fun followPlayer(gap: Float, deltaTime: Float) {
-        val player = gameSessionData.gamePlayData.player ?: return
-
-        val transform = ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
-        val playerPosition = transform.getTranslation(auxVector3_1)
-        val direction = auxVector3_2.set(Vector3.X).rot(auxMatrix.set(transform.getRotation(auxQuat))).nor()
-        val zOffset = Z_OFFSET * max(abs(direction.x), max(direction.z, 0F))
-        val relativePosition = direction.scl(gap)
-
-        val targetPosition = playerPosition.add(relativePosition.x, 0F, relativePosition.z + zOffset)
+        val playerTransform = ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+        val playerPosition = playerTransform.getTranslation(auxVector3_1)
         val camera = gameSessionData.renderData.camera
-        cameraTarget.set(targetPosition.x, camera.position.y, targetPosition.z)
+        val cameraPosition = auxVector3_4.set(camera.position)
+        val rotation = playerTransform.getRotation(auxQuat)
+        rotation.setEulerAngles(rotation.yaw, 0F, 0F)
+        val rotationVector = auxVector3_3.set(1F, 0F, 0F).rot(auxMatrix.idt().set(rotation)).nor()
+        val cameraTarget = auxVector3_2.set(playerPosition)
+            .add(auxVector3_5.set(rotationVector).scl(2F)).add(
+                0F, 0F,
+                max(abs(rotationVector.x), if (rotationVector.z >= 0) 0.8F else 0.5F) * Z_OFFSET
+            )
+        val movementDirection =
+            auxVector3_3.set(cameraTarget).sub(cameraPosition).nor()
+                .scl(deltaTime * gameSessionData.fpsTarget * 2F * 0.1F)
 
-        // Calculate the squared distance to avoid unnecessary sqrt operations
-        val distanceSquared = camera.position.dst2(cameraTarget)
-
-        if (distanceSquared > 0.0001F) {  // Reduced threshold for smoother final approach
-            followProgress = min(followProgress + deltaTime * 0.2F, 1F)  // Increase progress smoothly
-
-            val distance = kotlin.math.sqrt(distanceSquared)
-
-            // Introduce a max speed limit to prevent fast snapping
-            val maxSpeed = 2F  // Units per second
-            val smoothFactor = Interpolation.smooth.apply(followProgress) * 0.1F
-            val clampedFactor = min(smoothFactor, maxSpeed * deltaTime / distance)
-
-            camera.position.lerp(cameraTarget, clampedFactor)
-        } else {
-            followProgress = max(followProgress - deltaTime * 0.5F, 0F)  // Slow decay to prevent snapping
-            camera.position.lerp(cameraTarget, 0.02F)  // Small value to avoid jittering
+        movementDirection.y = 0F
+        cameraPosition.y = 0F
+        cameraTarget.y = 0F
+        val dst2 = cameraPosition.dst2(cameraTarget)
+        if (dst2 > 0.1F) {
+            cameraPosition.add(movementDirection)
+        } else if (dst2 > 0.005F) {
+            cameraPosition.slerp(cameraTarget, 0.01F)
         }
+        cameraPosition.y = camera.position.y
+        camera.position.set(cameraPosition)
     }
 
 
@@ -106,8 +96,11 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         private const val Z_OFFSET = 2.5F
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
-        private val auxQuat = Quaternion()
+        private val auxVector3_3 = Vector3()
+        private val auxVector3_4 = Vector3()
+        private val auxVector3_5 = Vector3()
         private val auxMatrix = Matrix4()
+        private val auxQuat = Quaternion()
     }
 
 }
