@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.SoundPlayer
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -180,6 +181,6 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         private val auxVector3 = Vector3()
         private const val MAX_ROTATION_SPEED = 16F
         private const val ROTATION_THRESHOLD = 8F
-        private const val GROUND_HEIGHT_POSITION = 0.2F
+        private const val GROUND_HEIGHT_POSITION = MAX_Y + 1.5F
     }
 }

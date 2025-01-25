@@ -18,6 +18,7 @@ import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -319,7 +320,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 val stageTransform =
                     ComponentsMapper.modelInstance.get(gameSessionData.mapData.stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isOffboarding()) {
-                    if (stageTransform.getTranslation(auxVector1).y < STAGE_MAX_Y) {
+                    if (stageTransform.getTranslation(auxVector1).y < MAX_Y) {
                         takeStepForStageWithCharacter(stageTransform, deltaTime, character)
                     } else {
                         val animationDone = updateBoardingAnimation(deltaTime, character)
@@ -440,7 +441,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val oldStagePosition = stageTransform.getTranslation(auxVector3)
         stageTransform.trn(0F, deltaTime, 0F)
         val newPosition = stageTransform.getTranslation(auxVector1)
-        newPosition.y = min(STAGE_MAX_Y, newPosition.y)
+        newPosition.y = min(MAX_Y, newPosition.y)
         stageTransform.setTranslation(newPosition)
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,
@@ -551,7 +552,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     companion object {
-        private const val STAGE_MAX_Y = -0.8F
         private val auxQuat = Quaternion()
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
