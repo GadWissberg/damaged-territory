@@ -35,6 +35,16 @@ import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 
 class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
+    private val bulletLogic = BulletLogic()
+
+    private val blastRingTexture: Texture by lazy { this.gamePlayManagers.assetsManager.getTexture("blast_ring") }
+
+    private val bulletEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(BulletComponent::class.java).get()
+        )
+    }
+
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
             override fun react(
@@ -59,16 +69,6 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
         }
     )
-
-    private val bulletLogic = BulletLogic()
-
-    private val blastRingTexture: Texture by lazy { this.gamePlayManagers.assetsManager.getTexture("blast_ring") }
-
-    private val bulletEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(
-            Family.all(BulletComponent::class.java).get()
-        )
-    }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
@@ -118,21 +118,37 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     private fun createBullet() {
         val spark = BulletCreationRequestEventData.armComponent.spark
-        val parentTransform =
-            ComponentsMapper.modelInstance.get(ComponentsMapper.spark.get(spark).parent).gameModelInstance.modelInstance.transform
+        val parentModelInstanceComponent = ComponentsMapper.modelInstance.get(ComponentsMapper.spark.get(spark).parent)
+        val parentTransform = parentModelInstanceComponent.gameModelInstance.modelInstance.transform
         val position = parentTransform.getTranslation(auxVector1)
         gamePlayManagers.soundPlayer.play(
             BulletCreationRequestEventData.armComponent.armProperties.shootingSound,
             position
         )
         position.add(BulletCreationRequestEventData.relativePosition)
-        showSpark(spark, position, parentTransform)
+        showSpark(position, parentTransform)
+        val modelDefinition = BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition
         val gameModelInstance =
-            gameSessionData.pools.gameModelInstancePools[BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition]!!.obtain()
+            gameSessionData.pools.gameModelInstancePools[modelDefinition]!!.obtain()
         val noTarget = BulletCreationRequestEventData.target == null
         val aimSky = BulletCreationRequestEventData.aimSky
         val bulletBehavior =
             if (noTarget && !aimSky) BulletCreationRequestEventData.armComponent.bulletBehavior else BulletBehavior.REGULAR
+        val bullet = createBulletEntity(gameModelInstance, position, bulletBehavior)
+        applyPhysicsToBullet(
+            bullet,
+            gameModelInstance,
+            BulletCreationRequestEventData.armComponent.armProperties,
+        )
+        addSmokeEmission(BulletCreationRequestEventData.armComponent.armProperties, gameModelInstance, position)
+        addSparkParticleEffect(position, BulletCreationRequestEventData.armComponent)
+    }
+
+    private fun createBulletEntity(
+        gameModelInstance: GameModelInstance,
+        position: Vector3,
+        bulletBehavior: BulletBehavior
+    ): Entity {
         val entityBuilder = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
@@ -148,15 +164,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             )
         addSmokeTrail(BulletCreationRequestEventData.armComponent, position)
         val bullet = entityBuilder.finishAndAddToEngine()
-        val aimingTransform = BulletCreationRequestEventData.direction
-        applyPhysicsToBullet(
-            bullet,
-            gameModelInstance,
-            aimingTransform,
-            BulletCreationRequestEventData.armComponent.armProperties,
-        )
-        addSmokeEmission(BulletCreationRequestEventData.armComponent.armProperties, gameModelInstance, position)
-        addSparkParticleEffect(position, BulletCreationRequestEventData.armComponent)
+        return bullet
     }
 
     private fun addSparkParticleEffect(position: Vector3, arm: ArmComponent) {
@@ -169,10 +177,10 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun showSpark(
-        spark: Entity,
         position: Vector3?,
         parentTransform: Matrix4
     ) {
+        val spark = BulletCreationRequestEventData.armComponent.spark
         val sparkModelInstanceComponent = ComponentsMapper.modelInstance.get(spark)
         val sparkTransform = sparkModelInstanceComponent.gameModelInstance.modelInstance.transform
         sparkTransform.setToTranslation(position).rotate(parentTransform.getRotation(auxQuat))
@@ -211,9 +219,9 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun applyPhysicsToBullet(
         bullet: Entity,
         gameModelInstance: GameModelInstance,
-        aimingTransform: Matrix4,
         armProperties: ArmProperties,
     ) {
+        val aimingTransform = BulletCreationRequestEventData.direction
         val transform = gameModelInstance.modelInstance.transform
         gamePlayManagers.ecs.entityBuilder.addPhysicsComponentPooled(
             bullet,
@@ -338,8 +346,6 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
         private val auxQuat = Quaternion()
-        private val auxMatrix = Matrix4()
-
     }
 
 }

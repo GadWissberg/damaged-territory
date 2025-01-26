@@ -101,6 +101,10 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         return movement > 0
     }
 
+    override fun isReversing(): Boolean {
+        return movement < 0
+    }
+
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
 
     }

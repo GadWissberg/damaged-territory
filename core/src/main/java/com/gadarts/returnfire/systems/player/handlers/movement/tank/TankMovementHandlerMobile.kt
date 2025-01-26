@@ -86,6 +86,10 @@ class TankMovementHandlerMobile(player: Entity) :
         return !reverse
     }
 
+    override fun isReversing(): Boolean {
+        return reverse
+    }
+
     override fun onReverseScreenButtonPressed() {
         val direction = auxVector2.set(Vector2.X).setAngleDeg(
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(

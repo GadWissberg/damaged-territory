@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems.character
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.MathUtils
@@ -17,8 +16,10 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
+import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -42,7 +43,8 @@ import kotlin.math.min
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     GameEntitySystem(gamePlayManagers) {
     private val characterPhysicsInitializer = CharacterPhysicsInitializer()
-    private val characterAmbSoundPitchUpdater = CharacterAmbSoundPitchUpdater(gamePlayManagers.ecs.engine)
+    private val characterAmbSoundUpdater =
+        CharacterAmbSoundUpdater(gamePlayManagers.soundPlayer, gamePlayManagers.ecs.engine)
     private val opponentCharacterFactory by lazy {
         OpponentCharacterFactory(
             gamePlayManagers.assetsManager,
@@ -51,24 +53,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gamePlayManagers.ecs.entityBuilder,
         )
     }
-
-    private val baseEntities: ImmutableArray<Entity> by lazy {
-        engine!!.getEntitiesFor(
-            Family.all(BaseComponent::class.java).get()
-        )
-    }
-
-    private val charactersEntities: ImmutableArray<Entity> by lazy {
-        engine!!.getEntitiesFor(
-            Family.all(CharacterComponent::class.java).get()
-        )
-    }
-
-    private val turretEntities: ImmutableArray<Entity> by lazy {
-        engine!!.getEntitiesFor(
-            Family.all(TurretComponent::class.java).get()
-        )
-    }
+    private val relatedEntities by lazy { CharacterSystemRelatedEntities(engine) }
     private val flyingPartBoundingBox by lazy {
         this.gamePlayManagers.assetsManager.getCachedBoundingBox(
             ModelDefinition.FLYING_PART
@@ -187,7 +172,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
     private fun addOpponents() {
         val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
-        baseEntities.forEach {
+        relatedEntities.baseEntities.forEach {
             val base =
                 map.placedElements.find { placedElement ->
                     placedElement.definition == ComponentsMapper.amb.get(
@@ -238,12 +223,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     override fun update(deltaTime: Float) {
         updateCharacters(deltaTime)
         updateTurrets()
-        characterAmbSoundPitchUpdater.update(deltaTime)
+        characterAmbSoundUpdater.update(deltaTime)
     }
 
-
     private fun updateTurrets() {
-        for (turret in turretEntities) {
+        for (turret in relatedEntities.turretEntities) {
             val turretComponent = ComponentsMapper.turret.get(turret)
             if (turretComponent.followBase) {
                 val base = turretComponent.base
@@ -289,20 +273,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
 
     private fun updateCharacters(deltaTime: Float) {
-        for (character in charactersEntities) {
+        for (character in relatedEntities.charactersEntities) {
             val hasAmbSound = ComponentsMapper.ambSound.has(character)
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
             val characterTransform =
                 modelInstanceComponent.gameModelInstance.modelInstance.transform
-            if (hasAmbSound) {
-                val ambSoundComponent = ComponentsMapper.ambSound.get(character)
-                if (ambSoundComponent.soundId >= 0) {
-                    val volume = gamePlayManagers.soundPlayer.calculateVolumeBasedOnPosition(
-                        characterTransform.getTranslation(auxVector1)
-                    )
-                    ambSoundComponent.sound.setVolume(ambSoundComponent.soundId, volume)
-                }
-            }
             val characterComponent = ComponentsMapper.character.get(character)
             val definition = characterComponent.definition
             if (definition == SimpleCharacterDefinition.APACHE) {

@@ -31,6 +31,7 @@ import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.Movement
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
 import com.gadarts.returnfire.systems.player.react.*
 
+@Suppress("KotlinConstantConditions")
 class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), PlayerSystem,
     InputProcessor {
 

@@ -108,6 +108,7 @@ abstract class VehicleMovementHandler(
     abstract fun pressedRight()
     abstract fun releasedAlt()
     abstract fun isThrusting(): Boolean
+    abstract fun isReversing(): Boolean
 
     companion object {
         private val auxVector3_1 = Vector3()

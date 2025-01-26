@@ -54,11 +54,18 @@ class AiApacheLogic(
                     auxVector4
                 )
             }
-        val characterTransform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
+        val characterTransform =
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         if (returnToBase) {
             movementHandler.thrust(character)
             val characterPosition = characterTransform.getTranslation(auxVector2)
-            if (characterPosition.epsilonEquals(targetPosition.x, characterPosition.y, targetPosition.z, 0.8F)) {
+            if (characterPosition.epsilonEquals(
+                    targetPosition.x,
+                    characterPosition.y,
+                    targetPosition.z,
+                    0.8F
+                )
+            ) {
                 dispatcher.dispatchMessage(
                     SystemEvents.CHARACTER_REQUEST_BOARDING.ordinal,
                     character
@@ -181,13 +188,15 @@ class AiApacheLogic(
         targetPosition: Vector3,
         characterTransform: Matrix4
     ) {
-        val directionToTarget = auxVector3.set(targetPosition).sub(characterTransform.getTranslation(auxVector2)).nor()
+        val directionToTarget =
+            auxVector3.set(targetPosition).sub(characterTransform.getTranslation(auxVector2)).nor()
         directionToTarget.y = 0F
         val characterDirection = auxVector2.set(Vector3.X)
         characterTransform.getRotation(auxQuat).transform(characterDirection).nor()
         characterDirection.y = 0F
         if (!directionToTarget.epsilonEquals(characterDirection, 0.4F)) {
-            val crossProductY = characterDirection.x * directionToTarget.z - characterDirection.z * directionToTarget.x
+            val crossProductY =
+                characterDirection.x * directionToTarget.z - characterDirection.z * directionToTarget.x
             movementHandler.applyRotation(if (crossProductY > 0) -1 else 1)
         } else {
             movementHandler.applyRotation(0)
@@ -195,7 +204,7 @@ class AiApacheLogic(
     }
 
     companion object {
-        val MAX_DISTANCE_TO_THRUST_TO_TARGET = 14F
+        const val MAX_DISTANCE_TO_THRUST_TO_TARGET = 14F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()

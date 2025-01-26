@@ -123,6 +123,10 @@ class TankMovementHandlerDesktop(player: Entity) :
         return movement > 0
     }
 
+    override fun isReversing(): Boolean {
+        return movement < 0
+    }
+
     override fun applyRotation(clockwise: Int) {
         super.applyRotation(clockwise)
         rotation = clockwise

@@ -92,6 +92,10 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
         return !desiredDirection.isZero
     }
 
+    override fun isReversing(): Boolean {
+        return false
+    }
+
 
     private fun updateDesiredDirection(directionX: Float, directionY: Float) {
         desiredDirectionChanged = true

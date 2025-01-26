@@ -50,14 +50,19 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val rotation = playerTransform.getRotation(auxQuat)
         rotation.setEulerAngles(rotation.yaw, 0F, 0F)
         val rotationVector = auxVector3_3.set(1F, 0F, 0F).rot(auxMatrix.idt().set(rotation)).nor()
+        val thrusting = gameSessionData.gamePlayData.playerMovementHandler.isThrusting()
+        val reversing = gameSessionData.gamePlayData.playerMovementHandler.isReversing()
         val cameraTarget = auxVector3_2.set(playerPosition)
-            .add(auxVector3_5.set(rotationVector).scl(2F)).add(
-                0F, 0F,
-                max(abs(rotationVector.x), if (rotationVector.z >= 0) 0.8F else 0.5F) * Z_OFFSET
+            .add(
+                auxVector3_5.set(rotationVector)
+                    .scl(if (thrusting) CAMERA_TARGET_MOVEMENT_GAP_FORWARD else if (reversing) -CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS else 0F)
+                    .add(
+                        0F, 0F,
+                        max(abs(rotationVector.x), 0.6F) * Z_OFFSET
+                    )
             )
-        val movementDirection =
-            auxVector3_3.set(cameraTarget).sub(cameraPosition).nor()
-                .scl(deltaTime * gameSessionData.fpsTarget * 2F * 0.1F)
+        val movementDirection = auxVector3_3.set(cameraTarget).sub(cameraPosition).nor()
+            .scl(deltaTime * gameSessionData.fpsTarget * (if (thrusting) 0.07F else 0.05F))
 
         movementDirection.y = 0F
         cameraPosition.y = 0F
@@ -93,7 +98,9 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     companion object {
         private const val INITIAL_Y = 9F
-        private const val Z_OFFSET = 2.5F
+        private const val Z_OFFSET = 1.5F
+        private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD = 5.5F
+        private const val CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS = CAMERA_TARGET_MOVEMENT_GAP_FORWARD / 2F
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
         private val auxVector3_3 = Vector3()

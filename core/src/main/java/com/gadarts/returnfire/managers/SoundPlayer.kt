@@ -1,3 +1,5 @@
+@file:Suppress("KotlinConstantConditions")
+
 package com.gadarts.returnfire.managers
 
 import com.badlogic.gdx.audio.Music

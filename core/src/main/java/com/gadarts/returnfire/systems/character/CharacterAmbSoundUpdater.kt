@@ -6,12 +6,14 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.components.AmbSoundComponent
+import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.managers.SoundPlayer
 
-class CharacterAmbSoundPitchUpdater(engine: PooledEngine) {
+class CharacterAmbSoundUpdater(private val soundPlayer: SoundPlayer, engine: PooledEngine) {
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
-            Family.all(AmbSoundComponent::class.java).get()
+            Family.all(AmbSoundComponent::class.java, CharacterComponent::class.java).get()
         )
     }
 
@@ -26,6 +28,14 @@ class CharacterAmbSoundPitchUpdater(engine: PooledEngine) {
                 ambSoundComponent.pitch = calculatePitchStep
                 sound.setPitch(ambSoundComponent.soundId, calculatePitchStep)
             }
+            if (ambSoundComponent.soundId >= 0) {
+                val volume = soundPlayer.calculateVolumeBasedOnPosition(
+                    ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector1
+                    )
+                )
+                ambSoundComponent.sound.setVolume(ambSoundComponent.soundId, volume)
+            }
         }
     }
 
@@ -36,5 +46,6 @@ class CharacterAmbSoundPitchUpdater(engine: PooledEngine) {
 
     companion object {
         private const val PITCH_STEP_SIZE = 0.05F
+        private val auxVector1 = com.badlogic.gdx.math.Vector3()
     }
 }
