@@ -2,9 +2,11 @@ package com.gadarts.returnfire.systems
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -14,7 +16,7 @@ import kotlin.math.max
 
 class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
-
+    private var lastZoomOut = 0L
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
@@ -74,6 +76,13 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             cameraPosition.slerp(cameraTarget, 0.01F)
         }
         cameraPosition.y = camera.position.y
+        val playerVelocity = ComponentsMapper.physics.get(player).rigidBody.linearVelocity
+        if (playerVelocity.len2() > 0.1F && cameraPosition.y < MAX_Y) {
+            cameraPosition.y = Interpolation.sine.apply(cameraPosition.y, MAX_Y, ZOOM_PACE)
+            lastZoomOut = TimeUtils.millis()
+        } else if (cameraPosition.y > MIN_Y && TimeUtils.timeSinceMillis(lastZoomOut) > 5000L) {
+            cameraPosition.y = Interpolation.sine.apply(cameraPosition.y, MIN_Y, ZOOM_PACE)
+        }
         camera.position.set(cameraPosition)
     }
 
@@ -87,7 +96,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         )
         camera.position.set(
             playerPosition.x,
-            INITIAL_Y,
+            MIN_Y,
             playerPosition.z + Z_OFFSET
         )
         camera.rotate(Vector3.X, -45F)
@@ -97,7 +106,9 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     companion object {
-        private const val INITIAL_Y = 9F
+        private const val ZOOM_PACE: Float = 0.02F
+        private const val MAX_Y = 10F
+        private const val MIN_Y = 7F
         private const val Z_OFFSET = 1.5F
         private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD = 5.5F
         private const val CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS = CAMERA_TARGET_MOVEMENT_GAP_FORWARD / 2F
