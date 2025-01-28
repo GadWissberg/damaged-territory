@@ -20,6 +20,7 @@ enum class ModelDefinition(
     AssetDefinition<Model> {
 
     APACHE(centerOfMass = Vector3(0F, -0.2F, 0F), separateModelForShadow = true),
+    APACHE_DEAD,
     BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT),
     CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT),
     MISSILE(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.MISSILE),

@@ -406,7 +406,13 @@
       "file_name": "apache_texture_brown"
     },
     {
+      "file_name": "apache_texture_dead_brown"
+    },
+    {
       "file_name": "apache_texture_green"
+    },
+    {
+      "file_name": "apache_texture_dead_green"
     }
   ]
 }
