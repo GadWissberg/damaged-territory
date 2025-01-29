@@ -21,8 +21,10 @@ import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
 import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
@@ -280,7 +282,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 modelInstanceComponent.gameModelInstance.modelInstance.transform
             val characterComponent = ComponentsMapper.character.get(character)
             val definition = characterComponent.definition
-            if (definition == SimpleCharacterDefinition.APACHE) {
+            if (definition == SimpleCharacterDefinition.APACHE && ComponentsMapper.childDecal.has(character)) {
                 val child = ComponentsMapper.childDecal.get(character).decals[0]
                 child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
                 child.decal.rotation = characterTransform.getRotation(auxQuat)
@@ -385,7 +387,45 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         }
                         if (definition == SimpleCharacterDefinition.APACHE || definition == TurretCharacterDefinition.TANK) {
                             if (!ComponentsMapper.player.has(character)) {
-                                engine.removeEntity(character)
+                                val assetsManager = gamePlayManagers.assetsManager
+                                val deadGameModelInstance =
+                                    gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+                                        ModelDefinition.APACHE_DEAD
+                                    )
+                                modelInstanceComponent.init(
+                                    deadGameModelInstance,
+                                    modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+                                        auxVector1
+                                    ),
+                                    assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
+                                    0F,
+                                    false,
+                                    assetsManager.getTexture("apache_texture_dead_green")
+                                )
+                                val rigidBody = ComponentsMapper.physics.get(character).rigidBody
+                                rigidBody.gravity = auxVector1.set(PhysicsComponent.worldGravity).scl(0.25F)
+                                ComponentsMapper.physics.get(character).rigidBody
+                                val motionState = rigidBody.motionState as MotionState
+                                val deadGameModelInstanceTransform = deadGameModelInstance.modelInstance.transform
+                                deadGameModelInstanceTransform.set(auxMatrix.set(rigidBody.worldTransform))
+                                motionState.transformObject = deadGameModelInstanceTransform
+                                motionState.setWorldTransform(deadGameModelInstanceTransform)
+                                rigidBody.linearFactor = Vector3(1F, 1F, 1F)
+                                rigidBody.angularFactor = Vector3(1F, 1F, 1F)
+                                rigidBody.applyCentralImpulse(
+                                    Vector3(Vector3.X).rotate(
+                                        Vector3.Y,
+                                        MathUtils.random(0F, 360F)
+                                    ).scl(3F)
+                                )
+                                rigidBody.applyTorqueImpulse(
+                                    Vector3(
+                                        MathUtils.random(),
+                                        MathUtils.random(),
+                                        MathUtils.random()
+                                    ).scl(2F)
+                                )
+                                character.remove(ChildDecalComponent::class.java)
                             }
                         }
                         gamePlayManagers.dispatcher.dispatchMessage(
@@ -527,6 +567,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     companion object {
+        private val auxMatrix = Matrix4()
         private val auxQuat = Quaternion()
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()

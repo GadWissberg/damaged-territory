@@ -85,6 +85,8 @@ abstract class VehicleMovementHandler(
     abstract fun applyRotation(clockwise: Int)
 
     private fun applyLateralDamping(character: Entity) {
+        if (!ComponentsMapper.physics.has(character)) return
+
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         val velocity: Vector3 = rigidBody.linearVelocity
         val lateralVelocity = auxVector3_1.set(velocity.x, 0f, velocity.z)

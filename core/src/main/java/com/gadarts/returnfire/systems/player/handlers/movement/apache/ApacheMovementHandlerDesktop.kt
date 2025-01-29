@@ -120,7 +120,8 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
 
     override fun update(player: Entity, deltaTime: Float) {
         super.update(player, deltaTime)
-        val physicsComponent = ComponentsMapper.physics.get(player)
+        val physicsComponent = ComponentsMapper.physics.get(player) ?: return
+
         val rigidBody = physicsComponent.rigidBody
         if (movement != 0) {
             pushForward(rigidBody, movement)

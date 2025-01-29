@@ -12,7 +12,7 @@ enum class SimpleCharacterDefinition(
     private val startHeight: Float,
     private val flyer: Boolean,
 ) : CharacterDefinition {
-    APACHE(100, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), CharacterDefinition.FLYER_HEIGHT, true);
+    APACHE(1, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), CharacterDefinition.FLYER_HEIGHT, true);
 
     override fun isFlyer(): Boolean {
         return flyer

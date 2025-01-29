@@ -338,7 +338,7 @@ class EntityBuilderImpl : EntityBuilder {
             SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
             entity
         )
-        physicsComponent.rigidBody.gravity = if (applyGravity) auxVector.set(0F, -10F, 0F) else auxVector.setZero()
+        physicsComponent.rigidBody.gravity = if (applyGravity) PhysicsComponent.worldGravity else auxVector.setZero()
         return physicsComponent
     }
 

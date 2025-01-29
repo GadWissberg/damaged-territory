@@ -36,7 +36,7 @@ class AiApacheLogic(
 
     fun updateCharacter(character: Entity, deltaTime: Float) {
         val boardingComponent = ComponentsMapper.boarding.get(character)
-        if (boardingComponent != null && boardingComponent.isBoarding()) return
+        if ((boardingComponent != null && boardingComponent.isBoarding()) || ComponentsMapper.character.get(character).dead) return
 
         val targetModelInstance =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance

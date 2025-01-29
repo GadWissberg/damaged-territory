@@ -25,6 +25,8 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
     }
 
     private fun syncModelInstanceTransformToRigidBody(character: Entity) {
+        if (!ComponentsMapper.physics.has(character)) return
+
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
         modelInstanceComponent.gameModelInstance.modelInstance.transform.getRotation(auxQuaternion1)
         auxQuaternion1.setEulerAngles(0F, auxQuaternion1.pitch, auxQuaternion1.roll)
