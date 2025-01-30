@@ -33,6 +33,14 @@ interface EntityBuilder {
         ttlInSeconds: Int = 0
     ): EntityBuilder
 
+    fun addParticleEffectComponentToEntity(
+        entity: Entity,
+        pool: GameParticleEffectPool,
+        rotationAroundY: Float = 0F,
+        parentRelativePosition: Vector3 = Vector3.Zero,
+        ttlInSeconds: Int = 0,
+    )
+
     fun finishAndAddToEngine(): Entity
     fun addModelInstanceComponent(
         model: GameModelInstance,

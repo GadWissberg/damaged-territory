@@ -4,12 +4,14 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter
 import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ParticleEffectComponent
@@ -20,7 +22,17 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 
 class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
-        mapOf()
+        mapOf(
+            SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    playParticleEffect(ComponentsMapper.particleEffect.get(msg.extraInfo as Entity).effect)
+                }
+            }
+        )
 
     private val particleEffectsEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
@@ -100,18 +112,16 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
             val timeToLeave =
                 ttlInMillis > 0F && TimeUtils.timeSinceMillis(particleEffectComponent.createdAt) >= ttlInMillis
             val effect = particleEffectComponent.effect
-            if ((particleEffectComponent.parent == null && effect.isComplete)
-                || (parent != null
-                    && ComponentsMapper.character.has(parent)
-                    && ComponentsMapper.character.get(parent).dead)
-                || timeToLeave
-            ) {
+            if ((particleEffectComponent.parent == null && effect.isComplete) || timeToLeave) {
                 particleEntitiesToRemove.add(entity)
             } else if (parent != null) {
                 if (ComponentsMapper.modelInstance.has(parent)) {
-                    auxMatrix.set(ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform)
-                        .translate(particleEffectComponent.parentRelativePosition)
-                    effect.setTransform(auxMatrix)
+                    auxMatrix1.idt().trn(
+                        ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
+                            auxVector
+                        )
+                    ).translate(particleEffectComponent.parentRelativePosition)
+                    effect.setTransform(auxMatrix1)
                 }
             }
         }
@@ -139,6 +149,7 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
     }
 
     companion object {
-        private val auxMatrix = Matrix4()
+        private val auxMatrix1 = Matrix4()
+        private val auxVector = Vector3()
     }
 }

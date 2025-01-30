@@ -169,6 +169,26 @@ class EntityBuilderImpl : EntityBuilder {
         parentRelativePosition: Vector3,
         ttlInSeconds: Int
     ): EntityBuilderImpl {
+        val particleEffectComponent = createParticleEffectComponent(
+            pool,
+            ttlInSeconds,
+            parentRelativePosition,
+            rotationAroundY,
+            position,
+            entity,
+        )
+        entity!!.add(particleEffectComponent)
+        return this
+    }
+
+    private fun createParticleEffectComponent(
+        pool: GameParticleEffectPool,
+        ttlInSeconds: Int,
+        parentRelativePosition: Vector3,
+        rotationAroundY: Float = 0F,
+        position: Vector3? = null,
+        entityParent: Entity?,
+    ): ParticleEffectComponent {
         val effect: ParticleEffect = pool.obtain()
         val particleEffectComponent = engine.createComponent(
             ParticleEffectComponent::class.java
@@ -176,21 +196,38 @@ class EntityBuilderImpl : EntityBuilder {
         particleEffectComponent.init(
             effect,
             pool.definition,
-            if (thisEntityAsParent) entity else null,
+            entityParent,
             ttlInSeconds,
             parentRelativePosition,
         )
-        val controllers = effect.controllers
-        for (i in 0 until controllers.size) {
-            val transform = controllers[i].transform
-            transform.idt()
-            transform.setTranslation(position)
-            if (rotationAroundY != 0F) {
-                transform.rotate(Vector3.Y, rotationAroundY)
+        if (position != null) {
+            val controllers = effect.controllers
+            for (i in 0 until controllers.size) {
+                val transform = controllers[i].transform
+                transform.idt()
+                transform.setTranslation(position)
+                if (rotationAroundY != 0F) {
+                    transform.rotate(Vector3.Y, rotationAroundY)
+                }
             }
         }
-        entity!!.add(particleEffectComponent)
-        return this
+        return particleEffectComponent
+    }
+
+    override fun addParticleEffectComponentToEntity(
+        entity: Entity,
+        pool: GameParticleEffectPool,
+        rotationAroundY: Float,
+        parentRelativePosition: Vector3,
+        ttlInSeconds: Int
+    ) {
+        val component = createParticleEffectComponent(
+            pool = pool,
+            ttlInSeconds = ttlInSeconds,
+            parentRelativePosition = parentRelativePosition,
+            entityParent = entity
+        )
+        entity.add(component)
     }
 
     override fun addSparkComponent(

@@ -107,8 +107,8 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     companion object {
         private const val ZOOM_PACE: Float = 0.02F
-        private const val MAX_Y = 10F
-        private const val MIN_Y = 7F
+        private const val MAX_Y = 12F
+        private const val MIN_Y = 9F
         private const val Z_OFFSET = 1.5F
         private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD = 5.5F
         private const val CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS = CAMERA_TARGET_MOVEMENT_GAP_FORWARD / 2F

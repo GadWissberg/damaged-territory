@@ -426,6 +426,14 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                     ).scl(2F)
                                 )
                                 character.remove(ChildDecalComponent::class.java)
+                                gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
+                                    entity = character,
+                                    pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.FIRE_LOOP),
+                                )
+                                gamePlayManagers.dispatcher.dispatchMessage(
+                                    SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY.ordinal,
+                                    character
+                                )
                             }
                         }
                         gamePlayManagers.dispatcher.dispatchMessage(
