@@ -16,6 +16,7 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
@@ -81,6 +82,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 ) || handleBulletCharacterCollision(
                     PhysicsCollisionEventData.colObj1.userData as Entity,
                     PhysicsCollisionEventData.colObj0.userData as Entity
+                ) || handleGroundCharacterCollision(
+                    PhysicsCollisionEventData.colObj0.userData as Entity,
+                    PhysicsCollisionEventData.colObj1.userData as Entity
+                ) || handleGroundCharacterCollision(
+                    PhysicsCollisionEventData.colObj1.userData as Entity,
+                    PhysicsCollisionEventData.colObj0.userData as Entity
                 )
             }
         },
@@ -134,6 +141,13 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         }
     )
+
+    private fun handleGroundCharacterCollision(entity: Entity, entity1: Entity): Boolean {
+        if (ComponentsMapper.ground.has(entity1)) {
+            return true
+        }
+        return false
+    }
 
     private fun handleBulletCharacterCollision(first: Entity, second: Entity): Boolean {
         val isSecondCharacter = ComponentsMapper.character.has(second)
@@ -282,7 +296,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 modelInstanceComponent.gameModelInstance.modelInstance.transform
             val characterComponent = ComponentsMapper.character.get(character)
             val definition = characterComponent.definition
-            if (definition == SimpleCharacterDefinition.APACHE && ComponentsMapper.childDecal.has(character)) {
+            val isApache = definition == SimpleCharacterDefinition.APACHE
+            if (isApache && ComponentsMapper.childDecal.has(character)) {
                 val child = ComponentsMapper.childDecal.get(character).decals[0]
                 child.rotationStep.setAngleDeg(child.rotationStep.angleDeg() + ROT_STEP * deltaTime)
                 child.decal.rotation = characterTransform.getRotation(auxQuat)
@@ -385,7 +400,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         for (i in 0 until MathUtils.random(3, 4)) {
                             addExplosion(character)
                         }
-                        if (definition == SimpleCharacterDefinition.APACHE || definition == TurretCharacterDefinition.TANK) {
+                        val isTank = definition == TurretCharacterDefinition.TANK
+                        if (isApache) {
+                            gamePlayManagers.soundPlayer.play(
+                                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
+                                modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+                                    auxVector1
+                                )
+                            )
+                        }
+                        if (isApache || isTank) {
                             if (!ComponentsMapper.player.has(character)) {
                                 val assetsManager = gamePlayManagers.assetsManager
                                 val deadGameModelInstance =

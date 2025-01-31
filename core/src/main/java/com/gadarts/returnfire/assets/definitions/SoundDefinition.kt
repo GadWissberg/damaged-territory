@@ -24,7 +24,9 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
     STAGE_DEPLOY,
     STAGE_MOVE,
     BASE_DOOR_MOVE,
-    BASE_DOOR_DONE;
+    BASE_DOOR_DONE,
+    CRASH_BIG,
+    PLANE_CRASH;
 
     private val paths = ArrayList<String>()
 

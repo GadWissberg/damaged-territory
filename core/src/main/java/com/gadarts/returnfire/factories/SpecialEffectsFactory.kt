@@ -35,7 +35,7 @@ class SpecialEffectsFactory(
     }
     private val waterSplashFloorTexture: Texture by lazy { assetsManager.getTexture("water_splash_floor") }
 
-    fun generateWaterSplash(position: Vector3) {
+    fun generateWaterSplash(position: Vector3, large: Boolean = false) {
         entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
@@ -47,7 +47,14 @@ class SpecialEffectsFactory(
             waterSplashSounds.random(),
             position
         )
-        addGroundBlast(position, waterSplashFloorTexture, 0.5F, 1.01F, 2000, 0.01F)
+        addGroundBlast(
+            position,
+            waterSplashFloorTexture,
+            if (large) 2F else 0.5F,
+            1.01F,
+            2000,
+            0.01F
+        )
     }
 
     fun addGroundBlast(

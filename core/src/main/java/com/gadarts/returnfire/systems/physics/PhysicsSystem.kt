@@ -70,7 +70,7 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         ghostObject = btPairCachingGhostObject()
         ghostObject.collisionShape = seaShape
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
-        ghostObject.worldTransform = Matrix4().translate(halfMapWidth, -1F, halfMapDepth)
+        ghostObject.worldTransform = Matrix4().translate(halfMapWidth, -0.5F, halfMapDepth)
         ghostObject.userData = water
         gameSessionData.physicsData.collisionWorld.addCollisionObject(
             ghostObject,

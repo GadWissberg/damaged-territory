@@ -87,7 +87,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                         position.z + MathUtils.randomSign() * MathUtils.random(0.2F)
                     )
                     gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
-                        position
+                        position, ComponentsMapper.character.has(entity)
                     )
                     val physicsComponent = ComponentsMapper.physics.get(
                         entity

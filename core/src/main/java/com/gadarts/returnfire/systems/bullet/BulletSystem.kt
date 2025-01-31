@@ -59,7 +59,6 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                     PhysicsCollisionEventData.colObj1.userData as Entity,
                     PhysicsCollisionEventData.colObj0.userData as Entity
                 )
-
             }
         },
         SystemEvents.BULLET_CREATION_REQUEST to object : HandlerOnEvent {
