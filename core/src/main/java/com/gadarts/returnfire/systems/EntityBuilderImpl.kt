@@ -308,7 +308,7 @@ class EntityBuilderImpl : EntityBuilder {
         shape: btCollisionShape,
         collisionFlag: Int,
         transform: Matrix4,
-        applyGravity: Boolean,
+        gravityScalar: Float,
     ): EntityBuilderImpl {
         val physicsComponent = addPhysicsComponentToEntity(
             entity!!,
@@ -316,7 +316,7 @@ class EntityBuilderImpl : EntityBuilder {
             1F,
             collisionFlag,
             transform,
-            applyGravity,
+            gravityScalar,
         )
         entity!!.add(physicsComponent)
         return this
@@ -333,14 +333,14 @@ class EntityBuilderImpl : EntityBuilder {
         rigidBodyPool: RigidBodyPool,
         collisionFlag: Int,
         transform: Matrix4,
-        applyGravity: Boolean
+        gravityScalar: Float
     ): PhysicsComponent {
         return addPhysicsComponent(
             entity,
             rigidBodyPool.obtain(),
             collisionFlag,
             transform,
-            applyGravity
+            gravityScalar
         )
     }
 
@@ -349,7 +349,7 @@ class EntityBuilderImpl : EntityBuilder {
         rigidBody: RigidBody,
         collisionFlag: Int?,
         transform: Matrix4?,
-        applyGravity: Boolean,
+        gravityScalar: Float,
     ): PhysicsComponent {
         rigidBody.angularVelocity = Vector3.Zero
         rigidBody.clearForces()
@@ -375,7 +375,9 @@ class EntityBuilderImpl : EntityBuilder {
             SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
             entity
         )
-        physicsComponent.rigidBody.gravity = if (applyGravity) PhysicsComponent.worldGravity else auxVector.setZero()
+        physicsComponent.rigidBody.gravity =
+            if (gravityScalar > 0F) auxVector.set(PhysicsComponent.worldGravity)
+                .scl(gravityScalar) else auxVector.setZero()
         return physicsComponent
     }
 
@@ -385,10 +387,10 @@ class EntityBuilderImpl : EntityBuilder {
         mass: Float,
         collisionFlag: Int,
         transform: Matrix4,
-        applyGravity: Boolean
+        gravityScalar: Float
     ): PhysicsComponent {
         val rigidBody = factories.rigidBodyFactory.create(mass, shape, null, transform)
-        return addPhysicsComponent(entity, rigidBody, collisionFlag, null, applyGravity)
+        return addPhysicsComponent(entity, rigidBody, collisionFlag, null, gravityScalar)
     }
 
     fun init(engine: PooledEngine, factories: Factories, messageDispatcher: MessageDispatcher) {

@@ -26,9 +26,11 @@ class ModelInstanceComponent : Component, Pool.Poolable {
         modelInstance.transform.translate(position)
         modelInstance.transform.rotate(Vector3.Y, direction)
         if (texture != null) {
-            val textureAttribute = modelInstance.materials.get(0)
-                .get(TextureAttribute.Diffuse) as TextureAttribute
-            textureAttribute.textureDescription.texture = texture
+            val textureMat = modelInstance.materials.find { it.has(TextureAttribute.Diffuse) }
+            if (textureMat != null) {
+                val textureAttribute = textureMat.get(TextureAttribute.Diffuse) as TextureAttribute
+                textureAttribute.textureDescription.texture = texture
+            }
         }
         if (boundingBox == null) {
             this.gameModelInstance.calculateBoundingBox()

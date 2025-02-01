@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
@@ -27,6 +28,8 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
+import com.gadarts.returnfire.components.physics.RigidBody
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
@@ -82,12 +85,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 ) || handleBulletCharacterCollision(
                     PhysicsCollisionEventData.colObj1.userData as Entity,
                     PhysicsCollisionEventData.colObj0.userData as Entity
-                ) || handleGroundCharacterCollision(
-                    PhysicsCollisionEventData.colObj0.userData as Entity,
-                    PhysicsCollisionEventData.colObj1.userData as Entity
-                ) || handleGroundCharacterCollision(
-                    PhysicsCollisionEventData.colObj1.userData as Entity,
-                    PhysicsCollisionEventData.colObj0.userData as Entity
                 )
             }
         },
@@ -141,13 +138,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         }
     )
-
-    private fun handleGroundCharacterCollision(entity: Entity, entity1: Entity): Boolean {
-        if (ComponentsMapper.ground.has(entity1)) {
-            return true
-        }
-        return false
-    }
 
     private fun handleBulletCharacterCollision(first: Entity, second: Entity): Boolean {
         val isSecondCharacter = ComponentsMapper.character.has(second)
@@ -411,53 +401,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         }
                         if (isApache || isTank) {
                             if (!ComponentsMapper.player.has(character)) {
-                                val assetsManager = gamePlayManagers.assetsManager
-                                val deadGameModelInstance =
-                                    gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
-                                        ModelDefinition.APACHE_DEAD
-                                    )
-                                modelInstanceComponent.init(
-                                    deadGameModelInstance,
-                                    modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
-                                        auxVector1
-                                    ),
-                                    assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
-                                    0F,
-                                    false,
-                                    assetsManager.getTexture("apache_texture_dead_green")
-                                )
-                                val rigidBody = ComponentsMapper.physics.get(character).rigidBody
-                                rigidBody.gravity = auxVector1.set(PhysicsComponent.worldGravity).scl(0.25F)
-                                ComponentsMapper.physics.get(character).rigidBody
-                                val motionState = rigidBody.motionState as MotionState
-                                val deadGameModelInstanceTransform = deadGameModelInstance.modelInstance.transform
-                                deadGameModelInstanceTransform.set(auxMatrix.set(rigidBody.worldTransform))
-                                motionState.transformObject = deadGameModelInstanceTransform
-                                motionState.setWorldTransform(deadGameModelInstanceTransform)
-                                rigidBody.linearFactor = Vector3(1F, 1F, 1F)
-                                rigidBody.angularFactor = Vector3(1F, 1F, 1F)
-                                rigidBody.applyCentralImpulse(
-                                    Vector3(Vector3.X).rotate(
-                                        Vector3.Y,
-                                        MathUtils.random(0F, 360F)
-                                    ).scl(3F)
-                                )
-                                rigidBody.applyTorqueImpulse(
-                                    Vector3(
-                                        MathUtils.random(),
-                                        MathUtils.random(),
-                                        MathUtils.random()
-                                    ).scl(2F)
-                                )
-                                character.remove(ChildDecalComponent::class.java)
-                                gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
-                                    entity = character,
-                                    pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.FIRE_LOOP),
-                                )
-                                gamePlayManagers.dispatcher.dispatchMessage(
-                                    SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY.ordinal,
-                                    character
-                                )
+//                                turnCharacterToCorpse(character)
+                                gibCharacter(character)
                             }
                         }
                         gamePlayManagers.dispatcher.dispatchMessage(
@@ -470,6 +415,102 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 }
             }
         }
+    }
+
+    private fun gibCharacter(character: Entity) {
+        val position =
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        val gameModelInstanceBack =
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_BACK)
+        val gameModelInstanceFront =
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_FRONT)
+        val assetsManager = gamePlayManagers.assetsManager
+        val boundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.APACHE)
+        val btBoxShape = btBoxShape(
+            boundingBox.getDimensions(
+                auxVector3
+            )
+        )
+        addCharacterGiblet(gameModelInstanceBack, position, boundingBox, assetsManager, btBoxShape)
+        addCharacterGiblet(gameModelInstanceFront, position, boundingBox, assetsManager, btBoxShape)
+        engine.removeEntity(character)
+    }
+
+    private fun addCharacterGiblet(
+        gameModelInstanceBack: GameModelInstance,
+        position: Vector3,
+        boundingBox: BoundingBox,
+        assetsManager: GameAssetManager,
+        btBoxShape: btBoxShape
+    ) {
+        val part = gamePlayManagers.ecs.entityBuilder.begin().addModelInstanceComponent(
+            model = gameModelInstanceBack,
+            position = position,
+            boundingBox = boundingBox,
+            texture = assetsManager.getTexture("apache_texture_dead_green")
+        ).addPhysicsComponent(
+            btBoxShape, CollisionFlags.CF_CHARACTER_OBJECT, gameModelInstanceBack.modelInstance.transform, 0.25F
+        ).finishAndAddToEngine()
+        pushRigidBodyRandomly(ComponentsMapper.physics.get(part).rigidBody)
+    }
+
+    private fun turnCharacterToCorpse(
+        character: Entity
+    ) {
+        val assetsManager = gamePlayManagers.assetsManager
+        val deadGameModelInstance =
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+                ModelDefinition.APACHE_DEAD
+            )
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
+        modelInstanceComponent.init(
+            deadGameModelInstance,
+            modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            ),
+            assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
+            0F,
+            false,
+            assetsManager.getTexture("apache_texture_dead_green")
+        )
+        val rigidBody = ComponentsMapper.physics.get(character).rigidBody
+        rigidBody.gravity = auxVector1.set(PhysicsComponent.worldGravity).scl(0.25F)
+        ComponentsMapper.physics.get(character).rigidBody
+        val motionState = rigidBody.motionState as MotionState
+        val deadGameModelInstanceTransform = deadGameModelInstance.modelInstance.transform
+        deadGameModelInstanceTransform.set(auxMatrix.set(rigidBody.worldTransform))
+        motionState.transformObject = deadGameModelInstanceTransform
+        motionState.setWorldTransform(deadGameModelInstanceTransform)
+        rigidBody.linearFactor = Vector3(1F, 1F, 1F)
+        rigidBody.angularFactor = Vector3(1F, 1F, 1F)
+        pushRigidBodyRandomly(rigidBody)
+        rigidBody.applyTorqueImpulse(
+            Vector3(
+                MathUtils.random(),
+                MathUtils.random(),
+                MathUtils.random()
+            ).scl(2F)
+        )
+        character.remove(ChildDecalComponent::class.java)
+        gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
+            entity = character,
+            pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.FIRE_LOOP),
+        )
+        gamePlayManagers.dispatcher.dispatchMessage(
+            SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY.ordinal,
+            character
+        )
+    }
+
+    private fun pushRigidBodyRandomly(rigidBody: RigidBody) {
+        rigidBody.applyCentralImpulse(
+            Vector3(Vector3.X).rotate(
+                Vector3.Y,
+                MathUtils.random(0F, 360F)
+            ).scl(3F)
+        )
     }
 
     private fun addExplosion(character: Entity) {
@@ -581,7 +622,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 ),
                 CollisionFlags.CF_CHARACTER_OBJECT,
                 modelInstance.transform,
-                true,
+                1F,
             )
             .addParticleEffectComponent(
                 modelInstance.transform.getTranslation(auxVector1),

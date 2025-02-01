@@ -56,7 +56,7 @@ interface EntityBuilder {
         shape: btCollisionShape,
         collisionFlag: Int,
         transform: Matrix4,
-        applyGravity: Boolean,
+        gravityScalar: Float,
     ): EntityBuilder
 
     fun addSparkComponent(relativePositionCalculator: ArmComponent.RelativePositionCalculator): EntityBuilder
@@ -101,7 +101,7 @@ interface EntityBuilder {
         mass: Float,
         collisionFlag: Int,
         transform: Matrix4,
-        applyGravity: Boolean = false
+        gravityScalar: Float = 0F
     ): PhysicsComponent
 
     fun addGroundComponent(): EntityBuilder
@@ -118,7 +118,7 @@ interface EntityBuilder {
         rigidBodyPool: RigidBodyPool,
         collisionFlag: Int,
         transform: Matrix4,
-        applyGravity: Boolean = false
+        gravityScalar: Float = 0F
     ): PhysicsComponent
 
     fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder
