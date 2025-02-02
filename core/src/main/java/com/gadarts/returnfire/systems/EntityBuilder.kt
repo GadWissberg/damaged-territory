@@ -28,17 +28,18 @@ interface EntityBuilder {
         position: Vector3,
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,
-        thisEntityAsParent: Boolean = false,
-        parentRelativePosition: Vector3 = Vector3.Zero,
-        ttlInSeconds: Int = 0
+        followRelativePosition: Vector3 = Vector3.Zero,
+        ttlInSeconds: Int = 0,
+        ttlForComponentOnly: Boolean = false
     ): EntityBuilder
 
     fun addParticleEffectComponentToEntity(
         entity: Entity,
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,
-        parentRelativePosition: Vector3 = Vector3.Zero,
+        followRelativePosition: Vector3 = Vector3.Zero,
         ttlInSeconds: Int = 0,
+        ttlForComponentOnly: Boolean = false
     )
 
     fun finishAndAddToEngine(): Entity
@@ -126,6 +127,7 @@ interface EntityBuilder {
     fun addStageComponent(base: Entity): EntityBuilder
     fun addAutoAimComponent(): EntityBuilder
     fun addBaseComponent(color: CharacterColor): EntityBuilder
-    fun addCrashSoundEmitterComponent(): EntityBuilder
+    fun addCrashSoundEmitterComponent(soundToStop: Sound, soundToStopId: Long): EntityBuilder
+    fun addCrashSoundEmitterComponentToEntity(entity: Entity, soundToStop: Sound, soundToStopId: Long): EntityBuilder
 
 }

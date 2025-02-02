@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
-import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
@@ -32,7 +31,6 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
@@ -88,6 +86,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 ) || handleBulletCharacterCollision(
                     PhysicsCollisionEventData.colObj1.userData as Entity,
                     PhysicsCollisionEventData.colObj0.userData as Entity
+                ) || applyEventForCrashingAircraft(
+                    PhysicsCollisionEventData.colObj0.userData as Entity,
+                    PhysicsCollisionEventData.colObj1.userData as Entity
+                ) || applyEventForCrashingAircraft(
+                    PhysicsCollisionEventData.colObj1.userData as Entity,
+                    PhysicsCollisionEventData.colObj0.userData as Entity
                 )
             }
         },
@@ -141,6 +145,34 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         }
     )
+
+    private fun applyEventForCrashingAircraft(
+        collider1: Entity,
+        collider2: Entity
+    ): Boolean {
+        val crashSoundEmitter = ComponentsMapper.crashingAircraftEmitter.get(collider1)
+        val canPlay =
+            crashSoundEmitter != null && !crashSoundEmitter.crashed
+        if (canPlay && ComponentsMapper.ground.has(collider2)) {
+            val velocity = ComponentsMapper.physics.get(collider1).rigidBody.linearVelocity.len2()
+            if (velocity >= 9F) {
+                val modelInstance = ComponentsMapper.modelInstance.get(collider1).gameModelInstance.modelInstance
+                val position = modelInstance.transform.getTranslation(auxVector1)
+                gamePlayManagers.soundPlayer.play(
+                    gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.CRASH_BIG),
+                    position
+                )
+                gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
+                    position,
+                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE)
+                ).finishAndAddToEngine()
+                crashSoundEmitter.crash()
+                crashSoundEmitter.soundToStop.stop(crashSoundEmitter.soundToStopId)
+            }
+            return true
+        }
+        return false
+    }
 
     private fun handleBulletCharacterCollision(first: Entity, second: Entity): Boolean {
         val isSecondCharacter = ComponentsMapper.character.has(second)
@@ -373,11 +405,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                     pool = gameSessionData.pools.particleEffectsPools.obtain(
                                         ParticleEffectDefinition.SMOKE_UP_LOOP
                                     ),
-                                    parentRelativePosition = definition.getSmokeEmissionRelativePosition(
+                                    followRelativePosition = definition.getSmokeEmissionRelativePosition(
                                         auxVector2
                                     )
                                 ).finishAndAddToEngine()
-                            ComponentsMapper.particleEffect.get(smoke).parent = character
+                            ComponentsMapper.particleEffect.get(smoke).followEntity = character
                             characterComponent.smokeEmission = smoke
                         }
                     }
@@ -394,8 +426,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             addExplosion(character)
                         }
                         val isTank = definition == TurretCharacterDefinition.TANK
+                        var planeCrashSoundId = -1L
                         if (isApache) {
-                            gamePlayManagers.soundPlayer.play(
+                            planeCrashSoundId = gamePlayManagers.soundPlayer.play(
                                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
                                 modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                                     auxVector1
@@ -404,8 +437,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         }
                         if (isApache || isTank) {
                             if (!ComponentsMapper.player.has(character)) {
-//                                turnCharacterToCorpse(character)
-                                gibCharacter(character)
+                                if (MathUtils.random() >= 0.5F) {
+                                    turnCharacterToCorpse(character, planeCrashSoundId)
+                                } else {
+                                    gibCharacter(character, planeCrashSoundId)
+                                }
                             }
                         }
                         gamePlayManagers.dispatcher.dispatchMessage(
@@ -420,7 +456,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         }
     }
 
-    private fun gibCharacter(character: Entity) {
+    private fun gibCharacter(character: Entity, planeCrashSoundId: Long) {
         val position =
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
@@ -445,8 +481,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val btFrontShapeWings = btBoxShape(Vector3(0.08F, 0.25F, 0.025F))
         frontShape.addChildShape(Matrix4(), btFrontShapeMain)
         frontShape.addChildShape(Matrix4().translate(-0.14F, 0F, 0.2F), btFrontShapeWings)
-        addCharacterGiblet(gameModelInstanceBack, position, backBoundingBox, assetsManager, backShape)
-        addCharacterGiblet(gameModelInstanceFront, position, frontBoundingBox, assetsManager, frontShape)
+        addCharacterGiblet(gameModelInstanceBack, position, backBoundingBox, backShape, planeCrashSoundId)
+        addCharacterGiblet(gameModelInstanceFront, position, frontBoundingBox, frontShape, planeCrashSoundId)
         engine.removeEntity(character)
     }
 
@@ -454,25 +490,37 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         gameModelInstanceBack: GameModelInstance,
         position: Vector3,
         boundingBox: BoundingBox,
-        assetsManager: GameAssetManager,
-        btBoxShape: btCollisionShape
+        btBoxShape: btCollisionShape,
+        planeCrashSoundId: Long
     ) {
+        val assetsManager = gamePlayManagers.assetsManager
         val part = gamePlayManagers.ecs.entityBuilder.begin().addModelInstanceComponent(
             model = gameModelInstanceBack,
             position = position,
             boundingBox = boundingBox,
             texture = assetsManager.getTexture("apache_texture_dead_green")
+        ).addParticleEffectComponent(
+            position = position,
+            pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.FIRE_LOOP),
+            ttlInSeconds = MathUtils.random(20, 25),
+            ttlForComponentOnly = true
         ).addPhysicsComponent(
-            btBoxShape, CollisionFlags.CF_CHARACTER_OBJECT, gameModelInstanceBack.modelInstance.transform, 0.5F, 4F
-        ).addCrashSoundEmitterComponent()
-            .finishAndAddToEngine()
+            btBoxShape,
+            CollisionFlags.CF_CHARACTER_OBJECT,
+            gameModelInstanceBack.modelInstance.transform,
+            0.4F,
+            4F
+        ).addCrashSoundEmitterComponent(
+            assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
+            planeCrashSoundId
+        ).finishAndAddToEngine()
         val rigidBody = ComponentsMapper.physics.get(part).rigidBody
-        pushRigidBodyRandomly(rigidBody, 12F)
-        rigidBody.contactCallbackFilter = btBroadphaseProxy.CollisionFilterGroups.AllFilter
+        pushRigidBodyRandomly(rigidBody, 13F)
     }
 
     private fun turnCharacterToCorpse(
-        character: Entity
+        character: Entity,
+        planeCrashSoundId: Long
     ) {
         val assetsManager = gamePlayManagers.assetsManager
         val deadGameModelInstance =
@@ -509,9 +557,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             ).scl(2F)
         )
         character.remove(ChildDecalComponent::class.java)
+        gamePlayManagers.ecs.entityBuilder.addCrashSoundEmitterComponentToEntity(
+            character,
+            gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
+            planeCrashSoundId
+        )
         gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
             entity = character,
             pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.FIRE_LOOP),
+            ttlInSeconds = MathUtils.random(20, 25),
+            ttlForComponentOnly = true
         )
         gamePlayManagers.dispatcher.dispatchMessage(
             SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY.ordinal,
@@ -642,7 +697,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             .addParticleEffectComponent(
                 modelInstance.transform.getTranslation(auxVector1),
                 gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
-                thisEntityAsParent = true,
                 ttlInSeconds = MathUtils.random(20, 25)
             )
             .finishAndAddToEngine()

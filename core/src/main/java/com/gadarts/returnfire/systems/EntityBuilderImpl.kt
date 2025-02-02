@@ -165,16 +165,17 @@ class EntityBuilderImpl : EntityBuilder {
         position: Vector3,
         pool: GameParticleEffectPool,
         rotationAroundY: Float,
-        thisEntityAsParent: Boolean,
-        parentRelativePosition: Vector3,
-        ttlInSeconds: Int
+        followRelativePosition: Vector3,
+        ttlInSeconds: Int,
+        ttlForComponentOnly: Boolean
     ): EntityBuilderImpl {
         val particleEffectComponent = createParticleEffectComponent(
             pool,
-            ttlInSeconds,
-            parentRelativePosition,
             rotationAroundY,
             position,
+            ttlInSeconds,
+            ttlForComponentOnly,
+            followRelativePosition,
             entity,
         )
         entity!!.add(particleEffectComponent)
@@ -183,11 +184,12 @@ class EntityBuilderImpl : EntityBuilder {
 
     private fun createParticleEffectComponent(
         pool: GameParticleEffectPool,
-        ttlInSeconds: Int,
-        parentRelativePosition: Vector3,
         rotationAroundY: Float = 0F,
         position: Vector3? = null,
-        entityParent: Entity?,
+        ttlInSeconds: Int,
+        ttlForComponentOnly: Boolean,
+        followRelativePosition: Vector3,
+        followEntity: Entity?,
     ): ParticleEffectComponent {
         val effect: ParticleEffect = pool.obtain()
         val particleEffectComponent = engine.createComponent(
@@ -196,9 +198,10 @@ class EntityBuilderImpl : EntityBuilder {
         particleEffectComponent.init(
             effect,
             pool.definition,
-            entityParent,
             ttlInSeconds,
-            parentRelativePosition,
+            ttlForComponentOnly,
+            followRelativePosition,
+            followEntity,
         )
         if (position != null) {
             val controllers = effect.controllers
@@ -218,14 +221,16 @@ class EntityBuilderImpl : EntityBuilder {
         entity: Entity,
         pool: GameParticleEffectPool,
         rotationAroundY: Float,
-        parentRelativePosition: Vector3,
-        ttlInSeconds: Int
+        followRelativePosition: Vector3,
+        ttlInSeconds: Int,
+        ttlForComponentOnly: Boolean
     ) {
         val component = createParticleEffectComponent(
             pool = pool,
             ttlInSeconds = ttlInSeconds,
-            parentRelativePosition = parentRelativePosition,
-            entityParent = entity
+            followRelativePosition = followRelativePosition,
+            followEntity = entity,
+            ttlForComponentOnly = ttlForComponentOnly,
         )
         entity.add(component)
     }
@@ -281,9 +286,18 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addCrashSoundEmitterComponent(): EntityBuilder {
-        val crashSoundEmitter = CrashSoundEmitter()
-        entity!!.add(crashSoundEmitter)
+    override fun addCrashSoundEmitterComponent(soundToStop: Sound, soundToStopId: Long): EntityBuilder {
+        addCrashSoundEmitterComponentToEntity(entity!!, soundToStop, soundToStopId)
+        return this
+    }
+
+    override fun addCrashSoundEmitterComponentToEntity(
+        entity: Entity,
+        soundToStop: Sound,
+        soundToStopId: Long
+    ): EntityBuilder {
+        val crashingAircraftEmitter = CrashingAircraftEmitter(soundToStop, soundToStopId)
+        entity.add(crashingAircraftEmitter)
         return this
     }
 

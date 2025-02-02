@@ -250,7 +250,6 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             gamePlayManagers.ecs.entityBuilder.addParticleEffectComponent(
                 position = position,
                 pool = effectsData.smokeTrail,
-                thisEntityAsParent = true
             )
         }
     }

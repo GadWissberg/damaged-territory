@@ -85,8 +85,8 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
             override fun entityRemoved(entity: Entity) {
                 if (ComponentsMapper.particleEffect.has(entity)) {
                     val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
-                    if (particleEffectComponent.parent != null) {
-                        particleEffectComponent.parent = null
+                    if (particleEffectComponent.followEntity != null) {
+                        particleEffectComponent.followEntity = null
                         for (controller in particleEffectComponent.effect.controllers) {
                             (controller.emitter as RegularEmitter).isContinuous = false
                         }
@@ -107,20 +107,25 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
     private fun updateParticleEffectsComponents() {
         for (entity in particleEffectsEntities) {
             val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
-            val parent = particleEffectComponent.parent
+            val parent = particleEffectComponent.followEntity
             val ttlInMillis = particleEffectComponent.ttlInSeconds * 1000L
             val timeToLeave =
                 ttlInMillis > 0F && TimeUtils.timeSinceMillis(particleEffectComponent.createdAt) >= ttlInMillis
             val effect = particleEffectComponent.effect
-            if ((particleEffectComponent.parent == null && effect.isComplete) || timeToLeave) {
-                particleEntitiesToRemove.add(entity)
+            if ((particleEffectComponent.followEntity == null && effect.isComplete) || timeToLeave) {
+                if (particleEffectComponent.ttlForComponentOnly) {
+                    removeParticleEffect(entity)
+                    entity.remove(ParticleEffectComponent::class.java)
+                } else {
+                    particleEntitiesToRemove.add(entity)
+                }
             } else if (parent != null) {
                 if (ComponentsMapper.modelInstance.has(parent)) {
                     auxMatrix1.idt().trn(
                         ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector
                         )
-                    ).translate(particleEffectComponent.parentRelativePosition)
+                    ).translate(particleEffectComponent.followRelativePosition)
                     effect.setTransform(auxMatrix1)
                 }
             }
@@ -138,7 +143,7 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
         val particleEffectComponent = ComponentsMapper.particleEffect.get(entity)
         val particleEffect = particleEffectComponent.effect
         particleEffect.reset()
-        particleEffectComponent.parent = null
+        particleEffectComponent.followEntity = null
         gameSessionData.renderData.particleSystem.remove(particleEffect)
         gameSessionData.pools.particleEffectsPools.obtain(particleEffectComponent.definition)
             .free(particleEffect)

@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.DebugDrawer
 import com.badlogic.gdx.physics.bullet.collision.btAxisSweep3
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy.CollisionFilterGroups.AllFilter
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration
 import com.badlogic.gdx.physics.bullet.collision.btGhostPairCallback
@@ -59,34 +60,43 @@ class BulletEngineHandler(
             if (ComponentsMapper.bullet.has(entity)) {
                 val bulletComponent = ComponentsMapper.bullet.get(entity)
                 val friendly = bulletComponent.friendly
+                val mask =
+                    0x11111111 xor (if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET)
+                btRigidBody.contactCallbackFilter = mask
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET,
-                    0x11111111 xor (if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET)
+                    mask
                 )
             } else if (ComponentsMapper.player.has(entity)) {
+                val mask =
+                    COLLISION_GROUP_ENEMY_BULLET or COLLISION_GROUP_AI or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
+                btRigidBody.contactCallbackFilter = mask
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_PLAYER,
-                    COLLISION_GROUP_ENEMY_BULLET or COLLISION_GROUP_AI or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
+                    mask
                 )
             } else if (ComponentsMapper.ai.has(entity)) {
+//                btRigidBody.contactCallbackFilter = AllFilter
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_AI,
-                    -1
+                    AllFilter
                 )
             } else if (ComponentsMapper.ground.has(entity)) {
+                btRigidBody.contactCallbackFilter = AllFilter
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_GROUND,
-                    -1
+                    AllFilter
                 )
             } else {
+                btRigidBody.contactCallbackFilter = AllFilter
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_GENERAL,
-                    -1
+                    AllFilter
                 )
             }
         }

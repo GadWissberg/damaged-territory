@@ -10,28 +10,32 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 
 class ParticleEffectComponent : Component, Poolable {
 
+    var ttlForComponentOnly: Boolean = false
+        private set
     var createdAt: Long = 0
         private set
     var ttlInSeconds: Int = 0
         private set
-    var parent: Entity? = null
+    var followEntity: Entity? = null
     lateinit var definition: ParticleEffectDefinition
     lateinit var effect: ParticleEffect
         private set
-    val parentRelativePosition: Vector3 = Vector3()
+    val followRelativePosition: Vector3 = Vector3()
 
     fun init(
         effect: ParticleEffect,
         definition: ParticleEffectDefinition,
-        parent: Entity?,
         ttlInSeconds: Int,
-        parentRelativePosition: Vector3 = Vector3.Zero,
+        ttlForComponentOnly: Boolean = false,
+        followRelativePosition: Vector3 = Vector3.Zero,
+        followEntity: Entity?,
     ) {
         this.effect = effect
         this.definition = definition
-        this.parent = parent
+        this.followEntity = followEntity
         this.ttlInSeconds = ttlInSeconds
-        this.parentRelativePosition.set(parentRelativePosition)
+        this.ttlForComponentOnly = ttlForComponentOnly
+        this.followRelativePosition.set(followRelativePosition)
         this.createdAt = TimeUtils.millis()
     }
 
