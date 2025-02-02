@@ -60,5 +60,7 @@ object ComponentsMapper {
         ComponentMapper.getFor(ChildModelInstanceComponent::class.java)
     val autoAim: ComponentMapper<AutoAimComponent> =
         ComponentMapper.getFor(AutoAimComponent::class.java)
+    val crashSoundEmitter: ComponentMapper<CrashSoundEmitter> =
+        ComponentMapper.getFor(CrashSoundEmitter::class.java)
 
 }

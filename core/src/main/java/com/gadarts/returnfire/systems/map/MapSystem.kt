@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
@@ -30,6 +31,7 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.MapInflater
 import kotlin.math.max
@@ -123,7 +125,38 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     }
                 }
             },
+            SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    playCrashSoundForCrashSoundEmitter(
+                        PhysicsCollisionEventData.colObj0.userData as Entity,
+                    ) || playCrashSoundForCrashSoundEmitter(
+                        PhysicsCollisionEventData.colObj1.userData as Entity,
+                    )
+                }
+            }
         )
+
+    private fun playCrashSoundForCrashSoundEmitter(
+        collider: Entity,
+    ): Boolean {
+        if (ComponentsMapper.crashSoundEmitter.has(collider)) {
+            Gdx.app.log("MapSystem", "Playing crash sound for $collider")
+            val modelInstance =
+                ComponentsMapper.modelInstance.get(collider).gameModelInstance.modelInstance
+            modelInstance.transform.getTranslation(
+                auxVector1
+            )
+            gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.CRASH_BIG),
+                auxVector1
+            )
+            return true
+        } else return false
+    }
 
     private fun findBase(entity: Entity): Entity {
         val characterColor = ComponentsMapper.character.get(entity).color

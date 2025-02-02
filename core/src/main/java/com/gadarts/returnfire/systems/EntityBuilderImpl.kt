@@ -281,6 +281,12 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
+    override fun addCrashSoundEmitterComponent(): EntityBuilder {
+        val crashSoundEmitter = CrashSoundEmitter()
+        entity!!.add(crashSoundEmitter)
+        return this
+    }
+
     override fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilderImpl {
         val baseDoorComponent = BaseDoorComponent(initialX, targetX)
         entity!!.add(baseDoorComponent)
@@ -309,11 +315,12 @@ class EntityBuilderImpl : EntityBuilder {
         collisionFlag: Int,
         transform: Matrix4,
         gravityScalar: Float,
+        mass: Float
     ): EntityBuilderImpl {
         val physicsComponent = addPhysicsComponentToEntity(
             entity!!,
             shape,
-            1F,
+            mass,
             collisionFlag,
             transform,
             gravityScalar,
@@ -360,7 +367,7 @@ class EntityBuilderImpl : EntityBuilder {
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
         rigidBody.friction = 1.5F
         if (collisionFlag != null) {
-            rigidBody.collisionFlags = collisionFlag
+            rigidBody.collisionFlags = rigidBody.collisionFlags or collisionFlag
         }
         if (transform != null) {
             val motionState = rigidBody.motionState as MotionState

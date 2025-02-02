@@ -68,13 +68,19 @@ class BulletEngineHandler(
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_PLAYER,
-                    COLLISION_GROUP_ENEMY_BULLET or COLLISION_GROUP_ENEMY or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
+                    COLLISION_GROUP_ENEMY_BULLET or COLLISION_GROUP_AI or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
                 )
             } else if (ComponentsMapper.ai.has(entity)) {
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
-                    COLLISION_GROUP_ENEMY,
-                    COLLISION_GROUP_PLAYER_BULLET or COLLISION_GROUP_PLAYER or COLLISION_GROUP_GENERAL or COLLISION_GROUP_GROUND or COLLISION_GROUP_ENEMY
+                    COLLISION_GROUP_AI,
+                    -1
+                )
+            } else if (ComponentsMapper.ground.has(entity)) {
+                gameSessionData.physicsData.collisionWorld.addRigidBody(
+                    btRigidBody,
+                    COLLISION_GROUP_GROUND,
+                    -1
                 )
             } else {
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
@@ -149,7 +155,7 @@ class BulletEngineHandler(
     companion object {
         val auxVector = Vector3()
         const val COLLISION_GROUP_PLAYER = 0x00000001
-        const val COLLISION_GROUP_ENEMY = 0x00000010
+        const val COLLISION_GROUP_AI = 0x00000010
         const val COLLISION_GROUP_PLAYER_BULLET = 0x00000100
         const val COLLISION_GROUP_ENEMY_BULLET = 0x00001000
         const val COLLISION_GROUP_GENERAL = 0x00010000

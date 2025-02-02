@@ -11,7 +11,10 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
+import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.MapDefinition
@@ -427,14 +430,23 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val gameModelInstanceFront =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_FRONT)
         val assetsManager = gamePlayManagers.assetsManager
-        val boundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.APACHE)
-        val btBoxShape = btBoxShape(
-            boundingBox.getDimensions(
-                auxVector3
-            )
-        )
-        addCharacterGiblet(gameModelInstanceBack, position, boundingBox, assetsManager, btBoxShape)
-        addCharacterGiblet(gameModelInstanceFront, position, boundingBox, assetsManager, btBoxShape)
+        val frontBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_FRONT)
+        val backBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_BACK)
+        val backShape = btCompoundShape()
+        val btBackShapeMain = btBoxShape(Vector3(0.2F, 0.075F, 0.1F))
+        val btBackShapeHorTail = btBoxShape(Vector3(0.05F, 0.05F, 0.135F))
+        val btBackShapeVertTail = btBoxShape(Vector3(0.06F, 0.1F, 0.12F))
+        backShape.addChildShape(Matrix4(), btBackShapeMain)
+        backShape.addChildShape(Matrix4().translate(-0.43F, 0F, 0.12F), btBackShapeHorTail)
+        backShape.addChildShape(Matrix4().translate(-0.47F, 0F, 0.08F), btBackShapeHorTail)
+        backShape.addChildShape(Matrix4().translate(-0.43F, 0.1F, 0.12F), btBackShapeVertTail)
+        val frontShape = btCompoundShape()
+        val btFrontShapeMain = btBoxShape(Vector3(0.295F, 0.1F, 0.125F))
+        val btFrontShapeWings = btBoxShape(Vector3(0.08F, 0.25F, 0.025F))
+        frontShape.addChildShape(Matrix4(), btFrontShapeMain)
+        frontShape.addChildShape(Matrix4().translate(-0.14F, 0F, 0.2F), btFrontShapeWings)
+        addCharacterGiblet(gameModelInstanceBack, position, backBoundingBox, assetsManager, backShape)
+        addCharacterGiblet(gameModelInstanceFront, position, frontBoundingBox, assetsManager, frontShape)
         engine.removeEntity(character)
     }
 
@@ -443,7 +455,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         position: Vector3,
         boundingBox: BoundingBox,
         assetsManager: GameAssetManager,
-        btBoxShape: btBoxShape
+        btBoxShape: btCollisionShape
     ) {
         val part = gamePlayManagers.ecs.entityBuilder.begin().addModelInstanceComponent(
             model = gameModelInstanceBack,
@@ -451,9 +463,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             boundingBox = boundingBox,
             texture = assetsManager.getTexture("apache_texture_dead_green")
         ).addPhysicsComponent(
-            btBoxShape, CollisionFlags.CF_CHARACTER_OBJECT, gameModelInstanceBack.modelInstance.transform, 0.25F
-        ).finishAndAddToEngine()
-        pushRigidBodyRandomly(ComponentsMapper.physics.get(part).rigidBody)
+            btBoxShape, CollisionFlags.CF_CHARACTER_OBJECT, gameModelInstanceBack.modelInstance.transform, 0.5F, 4F
+        ).addCrashSoundEmitterComponent()
+            .finishAndAddToEngine()
+        val rigidBody = ComponentsMapper.physics.get(part).rigidBody
+        pushRigidBodyRandomly(rigidBody, 12F)
+        rigidBody.contactCallbackFilter = btBroadphaseProxy.CollisionFilterGroups.AllFilter
     }
 
     private fun turnCharacterToCorpse(
@@ -485,7 +500,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         motionState.setWorldTransform(deadGameModelInstanceTransform)
         rigidBody.linearFactor = Vector3(1F, 1F, 1F)
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
-        pushRigidBodyRandomly(rigidBody)
+        pushRigidBodyRandomly(rigidBody, 3F)
         rigidBody.applyTorqueImpulse(
             Vector3(
                 MathUtils.random(),
@@ -504,12 +519,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         )
     }
 
-    private fun pushRigidBodyRandomly(rigidBody: RigidBody) {
+    private fun pushRigidBodyRandomly(rigidBody: RigidBody, scale: Float) {
         rigidBody.applyCentralImpulse(
             Vector3(Vector3.X).rotate(
                 Vector3.Y,
                 MathUtils.random(0F, 360F)
-            ).scl(3F)
+            ).scl(scale)
         )
     }
 

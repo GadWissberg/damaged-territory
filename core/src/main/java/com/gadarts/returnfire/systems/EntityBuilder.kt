@@ -57,6 +57,7 @@ interface EntityBuilder {
         collisionFlag: Int,
         transform: Matrix4,
         gravityScalar: Float,
+        mass: Float = 1F
     ): EntityBuilder
 
     fun addSparkComponent(relativePositionCalculator: ArmComponent.RelativePositionCalculator): EntityBuilder
@@ -125,5 +126,6 @@ interface EntityBuilder {
     fun addStageComponent(base: Entity): EntityBuilder
     fun addAutoAimComponent(): EntityBuilder
     fun addBaseComponent(color: CharacterColor): EntityBuilder
+    fun addCrashSoundEmitterComponent(): EntityBuilder
 
 }

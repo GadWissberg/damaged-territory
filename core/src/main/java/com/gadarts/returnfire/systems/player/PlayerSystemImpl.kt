@@ -44,7 +44,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         if (gameSessionData.autoAim) {
             gamePlayManagers.factories.autoAimShapeFactory.generate(
                 BulletEngineHandler.COLLISION_GROUP_PLAYER,
-                BulletEngineHandler.COLLISION_GROUP_ENEMY
+                BulletEngineHandler.COLLISION_GROUP_AI
             )
         } else {
             null

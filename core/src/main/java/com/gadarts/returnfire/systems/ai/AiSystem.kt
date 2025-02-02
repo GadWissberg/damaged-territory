@@ -30,7 +30,7 @@ import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
     private val autoAim by lazy {
         gamePlayManagers.factories.autoAimShapeFactory.generate(
-            BulletEngineHandler.COLLISION_GROUP_ENEMY,
+            BulletEngineHandler.COLLISION_GROUP_AI,
             BulletEngineHandler.COLLISION_GROUP_PLAYER,
         )
     }

@@ -18,7 +18,5 @@ class GameContactListener(private val dispatcher: MessageDispatcher) : ContactLi
         PhysicsCollisionEventData.set(colObj0, colObj1)
         dispatcher.dispatchMessage(SystemEvents.PHYSICS_COLLISION.ordinal)
     }
-
-
 }
 
