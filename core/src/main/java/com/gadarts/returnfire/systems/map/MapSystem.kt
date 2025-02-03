@@ -303,7 +303,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ComponentsMapper.modelInstance.get(baseComponent.westDoor).gameModelInstance.modelInstance.transform
         val eastDoorTransform =
             ComponentsMapper.modelInstance.get(baseComponent.eastDoor).gameModelInstance.modelInstance.transform
-        val stepSize = deltaTime * 0.5F * baseComponent.doorMoveState
+        val stepSize = deltaTime * baseComponent.doorMoveState
         val westDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.westDoor)
         val eastDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.eastDoor)
         updateWestDoor(baseComponent, westDoorBaseDoorComponent, westDoorTransform, stepSize)

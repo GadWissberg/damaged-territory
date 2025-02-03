@@ -53,7 +53,7 @@ abstract class CharacterFactory(
             gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
         entityBuilder.addModelInstanceComponent(
             gameModelInstance,
-            auxVector3_1.set(base.col.toFloat() + 1F, -2.7F, base.row.toFloat() + 1F),
+            auxVector3_1.set(base.col.toFloat() + 1F, -3F, base.row.toFloat() + 1F),
             null,
         )
         entityBuilder.addCharacterComponent(characterDefinition, color)

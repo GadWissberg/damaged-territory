@@ -14,6 +14,7 @@ import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionDataMap
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GROUND
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.auxVector
@@ -70,7 +71,7 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         ghostObject = btPairCachingGhostObject()
         ghostObject.collisionShape = seaShape
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
-        ghostObject.worldTransform = Matrix4().translate(halfMapWidth, -0.5F, halfMapDepth)
+        ghostObject.worldTransform = Matrix4().translate(halfMapWidth, GameSessionDataMap.DROWNING_HEIGHT, halfMapDepth)
         ghostObject.userData = water
         gameSessionData.physicsData.collisionWorld.addCollisionObject(
             ghostObject,

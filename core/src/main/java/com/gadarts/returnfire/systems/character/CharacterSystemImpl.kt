@@ -40,6 +40,7 @@ import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFacto
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnCharacterWeaponShotPrimary
 import com.gadarts.returnfire.systems.character.react.CharacterSystemOnCharacterWeaponShotSecondary
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionDataMap
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
@@ -206,6 +207,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
 
             override fun entityRemoved(entity: Entity) {
+                if (ComponentsMapper.player.has(entity)) {
+                    gameSessionData.gamePlayData.player = null
+                }
             }
 
         })
@@ -270,8 +274,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     private fun updateTurrets() {
         for (turret in relatedEntities.turretEntities) {
             val turretComponent = ComponentsMapper.turret.get(turret)
-            if (turretComponent.followBase) {
-                val base = turretComponent.base
+            val base = turretComponent.base
+            if (turretComponent.followBase && ComponentsMapper.modelInstance.has(base)) {
                 val baseTransform =
                     ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
                 baseTransform.getTranslation(auxVector1)
@@ -338,7 +342,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     ComponentsMapper.modelInstance.get(gameSessionData.mapData.stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isOffboarding()) {
                     if (stageTransform.getTranslation(auxVector1).y < MAX_Y) {
-                        takeStepForStageWithCharacter(stageTransform, deltaTime, character)
+                        takeStepForElevatorWithCharacter(stageTransform, deltaTime, character)
                     } else {
                         val animationDone = updateBoardingAnimation(deltaTime, character)
                         if (animationDone && boardingComponent.isOffboarding()) {
@@ -370,7 +374,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                 character
                             )
                         } else {
-                            takeStepForStageWithCharacter(stageTransform, -deltaTime, character)
+                            takeStepForElevatorWithCharacter(stageTransform, -deltaTime, character)
                         }
                         if (!isAlreadyDone) {
                             gamePlayManagers.dispatcher.dispatchMessage(
@@ -384,7 +388,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 if (characterComponent.deathSequenceDuration <= 0) {
                     if (characterTransform.getTranslation(
                             auxVector1
-                        ).y < -1F
+                        ).y <= GameSessionDataMap.DROWNING_HEIGHT / 3
                     ) {
                         gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.CHARACTER_DIED.ordinal,
@@ -591,16 +595,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         gamePlayManagers.factories.specialEffectsFactory.generateExplosion(entity, true)
     }
 
-    private fun takeStepForStageWithCharacter(
-        stageTransform: Matrix4,
+    private fun takeStepForElevatorWithCharacter(
+        elevatorTransform: Matrix4,
         deltaTime: Float,
         character: Entity
     ) {
-        val oldStagePosition = stageTransform.getTranslation(auxVector3)
-        stageTransform.trn(0F, deltaTime, 0F)
-        val newPosition = stageTransform.getTranslation(auxVector1)
+        val oldStagePosition = elevatorTransform.getTranslation(auxVector3)
+        elevatorTransform.trn(0F, deltaTime * 2F, 0F)
+        val newPosition = elevatorTransform.getTranslation(auxVector1)
         newPosition.y = min(MAX_Y, newPosition.y)
-        stageTransform.setTranslation(newPosition)
+        elevatorTransform.setTranslation(newPosition)
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,
             newPosition.y - oldStagePosition.y,
