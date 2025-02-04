@@ -31,7 +31,7 @@ class ApacheFactory(
     private val entityBuilder: EntityBuilder,
     gameModelInstanceFactory: GameModelInstanceFactory,
 ) :
-    CharacterFactory(gameModelInstanceFactory, entityBuilder) {
+    CharacterFactory(gameModelInstanceFactory, entityBuilder, assetsManager) {
 
     override fun create(base: PlacedElement, color: CharacterColor): Entity {
         val primarySpark =
@@ -177,7 +177,7 @@ class ApacheFactory(
         val propDec = Decal.newDecal(PROP_SIZE, PROP_SIZE, propTextureRegion, true)
         propDec.rotateX(90F)
         propDec.setColor(propDec.color.r, propDec.color.g, propDec.color.b, 0F)
-        val childDecal = ChildDecal(propDec, Vector3.Zero, null)
+        val childDecal = ChildDecal(propDec, Vector3(0F, 0.09F, 0F), null)
         val decals = listOf(childDecal)
         entityBuilder.addChildDecalComponent(decals)
         val propellerGameModelInstance = gameModelInstanceFactory.createGameModelInstance(ModelDefinition.PROPELLER)

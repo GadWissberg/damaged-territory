@@ -513,7 +513,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             CollisionFlags.CF_CHARACTER_OBJECT,
             gameModelInstanceBack.modelInstance.transform,
             0.4F,
-            4F
+            8F
         ).addCrashSoundEmitterComponent(
             assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
             planeCrashSoundId

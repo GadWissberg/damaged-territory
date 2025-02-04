@@ -12,6 +12,7 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.PlacedElement
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
@@ -20,6 +21,7 @@ import com.gadarts.returnfire.systems.EntityBuilderImpl
 abstract class CharacterFactory(
     protected val gameModelInstanceFactory: GameModelInstanceFactory,
     private val entityBuilder: EntityBuilder,
+    private val assetsManager: GameAssetManager,
 ) : Disposable {
 
     abstract fun create(base: PlacedElement, color: CharacterColor): Entity
@@ -49,11 +51,16 @@ abstract class CharacterFactory(
         boardingAnimation: BoardingAnimation?,
         color: CharacterColor
     ): GameModelInstance {
+        val modelDefinition = characterDefinition.getModelDefinition()
         val gameModelInstance =
-            gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
+            gameModelInstanceFactory.createGameModelInstance(modelDefinition)
         entityBuilder.addModelInstanceComponent(
             gameModelInstance,
-            auxVector3_1.set(base.col.toFloat() + 1F, -3F, base.row.toFloat() + 1F),
+            auxVector3_1.set(
+                base.col.toFloat() + 1F,
+                -3.3F + assetsManager.getCachedBoundingBox(modelDefinition).height,
+                base.row.toFloat() + 1F
+            ),
             null,
         )
         entityBuilder.addCharacterComponent(characterDefinition, color)

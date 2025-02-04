@@ -26,7 +26,7 @@ class TankFactory(
     private val gameSessionData: GameSessionData,
     private val entityBuilder: EntityBuilder,
     gameModelInstanceFactory: GameModelInstanceFactory,
-) : CharacterFactory(gameModelInstanceFactory, entityBuilder) {
+) : CharacterFactory(gameModelInstanceFactory, entityBuilder, assetsManager) {
     override fun create(base: PlacedElement, color: CharacterColor): Entity {
         val primarySpark = addSpark(
             assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK),

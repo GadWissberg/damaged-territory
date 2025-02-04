@@ -30,16 +30,17 @@ class CharacterPhysicsInitializer {
             CollisionFlags.CF_CHARACTER_OBJECT,
             physicsTransform,
         )
-        physicsComponent.rigidBody.gravity = characterDefinition.getGravity(Vector3())
-        physicsComponent.rigidBody.setDamping(
+        val rigidBody = physicsComponent.rigidBody
+        rigidBody.gravity = characterDefinition.getGravity(Vector3())
+        rigidBody.setDamping(
             if (isApache) 0F else 0.1F,
             if (isApache) 0.75F else 0.99F
         )
         if (!isApache) {
-            physicsComponent.rigidBody.friction = 0F
+            rigidBody.friction = 0F
         }
-        physicsComponent.rigidBody.angularFactor = if (isApache) Vector3.Y else Vector3.Zero
-        physicsComponent.rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
+        rigidBody.angularFactor = if (isApache) Vector3.Y else Vector3.Zero
+        rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
     }
 
     private fun createApacheCollisionShape(): btCompoundShape {
