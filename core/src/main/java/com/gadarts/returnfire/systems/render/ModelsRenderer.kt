@@ -32,8 +32,8 @@ class ModelsRenderer(
         DirectionalShadowLight(
             2056,
             2056,
-            30f,
-            30f,
+            60f,
+            60f,
             .1f,
             150f
         )
@@ -156,7 +156,7 @@ class ModelsRenderer(
         val center: Vector3 =
             gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
         if (extendBoundingBoxSize) {
-            dims.scl(8.3F)
+            dims.scl(10.6F)
         }
         val frustum = renderData.camera.frustum
         return if (gameModelInstance.sphere) frustum.sphereInFrustum(

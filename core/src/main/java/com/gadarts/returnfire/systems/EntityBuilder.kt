@@ -129,5 +129,6 @@ interface EntityBuilder {
     fun addBaseComponent(color: CharacterColor): EntityBuilder
     fun addCrashSoundEmitterComponent(soundToStop: Sound, soundToStopId: Long): EntityBuilder
     fun addCrashSoundEmitterComponentToEntity(entity: Entity, soundToStop: Sound, soundToStopId: Long): EntityBuilder
+    fun addLimitedVelocityComponent(maxValue: Float): EntityBuilder
 
 }

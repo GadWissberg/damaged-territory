@@ -62,5 +62,6 @@ object ComponentsMapper {
         ComponentMapper.getFor(AutoAimComponent::class.java)
     val crashingAircraftEmitter: ComponentMapper<CrashingAircraftEmitter> =
         ComponentMapper.getFor(CrashingAircraftEmitter::class.java)
-
+    val limitedVelocity: ComponentMapper<LimitedVelocityComponent> =
+        ComponentMapper.getFor(LimitedVelocityComponent::class.java)
 }

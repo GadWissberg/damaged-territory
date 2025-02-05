@@ -67,7 +67,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         val transform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         val apachePosition = transform.getTranslation(auxVector1)
         if (apachePosition.y > GROUND_HEIGHT_POSITION) {
-            takeStepForBoarding(deltaTime * -1F, transform)
+            takeStepForBoarding(deltaTime * -0.5F, transform)
         } else {
             transform.setTranslation(auxVector1.x, GROUND_HEIGHT_POSITION, auxVector1.z)
         }

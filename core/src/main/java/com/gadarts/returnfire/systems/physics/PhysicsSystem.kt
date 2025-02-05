@@ -3,12 +3,14 @@ package com.gadarts.returnfire.systems.physics
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.*
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.LimitedVelocityComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -17,7 +19,6 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.GameSessionDataMap
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GROUND
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.auxVector
 
 
 class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
@@ -25,6 +26,9 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     private lateinit var ghostObject: btPairCachingGhostObject
     private lateinit var contactListener: GameContactListener
 
+    private val limitedVelocityEntities by lazy {
+        engine.getEntitiesFor(Family.all(LimitedVelocityComponent::class.java, PhysicsComponent::class.java).get())
+    }
 
     private val bulletEngineHandler: BulletEngineHandler by lazy {
         BulletEngineHandler(
@@ -95,6 +99,18 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                 overlappingPairs.atConst(i).userData
             )
         }
+        for (i in 0 until limitedVelocityEntities.size()) {
+            val rigidBody = ComponentsMapper.physics.get(limitedVelocityEntities[i]).rigidBody
+            val limitedVelocityComponent = ComponentsMapper.limitedVelocity.get(limitedVelocityEntities[i])
+            val linearVelocity = rigidBody.linearVelocity
+            val maxValue = limitedVelocityComponent.maxValue
+            auxVector.set(
+                MathUtils.clamp(linearVelocity.x, -maxValue, maxValue),
+                MathUtils.clamp(linearVelocity.y, -maxValue, maxValue),
+                MathUtils.clamp(linearVelocity.z, -maxValue, maxValue),
+            )
+            rigidBody.linearVelocity = auxVector
+        }
     }
 
     override fun dispose() {
@@ -126,4 +142,7 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         btRigidBody.userData = gamePlayManagers.ecs.entityBuilder.begin().finishAndAddToEngine()
     }
 
+    companion object {
+        private val auxVector = Vector3()
+    }
 }

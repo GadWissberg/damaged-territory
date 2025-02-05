@@ -61,16 +61,16 @@ class BulletEngineHandler(
                 val bulletComponent = ComponentsMapper.bullet.get(entity)
                 val friendly = bulletComponent.friendly
                 val mask =
-                    0x11111111 xor (if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET)
+                    0x11111111 xor (if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_AI_BULLET)
                 btRigidBody.contactCallbackFilter = mask
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
-                    if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_ENEMY_BULLET,
+                    if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_AI_BULLET,
                     mask
                 )
             } else if (ComponentsMapper.player.has(entity)) {
                 val mask =
-                    COLLISION_GROUP_ENEMY_BULLET or COLLISION_GROUP_AI or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
+                    COLLISION_GROUP_AI_BULLET or COLLISION_GROUP_AI or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
                 btRigidBody.contactCallbackFilter = mask
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
@@ -78,11 +78,10 @@ class BulletEngineHandler(
                     mask
                 )
             } else if (ComponentsMapper.ai.has(entity)) {
-//                btRigidBody.contactCallbackFilter = AllFilter
                 gameSessionData.physicsData.collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_AI,
-                    AllFilter
+                    AllFilter and COLLISION_GROUP_AI_BULLET.inv()
                 )
             } else if (ComponentsMapper.ground.has(entity)) {
                 btRigidBody.contactCallbackFilter = AllFilter
@@ -167,7 +166,7 @@ class BulletEngineHandler(
         const val COLLISION_GROUP_PLAYER = 0x00000001
         const val COLLISION_GROUP_AI = 0x00000010
         const val COLLISION_GROUP_PLAYER_BULLET = 0x00000100
-        const val COLLISION_GROUP_ENEMY_BULLET = 0x00001000
+        const val COLLISION_GROUP_AI_BULLET = 0x00001000
         const val COLLISION_GROUP_GENERAL = 0x00010000
         const val COLLISION_GROUP_GROUND = 0x00100000
     }

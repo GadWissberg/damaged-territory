@@ -301,6 +301,12 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
+    override fun addLimitedVelocityComponent(maxValue: Float): EntityBuilder {
+        val limitedVelocityComponent = LimitedVelocityComponent(maxValue)
+        entity!!.add(limitedVelocityComponent)
+        return this
+    }
+
     override fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilderImpl {
         val baseDoorComponent = BaseDoorComponent(initialX, targetX)
         entity!!.add(baseDoorComponent)
