@@ -37,15 +37,12 @@ import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
-import com.gadarts.returnfire.systems.character.react.CharacterSystemOnCharacterWeaponShotPrimary
-import com.gadarts.returnfire.systems.character.react.CharacterSystemOnCharacterWeaponShotSecondary
+import com.gadarts.returnfire.systems.character.react.*
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.GameSessionDataMap
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.render.RenderSystem
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
-import kotlin.math.max
 import kotlin.math.min
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
@@ -69,66 +66,38 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(
-            this
-        ),
-        SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(
-            this
-        ),
-        SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
-                handleBulletCharacterCollision(
-                    PhysicsCollisionEventData.colObj0.userData as Entity,
-                    PhysicsCollisionEventData.colObj1.userData as Entity
-                ) || handleBulletCharacterCollision(
-                    PhysicsCollisionEventData.colObj1.userData as Entity,
-                    PhysicsCollisionEventData.colObj0.userData as Entity
-                ) || applyEventForCrashingAircraft(
-                    PhysicsCollisionEventData.colObj0.userData as Entity,
-                    PhysicsCollisionEventData.colObj1.userData as Entity
-                ) || applyEventForCrashingAircraft(
-                    PhysicsCollisionEventData.colObj1.userData as Entity,
-                    PhysicsCollisionEventData.colObj0.userData as Entity
-                )
-            }
-        },
-        SystemEvents.CHARACTER_REQUEST_BOARDING to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
-                val character = msg.extraInfo as Entity
-                ComponentsMapper.boarding.get(character).onBoard()
-                val boardingComponent =
-                    ComponentsMapper.boarding.get(character)
-                boardingComponent.boardingAnimation?.init(gameSessionData.mapData.stages[boardingComponent.color])
-                gamePlayManagers.dispatcher.dispatchMessage(
-                    SystemEvents.CHARACTER_BOARDING.ordinal,
-                    character
-                )
-            }
-        },
-        SystemEvents.AMB_SOUND_COMPONENT_ADDED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
-                playAmbSound(msg.extraInfo as Entity, gamePlayManagers)
-            }
-        },
+        SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
+        SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(this),
+        SystemEvents.PHYSICS_COLLISION to CharacterSystemOnPhysicsCollision(),
+        SystemEvents.CHARACTER_REQUEST_BOARDING to CharacterSystemOnCharacterRequestBoarding(),
+        SystemEvents.AMB_SOUND_COMPONENT_ADDED to CharacterSystemOnAmbSoundComponentAdded(this),
         SystemEvents.MAP_LOADED to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                addOpponents()
+                val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
+                relatedEntities.baseEntities.forEach {
+                    val base =
+                        map.placedElements.find { placedElement ->
+                            placedElement.definition == ComponentsMapper.amb.get(
+                                it
+                            ).def
+                        }
+                    val characterColor = ComponentsMapper.base.get(it).color
+                    val opponent =
+                        opponentCharacterFactory.create(
+                            base!!,
+                            if (characterColor == CharacterColor.GREEN) SimpleCharacterDefinition.APACHE else gameSessionData.selected,
+                            characterColor
+                        )
+                    gamePlayManagers.ecs.engine.addEntity(opponent)
+                    gamePlayManagers.dispatcher.dispatchMessage(
+                        SystemEvents.OPPONENT_CHARACTER_CREATED.ordinal,
+                        opponent
+                    )
+                }
             }
         },
         SystemEvents.MAP_SYSTEM_READY to object : HandlerOnEvent {
@@ -147,58 +116,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         }
     )
 
-    private fun applyEventForCrashingAircraft(
-        collider1: Entity,
-        collider2: Entity
-    ): Boolean {
-        val crashSoundEmitter = ComponentsMapper.crashingAircraftEmitter.get(collider1)
-        val canPlay =
-            crashSoundEmitter != null && !crashSoundEmitter.crashed
-        if (canPlay && ComponentsMapper.ground.has(collider2)) {
-            val velocity = ComponentsMapper.physics.get(collider1).rigidBody.linearVelocity.len2()
-            if (velocity >= 9F) {
-                val modelInstance = ComponentsMapper.modelInstance.get(collider1).gameModelInstance.modelInstance
-                val position = modelInstance.transform.getTranslation(auxVector1)
-                gamePlayManagers.soundPlayer.play(
-                    gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.CRASH_BIG),
-                    position
-                )
-                gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
-                    position,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE)
-                ).finishAndAddToEngine()
-                crashSoundEmitter.crash()
-                crashSoundEmitter.soundToStop.stop(crashSoundEmitter.soundToStopId)
-            }
-            return true
-        }
-        return false
-    }
-
-    private fun handleBulletCharacterCollision(first: Entity, second: Entity): Boolean {
-        val isSecondCharacter = ComponentsMapper.character.has(second)
-        val isSecondTurret = if (!isSecondCharacter) ComponentsMapper.turret.has(second) else false
-        if (ComponentsMapper.bullet.has(first) && (isSecondCharacter || isSecondTurret)) {
-            val damage = max(ComponentsMapper.bullet.get(first).damage + MathUtils.random(-2, 2), 1)
-            val damagedCharacter = if (isSecondCharacter) {
-                ComponentsMapper.character.get(second)
-            } else {
-                ComponentsMapper.character.get(ComponentsMapper.turret.get(second).base)
-            }
-            damagedCharacter.takeDamage(damage)
-            gamePlayManagers.ecs.entityBuilder.begin()
-                .addParticleEffectComponent(
-                    ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
-                        auxVector1
-                    ),
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.RICOCHET)
-                )
-                .finishAndAddToEngine()
-            return true
-        }
-        return false
-    }
-
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
         engine.addEntityListener(object : EntityListener {
@@ -215,38 +132,14 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         })
     }
 
-    private fun addOpponents() {
-        val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
-        relatedEntities.baseEntities.forEach {
-            val base =
-                map.placedElements.find { placedElement ->
-                    placedElement.definition == ComponentsMapper.amb.get(
-                        it
-                    ).def
-                }
-            val characterColor = ComponentsMapper.base.get(it).color
-            val opponent =
-                opponentCharacterFactory.create(
-                    base!!,
-                    if (characterColor == CharacterColor.GREEN) SimpleCharacterDefinition.APACHE else gameSessionData.selected,
-                    characterColor
-                )
-            engine.addEntity(opponent)
-            gamePlayManagers.dispatcher.dispatchMessage(
-                SystemEvents.OPPONENT_CHARACTER_CREATED.ordinal,
-                opponent
-            )
-        }
+    override fun resume(delta: Long) {
+
     }
 
-    private fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
-        if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
-            val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
-            if (ambSoundComponent.soundId == -1L) {
-                val id = gamePlayManagers.soundPlayer.loopSound(ambSoundComponent.sound)
-                ambSoundComponent.soundId = id
-            }
-        }
+    override fun update(deltaTime: Float) {
+        updateCharacters(deltaTime)
+        updateTurrets()
+        characterAmbSoundUpdater.update(deltaTime)
     }
 
     override fun positionSpark(
@@ -261,15 +154,21 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         return spark
     }
 
-    override fun resume(delta: Long) {
-
+    override fun dispose() {
+        opponentCharacterFactory.dispose()
     }
 
-    override fun update(deltaTime: Float) {
-        updateCharacters(deltaTime)
-        updateTurrets()
-        characterAmbSoundUpdater.update(deltaTime)
+
+    override fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
+        if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
+            val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
+            if (ambSoundComponent.soundId == -1L) {
+                val id = gamePlayManagers.soundPlayer.loopSound(ambSoundComponent.sound)
+                ambSoundComponent.soundId = id
+            }
+        }
     }
+
 
     private fun updateTurrets() {
         for (turret in relatedEntities.turretEntities) {
@@ -301,6 +200,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         }
     }
 
+
     private fun applyTurretOffsetFromBase(
         turretComponent: TurretComponent,
         turretTransform: Matrix4,
@@ -315,7 +215,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         }
     }
-
 
     private fun updateCharacters(deltaTime: Float) {
         for (character in relatedEntities.charactersEntities) {
@@ -706,10 +605,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             .finishAndAddToEngine()
         ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.2F, 0.5F)
         makeFlyingPartFlyAway(flyingPart)
-    }
-
-    override fun dispose() {
-        opponentCharacterFactory.dispose()
     }
 
     companion object {

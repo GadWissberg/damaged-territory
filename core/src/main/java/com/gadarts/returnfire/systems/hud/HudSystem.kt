@@ -5,7 +5,6 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
@@ -22,91 +21,9 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
-    private var onboardButton: ImageButton? = null
-    private var manualAimButton: ImageButton? = null
+    private val hudButtons = HudButtons(gamePlayManagers)
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
-
-    private val priWeaponButtonClickListener = object : ClickListener() {
-        override fun touchDown(
-            event: InputEvent,
-            x: Float,
-            y: Float,
-            pointer: Int,
-            button: Int
-        ): Boolean {
-            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED.ordinal)
-            return super.touchDown(event, x, y, pointer, button)
-        }
-
-        override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED.ordinal)
-            super.touchUp(event, x, y, pointer, button)
-        }
-    }
-
-    private val secWeaponButtonClickListener = object : ClickListener() {
-        override fun touchDown(
-            event: InputEvent,
-            x: Float,
-            y: Float,
-            pointer: Int,
-            button: Int
-        ): Boolean {
-            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED.ordinal)
-            return super.touchDown(event, x, y, pointer, button)
-        }
-
-        override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED.ordinal)
-            super.touchUp(event, x, y, pointer, button)
-        }
-    }
-
-    private val reverseButtonClickListener = object : ClickListener() {
-        override fun touchDown(
-            event: InputEvent,
-            x: Float,
-            y: Float,
-            pointer: Int,
-            button: Int
-        ): Boolean {
-            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_PRESSED.ordinal)
-            return super.touchDown(event, x, y, pointer, button)
-        }
-
-        override fun touchUp(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int) {
-            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_REVERSE_RELEASED.ordinal)
-            super.touchUp(event, x, y, pointer, button)
-        }
-    }
-    private val onBoardButtonClickListener = object : ClickListener() {
-        override fun touchDown(
-            event: InputEvent,
-            x: Float,
-            y: Float,
-            pointer: Int,
-            button: Int
-        ): Boolean {
-            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_ONBOARD_PRESSED.ordinal)
-            if (onboardButton != null) {
-                onboardButton!!.isVisible = false
-            }
-            return super.touchDown(event, x, y, pointer, button)
-        }
-    }
-    private val manualAimButtonClickListener = object : ClickListener() {
-        override fun touchDown(
-            event: InputEvent,
-            x: Float,
-            y: Float,
-            pointer: Int,
-            button: Int
-        ): Boolean {
-            this@HudSystem.gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BUTTON_MANUAL_AIM_PRESSED.ordinal)
-            return super.touchDown(event, x, y, pointer, button)
-        }
-    }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
@@ -133,7 +50,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             val imageButtonCell = addButton(
                 ui,
                 "icon_reverse",
-                reverseButtonClickListener
+                hudButtons.reverseButtonClickListener
             )
             imageButtonCell.grow().left().bottom().padBottom(32F)
             val attackButtonsTable = Table()
@@ -141,7 +58,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             addButton(
                 attackButtonsTable,
                 "icon_missiles",
-                secWeaponButtonClickListener,
+                hudButtons.secWeaponButtonClickListener,
             ).center().row()
             ui.add(attackButtonsTable).right()
             addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
@@ -154,9 +71,9 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val cell = addButton(
             ui,
             "icon_manual_aim_sky",
-            manualAimButtonClickListener,
+            hudButtons.manualAimButtonClickListener,
         ).size(150F)
-        manualAimButton = cell.actor
+        hudButtons.manualAimButton = cell.actor
         cell.right().top()
     }
 
@@ -164,12 +81,12 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         addButton(
             ui,
             "icon_bullets",
-            clickListener = priWeaponButtonClickListener
+            clickListener = hudButtons.priWeaponButtonClickListener
         )
         addButton(
             ui,
             "icon_missiles",
-            secWeaponButtonClickListener,
+            hudButtons.secWeaponButtonClickListener,
             JOYSTICK_PADDING,
         )
         addManualAimButton(ui)
@@ -211,8 +128,9 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
+                val onboardButton = hudButtons.onboardButton
                 if (onboardButton != null) {
-                    onboardButton!!.isVisible = msg.extraInfo as Boolean
+                    onboardButton.isVisible = msg.extraInfo as Boolean
                 }
             }
         },
@@ -239,7 +157,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                             Actions.run { icon.remove() })
                     )
                 } else {
-                    manualAimButton!!.image.drawable =
+                    hudButtons.manualAimButton!!.image.drawable =
                         TextureRegionDrawable(gamePlayManagers.assetsManager.getTexture(name))
                 }
             }
@@ -270,10 +188,10 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val cell = addButton(
             ui,
             "icon_reverse",
-            onBoardButtonClickListener,
+            hudButtons.onBoardButtonClickListener,
             visible = false,
         )
-        onboardButton = cell.actor
+        hudButtons.onboardButton = cell.actor
         cell.expandX().align(Align.right).padTop(BOARDING_BUTTON_PADDING)
             .padRight(BOARDING_BUTTON_PADDING)
     }

@@ -16,22 +16,22 @@ class GameSessionDataPools(
 ) : Disposable {
     private val floorModel = createFloorModel()
 
-    private fun createFloorModel(): Model {
-        val builder = ModelBuilder()
-        builder.begin()
-        GeneralUtils.createFlatMesh(builder, "floor", 0.5F, null, 0F)
-        return builder.end()
-    }
-
     val gameModelInstancePools = ModelDefinition.entries
         .filter { it.pooledObjectPhysicalDefinition != null }
         .associateWith { createPool(it) }
+
     val particleEffectsPools = ParticleEffectsPools(assetsManager)
     val rigidBodyPools = RigidBodyPools(assetsManager, RigidBodyFactory())
     val groundBlastPool = object : Pool<GameModelInstance>() {
         override fun newObject(): GameModelInstance {
             return GameModelInstance(ModelInstance(floorModel), null)
         }
+    }
+    private fun createFloorModel(): Model {
+        val builder = ModelBuilder()
+        builder.begin()
+        GeneralUtils.createFlatMesh(builder, "floor", 0.5F, null, 0F)
+        return builder.end()
     }
 
     private fun createPool(modelDefinition: ModelDefinition) =
