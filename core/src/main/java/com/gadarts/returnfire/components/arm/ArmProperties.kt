@@ -5,7 +5,7 @@ import com.gadarts.returnfire.systems.character.factories.AimingRestriction
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
 
 class ArmProperties(
-    val damage: Int,
+    val damage: Float,
     val shootingSound: Sound,
     val reloadDuration: Long,
     val speed: Float,

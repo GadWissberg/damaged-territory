@@ -8,12 +8,13 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 
 class CharacterComponent(val definition: CharacterDefinition, val color: CharacterColor) : Component {
+    val creationTime = TimeUtils.millis()
     var deathSequenceNextExplosion: Long = 0
         private set
     var deathSequenceDuration: Int = 0
         private set
     var smokeEmission: Entity? = null
-    var hp: Int = 0
+    var hp: Float = 0F
     var dead: Boolean = false
 
     init {
@@ -23,7 +24,7 @@ class CharacterComponent(val definition: CharacterDefinition, val color: Charact
     }
 
 
-    fun takeDamage(damage: Int) {
+    fun takeDamage(damage: Float) {
         hp -= damage
     }
 

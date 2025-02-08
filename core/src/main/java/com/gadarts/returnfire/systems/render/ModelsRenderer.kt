@@ -30,10 +30,10 @@ class ModelsRenderer(
     private var axisModelHandler = AxisModelHandler()
     private val shadowLight: DirectionalShadowLight by lazy {
         DirectionalShadowLight(
-            2056,
-            2056,
-            60f,
-            60f,
+            SHADOW_MAP_SIZE,
+            SHADOW_MAP_SIZE,
+            SHADOW_VIEWPORT_SIZE,
+            SHADOW_VIEWPORT_SIZE,
             .1f,
             150f
         )
@@ -218,6 +218,8 @@ class ModelsRenderer(
     }
 
     companion object {
+        private const val SHADOW_VIEWPORT_SIZE: Float = 34F
+        private const val SHADOW_MAP_SIZE = 2056
         private val auxQuat1 = Quaternion()
     }
 }

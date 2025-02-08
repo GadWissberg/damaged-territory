@@ -140,7 +140,7 @@ class EntityBuilderImpl : EntityBuilder {
         explosion: ParticleEffectDefinition?,
         explosive: Boolean,
         friendly: Boolean,
-        damage: Int
+        damage: Float
     ): EntityBuilderImpl {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
         bulletComponent.init(bulletBehavior, explosion, explosive, friendly, damage)
@@ -256,12 +256,12 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addAiComponent(initialHp: Int, target: Entity?): EntityBuilder {
+    override fun addAiComponent(initialHp: Float, target: Entity?): EntityBuilder {
         addAiComponentToEntity(entity!!, initialHp, target)
         return this
     }
 
-    override fun addAiComponentToEntity(entity: Entity, initialHp: Int, target: Entity?): AiComponent {
+    override fun addAiComponentToEntity(entity: Entity, initialHp: Float, target: Entity?): AiComponent {
         val aiComponent = engine.createComponent(AiComponent::class.java)
         aiComponent.init(target, initialHp)
         entity.add(aiComponent)

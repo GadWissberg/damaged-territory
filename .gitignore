@@ -177,3 +177,6 @@ Thumbs.db
 /materials/models/hangar/hook_texture.png
 /materials/models/*.g3dj
 *.log
+/materials/video_assets/
+*.osp
+*.mp4

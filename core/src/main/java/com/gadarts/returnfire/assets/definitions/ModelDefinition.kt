@@ -42,6 +42,7 @@ enum class ModelDefinition(
     MACHINE_GUN_SPARK,
     CANNON_SPARK,
     FLYING_PART(boundingBoxScale = Vector3(0.5F, 0.5F, 0.5F), fileNames = 3),
+    FLYING_PART_SMALL(boundingBoxScale = Vector3(0.25F, 0.25F, 0.25F)),
     TANK_BODY,
     TANK_TURRET,
     TANK_CANNON,

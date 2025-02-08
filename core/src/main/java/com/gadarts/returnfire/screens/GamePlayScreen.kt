@@ -61,13 +61,18 @@ class GamePlayScreen(
 
     override fun show() {
         val entityBuilderImpl = EntityBuilderImpl()
+        val ecs = EcsManager(
+            engine,
+            entityBuilderImpl
+        )
         val factories = Factories(
             RigidBodyFactory(),
             SpecialEffectsFactory(
                 gameSessionData,
                 generalManagers.soundPlayer,
                 generalManagers.assetsManager,
-                entityBuilderImpl
+                entityBuilderImpl,
+                ecs
             ),
             GameModelInstanceFactory(generalManagers.assetsManager),
             AutoAimShapeFactory(gameSessionData)
@@ -80,10 +85,7 @@ class GamePlayScreen(
             generalManagers.dispatcher,
             factories,
             generalManagers.screensManagers,
-            EcsManager(
-                engine,
-                entityBuilderImpl
-            )
+            ecs
         )
         systems = listOf(
             PhysicsSystem(gamePlayManagers),

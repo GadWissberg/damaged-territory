@@ -35,7 +35,8 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.*
+import com.gadarts.returnfire.model.CharacterType
+import com.gadarts.returnfire.model.ElementType
 import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
@@ -193,7 +194,7 @@ class MapInflater(
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
         val spark = addTurretSpark(assetsManager, modelInstance.modelInstance)
         val turret = gamePlayManagers.ecs.entityBuilder.begin()
-            .addAiComponent(0)
+            .addAiComponent(0F)
             .addModelInstanceComponent(
                 modelInstance,
                 calculateTurretPosition(baseEntity, assetsManager),
@@ -239,7 +240,7 @@ class MapInflater(
         val bulletModelDefinition = ModelDefinition.TANK_CANNON_BULLET
         val particleEffectsPools = gameSessionData.pools.particleEffectsPools
         return ArmProperties(
-            8,
+            8F,
             assetsManager.getAssetByDefinition(SoundDefinition.CANNON_B),
             5000L,
             10F,

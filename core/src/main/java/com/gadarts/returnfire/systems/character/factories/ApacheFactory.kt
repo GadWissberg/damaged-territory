@@ -89,7 +89,7 @@ class ApacheFactory(
         entityBuilder.addPrimaryArmComponent(
             primarySpark,
             ArmProperties(
-                1,
+                0.5F,
                 assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN),
                 APACHE_PRI_RELOAD_DUR,
                 APACHE_PRI_BULLET_SPEED,
@@ -146,7 +146,7 @@ class ApacheFactory(
         entityBuilder.addSecondaryArmComponent(
             secondarySpark,
             ArmProperties(
-                5,
+                5F,
                 assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
                 SEC_RELOAD_DUR,
                 SEC_BULLET_SPEED,

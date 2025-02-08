@@ -11,7 +11,7 @@ interface CharacterDefinition : ElementDefinition {
     }
 
     fun getCharacterType(): CharacterType
-    fun getHP(): Int
+    fun getHP(): Float
     fun getSmokeEmissionRelativePosition(output: Vector3): Vector3
     fun getGravity(output: Vector3): Vector3
     fun getLinearFactor(output: Vector3): Vector3

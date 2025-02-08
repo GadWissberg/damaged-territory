@@ -59,11 +59,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         )
     }
     private val relatedEntities by lazy { CharacterSystemRelatedEntities(engine) }
-    private val flyingPartBoundingBox by lazy {
-        this.gamePlayManagers.assetsManager.getCachedBoundingBox(
-            ModelDefinition.FLYING_PART
-        )
-    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
@@ -324,7 +319,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             val ambSoundComponent = ComponentsMapper.ambSound.get(character)
                             ambSoundComponent.sound.stop(ambSoundComponent.soundId)
                         }
-                        addFlyingParts(character)
+                        gamePlayManagers.factories.specialEffectsFactory.addFlyingParts(character)
                         for (i in 0 until MathUtils.random(3, 4)) {
                             addExplosion(character)
                         }
@@ -368,9 +363,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_BACK)
         val gameModelInstanceFront =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_FRONT)
-        val assetsManager = gamePlayManagers.assetsManager
-        val frontBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_FRONT)
-        val backBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_BACK)
+        val frontBoundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_FRONT)
+        val backBoundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_BACK)
         val backShape = btCompoundShape()
         val btBackShapeMain = btBoxShape(Vector3(0.2F, 0.075F, 0.1F))
         val btBackShapeHorTail = btBoxShape(Vector3(0.05F, 0.05F, 0.135F))
@@ -384,7 +378,13 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val btFrontShapeWings = btBoxShape(Vector3(0.08F, 0.25F, 0.025F))
         frontShape.addChildShape(Matrix4(), btFrontShapeMain)
         frontShape.addChildShape(Matrix4().translate(-0.14F, 0F, 0.2F), btFrontShapeWings)
-        addCharacterGiblet(gameModelInstanceBack, position, backBoundingBox, backShape, planeCrashSoundId)
+        addCharacterGiblet(
+            gameModelInstanceBack,
+            auxVector2.set(position).add(0.4F, 0F, 0F),
+            backBoundingBox,
+            backShape,
+            planeCrashSoundId
+        )
         addCharacterGiblet(gameModelInstanceFront, position, frontBoundingBox, frontShape, planeCrashSoundId)
         engine.removeEntity(character)
     }
@@ -418,7 +418,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             planeCrashSoundId
         ).finishAndAddToEngine()
         val rigidBody = ComponentsMapper.physics.get(part).rigidBody
-        pushRigidBodyRandomly(rigidBody, 13F)
+        pushRigidBodyRandomly(rigidBody, MathUtils.random(17F, 22F))
     }
 
     private fun turnCharacterToCorpse(
@@ -451,13 +451,13 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         motionState.setWorldTransform(deadGameModelInstanceTransform)
         rigidBody.linearFactor = Vector3(1F, 1F, 1F)
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
-        pushRigidBodyRandomly(rigidBody, 3F)
+        pushRigidBodyRandomly(rigidBody, 12F)
         rigidBody.applyTorqueImpulse(
             Vector3(
                 MathUtils.random(),
                 MathUtils.random(),
                 MathUtils.random()
-            ).scl(2F)
+            ).scl(4F)
         )
         character.remove(ChildDecalComponent::class.java)
         gamePlayManagers.ecs.entityBuilder.addCrashSoundEmitterComponentToEntity(
@@ -540,72 +540,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         )
     }
 
-    private fun addFlyingParts(character: Entity) {
-        val transform = if (ComponentsMapper.turretBase.has(character)) {
-            val turretModelInstanceComponent =
-                ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
-            turretModelInstanceComponent.gameModelInstance.modelInstance.transform
-        } else {
-            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
-        }
-        val numberOfFlyingParts = MathUtils.random(2, 4)
-        transform.getTranslation(auxVector2)
-        for (i in 0 until numberOfFlyingParts) {
-            addFlyingPart(auxVector2)
-        }
-    }
 
-    private fun makeFlyingPartFlyAway(flyingPart: Entity) {
-        val rigidBody = ComponentsMapper.physics.get(flyingPart).rigidBody
-        rigidBody.applyCentralImpulse(
-            createRandomDirectionUpwards()
-        )
-        rigidBody.applyTorque(createRandomDirectionUpwards())
-    }
 
-    private fun createRandomDirectionUpwards(): Vector3 {
-        return auxVector1.set(1F, 0F, 0F).mul(
-            auxQuat.idt()
-                .setEulerAngles(
-                    MathUtils.random(360F),
-                    MathUtils.random(360F),
-                    MathUtils.random(45F, 135F)
-                )
-        ).scl(MathUtils.random(3F, 5F))
-    }
 
-    private fun addFlyingPart(
-        @Suppress("SameParameterValue") position: Vector3,
-    ) {
-        val modelInstance = ModelInstance(
-            gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
-        )
-        val gameModelInstance = GameModelInstance(modelInstance, ModelDefinition.FLYING_PART)
-        val flyingPart = gamePlayManagers.ecs.entityBuilder.begin()
-            .addModelInstanceComponent(
-                gameModelInstance,
-                position,
-                flyingPartBoundingBox
-            )
-            .addPhysicsComponent(
-                btBoxShape(
-                    flyingPartBoundingBox.getDimensions(
-                        auxVector1
-                    ).scl(0.4F)
-                ),
-                CollisionFlags.CF_CHARACTER_OBJECT,
-                modelInstance.transform,
-                1F,
-            )
-            .addParticleEffectComponent(
-                modelInstance.transform.getTranslation(auxVector1),
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
-                ttlInSeconds = MathUtils.random(20, 25)
-            )
-            .finishAndAddToEngine()
-        ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.2F, 0.5F)
-        makeFlyingPartFlyAway(flyingPart)
-    }
 
     companion object {
         private val auxMatrix = Matrix4()

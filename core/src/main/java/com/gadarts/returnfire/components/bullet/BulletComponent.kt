@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 
 class BulletComponent : Component, Poolable {
-    var damage: Int = 0
+    var damage: Float = 0F
         private set
     var friendly: Boolean = false
         private set
@@ -28,7 +28,7 @@ class BulletComponent : Component, Poolable {
         explosion: ParticleEffectDefinition?,
         explosive: Boolean,
         friendly: Boolean,
-        damage: Int
+        damage: Float
     ) {
         this.behavior = behavior
         this.createdTime = TimeUtils.millis()
