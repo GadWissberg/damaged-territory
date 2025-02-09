@@ -27,6 +27,7 @@ class GameSessionDataPools(
             return GameModelInstance(ModelInstance(floorModel), null)
         }
     }
+
     private fun createFloorModel(): Model {
         val builder = ModelBuilder()
         builder.begin()

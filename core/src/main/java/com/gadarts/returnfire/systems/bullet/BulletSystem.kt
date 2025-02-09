@@ -276,6 +276,9 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                     )
                 } else {
                     addBulletExplosion(entity0, position)
+                    if (isGround) {
+                        addBulletHole(position, entity0)
+                    }
                 }
             }
             destroyBullet(entity0)
@@ -285,6 +288,15 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             return true
         }
         return false
+    }
+
+    private fun addBulletHole(position: Vector3, bullet: Entity) {
+        val bulletComponent = ComponentsMapper.bullet.get(bullet)
+        if (bulletComponent.explosive) {
+            gameSessionData.bulletHoles.addBig(position)
+        } else {
+            gameSessionData.bulletHoles.addSmall(position)
+        }
     }
 
     private fun addBulletExplosion(bullet: Entity, position: Vector3) {

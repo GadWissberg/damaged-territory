@@ -161,7 +161,7 @@ class SpecialEffectsFactory(
     ) {
         val modelInstance = ModelInstance(model)
         val flyingPart = createFlyingPartEntity(modelInstance, position)
-        ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.2F, 0.5F)
+        ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.1F, 0.2F)
         makeFlyingPartFlyAway(flyingPart)
     }
 

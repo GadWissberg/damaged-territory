@@ -149,6 +149,9 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             }
         }
         renderIndependentDecals()
+        for (smallHole in gameSessionData.bulletHoles.holes) {
+            batches.decalBatch.add(smallHole)
+        }
         batches.decalBatch.flush()
         Gdx.gl.glDepthMask(true)
     }
