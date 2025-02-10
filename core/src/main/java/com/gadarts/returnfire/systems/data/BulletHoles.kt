@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.managers.GameAssetManager
 
 class BulletHoles(assetsManager: GameAssetManager) {
-    val holes: MutableList<Decal> = ArrayList()
+    val holes: MutableList<Decal> = ArrayDeque()
     private val smallHolesTextureRegions by lazy {
         arrayOf(
             TextureRegion(assetsManager.getTexture("bullet_hole_small_0")),
@@ -42,6 +42,9 @@ class BulletHoles(assetsManager: GameAssetManager) {
         newDecal.setPosition(position.x, 0.01F, position.z)
         newDecal.rotateX(-90F)
         holes.add(newDecal)
+        if (holes.size > 300) {
+            holes.removeFirst()
+        }
     }
 
 }

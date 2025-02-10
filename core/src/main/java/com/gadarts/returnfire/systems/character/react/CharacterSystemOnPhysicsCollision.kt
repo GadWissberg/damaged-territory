@@ -125,6 +125,8 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         gamePlayManagers: GamePlayManagers,
         gameSessionData: GameSessionData,
     ) {
+        if (afterDamage <= 0) return
+
         val damagedCharacter = ComponentsMapper.character.get(character)
         val initialHp = damagedCharacter.definition.getHP()
         val entityBuilder = gamePlayManagers.ecs.entityBuilder

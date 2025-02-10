@@ -15,6 +15,7 @@ class GameSessionData(
     val autoAim: Boolean
 ) :
     Disposable {
+    val profilingData: GameSessionDataProfiling = GameSessionDataProfiling()
     val bulletHoles: BulletHoles = BulletHoles(assetsManager)
     val physicsData = GameSessionDataPhysics()
     val gamePlayData = GameSessionDataGameplay()

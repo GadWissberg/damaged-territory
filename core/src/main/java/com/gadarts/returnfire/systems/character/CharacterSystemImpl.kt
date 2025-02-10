@@ -404,9 +404,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             texture = assetsManager.getTexture("apache_texture_dead_green")
         ).addParticleEffectComponent(
             position = position,
-            pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.FIRE_LOOP),
-            ttlInSeconds = MathUtils.random(20, 25),
-            ttlForComponentOnly = true
+            pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
         ).addPhysicsComponent(
             btBoxShape,
             CollisionFlags.CF_CHARACTER_OBJECT,
@@ -417,8 +415,18 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
             planeCrashSoundId
         ).finishAndAddToEngine()
+        addFire(position, part)
         val rigidBody = ComponentsMapper.physics.get(part).rigidBody
         pushRigidBodyRandomly(rigidBody, MathUtils.random(17F, 22F))
+    }
+
+    private fun addFire(position: Vector3, entity: Entity) {
+        gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
+            position = position,
+            pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.FIRE_LOOP),
+            ttlInSeconds = MathUtils.random(20, 25),
+            followSpecificEntity = entity
+        ).finishAndAddToEngine()
     }
 
     private fun turnCharacterToCorpse(
@@ -431,18 +439,19 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 ModelDefinition.APACHE_DEAD
             )
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
+        val position = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+            auxVector1
+        )
         modelInstanceComponent.init(
             deadGameModelInstance,
-            modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
-                auxVector1
-            ),
+            position,
             assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
             0F,
             false,
             assetsManager.getTexture("apache_texture_dead_green")
         )
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody
-        rigidBody.gravity = auxVector1.set(PhysicsComponent.worldGravity).scl(0.25F)
+        rigidBody.gravity = auxVector2.set(PhysicsComponent.worldGravity).scl(0.25F)
         ComponentsMapper.physics.get(character).rigidBody
         val motionState = rigidBody.motionState as MotionState
         val deadGameModelInstanceTransform = deadGameModelInstance.modelInstance.transform
@@ -465,15 +474,22 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
             planeCrashSoundId
         )
+        val particleEffectsPools = gameSessionData.pools.particleEffectsPools
+        addFire(position, character)
         gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
             entity = character,
-            pool = gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.FIRE_LOOP),
-            ttlInSeconds = MathUtils.random(20, 25),
-            ttlForComponentOnly = true
+            pool = particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
         )
-        gamePlayManagers.dispatcher.dispatchMessage(
-            SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY.ordinal,
-            character
+        addSmokeUpToCharacter(character)
+    }
+
+    private fun addSmokeUpToCharacter(
+        character: Entity,
+    ) {
+        val particleEffectsPools = gameSessionData.pools.particleEffectsPools
+        gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
+            entity = character,
+            pool = particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
         )
     }
 
@@ -539,9 +555,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             character
         )
     }
-
-
-
 
 
     companion object {

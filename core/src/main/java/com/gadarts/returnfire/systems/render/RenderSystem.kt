@@ -149,11 +149,22 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             }
         }
         renderIndependentDecals()
-        for (smallHole in gameSessionData.bulletHoles.holes) {
-            batches.decalBatch.add(smallHole)
+        gameSessionData.profilingData.holesRendered = 0
+        for (hole in gameSessionData.bulletHoles.holes) {
+            if (isDecalVisible(hole)) {
+                batches.decalBatch.add(hole)
+                gameSessionData.profilingData.holesRendered++
+            }
         }
         batches.decalBatch.flush()
         Gdx.gl.glDepthMask(true)
+    }
+
+    private fun isDecalVisible(decal: Decal): Boolean {
+        val camera = gameSessionData.renderData.camera
+        val position = decal.position
+        auxBox.set(auxVector3_1.set(position).sub(0.5F), auxVector3_2.set(position).add(0.5F))
+        return camera.frustum.boundsInFrustum(auxBox)
     }
 
     private fun renderIndependentDecals() {

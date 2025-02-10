@@ -167,7 +167,8 @@ class EntityBuilderImpl : EntityBuilder {
         rotationAroundY: Float,
         followRelativePosition: Vector3,
         ttlInSeconds: Int,
-        ttlForComponentOnly: Boolean
+        ttlForComponentOnly: Boolean,
+        followSpecificEntity: Entity?
     ): EntityBuilderImpl {
         val particleEffectComponent = createParticleEffectComponent(
             pool,
@@ -176,7 +177,7 @@ class EntityBuilderImpl : EntityBuilder {
             ttlInSeconds,
             ttlForComponentOnly,
             followRelativePosition,
-            entity,
+            followSpecificEntity ?: entity,
         )
         entity!!.add(particleEffectComponent)
         return this
@@ -233,6 +234,10 @@ class EntityBuilderImpl : EntityBuilder {
             ttlForComponentOnly = ttlForComponentOnly,
         )
         entity.add(component)
+        messageDispatcher.dispatchMessage(
+            SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY.ordinal,
+            entity
+        )
     }
 
     override fun addSparkComponent(

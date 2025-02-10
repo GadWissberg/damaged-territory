@@ -30,7 +30,8 @@ interface EntityBuilder {
         rotationAroundY: Float = 0F,
         followRelativePosition: Vector3 = Vector3.Zero,
         ttlInSeconds: Int = 0,
-        ttlForComponentOnly: Boolean = false
+        ttlForComponentOnly: Boolean = false,
+        followSpecificEntity: Entity? = null
     ): EntityBuilder
 
     fun addParticleEffectComponentToEntity(

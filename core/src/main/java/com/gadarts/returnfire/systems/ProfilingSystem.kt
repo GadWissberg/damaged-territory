@@ -1,4 +1,3 @@
-
 package com.gadarts.returnfire.systems
 
 import com.badlogic.gdx.Gdx
@@ -71,6 +70,7 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
                     displayLine("RigidBody: ${pair.key} pool:", "${pair.value.free}")
                 }
             }
+            displayLine("Total rendered bullet holes: ", gameSessionData.profilingData.holesRendered)
             label.setText(stringBuilder)
         }
     }
