@@ -43,7 +43,7 @@ import com.gadarts.returnfire.systems.data.GameSessionDataMap
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.render.RenderSystem
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
-import kotlin.math.min
+import kotlin.math.abs
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     GameEntitySystem(gamePlayManagers) {
@@ -236,7 +236,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     ComponentsMapper.modelInstance.get(gameSessionData.mapData.stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isOffboarding()) {
                     if (stageTransform.getTranslation(auxVector1).y < MAX_Y) {
-                        takeStepForElevatorWithCharacter(stageTransform, deltaTime, character)
+                        takeStepForElevatorWithCharacter(stageTransform, character, MAX_Y)
                     } else {
                         val animationDone = updateBoardingAnimation(deltaTime, character)
                         if (animationDone && boardingComponent.isOffboarding()) {
@@ -268,7 +268,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                 character
                             )
                         } else {
-                            takeStepForElevatorWithCharacter(stageTransform, -deltaTime, character)
+                            takeStepForElevatorWithCharacter(stageTransform, character, StageComponent.BOTTOM_EDGE_Y)
                         }
                         if (!isAlreadyDone) {
                             gamePlayManagers.dispatcher.dispatchMessage(
@@ -512,17 +512,17 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
     private fun takeStepForElevatorWithCharacter(
         elevatorTransform: Matrix4,
-        deltaTime: Float,
-        character: Entity
+        character: Entity,
+        targetY: Float
     ) {
-        val oldStagePosition = elevatorTransform.getTranslation(auxVector3)
-        elevatorTransform.trn(0F, deltaTime * 2F, 0F)
+        val elevatorBeforePosition = elevatorTransform.getTranslation(auxVector3)
+        elevatorTransform.lerp(auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z), 0.015F)
         val newPosition = elevatorTransform.getTranslation(auxVector1)
-        newPosition.y = min(MAX_Y, newPosition.y)
+        newPosition.y = if (abs(newPosition.y - targetY) < 0.1F) targetY else newPosition.y
         elevatorTransform.setTranslation(newPosition)
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,
-            newPosition.y - oldStagePosition.y,
+            newPosition.y - elevatorBeforePosition.y,
             0F
         )
     }

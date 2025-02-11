@@ -25,7 +25,6 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         })
 
     override fun update(deltaTime: Float) {
-        super.update(deltaTime)
         gameSessionData.renderData.camera.update()
         followPlayer(deltaTime)
     }
@@ -63,7 +62,9 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                         max(abs(rotationVector.x), 0.6F) * Z_OFFSET
                     )
             )
-        val movementDirection = auxVector3_3.set(cameraTarget).sub(cameraPosition).nor()
+        val movementDirection = auxVector3_3.set(cameraTarget)
+            .sub(cameraPosition)
+            .nor()
             .scl(deltaTime * gameSessionData.fpsTarget * (if (thrusting) 0.07F else 0.05F))
 
         movementDirection.y = 0F
@@ -73,7 +74,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         if (dst2 > 0.1F) {
             cameraPosition.add(movementDirection)
         } else if (dst2 > 0.005F) {
-            cameraPosition.slerp(cameraTarget, 0.01F)
+            cameraPosition.slerp(cameraTarget, 0.05F)
         }
         cameraPosition.y = camera.position.y
         val playerVelocity = ComponentsMapper.physics.get(player).rigidBody.linearVelocity
