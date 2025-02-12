@@ -61,7 +61,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
                 )
                 gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
                     position,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE)
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE)
                 ).finishAndAddToEngine()
                 crashSoundEmitter.crash()
                 crashSoundEmitter.soundToStop.stop(crashSoundEmitter.soundToStopId)
@@ -113,7 +113,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
                 ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector
                 ),
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_MED)
+                gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_MED)
             )
             .finishAndAddToEngine()
     }
@@ -178,7 +178,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
                 MathUtils.random(-MAX_PAIN_EXPLOSION_BIAS, MAX_PAIN_EXPLOSION_BIAS),
                 MathUtils.random(-MAX_PAIN_EXPLOSION_BIAS, MAX_PAIN_EXPLOSION_BIAS)
             ),
-            gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
+            gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
         ).finishAndAddToEngine()
         soundPlayer.play(
             assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),

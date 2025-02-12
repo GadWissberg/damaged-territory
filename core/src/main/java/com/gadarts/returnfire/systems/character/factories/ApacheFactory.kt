@@ -96,7 +96,7 @@ class ApacheFactory(
                 ArmEffectsData(
                     null,
                     null,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_NO_SMOKE),
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_NO_SMOKE),
                     null
                 ),
                 ArmRenderData(
@@ -105,7 +105,7 @@ class ApacheFactory(
                     -45F,
                 ),
                 false,
-                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(modelDefinition),
+                gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(modelDefinition),
             ),
             BulletBehavior.REGULAR
         )
@@ -152,9 +152,9 @@ class ApacheFactory(
                 SEC_BULLET_SPEED,
                 ArmEffectsData(
                     ParticleEffectDefinition.EXPLOSION_SMALL,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),
                 ),
                 ArmRenderData(
                     ModelDefinition.MISSILE,
@@ -162,7 +162,7 @@ class ApacheFactory(
                     -5F
                 ),
                 true,
-                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
+                gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
             ),
             BulletBehavior.CURVE
         )

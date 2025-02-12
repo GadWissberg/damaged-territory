@@ -238,7 +238,7 @@ class MapInflater(
 
     private fun createTurretArmProperties(assetsManager: GameAssetManager): ArmProperties {
         val bulletModelDefinition = ModelDefinition.TANK_CANNON_BULLET
-        val particleEffectsPools = gameSessionData.pools.particleEffectsPools
+        val particleEffectsPools = gameSessionData.gamePlayData.pools.particleEffectsPools
         return ArmProperties(
             8F,
             assetsManager.getAssetByDefinition(SoundDefinition.CANNON_B),
@@ -255,7 +255,7 @@ class MapInflater(
                 assetsManager.getCachedBoundingBox(bulletModelDefinition),
             ),
             true,
-            gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(bulletModelDefinition),
+            gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(bulletModelDefinition),
         )
     }
 

@@ -20,6 +20,7 @@ import com.gadarts.returnfire.systems.*
 import com.gadarts.returnfire.systems.ai.AiSystem
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
+import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.systems.hud.HudSystem
@@ -45,6 +46,7 @@ class GamePlayScreen(
         generalManagers.assetsManager.finishLoading()
     }
 
+    private lateinit var factories: Factories
     private var pauseTime: Long = 0
     private val gameSessionData: GameSessionData by lazy {
         GameSessionData(
@@ -65,7 +67,15 @@ class GamePlayScreen(
             engine,
             entityBuilderImpl
         )
-        val factories = Factories(
+        val gameModelInstanceFactory = GameModelInstanceFactory(generalManagers.assetsManager)
+        val opponentCharacterFactory =
+            OpponentCharacterFactory(
+                generalManagers.assetsManager,
+                gameSessionData,
+                gameModelInstanceFactory,
+                entityBuilderImpl,
+            )
+        factories = Factories(
             RigidBodyFactory(),
             SpecialEffectsFactory(
                 gameSessionData,
@@ -74,8 +84,9 @@ class GamePlayScreen(
                 entityBuilderImpl,
                 ecs
             ),
-            GameModelInstanceFactory(generalManagers.assetsManager),
-            AutoAimShapeFactory(gameSessionData)
+            gameModelInstanceFactory,
+            AutoAimShapeFactory(gameSessionData),
+            opponentCharacterFactory
         )
         generalManagers.soundPlayer.sessionInitialize(gameSessionData.renderData.camera)
         entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
@@ -142,6 +153,7 @@ class GamePlayScreen(
     override fun dispose() {
         gameSessionData.finishSession()
         engine.systems.forEach { (it as GameEntitySystem).dispose() }
+        factories.dispose()
     }
 
 

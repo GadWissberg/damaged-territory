@@ -37,7 +37,7 @@ class SpecialEffectsFactory(
     }
 
     private val explosionMedGameParticleEffectPool by lazy {
-        gameSessionData.pools.particleEffectsPools.obtain(
+        gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
             ParticleEffectDefinition.EXPLOSION_MED
         )
     }
@@ -54,7 +54,7 @@ class SpecialEffectsFactory(
         entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
-                gameSessionData.pools.particleEffectsPools.obtain(
+                gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
                     ParticleEffectDefinition.WATER_SPLASH
                 )
             ).finishAndAddToEngine()
@@ -80,7 +80,7 @@ class SpecialEffectsFactory(
         duration: Int,
         fadeOutPace: Float
     ) {
-        val gameModelInstance = gameSessionData.pools.groundBlastPool.obtain()
+        val gameModelInstance = gameSessionData.gamePlayData.pools.groundBlastPool.obtain()
         val modelInstance = gameModelInstance.modelInstance
         modelInstance.transform.setToScaling(1F, 1F, 1F)
         val material = modelInstance.materials.get(0)
@@ -191,7 +191,7 @@ class SpecialEffectsFactory(
         )
         .addParticleEffectComponent(
             modelInstance.transform.getTranslation(auxVector1),
-            gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
+            gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
             ttlInSeconds = MathUtils.random(20, 25)
         )
         .finishAndAddToEngine()

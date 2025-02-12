@@ -290,7 +290,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         }
         while (!waterSplashEntitiesToRemove.isEmpty) {
             val entity = waterSplashEntitiesToRemove.removeIndex(0)
-            gameSessionData.pools.groundBlastPool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
+            gameSessionData.gamePlayData.pools.groundBlastPool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
             engine.removeEntity(entity)
         }
     }

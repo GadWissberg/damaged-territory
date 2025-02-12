@@ -37,7 +37,6 @@ interface EntityBuilder {
     fun addParticleEffectComponentToEntity(
         entity: Entity,
         pool: GameParticleEffectPool,
-        rotationAroundY: Float = 0F,
         followRelativePosition: Vector3 = Vector3.Zero,
         ttlInSeconds: Int = 0,
         ttlForComponentOnly: Boolean = false

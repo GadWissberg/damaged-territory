@@ -145,7 +145,7 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
         particleEffect.reset()
         particleEffectComponent.followEntity = null
         gameSessionData.renderData.particleSystem.remove(particleEffect)
-        gameSessionData.pools.particleEffectsPools.obtain(particleEffectComponent.definition)
+        gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(particleEffectComponent.definition)
             .free(particleEffect)
     }
 

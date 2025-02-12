@@ -4,7 +4,6 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
-import com.gadarts.returnfire.systems.data.pools.GameSessionDataPools
 
 class GameSessionData(
     assetsManager: GameAssetManager,
@@ -16,12 +15,10 @@ class GameSessionData(
 ) :
     Disposable {
     val profilingData: GameSessionDataProfiling = GameSessionDataProfiling()
-    val bulletHoles: BulletHoles = BulletHoles(assetsManager)
     val physicsData = GameSessionDataPhysics()
-    val gamePlayData = GameSessionDataGameplay()
+    val gamePlayData = GameSessionDataGameplay(assetsManager)
     val mapData = GameSessionDataMap(assetsManager)
     val hudData = GameSessionDataHud(assetsManager, console)
-    val pools by lazy { GameSessionDataPools(assetsManager) }
     val renderData = GameSessionDataRender()
 
 
@@ -35,7 +32,7 @@ class GameSessionData(
         renderData.dispose()
         hudData.dispose()
         physicsData.dispose()
-        pools.dispose()
+        gamePlayData.dispose()
     }
 
     fun finishSession() {

@@ -150,7 +150,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         }
         renderIndependentDecals()
         gameSessionData.profilingData.holesRendered = 0
-        for (hole in gameSessionData.bulletHoles.holes) {
+        for (hole in gameSessionData.mapData.bulletHoles.holes) {
             if (isDecalVisible(hole)) {
                 batches.decalBatch.add(hole)
                 gameSessionData.profilingData.holesRendered++

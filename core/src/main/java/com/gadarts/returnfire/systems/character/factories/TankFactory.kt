@@ -103,15 +103,15 @@ class TankFactory(
                 ArmEffectsData(
                     ParticleEffectDefinition.EXPLOSION,
                     null,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
                 ),
                 ArmRenderData(
                     ModelDefinition.TANK_CANNON_BULLET,
                     assetsManager.getCachedBoundingBox(ModelDefinition.TANK_CANNON_BULLET),
                 ),
                 true,
-                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.TANK_CANNON_BULLET),
+                gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.TANK_CANNON_BULLET),
                 AimingRestriction.ONLY_GROUND
             ),
             BulletBehavior.REGULAR
@@ -133,8 +133,8 @@ class TankFactory(
                 ArmEffectsData(
                     ParticleEffectDefinition.EXPLOSION,
                     null,
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
-                    gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
                 ),
                 ArmRenderData(
                     ModelDefinition.MISSILE,
@@ -142,7 +142,7 @@ class TankFactory(
                     45F
                 ),
                 true,
-                gameSessionData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
+                gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
                 AimingRestriction.ONLY_SKY,
             ),
             BulletBehavior.REGULAR

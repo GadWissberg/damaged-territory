@@ -66,7 +66,7 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
                     if (armComp.isPrimary()) {
                         val particleEffect = entityBuilder.begin().addParticleEffectComponent(
                             direction.getTranslation(auxVector3_1),
-                            gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
+                            gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
                             followRelativePosition = auxVector3_2.set(0.5F, 0F, 0F),
                         ).finishAndAddToEngine()
                         ComponentsMapper.particleEffect.get(particleEffect).followEntity = cannon

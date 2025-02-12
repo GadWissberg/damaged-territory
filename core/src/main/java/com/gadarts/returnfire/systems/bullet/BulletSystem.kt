@@ -78,7 +78,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
             override fun entityRemoved(entity: Entity) {
                 if (ComponentsMapper.bullet.has(entity)) {
-                    gameSessionData.pools.gameModelInstancePools[ComponentsMapper.modelInstance.get(
+                    gameSessionData.gamePlayData.pools.gameModelInstancePools[ComponentsMapper.modelInstance.get(
                         entity
                     ).gameModelInstance.definition]
                         ?.free(
@@ -128,7 +128,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         showSpark(position, parentTransform)
         val modelDefinition = BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition
         val gameModelInstance =
-            gameSessionData.pools.gameModelInstancePools[modelDefinition]!!.obtain()
+            gameSessionData.gamePlayData.pools.gameModelInstancePools[modelDefinition]!!.obtain()
         val noTarget = BulletCreationRequestEventData.target == null
         val aimSky = BulletCreationRequestEventData.aimSky
         val bulletBehavior =
@@ -293,9 +293,9 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun addBulletHole(position: Vector3, bullet: Entity) {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
         if (bulletComponent.explosive) {
-            gameSessionData.bulletHoles.addBig(position)
+            gameSessionData.mapData.bulletHoles.addBig(position)
         } else {
-            gameSessionData.bulletHoles.addSmall(position)
+            gameSessionData.mapData.bulletHoles.addSmall(position)
         }
     }
 
@@ -312,7 +312,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             gamePlayManagers.ecs.entityBuilder.begin()
                 .addParticleEffectComponent(
                     position,
-                    gameSessionData.pools.particleEffectsPools.obtain(
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
                         bulletComponent.explosion!!,
                     )
                 ).finishAndAddToEngine()
@@ -322,7 +322,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 gamePlayManagers.ecs.entityBuilder.begin()
                     .addParticleEffectComponent(
                         position,
-                        gameSessionData.pools.particleEffectsPools.obtain(
+                        gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
                             ParticleEffectDefinition.SMOKE_TINY,
                         )
                     ).finishAndAddToEngine()

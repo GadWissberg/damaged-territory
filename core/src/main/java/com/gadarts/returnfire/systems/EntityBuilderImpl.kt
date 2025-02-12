@@ -41,6 +41,12 @@ class EntityBuilderImpl : EntityBuilder {
     private lateinit var factories: Factories
     private lateinit var engine: PooledEngine
 
+    fun init(engine: PooledEngine, factories: Factories, messageDispatcher: MessageDispatcher) {
+        this.engine = engine
+        this.factories = factories
+        this.messageDispatcher = messageDispatcher
+    }
+
     override fun begin(): EntityBuilderImpl {
         entity = engine.createEntity()
         return this
@@ -60,13 +66,13 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
+
     override fun finishAndAddToEngine(): Entity {
         engine.addEntity(entity)
         val result = entity
         entity = null
         return result!!
     }
-
 
     override fun addChildDecalComponent(
         decals: List<ChildDecal>,
@@ -123,6 +129,7 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
+
     override fun addSecondaryArmComponent(
         spark: Entity,
         armProperties: ArmProperties,
@@ -133,7 +140,6 @@ class EntityBuilderImpl : EntityBuilder {
         entity!!.add(armComponent)
         return this
     }
-
 
     override fun addBulletComponent(
         bulletBehavior: BulletBehavior,
@@ -154,12 +160,12 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
+
     override fun addGroundComponent(): EntityBuilderImpl {
         val groundComponent = engine.createComponent(GroundComponent::class.java)
         entity!!.add(groundComponent)
         return this
     }
-
 
     override fun addParticleEffectComponent(
         position: Vector3,
@@ -183,45 +189,9 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    private fun createParticleEffectComponent(
-        pool: GameParticleEffectPool,
-        rotationAroundY: Float = 0F,
-        position: Vector3? = null,
-        ttlInSeconds: Int,
-        ttlForComponentOnly: Boolean,
-        followRelativePosition: Vector3,
-        followEntity: Entity?,
-    ): ParticleEffectComponent {
-        val effect: ParticleEffect = pool.obtain()
-        val particleEffectComponent = engine.createComponent(
-            ParticleEffectComponent::class.java
-        )
-        particleEffectComponent.init(
-            effect,
-            pool.definition,
-            ttlInSeconds,
-            ttlForComponentOnly,
-            followRelativePosition,
-            followEntity,
-        )
-        if (position != null) {
-            val controllers = effect.controllers
-            for (i in 0 until controllers.size) {
-                val transform = controllers[i].transform
-                transform.idt()
-                transform.setTranslation(position)
-                if (rotationAroundY != 0F) {
-                    transform.rotate(Vector3.Y, rotationAroundY)
-                }
-            }
-        }
-        return particleEffectComponent
-    }
-
     override fun addParticleEffectComponentToEntity(
         entity: Entity,
         pool: GameParticleEffectPool,
-        rotationAroundY: Float,
         followRelativePosition: Vector3,
         ttlInSeconds: Int,
         ttlForComponentOnly: Boolean
@@ -376,6 +346,53 @@ class EntityBuilderImpl : EntityBuilder {
         )
     }
 
+    override fun addPhysicsComponentToEntity(
+        entity: Entity,
+        shape: btCollisionShape,
+        mass: Float,
+        collisionFlag: Int,
+        transform: Matrix4,
+        gravityScalar: Float
+    ): PhysicsComponent {
+        val rigidBody = factories.rigidBodyFactory.create(mass, shape, null, transform)
+        return addPhysicsComponent(entity, rigidBody, collisionFlag, null, gravityScalar)
+    }
+
+    private fun createParticleEffectComponent(
+        pool: GameParticleEffectPool,
+        rotationAroundY: Float = 0F,
+        position: Vector3? = null,
+        ttlInSeconds: Int,
+        ttlForComponentOnly: Boolean,
+        followRelativePosition: Vector3,
+        followEntity: Entity?,
+    ): ParticleEffectComponent {
+        val effect: ParticleEffect = pool.obtain()
+        val particleEffectComponent = engine.createComponent(
+            ParticleEffectComponent::class.java
+        )
+        particleEffectComponent.init(
+            effect,
+            pool.definition,
+            ttlInSeconds,
+            ttlForComponentOnly,
+            followRelativePosition,
+            followEntity,
+        )
+        if (position != null) {
+            val controllers = effect.controllers
+            for (i in 0 until controllers.size) {
+                val transform = controllers[i].transform
+                transform.idt()
+                transform.setTranslation(position)
+                if (rotationAroundY != 0F) {
+                    transform.rotate(Vector3.Y, rotationAroundY)
+                }
+            }
+        }
+        return particleEffectComponent
+    }
+
     private fun addPhysicsComponent(
         entity: Entity,
         rigidBody: RigidBody,
@@ -413,23 +430,6 @@ class EntityBuilderImpl : EntityBuilder {
         return physicsComponent
     }
 
-    override fun addPhysicsComponentToEntity(
-        entity: Entity,
-        shape: btCollisionShape,
-        mass: Float,
-        collisionFlag: Int,
-        transform: Matrix4,
-        gravityScalar: Float
-    ): PhysicsComponent {
-        val rigidBody = factories.rigidBodyFactory.create(mass, shape, null, transform)
-        return addPhysicsComponent(entity, rigidBody, collisionFlag, null, gravityScalar)
-    }
-
-    fun init(engine: PooledEngine, factories: Factories, messageDispatcher: MessageDispatcher) {
-        this.engine = engine
-        this.factories = factories
-        this.messageDispatcher = messageDispatcher
-    }
 
     private fun addAmbSoundComponent(entity: Entity, sound: Sound): Entity {
         val ambSoundComponent = AmbSoundComponent(sound)
@@ -444,7 +444,5 @@ class EntityBuilderImpl : EntityBuilder {
     companion object {
         private val auxVector = Vector3()
         var entity: Entity? = null
-
-
     }
 }

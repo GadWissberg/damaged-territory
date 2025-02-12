@@ -10,7 +10,7 @@ import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.SoundPlayer
 
-class CharacterAmbSoundUpdater(private val soundPlayer: SoundPlayer, engine: PooledEngine) {
+class CharacterAmbSoundHandler(private val soundPlayer: SoundPlayer, engine: PooledEngine) {
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(AmbSoundComponent::class.java, CharacterComponent::class.java).get()

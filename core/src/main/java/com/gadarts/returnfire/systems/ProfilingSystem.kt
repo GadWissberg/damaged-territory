@@ -59,14 +59,14 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
             displayBatchCalls()
             displayLine("Version: ", DamagedTerritory.VERSION)
             if (GameDebugSettings.SHOW_OBJECT_POOL_PROFILING) {
-                displayLine("Ground blast pool:", "${gameSessionData.pools.groundBlastPool.free}")
-                gameSessionData.pools.gameModelInstancePools.forEach { pair ->
+                displayLine("Ground blast pool:", "${gameSessionData.gamePlayData.pools.groundBlastPool.free}")
+                gameSessionData.gamePlayData.pools.gameModelInstancePools.forEach { pair ->
                     displayLine("GameModelInstance ${pair.key} pool:", "${pair.value.free}")
                 }
-                gameSessionData.pools.particleEffectsPools.pools.forEach { pair ->
+                gameSessionData.gamePlayData.pools.particleEffectsPools.pools.forEach { pair ->
                     displayLine("ParticleEffect ${pair.key} pool:", "${pair.value.free}")
                 }
-                gameSessionData.pools.rigidBodyPools.pools.forEach { pair ->
+                gameSessionData.gamePlayData.pools.rigidBodyPools.pools.forEach { pair ->
                     displayLine("RigidBody: ${pair.key} pool:", "${pair.value.free}")
                 }
             }

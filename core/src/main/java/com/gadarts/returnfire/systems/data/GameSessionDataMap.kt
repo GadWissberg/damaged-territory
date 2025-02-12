@@ -11,6 +11,7 @@ class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     lateinit var tilesEntities: Array<Array<Entity?>>
     lateinit var stages: Map<CharacterColor, Entity>
+    val bulletHoles: BulletHoles = BulletHoles(assetsManager)
 
     override fun dispose() {
 

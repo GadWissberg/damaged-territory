@@ -95,7 +95,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         gamePlayManagers.ecs.entityBuilder.begin()
             .addParticleEffectComponent(
                 position,
-                gameSessionData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
+                gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
             )
             .finishAndAddToEngine()
         gamePlayManagers.soundPlayer.play(

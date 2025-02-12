@@ -35,7 +35,7 @@ enum class TurretCharacterDefinition(
     }
 
     override fun getSmokeEmissionRelativePosition(output: Vector3): Vector3 {
-        return smokeEmissionRelativePosition
+        return output.set(smokeEmissionRelativePosition)
     }
 
     override fun getHP(): Float {
