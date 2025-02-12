@@ -218,7 +218,7 @@ class ModelsRenderer(
     }
 
     companion object {
-        private const val SHADOW_VIEWPORT_SIZE: Float = 34F
+        private const val SHADOW_VIEWPORT_SIZE: Float = 38F
         private const val SHADOW_MAP_SIZE = 2056
         private val auxQuat1 = Quaternion()
     }

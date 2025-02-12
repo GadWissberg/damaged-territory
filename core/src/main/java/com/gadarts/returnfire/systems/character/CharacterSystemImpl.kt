@@ -335,11 +335,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         }
                         if (isApache || isTank) {
                             if (!ComponentsMapper.player.has(character)) {
-                                if (MathUtils.random() >= 0.5F) {
-                                    turnCharacterToCorpse(character, planeCrashSoundId)
-                                } else {
+//                                if (MathUtils.random() >= 0.5F) {
+//                                    turnCharacterToCorpse(character, planeCrashSoundId)
+//                                } else {
                                     gibCharacter(character, planeCrashSoundId)
-                                }
+//                                }
                             }
                         }
                         gamePlayManagers.dispatcher.dispatchMessage(
@@ -380,7 +380,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         frontShape.addChildShape(Matrix4().translate(-0.14F, 0F, 0.2F), btFrontShapeWings)
         addCharacterGiblet(
             gameModelInstanceBack,
-            auxVector2.set(position).add(0.4F, 0F, 0F),
+            auxVector2.set(position).add(0.6F, 0F, 0F),
             backBoundingBox,
             backShape,
             planeCrashSoundId
@@ -516,9 +516,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         targetY: Float
     ) {
         val elevatorBeforePosition = elevatorTransform.getTranslation(auxVector3)
-        elevatorTransform.lerp(auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z), 0.015F)
+        elevatorTransform.lerp(auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z), 0.03F)
         val newPosition = elevatorTransform.getTranslation(auxVector1)
-        newPosition.y = if (abs(newPosition.y - targetY) < 0.1F) targetY else newPosition.y
+        newPosition.y = if (abs(newPosition.y - targetY) < 0.025F) targetY else newPosition.y
         elevatorTransform.setTranslation(newPosition)
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,

@@ -13,6 +13,7 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
     AMB_WIND(2),
     AMB_EAGLE,
     AMB_OUD(3),
+    AMB_FIRE,
     CRASH(2),
     EXPLOSION(3),
     EXPLOSION_SMALL,
