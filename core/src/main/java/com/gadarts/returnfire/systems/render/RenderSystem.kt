@@ -16,8 +16,8 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GroundBlastComponent
-import com.gadarts.returnfire.components.GroundComponent
 import com.gadarts.returnfire.components.IndependentDecalComponent
+import com.gadarts.returnfire.components.ModelCacheComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
@@ -91,7 +91,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         relatedEntities = RenderSystemRelatedEntities(
             engine!!.getEntitiesFor(
                 Family.all(ModelInstanceComponent::class.java)
-                    .exclude(GroundComponent::class.java, GroundBlastComponent::class.java)
+                    .exclude(ModelCacheComponent::class.java, GroundBlastComponent::class.java)
                     .get()
             ),
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),

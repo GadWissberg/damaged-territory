@@ -58,10 +58,12 @@ class ModelsRenderer(
                 batch.render(renderData.modelCache)
             }
         }
-        if (renderParticleEffects) {
-            batches.modelBatch.render(renderData.particleSystem, environment)
-        }
         batch.end()
+        if (renderParticleEffects) {
+            batch.begin(camera)
+            batches.modelBatch.render(renderData.particleSystem, environment)
+            batch.end()
+        }
     }
 
     private fun isConsideredCharacter(entity: Entity) =

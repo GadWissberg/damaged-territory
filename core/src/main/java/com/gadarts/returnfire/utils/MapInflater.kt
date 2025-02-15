@@ -332,39 +332,76 @@ class MapInflater(
     }
 
     private fun addFloor(exculdedTiles: ArrayList<Pair<Int, Int>>) {
-        gameSessionData.renderData.modelCache.begin()
         val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
-        addFloorRegion(depth, width, exculdedTiles)
+        for (row in 0 until depth) {
+            for (col in 0 until width) {
+                val textureDefinition = determineTextureOfMapPosition(row, col)
+                if (textureDefinition != null && textureDefinition.fileName.contains("road")) {
+                    val modelInstance = GameModelInstance(
+                        ModelInstance(gameSessionData.renderData.floorModel),
+                        null,
+                    )
+                    val position = auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
+                    val entityBuilder = gamePlayManagers.ecs.entityBuilder
+                    val tileEntity = createAndAddGroundTileEntity(modelInstance, position)
+                    entityBuilder.addRoadComponentToEntity(tileEntity, textureDefinition)
+                    applyTextureToFloorTile(col, row, tileEntity, modelInstance)
+                    addPhysicsToTile(tileEntity, modelInstance)
+                    exculdedTiles.add(Pair(col, row))
+                }
+            }
+        }
+        gameSessionData.renderData.modelCache.begin()
+        addFloorRegionForModelCache(depth, width, exculdedTiles)
         addAllExternalSea(width, depth)
         gameSessionData.renderData.modelCache.end()
     }
 
-    private fun addFloorTile(
+    private fun addFloorTileToModelCache(
         row: Int,
         col: Int,
         modelInstance: GameModelInstance,
         exculdedTiles: ArrayList<Pair<Int, Int>>
-    ): Entity {
-        val entity = createAndAddGroundTileEntity(
-            modelInstance,
-            auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
-        )
+    ) {
+        val position = auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder
+        val tileEntity = entityBuilder.begin()
+            .addGroundComponent()
+            .finishAndAddToEngine()
+        modelInstance.modelInstance.transform.setTranslation(position)
         if (!exculdedTiles.contains(Pair(col, row))) {
-            gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
-        }
-        val textureDefinition = applyTextureToFloorTile(col, row, entity, modelInstance)
-        if (textureDefinition != null && !textureDefinition.fileName.contains("water")) {
-            gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
-                entity,
-                btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
-                0F,
-                btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
-                modelInstance.modelInstance.transform
+            entityBuilder.addModelInstanceComponentToEntity(
+                tileEntity,
+                modelInstance,
+                position,
+                null,
             )
+            applyTextureToFloorTile(col, row, tileEntity, modelInstance)
+            gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
+            entityBuilder.addModelCacheComponentToEntity(tileEntity)
+            val textureDefinition = determineTextureOfMapPosition(row, col)
+            if (textureDefinition != null && !textureDefinition.fileName.contains("water")) {
+                addPhysicsToTile(tileEntity, modelInstance)
+            }
+        } else {
+            addPhysicsToTile(tileEntity, modelInstance)
         }
-        return entity
+    }
+
+    private fun addPhysicsToTile(
+        entity: Entity,
+        modelInstance: GameModelInstance
+    ) {
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder
+        entityBuilder.addPhysicsComponentToEntity(
+            entity,
+            btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
+            0F,
+            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
+            modelInstance.modelInstance.transform
+        )
     }
 
     private fun applyTextureToFloorTile(
@@ -377,11 +414,7 @@ class MapInflater(
         val assetsManager = gamePlayManagers.assetsManager
         if (isPositionInsideBoundaries(row, col)) {
             gameSessionData.mapData.tilesEntities[row][col] = entity
-            val definitions = assetsManager.getTexturesDefinitions()
-            val indexOfFirst =
-                TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.mapData.currentMap.tilesMapping[row][col] == c }
-            textureDefinition =
-                definitions.definitions[TilesMapping.tiles[indexOfFirst]]
+            textureDefinition = determineTextureOfMapPosition(row, col)
         }
         if (textureDefinition != null) {
             val texture =
@@ -400,13 +433,23 @@ class MapInflater(
         return textureDefinition
     }
 
-    private fun createAndAddGroundTileEntity(
-        modelInstance: GameModelInstance,
-        position: Vector3
-    ): Entity {
+    private fun determineTextureOfMapPosition(
+        row: Int,
+        col: Int,
+    ): TextureDefinition? {
+        val definitions = gamePlayManagers.assetsManager.getTexturesDefinitions()
+        val indexOfFirst =
+            TILES_CHARS.indexOfFirst { c: Char -> gameSessionData.mapData.currentMap.tilesMapping[row][col] == c }
+        return definitions.definitions[TilesMapping.tiles[indexOfFirst]]
+    }
+
+    private fun createAndAddGroundTileEntity(modelInstance: GameModelInstance, position: Vector3): Entity {
         return gamePlayManagers.ecs.entityBuilder.begin()
-            .addModelInstanceComponent(modelInstance, position, null)
             .addGroundComponent()
+            .addModelInstanceComponent(
+                modelInstance, position,
+                null,
+            )
             .finishAndAddToEngine()
     }
 
@@ -440,14 +483,14 @@ class MapInflater(
         addExtSea(EXT_SIZE, EXT_SIZE, width + EXT_SIZE / 2F, -depth / 2F)
     }
 
-    private fun addFloorRegion(
+    private fun addFloorRegionForModelCache(
         rows: Int,
         cols: Int,
         exculdedTiles: ArrayList<Pair<Int, Int>>,
     ) {
         for (row in 0 until rows) {
             for (col in 0 until cols) {
-                addFloorTile(
+                addFloorTileToModelCache(
                     row,
                     col,
                     GameModelInstance(

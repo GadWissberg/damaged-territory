@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.bullet.linearmath.btMotionState
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
 
 class RigidBody(
-    mass: Float,
+    val mass: Float,
     motionState: btMotionState?,
     collisionShape: btCollisionShape?,
     localInertia: Vector3?,

@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -44,6 +45,16 @@ interface EntityBuilder {
 
     fun finishAndAddToEngine(): Entity
     fun addModelInstanceComponent(
+        model: GameModelInstance,
+        position: Vector3,
+        boundingBox: BoundingBox?,
+        direction: Float = 0F,
+        hidden: Boolean = false,
+        texture: Texture? = null
+    ): EntityBuilder
+
+    fun addModelInstanceComponentToEntity(
+        entity: Entity,
         model: GameModelInstance,
         position: Vector3,
         boundingBox: BoundingBox?,
@@ -130,5 +141,7 @@ interface EntityBuilder {
     fun addCrashSoundEmitterComponent(soundToStop: Sound, soundToStopId: Long): EntityBuilder
     fun addCrashSoundEmitterComponentToEntity(entity: Entity, soundToStop: Sound, soundToStopId: Long): EntityBuilder
     fun addLimitedVelocityComponent(maxValue: Float): EntityBuilder
+    fun addRoadComponentToEntity(entity: Entity, textureDefinition: TextureDefinition): EntityBuilder
+    fun addModelCacheComponentToEntity(tileEntity: Entity)
 
 }

@@ -190,7 +190,21 @@
       "folder": "ground/beach"
     },
     {
+      "file_name": "tile_beach_road_horizontal_dead",
+      "folder": "ground/beach",
+      "frames": 2
+    },
+    {
+      "file_name": "tile_beach_road_horizontal_dead",
+      "folder": "ground/beach",
+      "frames": 2
+    },
+    {
       "file_name": "tile_beach_road_horizontal_top",
+      "folder": "ground/beach"
+    },
+    {
+      "file_name": "tile_beach_road_horizontal_top_dead",
       "folder": "ground/beach"
     },
     {
@@ -198,7 +212,15 @@
       "folder": "ground/beach"
     },
     {
+      "file_name": "tile_beach_road_horizontal_bottom_dead",
+      "folder": "ground/beach"
+    },
+    {
       "file_name": "tile_beach_road_horizontal_end_right",
+      "folder": "ground/beach"
+    },
+    {
+      "file_name": "tile_beach_road_horizontal_end_right_dead",
       "folder": "ground/beach"
     },
     {
@@ -206,11 +228,29 @@
       "folder": "ground/beach"
     },
     {
+      "file_name": "tile_beach_road_horizontal_end_left_dead",
+      "folder": "ground/beach"
+    },
+    {
       "file_name": "tile_beach_road_vertical",
       "folder": "ground/beach"
     },
     {
+      "file_name": "tile_beach_road_vertical_dead",
+      "folder": "ground/beach",
+      "frames": 2
+    },
+    {
+      "file_name": "tile_beach_road_vertical_dead",
+      "folder": "ground/beach",
+      "frames": 2
+    },
+    {
       "file_name": "tile_beach_road_vertical_right",
+      "folder": "ground/beach"
+    },
+    {
+      "file_name": "tile_beach_road_vertical_right_dead",
       "folder": "ground/beach"
     },
     {
@@ -218,7 +258,15 @@
       "folder": "ground/beach"
     },
     {
+      "file_name": "tile_beach_road_vertical_left_dead",
+      "folder": "ground/beach"
+    },
+    {
       "file_name": "tile_beach_road_vertical_end_up",
+      "folder": "ground/beach"
+    },
+    {
+      "file_name": "tile_beach_road_vertical_end_up_dead",
       "folder": "ground/beach"
     },
     {
@@ -226,7 +274,15 @@
       "folder": "ground/beach"
     },
     {
+      "file_name": "tile_beach_road_vertical_end_down_dead",
+      "folder": "ground/beach"
+    },
+    {
       "file_name": "tile_beach_road_bottom_right",
+      "folder": "ground/beach"
+    },
+    {
+      "file_name": "tile_beach_road_bottom_right_dead",
       "folder": "ground/beach"
     },
     {
@@ -234,7 +290,15 @@
       "folder": "ground/beach"
     },
     {
+      "file_name": "tile_beach_road_bottom_left_dead",
+      "folder": "ground/beach"
+    },
+    {
       "file_name": "tile_beach_road_top_left",
+      "folder": "ground/beach"
+    },
+    {
+      "file_name": "tile_beach_road_top_left_dead",
       "folder": "ground/beach"
     },
     {
@@ -242,7 +306,15 @@
       "folder": "ground/beach"
     },
     {
+      "file_name": "tile_beach_road_top_right_dead",
+      "folder": "ground/beach"
+    },
+    {
       "file_name": "tile_beach_road_cross",
+      "folder": "ground/beach"
+    },
+    {
+      "file_name": "tile_beach_road_cross_dead",
       "folder": "ground/beach"
     },
     {

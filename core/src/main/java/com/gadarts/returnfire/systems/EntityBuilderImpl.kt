@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -60,9 +61,34 @@ class EntityBuilderImpl : EntityBuilder {
         hidden: Boolean,
         texture: Texture?
     ): EntityBuilderImpl {
+        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture)
+        return this
+    }
+
+    private fun addModelInstanceComponent(
+        entity: Entity,
+        model: GameModelInstance,
+        position: Vector3,
+        boundingBox: BoundingBox?,
+        direction: Float,
+        hidden: Boolean,
+        texture: Texture?
+    ) {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
         modelInstanceComponent.init(model, position, boundingBox, direction, hidden, texture)
-        entity!!.add(modelInstanceComponent)
+        entity.add(modelInstanceComponent)
+    }
+
+    override fun addModelInstanceComponentToEntity(
+        entity: Entity,
+        model: GameModelInstance,
+        position: Vector3,
+        boundingBox: BoundingBox?,
+        direction: Float,
+        hidden: Boolean,
+        texture: Texture?
+    ): EntityBuilder {
+        addModelInstanceComponent(entity, model, position, boundingBox, direction, hidden, texture)
         return this
     }
 
@@ -280,6 +306,17 @@ class EntityBuilderImpl : EntityBuilder {
         val limitedVelocityComponent = LimitedVelocityComponent(maxValue)
         entity!!.add(limitedVelocityComponent)
         return this
+    }
+
+    override fun addRoadComponentToEntity(entity: Entity, textureDefinition: TextureDefinition): EntityBuilder {
+        val roadComponent = RoadComponent(textureDefinition)
+        entity.add(roadComponent)
+        return this
+    }
+
+    override fun addModelCacheComponentToEntity(tileEntity: Entity) {
+        val modelCacheComponent = ModelCacheComponent()
+        tileEntity.add(modelCacheComponent)
     }
 
     override fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilderImpl {

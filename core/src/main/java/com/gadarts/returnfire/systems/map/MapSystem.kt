@@ -30,6 +30,7 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.MapInflater
 import kotlin.math.max
@@ -67,6 +68,30 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(
+            SystemEvents.PHYSICS_COLLISION to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
+                    val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
+                    handleCollisionRoadWithBullets(
+                        entity0,
+                        entity1
+                    ) || handleCollisionRoadWithBullets(
+                        entity1,
+                        entity0
+                    ) || handleCollisionRoadWithHeavyStuffOnHighSpeed(
+                        entity0,
+                        entity1
+                    ) || handleCollisionRoadWithHeavyStuffOnHighSpeed(
+                        entity1,
+                        entity0
+                    )
+                }
+
+            },
             SystemEvents.PHYSICS_DROWNING to object : HandlerOnEvent {
                 override fun react(
                     msg: Telegram,
@@ -124,6 +149,60 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 }
             },
         )
+
+    private fun handleCollisionRoadWithHeavyStuffOnHighSpeed(entity0: Entity, entity1: Entity): Boolean {
+        val roadComponent = ComponentsMapper.road.get(entity0)
+        val physicsComponent = ComponentsMapper.physics.get(entity1)
+        if (roadComponent != null && physicsComponent != null) {
+            val rigidBody = physicsComponent.rigidBody
+            if (rigidBody.linearVelocity.len2() > 2 && rigidBody.mass > 5) {
+                handleRoadHit(entity0, true)
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun handleCollisionRoadWithBullets(entity0: Entity, entity1: Entity): Boolean {
+        val roadComponent = ComponentsMapper.road.get(entity0)
+        val bulletComponent = ComponentsMapper.bullet.get(entity1)
+        if (roadComponent != null && bulletComponent != null) {
+            if (bulletComponent.explosive) {
+                handleRoadHit(entity0)
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun handleRoadHit(
+        roadEntity: Entity,
+        forceDestruction: Boolean = false
+    ) {
+        val roadComponent = ComponentsMapper.road.get(roadEntity)
+        if (roadComponent.hp > 0) {
+            roadComponent.takeDamage()
+            if (roadComponent.hp <= 0 || forceDestruction) {
+                val modelInstance = ComponentsMapper.modelInstance.get(roadEntity).gameModelInstance.modelInstance
+                val position =
+                    modelInstance.transform.getTranslation(
+                        auxVector1
+                    )
+                val assetsManager = gamePlayManagers.assetsManager
+                gamePlayManagers.soundPlayer.play(
+                    assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL),
+                    position
+                )
+                gamePlayManagers.factories.specialEffectsFactory.addSmallFlyingParts(position.add(0F, 0.2F, 0F))
+                val attribute = modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute
+                val name = "${roadComponent.textureDefinition.fileName}_dead"
+                gamePlayManagers.assetsManager.getTexturesDefinitions().definitions[name]?.let {
+                    attribute.textureDescription.texture =
+                        assetsManager.getTexture(it, MathUtils.random(1, it.frames) - 1)
+                }
+            }
+        }
+    }
 
     private fun findBase(entity: Entity): Entity {
         val characterColor = ComponentsMapper.character.get(entity).color
@@ -268,9 +347,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 groundTextureAnimationStateTime,
                 true
             )
-            (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(
-                0
-            )
+            (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(0)
                 .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
                 keyFrame
         }
