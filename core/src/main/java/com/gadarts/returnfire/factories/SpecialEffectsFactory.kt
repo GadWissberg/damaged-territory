@@ -30,26 +30,6 @@ class SpecialEffectsFactory(
     private val entityBuilder: EntityBuilder,
     private val ecs: EcsManager
 ) {
-    private val flyingPartBoundingBox by lazy {
-        assetsManager.getCachedBoundingBox(
-            ModelDefinition.FLYING_PART
-        )
-    }
-
-    private val explosionMedGameParticleEffectPool by lazy {
-        gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
-            ParticleEffectDefinition.EXPLOSION_MED
-        )
-    }
-    private val blastRingTexture: Texture by lazy { this.assetsManager.getTexture("blast_ring") }
-
-    private val waterSplashSounds by lazy {
-        assetsManager.getAllAssetsByDefinition(
-            SoundDefinition.WATER_SPLASH
-        )
-    }
-    private val waterSplashFloorTexture: Texture by lazy { assetsManager.getTexture("water_splash_floor") }
-
     fun generateWaterSplash(position: Vector3, large: Boolean = false) {
         entityBuilder.begin()
             .addParticleEffectComponent(
@@ -70,6 +50,50 @@ class SpecialEffectsFactory(
             2000,
             0.01F
         )
+    }
+
+    fun generateExplosion(entity: Entity, blastRing: Boolean = false, addBiasToPosition: Boolean = true) {
+        val transform = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
+        val position = transform.getTranslation(auxVector1)
+        if (blastRing) {
+            addGroundBlast(position, blastRingTexture, 0.1F, 8F, 500, 0.03F)
+        }
+        if (addBiasToPosition) {
+            position.add(
+                MathUtils.random(
+                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                ), MathUtils.random(
+                    MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                ), MathUtils.random(
+                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
+                )
+            )
+        }
+        entityBuilder.begin().addParticleEffectComponent(
+            position, explosionMedGameParticleEffectPool
+        ).finishAndAddToEngine()
+        soundPlayer.play(
+            assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+            position
+        )
+    }
+
+    fun addFlyingParts(character: Entity) {
+        val transform = if (ComponentsMapper.turretBase.has(character)) {
+            val turretModelInstanceComponent =
+                ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
+            turretModelInstanceComponent.gameModelInstance.modelInstance.transform
+        } else {
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
+        }
+        transform.getTranslation(auxVector2)
+        val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
+        addFlyingParts(auxVector2, model)
+    }
+
+    fun addSmallFlyingParts(position: Vector3) {
+        val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART_SMALL)
+        addFlyingParts(position, model)
     }
 
     fun addGroundBlast(
@@ -100,50 +124,27 @@ class SpecialEffectsFactory(
         modelInstance.transform.scl(startingScale)
     }
 
-    fun generateExplosion(entity: Entity, blastRing: Boolean = false) {
-        val transform = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
-        val position = transform.getTranslation(auxVector1)
-        if (blastRing) {
-            addGroundBlast(position, blastRingTexture, 0.1F, 8F, 500, 0.03F)
-        }
-        entityBuilder.begin().addParticleEffectComponent(
-            position.add(
-                MathUtils.random(
-                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
-                ), MathUtils.random(
-                    MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
-                ), MathUtils.random(
-                    MathUtils.randomSign() + MED_EXPLOSION_DEATH_SEQUENCE_BIAS,
-                )
-            ), explosionMedGameParticleEffectPool
-        ).finishAndAddToEngine()
-        soundPlayer.play(
-            assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
-            position
+    private val flyingPartBoundingBox by lazy {
+        assetsManager.getCachedBoundingBox(
+            ModelDefinition.FLYING_PART
         )
     }
 
-    fun addFlyingParts(character: Entity) {
-        val transform = if (ComponentsMapper.turretBase.has(character)) {
-            val turretModelInstanceComponent =
-                ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
-            turretModelInstanceComponent.gameModelInstance.modelInstance.transform
-        } else {
-            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
-        }
-        transform.getTranslation(auxVector2)
-        addFlyingParts(auxVector2)
+    private val explosionMedGameParticleEffectPool by lazy {
+        gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
+            ParticleEffectDefinition.EXPLOSION_MED
+        )
     }
 
-    fun addFlyingParts(position: Vector3) {
-        val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
-        addFlyingParts(position, model)
+    private val blastRingTexture: Texture by lazy { this.assetsManager.getTexture("blast_ring") }
+
+    private val waterSplashSounds by lazy {
+        assetsManager.getAllAssetsByDefinition(
+            SoundDefinition.WATER_SPLASH
+        )
     }
 
-    fun addSmallFlyingParts(position: Vector3) {
-        val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART_SMALL)
-        addFlyingParts(position, model)
-    }
+    private val waterSplashFloorTexture: Texture by lazy { assetsManager.getTexture("water_splash_floor") }
 
     private fun addFlyingParts(
         position: Vector3,

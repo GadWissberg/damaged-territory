@@ -38,18 +38,10 @@ import kotlin.math.min
 
 class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
+    private val groundTextureAnimationHandler = GroundTextureAnimationHandler(gamePlayManagers.ecs.engine)
     private val landingMark: ChildDecal by lazy { createLandingMark() }
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
     private val ambSoundsHandler = AmbSoundsHandler()
-    private var groundTextureAnimationStateTime = 0F
-    private val animatedFloorsEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(
-            Family.all(
-                GroundComponent::class.java,
-                AnimatedTextureComponent::class.java
-            ).get()
-        )
-    }
     private val waterSplashEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(
@@ -341,16 +333,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             updateBaseDoors(base, deltaTime)
         }
         ambSoundsHandler.update(gamePlayManagers)
-        groundTextureAnimationStateTime += deltaTime
-        for (entity in animatedFloorsEntities) {
-            val keyFrame = ComponentsMapper.animatedTexture.get(entity).animation.getKeyFrame(
-                groundTextureAnimationStateTime,
-                true
-            )
-            (ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.materials.get(0)
-                .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                keyFrame
-        }
+        groundTextureAnimationHandler.update(deltaTime)
         waterSplashEntitiesToRemove.clear()
         for (entity in waterSplashEntities) {
             val groundBlastComponent = ComponentsMapper.waterWave.get(entity)

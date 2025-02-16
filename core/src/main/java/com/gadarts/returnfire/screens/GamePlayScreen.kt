@@ -63,10 +63,25 @@ class GamePlayScreen(
 
     override fun show() {
         val entityBuilderImpl = EntityBuilderImpl()
-        val ecs = EcsManager(
-            engine,
-            entityBuilderImpl
+        val ecs = EcsManager(engine, entityBuilderImpl)
+        createFactories(entityBuilderImpl, ecs)
+        generalManagers.soundPlayer.sessionInitialize(gameSessionData.renderData.camera)
+        entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
+        val gamePlayManagers = GamePlayManagers(
+            generalManagers.soundPlayer,
+            generalManagers.assetsManager,
+            generalManagers.dispatcher,
+            factories,
+            generalManagers.screensManagers,
+            ecs
         )
+        initializeSystems(gamePlayManagers)
+    }
+
+    private fun createFactories(
+        entityBuilderImpl: EntityBuilderImpl,
+        ecs: EcsManager
+    ) {
         val gameModelInstanceFactory = GameModelInstanceFactory(generalManagers.assetsManager)
         val opponentCharacterFactory =
             OpponentCharacterFactory(
@@ -88,16 +103,9 @@ class GamePlayScreen(
             AutoAimShapeFactory(gameSessionData),
             opponentCharacterFactory
         )
-        generalManagers.soundPlayer.sessionInitialize(gameSessionData.renderData.camera)
-        entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
-        val gamePlayManagers = GamePlayManagers(
-            generalManagers.soundPlayer,
-            generalManagers.assetsManager,
-            generalManagers.dispatcher,
-            factories,
-            generalManagers.screensManagers,
-            ecs
-        )
+    }
+
+    private fun initializeSystems(gamePlayManagers: GamePlayManagers) {
         systems = listOf(
             PhysicsSystem(gamePlayManagers),
             CharacterSystemImpl(gamePlayManagers),

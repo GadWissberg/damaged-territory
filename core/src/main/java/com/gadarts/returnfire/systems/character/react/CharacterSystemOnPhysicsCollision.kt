@@ -48,11 +48,13 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         gameSessionData: GameSessionData
     ): Boolean {
         val crashSoundEmitter = ComponentsMapper.crashingAircraftEmitter.get(collider1)
-        val canPlay =
-            crashSoundEmitter != null && !crashSoundEmitter.crashed
-        if (canPlay && ComponentsMapper.ground.has(collider2)) {
-            val velocity = ComponentsMapper.physics.get(collider1).rigidBody.linearVelocity.len2()
-            if (velocity >= 9F) {
+        if (crashSoundEmitter != null && !crashSoundEmitter.crashed && ComponentsMapper.ground.has(collider2)) {
+            if (ComponentsMapper.physics.get(collider1).rigidBody.linearVelocity.len2() >= 9F) {
+                gamePlayManagers.factories.specialEffectsFactory.generateExplosion(
+                    entity = collider1,
+                    blastRing = true,
+                    addBiasToPosition = false
+                )
                 val modelInstance = ComponentsMapper.modelInstance.get(collider1).gameModelInstance.modelInstance
                 val position = modelInstance.transform.getTranslation(auxVector)
                 gamePlayManagers.soundPlayer.play(

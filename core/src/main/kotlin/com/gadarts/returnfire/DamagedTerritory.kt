@@ -12,14 +12,22 @@ import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.managers.SoundPlayer
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
-import com.gadarts.returnfire.screens.HangarScreen
 import com.gadarts.returnfire.screens.ScreensManager
+import com.gadarts.returnfire.screens.hangar.HangarScreenImpl
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
     private val dispatcher = MessageDispatcher()
     private val soundPlayer: SoundPlayer by lazy { SoundPlayer() }
-    private val hangarScreen by lazy { HangarScreen(assetsManager, dispatcher, this, soundPlayer, runsOnMobile) }
+    private val hangarScreenImpl by lazy {
+        HangarScreenImpl(
+            dispatcher,
+            runsOnMobile,
+            assetsManager,
+            this,
+            soundPlayer
+        )
+    }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
 
     @Suppress("KotlinConstantConditions")
@@ -40,7 +48,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
                 GameDebugSettings.FORCE_AIM > 0
             )
         } else {
-            setScreen(hangarScreen)
+            setScreen(hangarScreenImpl)
         }
     }
 
@@ -60,7 +68,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         dispatcher.clearListeners()
         soundPlayer.stopAll(assetsManager)
         screen.dispose()
-        setScreen(hangarScreen)
+        setScreen(hangarScreenImpl)
     }
 
     companion object {
