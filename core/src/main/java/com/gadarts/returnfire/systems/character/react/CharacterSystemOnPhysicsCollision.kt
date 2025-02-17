@@ -186,7 +186,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
             assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
             position
         )
-        specialEffectsFactory.addSmallFlyingParts(position)
+        specialEffectsFactory.generateSmallFlyingParts(position)
     }
 
     companion object {

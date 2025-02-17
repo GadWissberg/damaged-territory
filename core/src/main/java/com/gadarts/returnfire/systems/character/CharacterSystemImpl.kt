@@ -237,7 +237,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             val ambSoundComponent = ComponentsMapper.ambSound.get(character)
                             ambSoundComponent.sound.stop(ambSoundComponent.soundId)
                         }
-                        gamePlayManagers.factories.specialEffectsFactory.addFlyingParts(character)
+                        gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(character)
                         for (i in 0 until MathUtils.random(3, 4)) {
                             addExplosion(character)
                         }

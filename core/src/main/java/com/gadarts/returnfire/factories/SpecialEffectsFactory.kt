@@ -42,7 +42,7 @@ class SpecialEffectsFactory(
             waterSplashSounds.random(),
             position
         )
-        addGroundBlast(
+        generateGroundBlast(
             position,
             waterSplashFloorTexture,
             if (large) 2F else 0.5F,
@@ -56,7 +56,7 @@ class SpecialEffectsFactory(
         val transform = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
         if (blastRing) {
-            addGroundBlast(position, blastRingTexture, 0.1F, 8F, 500, 0.03F)
+            generateGroundBlast(position, blastRingTexture, 0.1F, 8F, 500, 0.03F)
         }
         if (addBiasToPosition) {
             position.add(
@@ -78,7 +78,7 @@ class SpecialEffectsFactory(
         )
     }
 
-    fun addFlyingParts(character: Entity) {
+    fun generateFlyingParts(character: Entity) {
         val transform = if (ComponentsMapper.turretBase.has(character)) {
             val turretModelInstanceComponent =
                 ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
@@ -88,15 +88,15 @@ class SpecialEffectsFactory(
         }
         transform.getTranslation(auxVector2)
         val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
-        addFlyingParts(auxVector2, model)
+        generateFlyingParts(auxVector2, model)
     }
 
-    fun addSmallFlyingParts(position: Vector3) {
+    fun generateSmallFlyingParts(position: Vector3) {
         val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART_SMALL)
-        addFlyingParts(position, model)
+        generateFlyingParts(position, model)
     }
 
-    fun addGroundBlast(
+    fun generateGroundBlast(
         position: Vector3,
         texture: Texture,
         startingScale: Float,
@@ -146,7 +146,7 @@ class SpecialEffectsFactory(
 
     private val waterSplashFloorTexture: Texture by lazy { assetsManager.getTexture("water_splash_floor") }
 
-    private fun addFlyingParts(
+    private fun generateFlyingParts(
         position: Vector3,
         model: Model
     ) {
@@ -169,33 +169,37 @@ class SpecialEffectsFactory(
     private fun createFlyingPartEntity(
         modelInstance: ModelInstance,
         position: Vector3
-    ) = ecs.entityBuilder
-        .begin()
-        .addModelInstanceComponent(
-            GameModelInstance(modelInstance, ModelDefinition.FLYING_PART),
-            auxVector1.set(position).add(
-                MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
-                MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
-                MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS)
-            ),
-            flyingPartBoundingBox
-        )
-        .addPhysicsComponent(
-            btBoxShape(
-                flyingPartBoundingBox.getDimensions(
-                    auxVector1
-                ).scl(0.4F)
-            ),
-            CollisionFlags.CF_CHARACTER_OBJECT,
-            modelInstance.transform,
-            1F,
-        )
-        .addParticleEffectComponent(
-            modelInstance.transform.getTranslation(auxVector1),
-            gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
-            ttlInSeconds = MathUtils.random(20, 25)
-        )
-        .finishAndAddToEngine()
+    ): Entity {
+        val randomParticleEffect =
+            if (MathUtils.random() >= 0.25) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP
+        return ecs.entityBuilder
+            .begin()
+            .addModelInstanceComponent(
+                GameModelInstance(modelInstance, ModelDefinition.FLYING_PART),
+                auxVector1.set(position).add(
+                    MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
+                    MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
+                    MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS)
+                ),
+                flyingPartBoundingBox
+            )
+            .addPhysicsComponent(
+                btBoxShape(
+                    flyingPartBoundingBox.getDimensions(
+                        auxVector1
+                    ).scl(0.4F)
+                ),
+                CollisionFlags.CF_CHARACTER_OBJECT,
+                modelInstance.transform,
+                1F,
+            )
+            .addParticleEffectComponent(
+                modelInstance.transform.getTranslation(auxVector1),
+                gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(randomParticleEffect),
+                ttlInSeconds = MathUtils.random(20, 25)
+            )
+            .finishAndAddToEngine()
+    }
 
     private fun makeFlyingPartFlyAway(flyingPart: Entity) {
         val rigidBody = ComponentsMapper.physics.get(flyingPart).rigidBody

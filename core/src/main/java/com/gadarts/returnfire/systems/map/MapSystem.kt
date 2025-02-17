@@ -185,7 +185,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL),
                     position
                 )
-                gamePlayManagers.factories.specialEffectsFactory.addSmallFlyingParts(position.add(0F, 0.2F, 0F))
+                gamePlayManagers.factories.specialEffectsFactory.generateSmallFlyingParts(position.add(0F, 0.2F, 0F))
                 val attribute = modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute
                 val name = "${roadComponent.textureDefinition.fileName}_dead"
                 gamePlayManagers.assetsManager.getTexturesDefinitions().definitions[name]?.let {
