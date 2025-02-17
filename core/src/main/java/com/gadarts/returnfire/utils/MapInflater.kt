@@ -86,7 +86,7 @@ class MapInflater(
         }
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
-        val randomScale = if (def.isRandomizeScale()) MathUtils.random(MIN_SCALE, MAX_SCALE) else 1F
+        val scale = def.getScale()
         val entityBuilder = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
@@ -97,7 +97,7 @@ class MapInflater(
             .addAmbComponent(
                 if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
                 def,
-                auxVector1.set(randomScale, randomScale, randomScale),
+                auxVector1.set(scale, scale, scale),
             )
         val isGreen = def == AmbDefinition.BASE_GREEN
         val isBrown = def == AmbDefinition.BASE_BROWN

@@ -22,7 +22,8 @@ enum class ParticleEffectDefinition(fileNames: Int = 1, val hasBlastRing: Boolea
     SPARK_NO_SMOKE,
     SPARK_MED,
     RICOCHET,
-    FIRE_LOOP;
+    FIRE_LOOP,
+    FIRE_LOOP_SMALL;
 
     private val paths = ArrayList<String>()
     private val pathFormat = "particles/%s.pfx"

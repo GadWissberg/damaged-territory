@@ -54,7 +54,7 @@ enum class TurretCharacterDefinition(
         return false
     }
 
-    override fun isRandomizeScale(): Boolean {
-        return false
+    override fun getScale(): Float {
+        return 1F
     }
 }

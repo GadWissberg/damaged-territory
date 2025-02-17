@@ -171,7 +171,7 @@ class SpecialEffectsFactory(
         position: Vector3
     ): Entity {
         val randomParticleEffect =
-            if (MathUtils.random() >= 0.25) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP
+            if (MathUtils.random() >= 0.15) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP_SMALL
         return ecs.entityBuilder
             .begin()
             .addModelInstanceComponent(

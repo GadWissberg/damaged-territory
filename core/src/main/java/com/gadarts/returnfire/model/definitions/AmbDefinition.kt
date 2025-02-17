@@ -6,12 +6,12 @@ import com.gadarts.returnfire.model.ElementType
 
 enum class AmbDefinition(
     private val modelDefinition: ModelDefinition,
-    private val randomizeScale: Boolean = false,
     private val randomizeRotation: Boolean = false,
     val collisionFlags: Int = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
     val placeInMiddleOfCell: Boolean = true,
+    private val scale: Float = 1F,
 ) : ElementDefinition {
-    PALM_TREE(ModelDefinition.PALM_TREE, true, true),
+    PALM_TREE(modelDefinition = ModelDefinition.PALM_TREE, randomizeRotation = true, scale = 0.75F),
     WATCH_TOWER(ModelDefinition.WATCH_TOWER),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
     FLAG(ModelDefinition.FLAG),
@@ -43,7 +43,7 @@ enum class AmbDefinition(
         return randomizeRotation
     }
 
-    override fun isRandomizeScale(): Boolean {
-        return randomizeScale
+    override fun getScale(): Float {
+        return scale
     }
 }

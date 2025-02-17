@@ -147,7 +147,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val physicsComponent = ComponentsMapper.physics.get(entity1)
         if (roadComponent != null && physicsComponent != null) {
             val rigidBody = physicsComponent.rigidBody
-            if (rigidBody.linearVelocity.len2() > 2 && rigidBody.mass > 5) {
+            if (rigidBody.linearVelocity.len2() > 4 && rigidBody.mass > 5) {
                 handleRoadHit(entity0, true)
             }
             return true

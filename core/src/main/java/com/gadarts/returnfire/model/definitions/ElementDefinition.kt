@@ -5,7 +5,7 @@ import com.gadarts.returnfire.model.ElementType
 
 interface ElementDefinition {
     fun getModelDefinition(): ModelDefinition
-    fun isRandomizeScale(): Boolean
+    fun getScale(): Float
     fun isRandomizeRotation(): Boolean
     fun getType(): ElementType
     fun getName(): String
