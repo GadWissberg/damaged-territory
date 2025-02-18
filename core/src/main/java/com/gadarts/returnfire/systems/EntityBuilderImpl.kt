@@ -367,7 +367,7 @@ class EntityBuilderImpl : EntityBuilder {
         return result!!
     }
 
-    override fun addPhysicsComponentPooled(
+    override fun addPhysicsComponentPooledToEntity(
         entity: Entity,
         rigidBodyPool: RigidBodyPool,
         collisionFlag: Int,
@@ -452,6 +452,7 @@ class EntityBuilderImpl : EntityBuilder {
             val motionState = rigidBody.motionState as MotionState
             motionState.transformObject = transform
             motionState.setWorldTransform(transform)
+            rigidBody.worldTransform = transform
         }
         val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
         physicsComponent.init(rigidBody)

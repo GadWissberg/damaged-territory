@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -26,6 +27,7 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -78,6 +80,12 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                         entity0,
                         entity1
                     ) || handleCollisionRoadWithHeavyStuffOnHighSpeed(
+                        entity1,
+                        entity0
+                    ) || handleCollisionDestroyableAmbWithBullets(
+                        entity0,
+                        entity1
+                    ) || handleCollisionDestroyableAmbWithBullets(
                         entity1,
                         entity0
                     )
@@ -141,6 +149,67 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 }
             },
         )
+
+    private fun handleCollisionDestroyableAmbWithBullets(entity0: Entity, entity1: Entity): Boolean {
+        val ambComponent = ComponentsMapper.amb.get(entity0)
+        val bulletComponent = ComponentsMapper.bullet.get(entity1)
+        if (ambComponent != null && bulletComponent != null) {
+            if (ambComponent.def.destroyable) {
+                if (ambComponent.def == AmbDefinition.PALM_TREE) {
+                    val numberOfLeaves = MathUtils.random(3, 6)
+                    for (i in 0 until numberOfLeaves) {
+                        createPalmLeaf(entity0)
+                    }
+                }
+                engine.removeEntity(entity0)
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun createPalmLeaf(tree: Entity) {
+        val modelDefinition = ModelDefinition.PALM_TREE_LEAF
+        val gameModelInstance = gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+            modelDefinition,
+        )
+        val transform = ComponentsMapper.modelInstance.get(tree).gameModelInstance.modelInstance.transform
+        val entity = gamePlayManagers.ecs.entityBuilder.begin()
+            .addModelInstanceComponent(
+                model = gameModelInstance,
+                position = transform.getTranslation(
+                    auxVector1
+                ),
+                boundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition),
+            )
+            .finishAndAddToEngine()
+        addPhysicsToLeaf(entity, modelDefinition, gameModelInstance)
+    }
+
+    private fun addPhysicsToLeaf(
+        entity: Entity,
+        modelDefinition: ModelDefinition,
+        gameModelInstance: GameModelInstance
+    ) {
+        gamePlayManagers.ecs.entityBuilder.addPhysicsComponentPooledToEntity(
+            entity,
+            gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(modelDefinition),
+            CollisionFlags.CF_CHARACTER_OBJECT,
+            gameModelInstance.modelInstance.transform.trn(0F, 0.5F, 0F),
+            1F
+        ).rigidBody.applyImpulse(
+            auxVector1.set(
+                MathUtils.random(-1F, 1F),
+                MathUtils.random(-1F, 1F),
+                MathUtils.random(-1F, 1F)
+            ).scl(MathUtils.random(1F, 2F)),
+            auxVector2.set(
+                MathUtils.random(-LEAF_IMPULSE_COMPONENT, LEAF_IMPULSE_COMPONENT),
+                MathUtils.random(-LEAF_IMPULSE_COMPONENT, LEAF_IMPULSE_COMPONENT),
+                MathUtils.random(-LEAF_IMPULSE_COMPONENT, LEAF_IMPULSE_COMPONENT)
+            )
+        )
+    }
 
     private fun handleCollisionRoadWithHeavyStuffOnHighSpeed(entity0: Entity, entity1: Entity): Boolean {
         val roadComponent = ComponentsMapper.road.get(entity0)
@@ -438,6 +507,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     companion object {
+        private const val LEAF_IMPULSE_COMPONENT = 0.1F
         const val DOORS_DELAY = 1000F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()

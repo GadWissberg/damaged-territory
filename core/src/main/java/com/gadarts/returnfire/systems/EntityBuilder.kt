@@ -126,7 +126,7 @@ interface EntityBuilder {
         damage: Float
     ): EntityBuilder
 
-    fun addPhysicsComponentPooled(
+    fun addPhysicsComponentPooledToEntity(
         entity: Entity,
         rigidBodyPool: RigidBodyPool,
         collisionFlag: Int,

@@ -222,7 +222,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     ) {
         val aimingTransform = BulletCreationRequestEventData.direction
         val transform = gameModelInstance.modelInstance.transform
-        gamePlayManagers.ecs.entityBuilder.addPhysicsComponentPooled(
+        gamePlayManagers.ecs.entityBuilder.addPhysicsComponentPooledToEntity(
             bullet,
             armProperties.rigidBodyPool,
             CollisionFlags.CF_CHARACTER_OBJECT,
