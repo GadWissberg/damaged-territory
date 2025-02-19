@@ -46,7 +46,18 @@ enum class PooledObjectPhysicalDefinition(
         },
     ),
     PALM_TREE_LEAF(
-        0.5F,
+        0.12F,
+        object : ShapeCreator {
+            override fun create(boundingBox: BoundingBox): btCollisionShape {
+                val auxVector = GeneralUtils.auxVector
+                val halfExtents = boundingBox.getDimensions(auxVector).scl(0.5F)
+                val shape = btBoxShape(halfExtents)
+                return shape
+            }
+        },
+    ),
+    PALM_TREE_PART(
+        0.12F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
                 val auxVector = GeneralUtils.auxVector

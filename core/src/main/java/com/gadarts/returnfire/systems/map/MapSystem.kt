@@ -19,6 +19,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.*
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.cd.ChildDecal
@@ -82,10 +84,10 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     ) || handleCollisionRoadWithHeavyStuffOnHighSpeed(
                         entity1,
                         entity0
-                    ) || handleCollisionDestroyableAmbWithBullets(
+                    ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
                         entity0,
                         entity1
-                    ) || handleCollisionDestroyableAmbWithBullets(
+                    ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
                         entity1,
                         entity0
                     )
@@ -150,26 +152,98 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             },
         )
 
-    private fun handleCollisionDestroyableAmbWithBullets(entity0: Entity, entity1: Entity): Boolean {
+    private fun handleCollisionDestroyableAmbWithFastAndHeavyStuff(entity0: Entity, entity1: Entity): Boolean {
         val ambComponent = ComponentsMapper.amb.get(entity0)
-        val bulletComponent = ComponentsMapper.bullet.get(entity1)
-        if (ambComponent != null && bulletComponent != null) {
-            if (ambComponent.def.destroyable) {
-                if (ambComponent.def == AmbDefinition.PALM_TREE) {
-                    val numberOfLeaves = MathUtils.random(3, 6)
-                    for (i in 0 until numberOfLeaves) {
-                        createPalmLeaf(entity0)
+        if (ambComponent != null) {
+            if (ambComponent.def.destroyable && !ambComponent.destroyed) {
+                val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
+                val otherSpeed = otherRigidBody.linearVelocity.len2()
+                if (otherSpeed > 5F || otherSpeed > 1F && otherRigidBody.mass > 7) {
+                    val bulletComponent = ComponentsMapper.bullet.get(entity1)
+                    val isExplosive = bulletComponent != null && bulletComponent.explosive
+                    val position =
+                        ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
+                            auxVector1
+                        )
+                    if (isExplosive) {
+                        if (MathUtils.random() >= 0.5F) {
+                            createIndependentParticleEffect(position, FIRE_LOOP_SMALL)
+                        }
+                    } else {
+                        createIndependentParticleEffect(position, SMOKE)
                     }
+                    destroyTree(entity0, isExplosive)
                 }
-                engine.removeEntity(entity0)
             }
             return true
         }
         return false
     }
 
-    private fun createPalmLeaf(tree: Entity) {
-        val modelDefinition = ModelDefinition.PALM_TREE_LEAF
+    private fun createIndependentParticleEffect(position: Vector3, particleEffectDefinition: ParticleEffectDefinition) {
+        gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
+            position,
+            gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
+                particleEffectDefinition
+            ), ttlInSeconds = MathUtils.random(10, 20)
+        ).finishAndAddToEngine()
+    }
+
+    private fun destroyTree(
+        tree: Entity,
+        decorateWithSmokeAndFire: Boolean
+    ) {
+        val ambComponent = ComponentsMapper.amb.get(tree)
+        if (ambComponent.def == AmbDefinition.PALM_TREE) {
+            blowToTreeParts(tree, ModelDefinition.PALM_TREE_LEAF, 1, 5, 0.5F, decorateWithSmokeAndFire)
+            blowToTreeParts(tree, ModelDefinition.PALM_TREE_PART, 1, 2, 1F, decorateWithSmokeAndFire)
+        }
+        val position =
+            ComponentsMapper.modelInstance.get(tree).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        gameSessionData.mapData.bulletHoles.addBig(position)
+        gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
+            position.add(0F, 0.05F, 0F),
+            gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
+                SMOKE_BROWN
+            )
+        ).finishAndAddToEngine()
+        ambComponent.destroyed = true
+        engine.removeEntity(tree)
+    }
+
+    @Suppress("SameParameterValue")
+    private fun blowToTreeParts(
+        tree: Entity,
+        modelDefinition: ModelDefinition,
+        min: Int,
+        max: Int,
+        gravityScale: Float,
+        decorateWithSmokeAndFire: Boolean
+    ) {
+        val numberOfLeaves = MathUtils.random(min, max)
+        for (i in 0 until numberOfLeaves) {
+            val entity = createTreePartEntity(modelDefinition, tree)
+            if (decorateWithSmokeAndFire && MathUtils.random() > 0.6F) {
+                gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
+                    entity,
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
+                        if (MathUtils.randomBoolean()) FIRE_LOOP_SMALL else SMOKE_UP_LOOP
+                    ), ttlInSeconds = MathUtils.random(10, 20)
+                )
+            }
+            addPhysicsToTreePart(
+                entity,
+                gravityScale,
+            )
+        }
+    }
+
+    private fun createTreePartEntity(
+        modelDefinition: ModelDefinition,
+        tree: Entity
+    ): Entity {
         val gameModelInstance = gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
             modelDefinition,
         )
@@ -179,34 +253,38 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 model = gameModelInstance,
                 position = transform.getTranslation(
                     auxVector1
+                ).add(
+                    MathUtils.random(-TREE_PART_CREATION_POSITION_BIAS, TREE_PART_CREATION_POSITION_BIAS),
+                    TREE_PART_CREATION_POSITION_BIAS,
+                    MathUtils.random(-TREE_PART_CREATION_POSITION_BIAS, TREE_PART_CREATION_POSITION_BIAS)
                 ),
                 boundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition),
             )
             .finishAndAddToEngine()
-        addPhysicsToLeaf(entity, modelDefinition, gameModelInstance)
+        return entity
     }
 
-    private fun addPhysicsToLeaf(
+    private fun addPhysicsToTreePart(
         entity: Entity,
-        modelDefinition: ModelDefinition,
-        gameModelInstance: GameModelInstance
+        gravityScale: Float,
     ) {
+        val gameModelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
         gamePlayManagers.ecs.entityBuilder.addPhysicsComponentPooledToEntity(
             entity,
-            gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(modelDefinition),
+            gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(gameModelInstance.definition!!),
             CollisionFlags.CF_CHARACTER_OBJECT,
             gameModelInstance.modelInstance.transform.trn(0F, 0.5F, 0F),
-            1F
+            gravityScale
         ).rigidBody.applyImpulse(
             auxVector1.set(
                 MathUtils.random(-1F, 1F),
                 MathUtils.random(-1F, 1F),
                 MathUtils.random(-1F, 1F)
-            ).scl(MathUtils.random(1F, 2F)),
+            ).scl(MathUtils.random(0.25F, 0.5F)),
             auxVector2.set(
-                MathUtils.random(-LEAF_IMPULSE_COMPONENT, LEAF_IMPULSE_COMPONENT),
-                MathUtils.random(-LEAF_IMPULSE_COMPONENT, LEAF_IMPULSE_COMPONENT),
-                MathUtils.random(-LEAF_IMPULSE_COMPONENT, LEAF_IMPULSE_COMPONENT)
+                MathUtils.random(-TREE_LEAF_IMPULSE_COMPONENT, TREE_LEAF_IMPULSE_COMPONENT),
+                MathUtils.random(-TREE_LEAF_IMPULSE_COMPONENT, TREE_LEAF_IMPULSE_COMPONENT),
+                MathUtils.random(-TREE_LEAF_IMPULSE_COMPONENT, TREE_LEAF_IMPULSE_COMPONENT)
             )
         )
     }
@@ -507,7 +585,8 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     companion object {
-        private const val LEAF_IMPULSE_COMPONENT = 0.1F
+        private const val TREE_PART_CREATION_POSITION_BIAS = 0.05F
+        private const val TREE_LEAF_IMPULSE_COMPONENT = 0.1F
         const val DOORS_DELAY = 1000F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()

@@ -28,7 +28,7 @@ enum class ModelDefinition(
     MISSILE(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.MISSILE),
     PALM_TREE(fileNames = 3, boundingBoxScale = Vector3(0.25F, 1F, 0.25F), separateModelForShadow = true),
     PALM_TREE_LEAF(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_LEAF),
-    PALM_TREE_PART,
+    PALM_TREE_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_PART),
     WATCH_TOWER,
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,
