@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
@@ -317,6 +318,12 @@ class EntityBuilderImpl : EntityBuilder {
     override fun addModelCacheComponentToEntity(tileEntity: Entity) {
         val modelCacheComponent = ModelCacheComponent()
         tileEntity.add(modelCacheComponent)
+    }
+
+    override fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AnimationComponent {
+        val animationComponent = AnimationComponent(modelInstance)
+        entity.add(animationComponent)
+        return animationComponent
     }
 
     override fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilderImpl {

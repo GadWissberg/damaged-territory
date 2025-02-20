@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -10,6 +11,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AiComponent
+import com.gadarts.returnfire.components.AnimationComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
@@ -143,5 +145,6 @@ interface EntityBuilder {
     fun addLimitedVelocityComponent(maxValue: Float): EntityBuilder
     fun addRoadComponentToEntity(entity: Entity, textureDefinition: TextureDefinition): EntityBuilder
     fun addModelCacheComponentToEntity(tileEntity: Entity)
+    fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AnimationComponent
 
 }

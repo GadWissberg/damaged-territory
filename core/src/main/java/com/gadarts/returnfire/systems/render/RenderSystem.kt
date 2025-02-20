@@ -14,10 +14,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GroundBlastComponent
-import com.gadarts.returnfire.components.IndependentDecalComponent
-import com.gadarts.returnfire.components.ModelCacheComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
@@ -96,7 +93,8 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             ),
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get()),
-            engine.getEntitiesFor(Family.all(GroundBlastComponent::class.java).get())
+            engine.getEntitiesFor(Family.all(GroundBlastComponent::class.java).get()),
+            engine.getEntitiesFor(Family.all(AnimationComponent::class.java).get())
         )
         modelsRenderer.initializeDirectionalLightAndShadows()
     }
@@ -120,6 +118,15 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             gameSessionData.renderData.particleSystem.begin()
             gameSessionData.renderData.particleSystem.draw()
             gameSessionData.renderData.particleSystem.end()
+        }
+        val millis = TimeUtils.millis()
+        for (entity in relatedEntities.animationEntities) {
+            val animationComponent = ComponentsMapper.animation.get(entity)
+            val animationController = animationComponent.animationController
+            animationController.update(deltaTime)
+            if (animationComponent.nextSpeedChangeTime < millis) {
+                animationComponent.randomizeSpeed()
+            }
         }
     }
 

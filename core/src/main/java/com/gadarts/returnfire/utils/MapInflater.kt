@@ -86,18 +86,17 @@ class MapInflater(
         }
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
-        val scale = def.getScale()
-        val entityBuilder = gamePlayManagers.ecs.entityBuilder.begin()
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder
+            .begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
                 null,
                 direction.toFloat(),
-            )
-            .addAmbComponent(
+            ).addAmbComponent(
                 if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
                 def,
-                auxVector1.set(scale, scale, scale),
+                auxVector1.set(def.getScale(), def.getScale(), def.getScale()),
             )
         val isGreen = def == AmbDefinition.BASE_GREEN
         val isBrown = def == AmbDefinition.BASE_BROWN
@@ -107,6 +106,20 @@ class MapInflater(
         val entity = entityBuilder.finishAndAddToEngine()
         if (def.collisionFlags >= 0) {
             addPhysicsToObject(entity, gameModelInstance, def.collisionFlags)
+        }
+        addAnimationToAmb(def, gameModelInstance, entity)
+    }
+
+    private fun addAnimationToAmb(
+        def: AmbDefinition,
+        gameModelInstance: GameModelInstance,
+        entity: Entity
+    ) {
+        if (def == AmbDefinition.PALM_TREE) {
+            val modelInstance = gameModelInstance.modelInstance
+            if (modelInstance.animations.size > 0) {
+                gamePlayManagers.ecs.entityBuilder.addAnimationComponentToEntity(entity, modelInstance)
+            }
         }
     }
 

@@ -66,4 +66,6 @@ object ComponentsMapper {
         ComponentMapper.getFor(LimitedVelocityComponent::class.java)
     val road: ComponentMapper<RoadComponent> =
         ComponentMapper.getFor(RoadComponent::class.java)
+    val animation: ComponentMapper<AnimationComponent> =
+        ComponentMapper.getFor(AnimationComponent::class.java)
 }
