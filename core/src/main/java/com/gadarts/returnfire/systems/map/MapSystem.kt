@@ -158,7 +158,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         if (ambComponent.def.destroyable && !ambComponent.destroyed) {
             val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
             val otherSpeed = otherRigidBody.linearVelocity.len2()
-            if (otherSpeed > 5F || otherSpeed > 1F && otherRigidBody.mass > 7) {
+            if (otherSpeed > 7F || otherSpeed > 0.1F && otherRigidBody.mass > 7) {
                 val bulletComponent = ComponentsMapper.bullet.get(entity1)
                 val isExplosive = bulletComponent != null && bulletComponent.explosive
                 val position =
