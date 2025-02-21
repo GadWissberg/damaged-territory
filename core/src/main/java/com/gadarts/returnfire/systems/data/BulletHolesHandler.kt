@@ -6,8 +6,9 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.managers.GameAssetManager
 
-class BulletHoles(assetsManager: GameAssetManager) {
+class BulletHolesHandler(assetsManager: GameAssetManager) {
     val holes: MutableList<Decal> = ArrayDeque()
+
     private val smallHolesTextureRegions by lazy {
         arrayOf(
             TextureRegion(assetsManager.getTexture("bullet_hole_small_0")),

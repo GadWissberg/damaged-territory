@@ -3,6 +3,7 @@ package com.gadarts.returnfire.managers
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.screens.ScreensManager
+import com.gadarts.returnfire.systems.data.BulletHolesHandler
 
 class GamePlayManagers(
     val soundPlayer: SoundPlayer,
@@ -10,5 +11,6 @@ class GamePlayManagers(
     val dispatcher: MessageDispatcher,
     val factories: Factories,
     val screensManager: ScreensManager,
-    val ecs: EcsManager
+    val ecs: EcsManager,
+    val bulletHolesHandler: BulletHolesHandler
 )

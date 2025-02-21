@@ -42,6 +42,7 @@ import kotlin.math.min
 
 class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
+    private val fadingAwayHandler: FadingAwayHandler = FadingAwayHandler(gamePlayManagers.ecs.engine)
     private val groundTextureAnimationHandler = GroundTextureAnimationHandler(gamePlayManagers.ecs.engine)
     private val landingMark: ChildDecal by lazy { createLandingMark() }
     private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
@@ -158,7 +159,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         if (ambComponent.def.destroyable && !ambComponent.destroyed) {
             val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
             val otherSpeed = otherRigidBody.linearVelocity.len2()
-            if (otherSpeed > 7F || otherSpeed > 0.1F && otherRigidBody.mass > 7) {
+            if (otherSpeed > 10F || otherSpeed > 0.1F && otherRigidBody.mass > 7) {
                 val bulletComponent = ComponentsMapper.bullet.get(entity1)
                 val isExplosive = bulletComponent != null && bulletComponent.explosive
                 val position =
@@ -202,13 +203,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ComponentsMapper.modelInstance.get(tree).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        gameSessionData.mapData.bulletHoles.addBig(position)
-        gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
-            position.add(0F, 0.05F, 0F),
-            gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
-                SMOKE_BROWN
-            )
-        ).finishAndAddToEngine()
+        gamePlayManagers.bulletHolesHandler.addBig(position)
         ambComponent.destroyed = true
         engine.removeEntity(tree)
         gamePlayManagers.soundPlayer.play(
@@ -265,6 +260,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 boundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition),
             )
             .finishAndAddToEngine()
+        fadingAwayHandler.add(entity)
         return entity
     }
 
@@ -284,7 +280,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 MathUtils.random(-1F, 1F),
                 MathUtils.random(-1F, 1F),
                 MathUtils.random(-1F, 1F)
-            ).scl(MathUtils.random(0.25F, 0.5F)),
+            ).scl(MathUtils.random(0.125F, 0.25F)),
             auxVector2.set(
                 MathUtils.random(-TREE_LEAF_IMPULSE_COMPONENT, TREE_LEAF_IMPULSE_COMPONENT),
                 MathUtils.random(-TREE_LEAF_IMPULSE_COMPONENT, TREE_LEAF_IMPULSE_COMPONENT),
@@ -504,6 +500,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             gameSessionData.gamePlayData.pools.groundBlastPool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
             engine.removeEntity(entity)
         }
+        fadingAwayHandler.update(deltaTime)
     }
 
     private fun updateBaseDoors(base: Entity, deltaTime: Float) {

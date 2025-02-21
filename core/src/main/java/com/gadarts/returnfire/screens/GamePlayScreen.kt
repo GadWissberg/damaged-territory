@@ -21,6 +21,7 @@ import com.gadarts.returnfire.systems.ai.AiSystem
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
+import com.gadarts.returnfire.systems.data.BulletHolesHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.systems.hud.HudSystem
@@ -73,7 +74,8 @@ class GamePlayScreen(
             generalManagers.dispatcher,
             factories,
             generalManagers.screensManagers,
-            ecs
+            ecs,
+            BulletHolesHandler(generalManagers.assetsManager)
         )
         initializeSystems(gamePlayManagers)
     }

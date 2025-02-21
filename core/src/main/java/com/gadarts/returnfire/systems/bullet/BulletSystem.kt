@@ -292,10 +292,11 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     private fun addBulletHole(position: Vector3, bullet: Entity) {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
+        val bulletHolesHandler = gamePlayManagers.bulletHolesHandler
         if (bulletComponent.explosive) {
-            gameSessionData.mapData.bulletHoles.addBig(position)
+            bulletHolesHandler.addBig(position)
         } else {
-            gameSessionData.mapData.bulletHoles.addSmall(position)
+            bulletHolesHandler.addSmall(position)
         }
     }
 
