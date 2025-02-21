@@ -153,18 +153,19 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         )
 
     private fun handleCollisionDestroyableAmbWithFastAndHeavyStuff(entity0: Entity, entity1: Entity): Boolean {
-        val ambComponent = ComponentsMapper.amb.get(entity0)
-        if (ambComponent != null) {
-            if (ambComponent.def.destroyable && !ambComponent.destroyed) {
-                val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
-                val otherSpeed = otherRigidBody.linearVelocity.len2()
-                if (otherSpeed > 5F || otherSpeed > 1F && otherRigidBody.mass > 7) {
-                    val bulletComponent = ComponentsMapper.bullet.get(entity1)
-                    val isExplosive = bulletComponent != null && bulletComponent.explosive
-                    val position =
-                        ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
-                            auxVector1
-                        )
+        val ambComponent = ComponentsMapper.amb.get(entity0) ?: return false
+
+        if (ambComponent.def.destroyable && !ambComponent.destroyed) {
+            val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
+            val otherSpeed = otherRigidBody.linearVelocity.len2()
+            if (otherSpeed > 5F || otherSpeed > 1F && otherRigidBody.mass > 7) {
+                val bulletComponent = ComponentsMapper.bullet.get(entity1)
+                val isExplosive = bulletComponent != null && bulletComponent.explosive
+                val position =
+                    ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector1
+                    )
+                if (bulletComponent != null) {
                     if (isExplosive) {
                         if (MathUtils.random() >= 0.5F) {
                             createIndependentParticleEffect(position, FIRE_LOOP_SMALL)
@@ -172,12 +173,11 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     } else {
                         createIndependentParticleEffect(position, SMOKE)
                     }
-                    destroyTree(entity0, isExplosive)
                 }
+                destroyTree(entity0, isExplosive)
             }
-            return true
         }
-        return false
+        return true
     }
 
     private fun createIndependentParticleEffect(position: Vector3, particleEffectDefinition: ParticleEffectDefinition) {
@@ -211,6 +211,10 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         ).finishAndAddToEngine()
         ambComponent.destroyed = true
         engine.removeEntity(tree)
+        gamePlayManagers.soundPlayer.play(
+            gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.TREE_FALL),
+            position
+        )
     }
 
     @Suppress("SameParameterValue")
