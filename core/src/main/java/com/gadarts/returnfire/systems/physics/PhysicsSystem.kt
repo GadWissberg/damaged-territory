@@ -42,6 +42,10 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 bulletEngineHandler.addBodyOfEntityToCollisionWorld(msg.extraInfo as Entity)
             }
+        }, SystemEvents.PHYSICS_GHOST_COMPONENT_ADDED_MANUALLY to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                bulletEngineHandler.addBodyOfEntityToCollisionWorld(msg.extraInfo as Entity)
+            }
         },
         SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {

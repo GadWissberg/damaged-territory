@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
+import com.badlogic.gdx.physics.bullet.collision.btSphereShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -303,6 +304,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun addBulletExplosion(bullet: Entity, position: Vector3) {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
         val explosive = bulletComponent.explosive
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder
         if (bulletComponent.explosion != null) {
             if (explosive) {
                 gamePlayManagers.soundPlayer.play(
@@ -310,17 +312,25 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                     position
                 )
             }
-            gamePlayManagers.ecs.entityBuilder.begin()
+            val explosionDefinition = bulletComponent.explosion!!
+            val explosionEntity = entityBuilder.begin()
                 .addParticleEffectComponent(
                     position,
                     gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
-                        bulletComponent.explosion!!,
+                        explosionDefinition,
                     )
                 ).finishAndAddToEngine()
-            addBlastRing(bulletComponent.explosion!!, position)
+            if (explosionDefinition.hasBlastRing) {
+                addBlastRing(position)
+                entityBuilder.addGhostPhysicsComponentToEntity(
+                    explosionEntity,
+                    btSphereShape(2F),
+                    position
+                )
+            }
         } else {
             if (!explosive) {
-                gamePlayManagers.ecs.entityBuilder.begin()
+                entityBuilder.begin()
                     .addParticleEffectComponent(
                         position,
                         gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
@@ -332,19 +342,16 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun addBlastRing(
-        explosion: ParticleEffectDefinition,
         position: Vector3
     ) {
-        if (explosion.hasBlastRing) {
-            gamePlayManagers.factories.specialEffectsFactory.generateGroundBlast(
-                position,
-                blastRingTexture,
-                0.1F,
-                11F,
-                250,
-                0.03F
-            )
-        }
+        gamePlayManagers.factories.specialEffectsFactory.generateGroundBlast(
+            position,
+            blastRingTexture,
+            0.1F,
+            11F,
+            250,
+            0.03F
+        )
     }
 
     private fun destroyBullet(entity: Entity) {

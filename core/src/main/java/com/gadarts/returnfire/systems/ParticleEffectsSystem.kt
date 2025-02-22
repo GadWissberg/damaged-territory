@@ -112,7 +112,7 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
             val timeToLeave =
                 ttlInMillis > 0F && TimeUtils.timeSinceMillis(particleEffectComponent.createdAt) >= ttlInMillis
             val effect = particleEffectComponent.effect
-            if ((particleEffectComponent.followEntity == null && effect.isComplete) || timeToLeave) {
+            if ((effect.isComplete) || timeToLeave) {
                 if (particleEffectComponent.ttlForComponentOnly) {
                     removeParticleEffect(entity)
                     entity.remove(ParticleEffectComponent::class.java)

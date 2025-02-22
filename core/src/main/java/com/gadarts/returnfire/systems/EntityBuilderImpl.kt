@@ -28,6 +28,7 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.components.onboarding.BoardingComponent
+import com.gadarts.returnfire.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
@@ -400,6 +401,22 @@ class EntityBuilderImpl : EntityBuilder {
     ): PhysicsComponent {
         val rigidBody = factories.rigidBodyFactory.create(mass, shape, null, transform)
         return addPhysicsComponent(entity, rigidBody, collisionFlag, null, gravityScalar)
+    }
+
+    override fun addGhostPhysicsComponentToEntity(
+        entity: Entity,
+        shape: btCollisionShape,
+        position: Vector3,
+    ): GhostPhysicsComponent {
+        val ghost = factories.ghostFactory.create(shape, position)
+        val ghostPhysicsComponent = GhostPhysicsComponent(ghost)
+        entity.add(ghostPhysicsComponent)
+        ghost.userData = entity
+        messageDispatcher.dispatchMessage(
+            SystemEvents.PHYSICS_GHOST_COMPONENT_ADDED_MANUALLY.ordinal,
+            entity
+        )
+        return ghostPhysicsComponent
     }
 
     private fun createParticleEffectComponent(

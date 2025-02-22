@@ -98,6 +98,13 @@ class BulletEngineHandler(
                     AllFilter
                 )
             }
+        } else if (ComponentsMapper.ghostPhysics.has(entity)) {
+            val ghostObject = ComponentsMapper.ghostPhysics.get(entity).ghost
+            gameSessionData.physicsData.collisionWorld.addCollisionObject(
+                ghostObject,
+                COLLISION_GROUP_GENERAL,
+                0
+            )
         }
     }
 
@@ -105,6 +112,10 @@ class BulletEngineHandler(
         val physicsComponent = ComponentsMapper.physics.get(entity)
         if (physicsComponent != null) {
             removePhysicsOfComponent(physicsComponent)
+        } else if (ComponentsMapper.ghostPhysics.has(entity)) {
+            val ghostPhysicsComponent = ComponentsMapper.ghostPhysics.get(entity)
+            gameSessionData.physicsData.collisionWorld.removeCollisionObject(ghostPhysicsComponent.ghost)
+            ghostPhysicsComponent.dispose()
         }
     }
 

@@ -19,6 +19,7 @@ import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
+import com.gadarts.returnfire.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
@@ -146,5 +147,9 @@ interface EntityBuilder {
     fun addRoadComponentToEntity(entity: Entity, textureDefinition: TextureDefinition): EntityBuilder
     fun addModelCacheComponentToEntity(tileEntity: Entity)
     fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AnimationComponent
-
+    fun addGhostPhysicsComponentToEntity(
+        entity: Entity,
+        shape: btCollisionShape,
+        position: Vector3,
+    ): GhostPhysicsComponent
 }

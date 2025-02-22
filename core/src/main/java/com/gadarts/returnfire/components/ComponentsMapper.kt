@@ -7,6 +7,7 @@ import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.onboarding.BoardingComponent
+import com.gadarts.returnfire.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 
 object ComponentsMapper {
@@ -68,4 +69,6 @@ object ComponentsMapper {
         ComponentMapper.getFor(RoadComponent::class.java)
     val animation: ComponentMapper<AnimationComponent> =
         ComponentMapper.getFor(AnimationComponent::class.java)
+    val ghostPhysics: ComponentMapper<GhostPhysicsComponent> =
+        ComponentMapper.getFor(GhostPhysicsComponent::class.java)
 }

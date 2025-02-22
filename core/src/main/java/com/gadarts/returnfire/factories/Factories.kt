@@ -6,6 +6,7 @@ import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 
 class Factories(
     val rigidBodyFactory: RigidBodyFactory,
+    val ghostFactory: GhostFactory,
     val specialEffectsFactory: SpecialEffectsFactory,
     val gameModelInstanceFactory: GameModelInstanceFactory,
     val autoAimShapeFactory: AutoAimShapeFactory,

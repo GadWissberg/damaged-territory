@@ -7,10 +7,7 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.console.ConsoleImpl
-import com.gadarts.returnfire.factories.AutoAimShapeFactory
-import com.gadarts.returnfire.factories.Factories
-import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.factories.SpecialEffectsFactory
+import com.gadarts.returnfire.factories.*
 import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
@@ -94,6 +91,7 @@ class GamePlayScreen(
             )
         factories = Factories(
             RigidBodyFactory(),
+            GhostFactory(),
             SpecialEffectsFactory(
                 gameSessionData,
                 generalManagers.soundPlayer,
