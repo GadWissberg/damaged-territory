@@ -54,6 +54,13 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ).get()
         )
     }
+    private val flyingPartEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(
+                FlyingPartComponent::class.java,
+            ).get()
+        )
+    }
 
     private val bases: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
@@ -151,7 +158,28 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     }
                 }
             },
-        )
+            SystemEvents.EXPLOSION_PUSH_BACK to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    val position = msg.extraInfo as Vector3
+                    for (flyingPart in flyingPartEntities) {
+                        val touchedEntityPosition =
+                            ComponentsMapper.modelInstance.get(flyingPart).gameModelInstance.modelInstance.transform.getTranslation(
+                                auxVector1
+                            )
+                        if (touchedEntityPosition.dst2(position) < 3F) {
+                            ComponentsMapper.physics.get(flyingPart).rigidBody.applyCentralImpulse(
+                                auxVector3.set(touchedEntityPosition).sub(position).nor()
+                                    .scl(MathUtils.random(0.25F, 0.5F)),
+                            )
+                        }
+                    }
+                }
+            })
+
 
     private fun handleCollisionDestroyableAmbWithFastAndHeavyStuff(entity0: Entity, entity1: Entity): Boolean {
         val ambComponent = ComponentsMapper.amb.get(entity0) ?: return false
@@ -259,6 +287,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 ),
                 boundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition),
             )
+            .addFlyingPartComponent()
             .finishAndAddToEngine()
         fadingAwayHandler.add(entity)
         return entity
@@ -591,5 +620,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         const val DOORS_DELAY = 1000F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
+        private val auxVector3 = Vector3()
+        private val auxMatrix = Matrix4()
     }
 }

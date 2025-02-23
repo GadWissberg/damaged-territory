@@ -407,9 +407,10 @@ class EntityBuilderImpl : EntityBuilder {
         entity: Entity,
         shape: btCollisionShape,
         position: Vector3,
+        ttl: Long
     ): GhostPhysicsComponent {
         val ghost = factories.ghostFactory.create(shape, position)
-        val ghostPhysicsComponent = GhostPhysicsComponent(ghost)
+        val ghostPhysicsComponent = GhostPhysicsComponent(ghost, ttl)
         entity.add(ghostPhysicsComponent)
         ghost.userData = entity
         messageDispatcher.dispatchMessage(
@@ -417,6 +418,12 @@ class EntityBuilderImpl : EntityBuilder {
             entity
         )
         return ghostPhysicsComponent
+    }
+
+    override fun addFlyingPartComponent(): EntityBuilder {
+        val flyingPartComponent = FlyingPartComponent()
+        entity!!.add(flyingPartComponent)
+        return this
     }
 
     private fun createParticleEffectComponent(

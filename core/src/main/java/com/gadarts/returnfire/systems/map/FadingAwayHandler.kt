@@ -26,15 +26,11 @@ class FadingAwayHandler(private val engine: PooledEngine) {
             if (modelInstanceComponent == null) {
                 entitiesToFadeAway.removeFirst()
             } else {
-                if (!modelInstanceComponent.gameModelInstance.modelInstance.materials.get(0)
-                        .has(BlendingAttribute.Type)
-                ) {
+                val attribute = modelInstanceComponent.gameModelInstance.modelInstance.materials.get(0)
+                if (attribute == null) {
                     deleteEntity()
                 }
-                val blendingAttribute =
-                    modelInstanceComponent.gameModelInstance.modelInstance.materials.get(
-                        0
-                    ).get(BlendingAttribute.Type) as BlendingAttribute
+                val blendingAttribute = attribute.get(BlendingAttribute.Type) as BlendingAttribute
                 if (blendingAttribute.opacity > 0) {
                     blendingAttribute.opacity -= deltaTime
                 } else {

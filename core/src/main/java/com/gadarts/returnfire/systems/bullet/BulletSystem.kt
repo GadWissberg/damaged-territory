@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.badlogic.gdx.physics.bullet.collision.btSphereShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -313,7 +312,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 )
             }
             val explosionDefinition = bulletComponent.explosion!!
-            val explosionEntity = entityBuilder.begin()
+            entityBuilder.begin()
                 .addParticleEffectComponent(
                     position,
                     gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
@@ -322,11 +321,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 ).finishAndAddToEngine()
             if (explosionDefinition.hasBlastRing) {
                 addBlastRing(position)
-                entityBuilder.addGhostPhysicsComponentToEntity(
-                    explosionEntity,
-                    btSphereShape(2F),
-                    position
-                )
+                gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.EXPLOSION_PUSH_BACK.ordinal, position)
             }
         } else {
             if (!explosive) {

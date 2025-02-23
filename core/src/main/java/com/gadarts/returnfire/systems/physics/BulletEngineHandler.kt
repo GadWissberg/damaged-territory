@@ -103,7 +103,7 @@ class BulletEngineHandler(
             gameSessionData.physicsData.collisionWorld.addCollisionObject(
                 ghostObject,
                 COLLISION_GROUP_GENERAL,
-                0
+                COLLISION_GROUP_AI_BULLET or COLLISION_GROUP_AI
             )
         }
     }

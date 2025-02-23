@@ -198,6 +198,7 @@ class SpecialEffectsFactory(
                 gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(randomParticleEffect),
                 ttlInSeconds = MathUtils.random(20, 25)
             )
+            .addFlyingPartComponent()
             .finishAndAddToEngine()
     }
 

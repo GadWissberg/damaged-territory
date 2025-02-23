@@ -180,3 +180,5 @@ Thumbs.db
 /materials/video_assets/
 *.osp
 *.mp4
+/materials/video_temp_assets
+*.mov

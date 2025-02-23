@@ -15,6 +15,7 @@ class GhostFactory {
         ghostObject.collisionShape = shape
         ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
         ghostObject.worldTransform = Matrix4().setToTranslation(position)
+
         return ghostObject
     }
 
