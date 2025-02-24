@@ -105,9 +105,14 @@ class MapInflater(
         }
         val entity = entityBuilder.finishAndAddToEngine()
         if (def.collisionFlags >= 0) {
-            addPhysicsToObject(entity, gameModelInstance, def.collisionFlags)
+            addPhysicsToObject(entity, gameModelInstance, def.collisionFlags, def.mass, 2F)
         }
         addAnimationToAmb(def, gameModelInstance, entity)
+        if (
+            def == AmbDefinition.PALM_TREE
+        ) {
+            entityBuilder.addTreeComponentToEntity(entity)
+        }
     }
 
     private fun addAnimationToAmb(
@@ -157,7 +162,7 @@ class MapInflater(
             .addAiComponent(characterDefinition.getHP())
             .addTurretBaseComponent()
             .finishAndAddToEngine()
-        addPhysicsToObject(baseEntity, gameModelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT)
+        addPhysicsToObject(baseEntity, gameModelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT, 0F)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
             addTurret(baseEntity)
         }
@@ -167,14 +172,16 @@ class MapInflater(
     private fun addPhysicsToObject(
         entity: Entity,
         gameModelInstance: GameModelInstance,
-        collisionFlags: Int
+        collisionFlags: Int,
+        mass: Float,
+        friction: Float = 1.5F,
     ): PhysicsComponent {
         return gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
             entity,
             createShapeForStaticObject(gameModelInstance.definition!!),
-            0F,
+            mass,
             collisionFlags,
-            Matrix4(gameModelInstance.modelInstance.transform),
+            gameModelInstance.modelInstance.transform, gravityScalar = 1F, friction = friction
         )
     }
 
@@ -319,8 +326,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                && definition != SimpleCharacterDefinition.APACHE
-                && definition != TurretCharacterDefinition.TANK
+                    && definition != SimpleCharacterDefinition.APACHE
+                    && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -530,9 +537,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-        && col >= 0
-        && row < gameSessionData.mapData.currentMap.tilesMapping.size
-        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+            && col >= 0
+            && row < gameSessionData.mapData.currentMap.tilesMapping.size
+            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,
@@ -556,8 +563,5 @@ class MapInflater(
         private val auxBoundingBox = BoundingBox()
         private const val EXT_SIZE = 48
         private val TILES_CHARS = CharArray(80) { (it + 48).toChar() }.joinToString("")
-        private const val MIN_SCALE = 0.95F
-        private const val MAX_SCALE = 1.05F
-
     }
 }

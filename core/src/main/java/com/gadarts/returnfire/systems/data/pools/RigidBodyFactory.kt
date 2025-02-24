@@ -11,7 +11,7 @@ class RigidBodyFactory {
         mass: Float,
         shape: btCollisionShape,
         rigidBodyPool: RigidBodyPool?,
-        transform: Matrix4 = Matrix4()
+        transform: Matrix4 = Matrix4(),
     ): RigidBody {
         val localInertia = Vector3()
         if (mass == 0f) {

@@ -12,6 +12,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.AnimationComponent
+import com.gadarts.returnfire.components.TreeComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
@@ -117,7 +118,8 @@ interface EntityBuilder {
         mass: Float,
         collisionFlag: Int,
         transform: Matrix4,
-        gravityScalar: Float = 0F
+        gravityScalar: Float = 0F,
+        friction: Float = 1.5F
     ): PhysicsComponent
 
     fun addGroundComponent(): EntityBuilder
@@ -155,4 +157,5 @@ interface EntityBuilder {
     ): GhostPhysicsComponent
 
     fun addFlyingPartComponent(): EntityBuilder
+    fun addTreeComponentToEntity(entity: Entity): TreeComponent
 }

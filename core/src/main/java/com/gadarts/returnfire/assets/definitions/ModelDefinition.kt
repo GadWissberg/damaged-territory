@@ -2,8 +2,11 @@ package com.gadarts.returnfire.assets.definitions
 
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.g3d.Model
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
+import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape
 import com.gadarts.returnfire.model.definitions.PooledObjectPhysicalDefinition
 
@@ -26,7 +29,11 @@ enum class ModelDefinition(
     BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT),
     CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT),
     MISSILE(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.MISSILE),
-    PALM_TREE(fileNames = 3, boundingBoxScale = Vector3(0.25F, 1F, 0.25F)),
+    PALM_TREE(
+        fileNames = 3,
+        boundingBoxScale = Vector3(0.25F, 1F, 0.25F),
+        physicalShapeCreator = PalmTreePhysicalShapeCreator
+    ),
     PALM_TREE_LEAF(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_LEAF),
     PALM_TREE_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_PART),
     WATCH_TOWER,
@@ -84,6 +91,19 @@ enum class ModelDefinition(
 
     override fun getDefinitionName(): String {
         return name
+    }
+
+}
+
+object PalmTreePhysicalShapeCreator : PhysicalShapeCreator {
+    private val auxMatrix = Matrix4()
+    override fun create(): btCollisionShape {
+        val shape = btCompoundShape()
+        val btBoxShape = btBoxShape(Vector3(0.06F, 0.5F, 0.06F))
+        shape.addChildShape(
+            auxMatrix.idt().translate(0F, 0.4F, 0F), btBoxShape
+        )
+        return shape
     }
 
 }

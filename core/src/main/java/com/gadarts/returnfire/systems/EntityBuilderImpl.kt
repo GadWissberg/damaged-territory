@@ -397,10 +397,11 @@ class EntityBuilderImpl : EntityBuilder {
         mass: Float,
         collisionFlag: Int,
         transform: Matrix4,
-        gravityScalar: Float
+        gravityScalar: Float,
+        friction: Float
     ): PhysicsComponent {
         val rigidBody = factories.rigidBodyFactory.create(mass, shape, null, transform)
-        return addPhysicsComponent(entity, rigidBody, collisionFlag, null, gravityScalar)
+        return addPhysicsComponent(entity, rigidBody, collisionFlag, transform, gravityScalar, friction)
     }
 
     override fun addGhostPhysicsComponentToEntity(
@@ -424,6 +425,12 @@ class EntityBuilderImpl : EntityBuilder {
         val flyingPartComponent = FlyingPartComponent()
         entity!!.add(flyingPartComponent)
         return this
+    }
+
+    override fun addTreeComponentToEntity(entity: Entity): TreeComponent {
+        val treeComponent = TreeComponent()
+        entity.add(treeComponent)
+        return treeComponent
     }
 
     private fun createParticleEffectComponent(
@@ -467,6 +474,7 @@ class EntityBuilderImpl : EntityBuilder {
         collisionFlag: Int?,
         transform: Matrix4?,
         gravityScalar: Float,
+        friction: Float = 1.5F
     ): PhysicsComponent {
         rigidBody.angularVelocity = Vector3.Zero
         rigidBody.clearForces()
@@ -475,7 +483,7 @@ class EntityBuilderImpl : EntityBuilder {
         rigidBody.activate()
         rigidBody.activationState = Collision.DISABLE_DEACTIVATION
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
-        rigidBody.friction = 1.5F
+        rigidBody.friction = friction
         if (collisionFlag != null) {
             rigidBody.collisionFlags = rigidBody.collisionFlags or collisionFlag
         }

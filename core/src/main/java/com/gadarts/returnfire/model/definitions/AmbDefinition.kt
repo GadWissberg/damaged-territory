@@ -11,8 +11,16 @@ enum class AmbDefinition(
     val placeInMiddleOfCell: Boolean = true,
     private val scale: Float = 1F,
     val destroyable: Boolean = false,
+    val mass: Float = 0F
 ) : ElementDefinition {
-    PALM_TREE(modelDefinition = ModelDefinition.PALM_TREE, randomizeRotation = true, scale = 0.75F, destroyable = true),
+    PALM_TREE(
+        modelDefinition = ModelDefinition.PALM_TREE,
+        randomizeRotation = true,
+        collisionFlags = btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT,
+        scale = 0.75F,
+        destroyable = true,
+        mass = 1F
+    ),
     WATCH_TOWER(ModelDefinition.WATCH_TOWER),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
     FLAG(ModelDefinition.FLAG),

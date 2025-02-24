@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
@@ -66,6 +67,14 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         engine.getEntitiesFor(
             Family.all(
                 BaseComponent::class.java,
+            ).get()
+        )
+    }
+
+    private val treeEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(
+                TreeComponent::class.java,
             ).get()
         )
     }
@@ -183,7 +192,6 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
     private fun handleCollisionDestroyableAmbWithFastAndHeavyStuff(entity0: Entity, entity1: Entity): Boolean {
         val ambComponent = ComponentsMapper.amb.get(entity0) ?: return false
-
         if (ambComponent.def.destroyable && !ambComponent.destroyed) {
             val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
             val otherSpeed = otherRigidBody.linearVelocity.len2()
@@ -202,8 +210,12 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     } else {
                         createIndependentParticleEffect(position, SMOKE)
                     }
+                    destroyTree(entity0, isExplosive)
+                } else {
+                    val treeRigidBody = ComponentsMapper.physics.get(entity0).rigidBody
+                    treeRigidBody.activationState = Collision.DISABLE_DEACTIVATION
+                    treeRigidBody.collisionFlags = CollisionFlags.CF_CHARACTER_OBJECT
                 }
-                destroyTree(entity0, isExplosive)
             }
         }
         return true
@@ -530,6 +542,19 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             engine.removeEntity(entity)
         }
         fadingAwayHandler.update(deltaTime)
+        for (tree in treeEntities) {
+            val physicsComponent = ComponentsMapper.physics.get(tree)
+            val rigidBody = physicsComponent.rigidBody
+            if (rigidBody.collisionFlags == CollisionFlags.CF_CHARACTER_OBJECT) {
+                rigidBody.getWorldTransform(auxMatrix)
+                auxMatrix.getRotation(auxQuat)
+                val upVector = auxVector2.set(0f, 1f, 0f)
+                auxQuat.transform(upVector)
+                if (upVector.y < 0.85f) {
+                    destroyTree(tree, false)
+                }
+            }
+        }
     }
 
     private fun updateBaseDoors(base: Entity, deltaTime: Float) {
@@ -622,5 +647,6 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
         private val auxMatrix = Matrix4()
+        private val auxQuat = Quaternion()
     }
 }
