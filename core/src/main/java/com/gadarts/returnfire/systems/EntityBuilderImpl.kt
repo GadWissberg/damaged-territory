@@ -321,10 +321,10 @@ class EntityBuilderImpl : EntityBuilder {
         tileEntity.add(modelCacheComponent)
     }
 
-    override fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AnimationComponent {
-        val animationComponent = AnimationComponent(modelInstance)
-        entity.add(animationComponent)
-        return animationComponent
+    override fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AmbAnimationComponent {
+        val ambAnimationComponent = AmbAnimationComponent(modelInstance)
+        entity.add(ambAnimationComponent)
+        return ambAnimationComponent
     }
 
     override fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilderImpl {

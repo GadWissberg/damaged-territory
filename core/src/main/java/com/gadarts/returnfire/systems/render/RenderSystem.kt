@@ -94,7 +94,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(GroundBlastComponent::class.java).get()),
-            engine.getEntitiesFor(Family.all(AnimationComponent::class.java).get())
+            engine.getEntitiesFor(Family.all(AmbAnimationComponent::class.java).get())
         )
         modelsRenderer.initializeDirectionalLightAndShadows()
     }
@@ -124,8 +124,9 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             val animationComponent = ComponentsMapper.animation.get(entity)
             val animationController = animationComponent.animationController
             animationController.update(deltaTime)
-            if (animationComponent.nextSpeedChangeTime < millis) {
-                animationComponent.randomizeSpeed()
+            if (animationComponent.nextPlay < millis) {
+                Gdx.app.log("Animation", "Playing animation")
+                animationComponent.play()
             }
         }
     }

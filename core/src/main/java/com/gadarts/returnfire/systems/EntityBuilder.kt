@@ -11,7 +11,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AiComponent
-import com.gadarts.returnfire.components.AnimationComponent
+import com.gadarts.returnfire.components.AmbAnimationComponent
 import com.gadarts.returnfire.components.TreeComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -148,7 +148,7 @@ interface EntityBuilder {
     fun addLimitedVelocityComponent(maxValue: Float): EntityBuilder
     fun addRoadComponentToEntity(entity: Entity, textureDefinition: TextureDefinition): EntityBuilder
     fun addModelCacheComponentToEntity(tileEntity: Entity)
-    fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AnimationComponent
+    fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AmbAnimationComponent
     fun addGhostPhysicsComponentToEntity(
         entity: Entity,
         shape: btCollisionShape,
