@@ -13,12 +13,17 @@ class AmbAnimationComponent(private val modelInstance: ModelInstance) : Componen
     val animationController: AnimationController = AnimationController(modelInstance)
 
     init {
+        decideNextTime()
         animationController.allowSameAnimation = true
     }
 
     fun play() {
         animationController.setAnimation(modelInstance.animations[0].id, 1)
-        nextPlay = TimeUtils.millis() + MathUtils.random(25) * 1000L
+        decideNextTime()
+    }
+
+    private fun decideNextTime() {
+        nextPlay = TimeUtils.millis() + MathUtils.random(5, 25) * 1000L
     }
 
 }

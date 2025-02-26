@@ -17,7 +17,6 @@ enum class AmbDefinition(
         modelDefinition = ModelDefinition.PALM_TREE,
         randomizeRotation = true,
         collisionFlags = btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT,
-        scale = 0.75F,
         destroyable = true,
         mass = 1F
     ),

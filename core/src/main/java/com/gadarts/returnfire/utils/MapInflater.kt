@@ -105,7 +105,7 @@ class MapInflater(
         }
         val entity = entityBuilder.finishAndAddToEngine()
         if (def.collisionFlags >= 0) {
-            addPhysicsToObject(entity, gameModelInstance, def.collisionFlags, def.mass, 2F)
+            addPhysicsToObject(entity, gameModelInstance, def.collisionFlags, def.mass, 4F)
         }
         addAnimationToAmb(def, gameModelInstance, entity)
         if (

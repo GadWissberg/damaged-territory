@@ -125,7 +125,6 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             val animationController = animationComponent.animationController
             animationController.update(deltaTime)
             if (animationComponent.nextPlay < millis) {
-                Gdx.app.log("Animation", "Playing animation")
                 animationComponent.play()
             }
         }
