@@ -121,11 +121,11 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         }
         val millis = TimeUtils.millis()
         for (entity in relatedEntities.animationEntities) {
-            val animationComponent = ComponentsMapper.animation.get(entity)
+            val animationComponent = ComponentsMapper.ambAnimation.get(entity)
             val animationController = animationComponent.animationController
             animationController.update(deltaTime)
             if (animationComponent.nextPlay < millis) {
-                animationComponent.play()
+                animationComponent.playRegular()
             }
         }
     }

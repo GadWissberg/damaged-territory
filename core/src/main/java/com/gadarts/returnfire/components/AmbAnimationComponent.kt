@@ -17,13 +17,34 @@ class AmbAnimationComponent(private val modelInstance: ModelInstance) : Componen
         animationController.allowSameAnimation = true
     }
 
-    fun play() {
-        animationController.setAnimation(modelInstance.animations[0].id, 1)
+    fun playRegular() {
+        play(1F)
+    }
+
+    private fun play(speed: Float) {
+        animationController.setAnimation(
+            modelInstance.animations[0].id,
+            1,
+            speed,
+            object : AnimationController.AnimationListener {
+                override fun onEnd(p0: AnimationController.AnimationDesc?) {
+                }
+
+                override fun onLoop(p0: AnimationController.AnimationDesc?) {
+                }
+
+            }
+        )
         decideNextTime()
     }
 
+
     private fun decideNextTime() {
         nextPlay = TimeUtils.millis() + MathUtils.random(5, 25) * 1000L
+    }
+
+    fun applyAffectedByExplosionAnimation() {
+        play(4F)
     }
 
 }

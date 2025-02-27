@@ -30,6 +30,7 @@ class FadingAwayHandler(private val engine: PooledEngine) {
                 val blending = attribute.get(BlendingAttribute.Type)
                 if (attribute == null || blending == null) {
                     deleteEntity()
+                    return
                 }
                 val blendingAttribute = blending as BlendingAttribute
                 if (blendingAttribute.opacity > 0) {

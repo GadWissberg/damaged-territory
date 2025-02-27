@@ -174,20 +174,48 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gamePlayManagers: GamePlayManagers
                 ) {
                     val position = msg.extraInfo as Vector3
-                    for (flyingPart in flyingPartEntities) {
-                        val touchedEntityPosition =
-                            ComponentsMapper.modelInstance.get(flyingPart).gameModelInstance.modelInstance.transform.getTranslation(
-                                auxVector1
-                            )
-                        if (touchedEntityPosition.dst2(position) < 3F) {
-                            ComponentsMapper.physics.get(flyingPart).rigidBody.applyCentralImpulse(
-                                auxVector3.set(touchedEntityPosition).sub(position).nor()
-                                    .scl(MathUtils.random(0.25F, 0.5F)),
-                            )
-                        }
-                    }
+                    applyExplosionPushBackOnEnvironment(position, flyingPartEntities, FlyingPartExplosionPushBackEffect)
+                    applyExplosionPushBackOnEnvironment(position, treeEntities, TreeExplosionPushBackEffect)
                 }
             })
+
+    object TreeExplosionPushBackEffect : ExplosionPushBackEffect {
+        override fun go(entity: Entity, affectedEntityPosition: Vector3, explosionPosition: Vector3) {
+            ComponentsMapper.ambAnimation.get(entity)?.applyAffectedByExplosionAnimation()
+        }
+
+    }
+
+    object FlyingPartExplosionPushBackEffect : ExplosionPushBackEffect {
+        override fun go(entity: Entity, affectedEntityPosition: Vector3, explosionPosition: Vector3) {
+            ComponentsMapper.physics.get(entity).rigidBody.applyCentralImpulse(
+                auxVector3.set(affectedEntityPosition).sub(explosionPosition).nor()
+                    .scl(MathUtils.random(0.25F, 0.5F)),
+            )
+        }
+
+    }
+
+    interface ExplosionPushBackEffect {
+        fun go(entity: Entity, affectedEntityPosition: Vector3, explosionPosition: Vector3)
+
+    }
+
+    private fun applyExplosionPushBackOnEnvironment(
+        position: Vector3,
+        entities: ImmutableArray<Entity>,
+        effect: ExplosionPushBackEffect
+    ) {
+        for (entity in entities) {
+            val touchedEntityPosition =
+                ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+            if (touchedEntityPosition.dst2(position) < 3F) {
+                effect.go(entity, touchedEntityPosition, position)
+            }
+        }
+    }
 
 
     private fun handleCollisionDestroyableAmbWithFastAndHeavyStuff(entity0: Entity, entity1: Entity): Boolean {

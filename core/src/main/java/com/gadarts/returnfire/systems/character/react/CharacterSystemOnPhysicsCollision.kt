@@ -170,8 +170,11 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         soundPlayer: SoundPlayer,
         assetsManager: GameAssetManager
     ) {
+        val turretBaseComponent = ComponentsMapper.turretBase.get(character)
+        val entity = turretBaseComponent?.turret ?: character
+        val transform = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
         val position =
-            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+            transform.getTranslation(
                 auxVector
             )
         entityBuilder.begin().addParticleEffectComponent(
