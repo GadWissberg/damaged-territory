@@ -18,8 +18,8 @@ import com.gadarts.returnfire.systems.ai.AiSystem
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
-import com.gadarts.returnfire.systems.data.BulletHolesHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.data.StainsHandler
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.systems.hud.HudSystem
 import com.gadarts.returnfire.systems.map.MapSystem
@@ -72,7 +72,7 @@ class GamePlayScreen(
             factories,
             generalManagers.screensManagers,
             ecs,
-            BulletHolesHandler(generalManagers.assetsManager)
+            StainsHandler(generalManagers.assetsManager)
         )
         initializeSystems(gamePlayManagers)
     }

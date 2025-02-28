@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.managers.GameAssetManager
 
-class BulletHolesHandler(assetsManager: GameAssetManager) {
+class StainsHandler(assetsManager: GameAssetManager) {
     val holes: MutableList<Decal> = ArrayDeque()
 
     private val smallHolesTextureRegions by lazy {
@@ -23,16 +23,27 @@ class BulletHolesHandler(assetsManager: GameAssetManager) {
             TextureRegion(assetsManager.getTexture("bullet_hole_big_2")),
         )
     }
-
-    fun addSmall(position: Vector3) {
-        addHole(position, smallHolesTextureRegions)
+    private val cratesTextureRegions by lazy {
+        arrayOf(
+            TextureRegion(assetsManager.getTexture("crate_0")),
+            TextureRegion(assetsManager.getTexture("crate_1")),
+            TextureRegion(assetsManager.getTexture("crate_2")),
+        )
     }
 
-    fun addBig(position: Vector3) {
-        addHole(position, bigHolesTextureRegions)
+    fun addSmallHole(position: Vector3) {
+        addStain(position, smallHolesTextureRegions)
     }
 
-    private fun addHole(position: Vector3, textureRegions: Array<TextureRegion>) {
+    fun addBigHole(position: Vector3) {
+        addStain(position, bigHolesTextureRegions)
+    }
+
+    fun addCrate(position: Vector3) {
+        addStain(position, cratesTextureRegions)
+    }
+
+    private fun addStain(position: Vector3, textureRegions: Array<TextureRegion>) {
         val newDecal =
             Decal.newDecal(
                 1F,

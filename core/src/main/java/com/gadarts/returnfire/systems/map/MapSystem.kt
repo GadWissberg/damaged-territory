@@ -271,7 +271,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ComponentsMapper.modelInstance.get(tree).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        gamePlayManagers.bulletHolesHandler.addBig(position)
+        gamePlayManagers.stainsHandler.addBigHole(position)
         ambComponent.destroyed = true
         engine.removeEntity(tree)
         gamePlayManagers.soundPlayer.play(

@@ -67,6 +67,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
                 ).finishAndAddToEngine()
                 crashSoundEmitter.crash()
                 crashSoundEmitter.soundToStop.stop(crashSoundEmitter.soundToStopId)
+                gamePlayManagers.stainsHandler.addCrate(position)
             }
             return true
         }
@@ -83,6 +84,14 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         val isSecondTurret = if (!isSecondCharacter) ComponentsMapper.turret.has(second) else false
         if (ComponentsMapper.bullet.has(first) && (isSecondCharacter || isSecondTurret)) {
             val damage = max(ComponentsMapper.bullet.get(first).damage + MathUtils.random(-2F, 2F), 1F)
+            if (damage >= 8F) {
+                gamePlayManagers.soundPlayer.play(
+                    gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.MAJOR_IMPACT),
+                    ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector
+                    )
+                )
+            }
             val entity = if (isSecondCharacter) {
                 second
             } else {
