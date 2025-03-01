@@ -153,7 +153,6 @@ interface EntityBuilder {
         entity: Entity,
         shape: btCollisionShape,
         position: Vector3,
-        ttl: Long
     ): GhostPhysicsComponent
 
     fun addFlyingPartComponent(): EntityBuilder

@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.ModelInstance
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
@@ -23,7 +22,10 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.*
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.BaseComponent
+import com.gadarts.returnfire.components.BaseDoorComponent
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.character.CharacterColor
@@ -43,25 +45,12 @@ import kotlin.math.min
 
 class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
+    private val waterSplashHandler = WaterSplashHandler(gamePlayManagers.ecs.engine)
     private val fadingAwayHandler: FadingAwayHandler = FadingAwayHandler(gamePlayManagers.ecs.engine)
+    private val mapSystemRelatedEntities = MapSystemRelatedEntities(gamePlayManagers.ecs.engine)
     private val groundTextureAnimationHandler = GroundTextureAnimationHandler(gamePlayManagers.ecs.engine)
     private val landingMark: ChildDecal by lazy { createLandingMark() }
-    private val waterSplashEntitiesToRemove = com.badlogic.gdx.utils.Array<Entity>()
     private val ambSoundsHandler = AmbSoundsHandler()
-    private val waterSplashEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(
-            Family.all(
-                GroundBlastComponent::class.java,
-            ).get()
-        )
-    }
-    private val flyingPartEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(
-            Family.all(
-                FlyingPartComponent::class.java,
-            ).get()
-        )
-    }
 
     private val bases: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
@@ -71,13 +60,6 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         )
     }
 
-    private val treeEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(
-            Family.all(
-                TreeComponent::class.java,
-            ).get()
-        )
-    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(
@@ -174,8 +156,16 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gamePlayManagers: GamePlayManagers
                 ) {
                     val position = msg.extraInfo as Vector3
-                    applyExplosionPushBackOnEnvironment(position, flyingPartEntities, FlyingPartExplosionPushBackEffect)
-                    applyExplosionPushBackOnEnvironment(position, treeEntities, TreeExplosionPushBackEffect)
+                    applyExplosionPushBackOnEnvironment(
+                        position,
+                        mapSystemRelatedEntities.flyingPartEntities,
+                        FlyingPartExplosionPushBackEffect
+                    )
+                    applyExplosionPushBackOnEnvironment(
+                        position,
+                        mapSystemRelatedEntities.treeEntities,
+                        TreeExplosionPushBackEffect
+                    )
                 }
             })
 
@@ -432,6 +422,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
         val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
+        waterSplashHandler.init(gameSessionData)
         gameSessionData.mapData.tilesEntities =
             Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.renderData.floorModel = createFloorModel()
@@ -550,26 +541,9 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         }
         ambSoundsHandler.update(gamePlayManagers)
         groundTextureAnimationHandler.update(deltaTime)
-        waterSplashEntitiesToRemove.clear()
-        for (entity in waterSplashEntities) {
-            val groundBlastComponent = ComponentsMapper.waterWave.get(entity)
-            if (TimeUtils.timeSinceMillis(groundBlastComponent.creationTime) > groundBlastComponent.duration) {
-                waterSplashEntitiesToRemove.add(entity)
-            } else {
-                val modelInstance =
-                    ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance
-                modelInstance.transform.scl(1 + groundBlastComponent.scalePace * deltaTime)
-                val blendAttribute =
-                    modelInstance.materials.get(0).get(BlendingAttribute.Type) as BlendingAttribute
-                blendAttribute.opacity -= groundBlastComponent.fadeOutPace * deltaTime * 60F
-            }
-        }
-        while (!waterSplashEntitiesToRemove.isEmpty) {
-            val entity = waterSplashEntitiesToRemove.removeIndex(0)
-            gameSessionData.gamePlayData.pools.groundBlastPool.free(ComponentsMapper.modelInstance.get(entity).gameModelInstance)
-            engine.removeEntity(entity)
-        }
+        waterSplashHandler.update(deltaTime)
         fadingAwayHandler.update(deltaTime)
+        val treeEntities = mapSystemRelatedEntities.treeEntities
         for (tree in treeEntities) {
             val physicsComponent = ComponentsMapper.physics.get(tree)
             val rigidBody = physicsComponent.rigidBody

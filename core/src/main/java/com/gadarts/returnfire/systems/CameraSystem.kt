@@ -44,16 +44,23 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val player = gameSessionData.gamePlayData.player
         if (player == null || !ComponentsMapper.physics.has(player)) return
 
-        val playerTransform = ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
-        val playerPosition = playerTransform.getTranslation(auxVector3_1)
         val camera = gameSessionData.renderData.camera
-        val cameraPosition = auxVector3_4.set(camera.position)
+        val cameraPosition = calculateCameraNextPosition(deltaTime)
+        camera.position.set(cameraPosition)
+    }
+
+    private fun calculateCameraNextPosition(
+        deltaTime: Float
+    ): Vector3 {
+        val player = gameSessionData.gamePlayData.player
+        val playerTransform = ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+        val cameraPosition = auxVector3_4.set(gameSessionData.renderData.camera.position)
         val rotation = playerTransform.getRotation(auxQuat)
         rotation.setEulerAngles(rotation.yaw, 0F, 0F)
         val rotationVector = auxVector3_3.set(1F, 0F, 0F).rot(auxMatrix.idt().set(rotation)).nor()
         val thrusting = gameSessionData.gamePlayData.playerMovementHandler.isThrusting()
         val reversing = gameSessionData.gamePlayData.playerMovementHandler.isReversing()
-        val cameraTarget = auxVector3_2.set(playerPosition)
+        val cameraTarget = auxVector3_2.set(playerTransform.getTranslation(auxVector3_1))
             .add(
                 auxVector3_5.set(rotationVector)
                     .scl(if (thrusting) CAMERA_TARGET_MOVEMENT_GAP_FORWARD else if (reversing) -CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS else 0F)
@@ -66,7 +73,6 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             .sub(cameraPosition)
             .nor()
             .scl(deltaTime * gameSessionData.fpsTarget * (if (thrusting) 0.07F else 0.05F))
-
         movementDirection.y = 0F
         cameraPosition.y = 0F
         cameraTarget.y = 0F
@@ -76,17 +82,21 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         } else if (dst2 > 0.005F) {
             cameraPosition.slerp(cameraTarget, 0.05F)
         }
-        cameraPosition.y = camera.position.y
+        cameraPosition.y = gameSessionData.renderData.camera.position.y
+        handleCameraZoom(cameraPosition)
+        return cameraPosition
+    }
+
+    private fun handleCameraZoom(cameraPosition: Vector3) {
+        val player = gameSessionData.gamePlayData.player
         val playerVelocity = ComponentsMapper.physics.get(player).rigidBody.linearVelocity
         if (playerVelocity.len2() > 0.1F && cameraPosition.y < MAX_Y) {
             cameraPosition.y = Interpolation.sine.apply(cameraPosition.y, MAX_Y, ZOOM_PACE)
             lastZoomOut = TimeUtils.millis()
-        } else if (cameraPosition.y > MIN_Y && TimeUtils.timeSinceMillis(lastZoomOut) > 5000L) {
+        } else if (cameraPosition.y > MIN_Y && TimeUtils.timeSinceMillis(lastZoomOut) > 4000L) {
             cameraPosition.y = Interpolation.sine.apply(cameraPosition.y, MIN_Y, ZOOM_PACE)
         }
-        camera.position.set(cameraPosition)
     }
-
 
     private fun initializeCamera() {
         val camera = gameSessionData.renderData.camera

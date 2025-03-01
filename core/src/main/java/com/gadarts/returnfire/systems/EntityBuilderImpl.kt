@@ -408,10 +408,9 @@ class EntityBuilderImpl : EntityBuilder {
         entity: Entity,
         shape: btCollisionShape,
         position: Vector3,
-        ttl: Long
     ): GhostPhysicsComponent {
         val ghost = factories.ghostFactory.create(shape, position)
-        val ghostPhysicsComponent = GhostPhysicsComponent(ghost, ttl)
+        val ghostPhysicsComponent = GhostPhysicsComponent(ghost)
         entity.add(ghostPhysicsComponent)
         ghost.userData = entity
         messageDispatcher.dispatchMessage(

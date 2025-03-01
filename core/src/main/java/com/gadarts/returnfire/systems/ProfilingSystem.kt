@@ -37,19 +37,6 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
         addLabel()
     }
 
-    private fun addLabel() {
-        label.setPosition(0f, (Gdx.graphics.height - 175).toFloat())
-        gameSessionData.hudData.stage.addActor(label)
-        label.zIndex = 0
-    }
-
-    private fun setGlProfiler() {
-        if (GameDebugSettings.SHOW_GL_PROFILING) {
-            @Suppress("GDXKotlinProfilingCode")
-            glProfiler.enable()
-        }
-    }
-
     override fun update(delta: Float) {
         if (GameDebugSettings.ENABLE_PROFILER && glProfiler.isEnabled) {
             stringBuilder.setLength(0)
@@ -72,6 +59,19 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
             }
             displayLine("Total rendered bullet holes: ", gameSessionData.profilingData.holesRendered)
             label.setText(stringBuilder)
+        }
+    }
+
+    private fun addLabel() {
+        label.setPosition(0f, (Gdx.graphics.height - 175).toFloat())
+        gameSessionData.hudData.stage.addActor(label)
+        label.zIndex = 0
+    }
+
+    private fun setGlProfiler() {
+        if (GameDebugSettings.SHOW_GL_PROFILING) {
+            @Suppress("GDXKotlinProfilingCode")
+            glProfiler.enable()
         }
     }
 
