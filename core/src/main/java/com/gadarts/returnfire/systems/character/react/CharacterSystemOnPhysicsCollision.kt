@@ -48,23 +48,29 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         gameSessionData: GameSessionData
     ): Boolean {
         val crashSoundEmitter = ComponentsMapper.crashingAircraftEmitter.get(collider1)
-        if (crashSoundEmitter != null && !crashSoundEmitter.crashed && ComponentsMapper.ground.has(collider2)) {
+        if (crashSoundEmitter != null
+            && !crashSoundEmitter.crashed
+            && (ComponentsMapper.ground.has(collider2) || ComponentsMapper.amb.has(collider2))
+        ) {
             if (ComponentsMapper.physics.get(collider1).rigidBody.linearVelocity.len2() >= 9F) {
-                gamePlayManagers.factories.specialEffectsFactory.generateExplosion(
-                    entity = collider1,
-                    blastRing = true,
-                    addBiasToPosition = false
-                )
-                val modelInstance = ComponentsMapper.modelInstance.get(collider1).gameModelInstance.modelInstance
-                val position = modelInstance.transform.getTranslation(auxVector)
+                generateExplosion(gamePlayManagers, collider1)
+                val position =
+                    ComponentsMapper.modelInstance.get(collider1).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector
+                    )
+                val assetsManager = gamePlayManagers.assetsManager
                 gamePlayManagers.soundPlayer.play(
-                    gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.CRASH_BIG),
+                    assetsManager.getAssetByDefinition(SoundDefinition.CRASH_BIG),
                     position
                 )
+                val particleEffectsPools = gameSessionData.gamePlayData.pools.particleEffectsPools
                 gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
                     position,
-                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE)
+                    particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
                 ).finishAndAddToEngine()
+                gamePlayManagers.ecs.entityBuilder.begin()
+                    .addParticleEffectComponent(position, particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE))
+                    .finishAndAddToEngine()
                 crashSoundEmitter.crash()
                 crashSoundEmitter.soundToStop.stop(crashSoundEmitter.soundToStopId)
                 gamePlayManagers.stainsHandler.addCrate(position)
@@ -72,6 +78,17 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
             return true
         }
         return false
+    }
+
+    private fun generateExplosion(
+        gamePlayManagers: GamePlayManagers,
+        entity: Entity
+    ) {
+        gamePlayManagers.factories.specialEffectsFactory.generateExplosion(
+            entity = entity,
+            blastRing = true,
+            addBiasToPosition = false
+        )
     }
 
     private fun handleBulletCharacterCollision(

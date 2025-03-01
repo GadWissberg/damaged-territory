@@ -88,12 +88,12 @@ class SpecialEffectsFactory(
         }
         transform.getTranslation(auxVector2)
         val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
-        generateFlyingParts(auxVector2, model)
+        generateFlyingParts(auxVector2, model, 1F)
     }
 
     fun generateSmallFlyingParts(position: Vector3) {
         val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART_SMALL)
-        generateFlyingParts(position, model)
+        generateFlyingParts(position, model, 0.5F)
     }
 
     fun generateGroundBlast(
@@ -148,27 +148,30 @@ class SpecialEffectsFactory(
 
     private fun generateFlyingParts(
         position: Vector3,
-        model: Model
+        model: Model,
+        shapeScale: Float
     ) {
         val numberOfFlyingParts = MathUtils.random(2, 4)
         for (i in 0 until numberOfFlyingParts) {
-            addFlyingPart(position, model)
+            addFlyingPart(position, model, shapeScale)
         }
     }
 
     private fun addFlyingPart(
         @Suppress("SameParameterValue") position: Vector3,
         model: Model,
+        shapeScale: Float
     ) {
         val modelInstance = ModelInstance(model)
-        val flyingPart = createFlyingPartEntity(modelInstance, position)
+        val flyingPart = createFlyingPartEntity(modelInstance, position, shapeScale)
         ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.1F, 0.2F)
         makeFlyingPartFlyAway(flyingPart)
     }
 
     private fun createFlyingPartEntity(
         modelInstance: ModelInstance,
-        position: Vector3
+        position: Vector3,
+        shapeScale: Float
     ): Entity {
         val randomParticleEffect =
             if (MathUtils.random() >= 0.15) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP_SMALL
@@ -187,7 +190,7 @@ class SpecialEffectsFactory(
                 btBoxShape(
                     flyingPartBoundingBox.getDimensions(
                         auxVector1
-                    ).scl(0.4F)
+                    ).scl(0.4F * shapeScale)
                 ),
                 CollisionFlags.CF_CHARACTER_OBJECT,
                 modelInstance.transform,

@@ -434,9 +434,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         targetY: Float
     ) {
         val elevatorBeforePosition = elevatorTransform.getTranslation(auxVector3)
-        elevatorTransform.lerp(auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z), 0.03F)
+        elevatorTransform.lerp(auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z), 0.06F)
         val newPosition = elevatorTransform.getTranslation(auxVector1)
-        newPosition.y = if (abs(newPosition.y - targetY) < 0.025F) targetY else newPosition.y
+        newPosition.y = if (abs(newPosition.y - targetY) < 0.03F) targetY else newPosition.y
         elevatorTransform.setTranslation(newPosition)
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,
