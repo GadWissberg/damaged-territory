@@ -13,11 +13,13 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
+import com.badlogic.gdx.physics.bullet.Bullet
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GameDebugSettings
+import com.gadarts.returnfire.assets.definitions.AutomaticShapeCreator
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -178,30 +180,41 @@ class MapInflater(
     ): PhysicsComponent {
         return gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
             entity,
-            createShapeForStaticObject(gameModelInstance.definition!!),
+            createShapeForStaticObject(gameModelInstance.definition!!, entity),
             mass,
             collisionFlags,
             gameModelInstance.modelInstance.transform, gravityScalar = 1F, friction = friction
         )
     }
 
-    private fun createShapeForStaticObject(modelDefinition: ModelDefinition): btCollisionShape {
+    private fun createShapeForStaticObject(modelDefinition: ModelDefinition, entity: Entity): btCollisionShape {
         val shape: btCollisionShape
-        if (modelDefinition.physicalShapeCreator == null) {
-            shape = btCompoundShape()
-            val dimensions =
-                auxBoundingBox.set(gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition))
-                    .getDimensions(
-                        auxVector3
-                    )
-            val btBoxShape = btBoxShape(
-                dimensions.scl(0.5F)
-            )
-            shape.addChildShape(
-                auxMatrix.idt().translate(0F, dimensions.y / 2F, 0F), btBoxShape
-            )
-        } else {
-            shape = modelDefinition.physicalShapeCreator.create()
+        when (modelDefinition.physicalShapeCreator) {
+            null -> {
+                shape = btCompoundShape()
+                val dimensions =
+                    auxBoundingBox.set(gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition))
+                        .getDimensions(
+                            auxVector3
+                        )
+                val btBoxShape = btBoxShape(
+                    dimensions.scl(0.5F)
+                )
+                shape.addChildShape(
+                    auxMatrix.idt().translate(0F, dimensions.y / 2F, 0F), btBoxShape
+                )
+            }
+
+            is AutomaticShapeCreator -> {
+                shape = Bullet.obtainStaticNodeShape(
+                    ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.nodes[0],
+                    true
+                )
+            }
+
+            else -> {
+                shape = modelDefinition.physicalShapeCreator.create()
+            }
         }
         return shape
     }
@@ -326,8 +339,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                    && definition != SimpleCharacterDefinition.APACHE
-                    && definition != TurretCharacterDefinition.TANK
+                && definition != SimpleCharacterDefinition.APACHE
+                && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -537,9 +550,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.currentMap.tilesMapping.size
-            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+        && col >= 0
+        && row < gameSessionData.mapData.currentMap.tilesMapping.size
+        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

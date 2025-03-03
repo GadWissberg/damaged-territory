@@ -5,12 +5,11 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.model.definitions.AmbDefinition
 
 class AmbComponent(val rotation: Float, val def: AmbDefinition, scale: Vector3) : Component {
-    var destroyed: Boolean = false
+    var hp: Int = def.hp
     private val scale = Vector3()
 
     init {
         this.scale.set(scale)
-        this.destroyed = false
     }
 
     fun getScale(output: Vector3): Vector3 {

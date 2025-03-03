@@ -17,6 +17,9 @@ const elementsDefinitions = Object.freeze([
   { name: "BUILDING_FLAG", type: "AMB" },
   { name: "BASE_BROWN", type: "AMB" },
   { name: "BASE_GREEN", type: "AMB" },
+  { name: "ROCK_BIG", type: "AMB" },
+  { name: "ROCK_MED", type: "AMB" },
+  { name: "ROCK_SMALL", type: "AMB" },
   { name: "TURRET_CANNON", type: "CHARACTER" },
 ]);
 const Directions = Object.freeze({ east: 0, north: 90, west: 180, south: 270 });

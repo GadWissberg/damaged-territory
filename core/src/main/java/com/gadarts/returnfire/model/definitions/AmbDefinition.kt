@@ -10,14 +10,15 @@ enum class AmbDefinition(
     val collisionFlags: Int = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
     val placeInMiddleOfCell: Boolean = true,
     private val scale: Float = 1F,
-    val destroyable: Boolean = false,
-    val mass: Float = 0F
+    val hp: Int = -1,
+    val mass: Float = 0F,
+    val destroyedByExplosiveOnly: Boolean = false,
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
         randomizeRotation = true,
         collisionFlags = btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT,
-        destroyable = true,
+        hp = 1,
         mass = 1F
     ),
     WATCH_TOWER(ModelDefinition.WATCH_TOWER),
@@ -32,7 +33,10 @@ enum class AmbDefinition(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
         placeInMiddleOfCell = false
-    );
+    ),
+    ROCK_BIG(modelDefinition = ModelDefinition.ROCK_BIG, hp = 3, destroyedByExplosiveOnly = true),
+    ROCK_MED(modelDefinition = ModelDefinition.ROCK_MED, hp = 2, destroyedByExplosiveOnly = true),
+    ROCK_SMALL(modelDefinition = ModelDefinition.ROCK_SMALL, hp = 1, destroyedByExplosiveOnly = true);
 
 
     override fun getModelDefinition(): ModelDefinition {

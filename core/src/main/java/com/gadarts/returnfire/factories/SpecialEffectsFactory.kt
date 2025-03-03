@@ -78,7 +78,13 @@ class SpecialEffectsFactory(
         )
     }
 
-    fun generateFlyingParts(character: Entity) {
+    fun generateFlyingParts(
+        character: Entity,
+        modelDefinition: ModelDefinition = ModelDefinition.FLYING_PART,
+        min: Int = 2,
+        max: Int = 4,
+        mass: Float = 1F
+    ) {
         val transform = if (ComponentsMapper.turretBase.has(character)) {
             val turretModelInstanceComponent =
                 ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
@@ -87,8 +93,8 @@ class SpecialEffectsFactory(
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         }
         transform.getTranslation(auxVector2)
-        val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART)
-        generateFlyingParts(auxVector2, model, 1F)
+        val model = assetsManager.getAssetByDefinition(modelDefinition)
+        generateFlyingParts(auxVector2, model, 1F, min, max, mass)
     }
 
     fun generateSmallFlyingParts(position: Vector3) {
@@ -149,21 +155,25 @@ class SpecialEffectsFactory(
     private fun generateFlyingParts(
         position: Vector3,
         model: Model,
-        shapeScale: Float
+        shapeScale: Float,
+        min: Int = 2,
+        max: Int = 4,
+        mass: Float = 1F
     ) {
-        val numberOfFlyingParts = MathUtils.random(2, 4)
+        val numberOfFlyingParts = MathUtils.random(min, max)
         for (i in 0 until numberOfFlyingParts) {
-            addFlyingPart(position, model, shapeScale)
+            addFlyingPart(position, model, shapeScale, mass)
         }
     }
 
     private fun addFlyingPart(
         @Suppress("SameParameterValue") position: Vector3,
         model: Model,
-        shapeScale: Float
+        shapeScale: Float,
+        mass: Float = 1F
     ) {
         val modelInstance = ModelInstance(model)
-        val flyingPart = createFlyingPartEntity(modelInstance, position, shapeScale)
+        val flyingPart = createFlyingPartEntity(modelInstance, position, shapeScale, mass)
         ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.1F, 0.2F)
         makeFlyingPartFlyAway(flyingPart)
     }
@@ -171,7 +181,8 @@ class SpecialEffectsFactory(
     private fun createFlyingPartEntity(
         modelInstance: ModelInstance,
         position: Vector3,
-        shapeScale: Float
+        shapeScale: Float,
+        mass: Float = 1F
     ): Entity {
         val randomParticleEffect =
             if (MathUtils.random() >= 0.15) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP_SMALL
@@ -179,7 +190,7 @@ class SpecialEffectsFactory(
             .begin()
             .addModelInstanceComponent(
                 GameModelInstance(modelInstance, ModelDefinition.FLYING_PART),
-                auxVector1.set(position).add(
+                auxVector1.set(position).add(0F, 0.1F, 0F).add(
                     MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
                     MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
                     MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS)
@@ -195,6 +206,7 @@ class SpecialEffectsFactory(
                 CollisionFlags.CF_CHARACTER_OBJECT,
                 modelInstance.transform,
                 1F,
+                mass
             )
             .addParticleEffectComponent(
                 modelInstance.transform.getTranslation(auxVector1),
@@ -230,7 +242,7 @@ class SpecialEffectsFactory(
         private val auxVector2 = Vector3()
         private val auxQuat = Quaternion()
         private const val MED_EXPLOSION_DEATH_SEQUENCE_BIAS = 0.1F
-        private const val FLYING_PART_POSITION_MAX_BIAS = 0.2F
+        private const val FLYING_PART_POSITION_MAX_BIAS = 0.4F
     }
 
 }

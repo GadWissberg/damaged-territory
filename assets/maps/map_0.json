@@ -226,9 +226,9 @@
       "col": 23
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "ROCK_BIG",
       "type": "AMB",
-      "direction": 0,
+      "direction": 90,
       "row": 23,
       "col": 25
     },
@@ -282,9 +282,9 @@
       "col": 23
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "ROCK_MED",
       "type": "AMB",
-      "direction": 0,
+      "direction": 90,
       "row": 24,
       "col": 25
     },
@@ -359,9 +359,9 @@
       "col": 23
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "ROCK_SMALL",
       "type": "AMB",
-      "direction": 0,
+      "direction": 90,
       "row": 25,
       "col": 25
     },

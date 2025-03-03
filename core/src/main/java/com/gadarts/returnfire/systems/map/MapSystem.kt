@@ -26,10 +26,12 @@ import com.gadarts.returnfire.components.BaseComponent
 import com.gadarts.returnfire.components.BaseDoorComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
+import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.AmbDefinition
@@ -210,33 +212,70 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
     private fun handleCollisionDestroyableAmbWithFastAndHeavyStuff(entity0: Entity, entity1: Entity): Boolean {
         val ambComponent = ComponentsMapper.amb.get(entity0) ?: return false
-        if (ambComponent.def.destroyable && !ambComponent.destroyed) {
+        val ambDefinition = ambComponent.def
+        if (ambDefinition.hp > 0 && ambComponent.hp > 0) {
             val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
-            val otherSpeed = otherRigidBody.linearVelocity.len2()
-            if (otherSpeed > 10F || otherSpeed > 0.1F && otherRigidBody.mass > 7) {
-                val bulletComponent = ComponentsMapper.bullet.get(entity1)
-                val isExplosive = bulletComponent != null && bulletComponent.explosive
+            val bulletComponent = ComponentsMapper.bullet.get(entity1)
+            if (ambDefinition == AmbDefinition.PALM_TREE) {
+                handleCollisionTreeWithFastAndHeavyStuff(
+                    otherRigidBody,
+                    bulletComponent,
+                    entity0
+                )
+            } else if (bulletComponent != null && bulletComponent.explosive && ambComponent.hp > 0) {
                 val position =
                     ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
                     )
-                if (bulletComponent != null) {
-                    if (isExplosive) {
-                        if (MathUtils.random() >= 0.5F) {
-                            createIndependentParticleEffect(position, FIRE_LOOP_SMALL)
-                        }
-                    } else {
-                        createIndependentParticleEffect(position, SMOKE)
-                    }
-                    destroyTree(entity0, isExplosive)
-                } else {
-                    val treeRigidBody = ComponentsMapper.physics.get(entity0).rigidBody
-                    treeRigidBody.activationState = Collision.DISABLE_DEACTIVATION
-                    treeRigidBody.collisionFlags = CollisionFlags.CF_CHARACTER_OBJECT
+                ambComponent.hp -= MathUtils.random(1, 2)
+                if (ambComponent.hp <= 0) {
+                    val isBigRock = ambDefinition == AmbDefinition.ROCK_BIG
+                    gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
+                        character = entity0,
+                        modelDefinition = if (isBigRock) ModelDefinition.ROCK_PART_BIG else ModelDefinition.ROCK_PART,
+                        min = if (isBigRock) 2 else 4,
+                        max = if (isBigRock) 3 else 8,
+                        mass = if (isBigRock) 3F else 0.5F
+                    )
+                    createIndependentParticleEffect(position, SMOKE)
+                    gamePlayManagers.soundPlayer.play(
+                        gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.ROCKS),
+                        position
+                    )
+                    destroyAmbObject(entity0)
                 }
             }
         }
         return true
+    }
+
+    private fun handleCollisionTreeWithFastAndHeavyStuff(
+        otherRigidBody: RigidBody,
+        bulletComponent: BulletComponent?,
+        entity0: Entity
+    ) {
+        val otherSpeed = otherRigidBody.linearVelocity.len2()
+        val isExplosive = bulletComponent != null && bulletComponent.explosive
+        val position =
+            ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        if (otherSpeed > 10F || otherSpeed > 0.1F && otherRigidBody.mass > 7) {
+            if (bulletComponent != null) {
+                if (isExplosive) {
+                    if (MathUtils.random() >= 0.5F) {
+                        createIndependentParticleEffect(position, FIRE_LOOP_SMALL)
+                    }
+                } else {
+                    createIndependentParticleEffect(position, SMOKE)
+                }
+                destroyTree(entity0, isExplosive)
+            } else {
+                val treeRigidBody = ComponentsMapper.physics.get(entity0).rigidBody
+                treeRigidBody.activationState = Collision.DISABLE_DEACTIVATION
+                treeRigidBody.collisionFlags = CollisionFlags.CF_CHARACTER_OBJECT
+            }
+        }
     }
 
     private fun createIndependentParticleEffect(position: Vector3, particleEffectDefinition: ParticleEffectDefinition) {
@@ -252,22 +291,30 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         tree: Entity,
         decorateWithSmokeAndFire: Boolean
     ) {
-        val ambComponent = ComponentsMapper.amb.get(tree)
-        if (ambComponent.def == AmbDefinition.PALM_TREE) {
-            blowToTreeParts(tree, ModelDefinition.PALM_TREE_LEAF, 1, 5, 0.5F, decorateWithSmokeAndFire)
-            blowToTreeParts(tree, ModelDefinition.PALM_TREE_PART, 1, 2, 1F, decorateWithSmokeAndFire)
-        }
+        blowToTreeParts(tree, ModelDefinition.PALM_TREE_LEAF, 1, 5, 0.5F, decorateWithSmokeAndFire)
+        blowToTreeParts(tree, ModelDefinition.PALM_TREE_PART, 1, 2, 1F, decorateWithSmokeAndFire)
         val position =
             ComponentsMapper.modelInstance.get(tree).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        gamePlayManagers.stainsHandler.addBigHole(position)
-        ambComponent.destroyed = true
-        engine.removeEntity(tree)
+        destroyAmbObject(tree)
         gamePlayManagers.soundPlayer.play(
             gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.TREE_FALL),
             position
         )
+    }
+
+    private fun destroyAmbObject(
+        entity: Entity
+    ) {
+        val position =
+            ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        val ambComponent = ComponentsMapper.amb.get(entity)
+        gamePlayManagers.stainsHandler.addBigHole(position)
+        ambComponent.hp = 0
+        engine.removeEntity(entity)
     }
 
     @Suppress("SameParameterValue")

@@ -64,7 +64,12 @@ enum class ModelDefinition(
     STAGE,
     PROPELLER,
     PIT,
-    PIT_DOOR;
+    PIT_DOOR,
+    ROCK_BIG(physicalShapeCreator = AutomaticShapeCreator),
+    ROCK_MED(physicalShapeCreator = AutomaticShapeCreator),
+    ROCK_SMALL(physicalShapeCreator = AutomaticShapeCreator),
+    ROCK_PART,
+    ROCK_PART_BIG;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
@@ -91,6 +96,13 @@ enum class ModelDefinition(
 
     override fun getDefinitionName(): String {
         return name
+    }
+
+}
+
+object AutomaticShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        return btConvexHullShape()
     }
 
 }
