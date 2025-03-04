@@ -110,20 +110,6 @@
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
-      "row": 21,
-      "col": 25
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 21,
-      "col": 27
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
       "row": 22,
       "col": 11
     },
@@ -149,39 +135,11 @@
       "col": 23
     },
     {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 22,
-      "col": 25
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 22,
-      "col": 26
-    },
-    {
-      "definition": "PALM_TREE",
+      "definition": "BUILDING_0",
       "type": "AMB",
       "direction": 0,
       "row": 22,
       "col": 27
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 22,
-      "col": 28
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 22,
-      "col": 29
     },
     {
       "definition": "PALM_TREE",
@@ -231,27 +189,6 @@
       "direction": 90,
       "row": 23,
       "col": 25
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 23,
-      "col": 26
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 23,
-      "col": 27
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 23,
-      "col": 28
     },
     {
       "definition": "PALM_TREE",

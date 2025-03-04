@@ -36,7 +36,8 @@ enum class AmbDefinition(
     ),
     ROCK_BIG(modelDefinition = ModelDefinition.ROCK_BIG, hp = 3, destroyedByExplosiveOnly = true),
     ROCK_MED(modelDefinition = ModelDefinition.ROCK_MED, hp = 2, destroyedByExplosiveOnly = true),
-    ROCK_SMALL(modelDefinition = ModelDefinition.ROCK_SMALL, hp = 1, destroyedByExplosiveOnly = true);
+    ROCK_SMALL(modelDefinition = ModelDefinition.ROCK_SMALL, hp = 1, destroyedByExplosiveOnly = true),
+    BUILDING_0(modelDefinition = ModelDefinition.BUILDING_0, hp = 4, destroyedByExplosiveOnly = true);
 
 
     override fun getModelDefinition(): ModelDefinition {

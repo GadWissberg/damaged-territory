@@ -69,7 +69,8 @@ enum class ModelDefinition(
     ROCK_MED(physicalShapeCreator = AutomaticShapeCreator),
     ROCK_SMALL(physicalShapeCreator = AutomaticShapeCreator),
     ROCK_PART,
-    ROCK_PART_BIG;
+    ROCK_PART_BIG,
+    BUILDING_0(physicalShapeCreator = AutomaticShapeCreator);
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
