@@ -42,7 +42,7 @@ class SpecialEffectsFactory(
             waterSplashSounds.random(),
             position
         )
-        generateGroundBlast(
+        generateBlast(
             position,
             waterSplashFloorTexture,
             if (large) 2F else 0.5F,
@@ -52,11 +52,23 @@ class SpecialEffectsFactory(
         )
     }
 
-    fun generateExplosion(entity: Entity, blastRing: Boolean = false, addBiasToPosition: Boolean = true) {
+    fun generateExplosion(
+        entity: Entity,
+        blastRing: Boolean = false,
+        addBiasToPosition: Boolean = true,
+    ) {
         val transform = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector1)
+        generateExplosion(position, blastRing, addBiasToPosition)
+    }
+
+    fun generateExplosion(
+        position: Vector3,
+        blastRing: Boolean = false,
+        addBiasToPosition: Boolean = true,
+    ) {
         if (blastRing) {
-            generateGroundBlast(position, blastRingTexture, 0.1F, 8F, 500, 0.03F)
+            generateBlast(position, blastRingTexture, 0.1F, 8F, 500, 0.03F)
         }
         if (addBiasToPosition) {
             position.add(
@@ -102,7 +114,7 @@ class SpecialEffectsFactory(
         generateFlyingParts(position, model, 0.5F)
     }
 
-    fun generateGroundBlast(
+    fun generateBlast(
         position: Vector3,
         texture: Texture,
         startingScale: Float,
@@ -234,6 +246,17 @@ class SpecialEffectsFactory(
                     MathUtils.random(45F, 135F)
                 )
         ).scl(MathUtils.random(4F, 7F))
+    }
+
+    fun generateExplosionForCharacter(
+        character: Entity,
+        addBiasToPosition: Boolean = true,
+    ) {
+        val entity =
+            if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(
+                character
+            ).turret else character
+        generateExplosion(entity, addBiasToPosition)
     }
 
     companion object {

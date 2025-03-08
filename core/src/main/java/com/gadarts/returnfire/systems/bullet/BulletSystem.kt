@@ -339,7 +339,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun addBlastRing(
         position: Vector3
     ) {
-        gamePlayManagers.factories.specialEffectsFactory.generateGroundBlast(
+        gamePlayManagers.factories.specialEffectsFactory.generateBlast(
             position,
             blastRingTexture,
             0.1F,

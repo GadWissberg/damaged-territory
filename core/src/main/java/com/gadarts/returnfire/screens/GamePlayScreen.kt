@@ -109,7 +109,7 @@ class GamePlayScreen(
         systems = listOf(
             PhysicsSystem(gamePlayManagers),
             CharacterSystemImpl(gamePlayManagers),
-            ParticleEffectsSystem(gamePlayManagers),
+            EffectsSystem(gamePlayManagers),
             PlayerSystemImpl(gamePlayManagers),
             RenderSystem(gamePlayManagers),
             CameraSystem(gamePlayManagers),

@@ -15,7 +15,6 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
-import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
@@ -73,8 +72,54 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color },
                         { it })
             }
+        },
+        SystemEvents.DEATH_SEQUENCE_FINISHED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                if (!ComponentsMapper.character.has(msg.extraInfo as Entity)) return
+
+                destroyCharacter(msg, gamePlayManagers)
+            }
+        })
+
+    private fun destroyCharacter(
+        msg: Telegram,
+        gamePlayManagers: GamePlayManagers
+    ) {
+        val character = msg.extraInfo as Entity
+        val characterComponent = ComponentsMapper.character.get(character)
+        characterComponent.dead = true
+        if (ComponentsMapper.ambSound.has(character)) {
+            val ambSoundComponent = ComponentsMapper.ambSound.get(character)
+            ambSoundComponent.sound.stop(ambSoundComponent.soundId)
         }
-    )
+        gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(character)
+        for (i in 0 until MathUtils.random(3, 4)) {
+            gamePlayManagers.factories.specialEffectsFactory.generateExplosionForCharacter(character)
+        }
+        val isApache = characterComponent.definition == SimpleCharacterDefinition.APACHE
+        var planeCrashSoundId = -1L
+        if (isApache) {
+            planeCrashSoundId = gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
+                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+            )
+        }
+        if (isApache || characterComponent.definition == TurretCharacterDefinition.TANK) {
+            if (!ComponentsMapper.player.has(character)) {
+                if (MathUtils.random() >= 0.5F) {
+                    turnCharacterToCorpse(character, planeCrashSoundId)
+                } else {
+                    gibCharacter(character, planeCrashSoundId)
+                }
+            }
+        }
+        gamePlayManagers.dispatcher.dispatchMessage(
+            SystemEvents.CHARACTER_DIED.ordinal,
+            character
+        )
+    }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
@@ -131,7 +176,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
     private fun updateCharacters(deltaTime: Float) {
         for (character in charactersEntities) {
-            val hasAmbSound = ComponentsMapper.ambSound.has(character)
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
             val characterTransform =
                 modelInstanceComponent.gameModelInstance.modelInstance.transform
@@ -145,7 +189,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 child.decal.rotateX(90F)
                 child.decal.rotateZ(child.rotationStep.angleDeg())
             }
-            val hp = characterComponent.hp
             val boardingComponent = ComponentsMapper.boarding.get(
                 character
             )
@@ -186,7 +229,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                                 character
                             )
                         } else {
-                            takeStepForElevatorWithCharacter(stageTransform, character, StageComponent.BOTTOM_EDGE_Y)
+                            takeStepForElevatorWithCharacter(
+                                stageTransform,
+                                character,
+                                StageComponent.BOTTOM_EDGE_Y
+                            )
                         }
                         if (!isAlreadyDone) {
                             gamePlayManagers.dispatcher.dispatchMessage(
@@ -196,8 +243,15 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         }
                     }
                 }
-            } else if (!characterComponent.dead) {
-                if (characterComponent.deathSequenceDuration <= 0) {
+            } else {
+                val hp = characterComponent.hp
+                if (!characterComponent.dead && hp <= 0 && !ComponentsMapper.deathSequence.has(character)) {
+                    gamePlayManagers.ecs.entityBuilder.addDeathSequenceComponentToEntity(
+                        character,
+                        minExplosions = 2,
+                        maxExplosions = 4
+                    )
+                } else {
                     if (characterTransform.getTranslation(
                             auxVector1
                         ).y <= GameSessionDataMap.DROWNING_HEIGHT / 3
@@ -206,66 +260,25 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             SystemEvents.CHARACTER_DIED.ordinal,
                             character
                         )
-                    } else {
-                        val smokeEmission = characterComponent.smokeEmission
-                        if (hp <= 0 && characterComponent.deathSequenceDuration == 0) {
-                            characterComponent.beginDeathSequence()
-                        } else if (hp <= definition.getHP() / 2F && smokeEmission == null) {
-                            val position =
-                                characterTransform.getTranslation(
-                                    auxVector1
-                                )
-                            val smoke =
-                                gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
-                                    position = position,
-                                    pool = gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
-                                        ParticleEffectDefinition.SMOKE_UP_LOOP
-                                    ),
-                                    followRelativePosition = definition.getSmokeEmissionRelativePosition(
-                                        auxVector2
-                                    )
-                                ).finishAndAddToEngine()
-                            ComponentsMapper.particleEffect.get(smoke).followEntity = character
-                            characterComponent.smokeEmission = smoke
-                        }
                     }
-                } else if (characterComponent.deathSequenceNextExplosion < TimeUtils.millis()) {
-                    characterComponent.incrementDeathSequence()
-                    if (characterComponent.deathSequenceDuration <= 0) {
-                        characterComponent.dead = true
-                        if (hasAmbSound) {
-                            val ambSoundComponent = ComponentsMapper.ambSound.get(character)
-                            ambSoundComponent.sound.stop(ambSoundComponent.soundId)
-                        }
-                        gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(character)
-                        for (i in 0 until MathUtils.random(3, 4)) {
-                            addExplosion(character)
-                        }
-                        val isTank = definition == TurretCharacterDefinition.TANK
-                        var planeCrashSoundId = -1L
-                        if (isApache) {
-                            planeCrashSoundId = gamePlayManagers.soundPlayer.play(
-                                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
-                                modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
-                                    auxVector1
-                                )
+                    val smokeEmission = characterComponent.smokeEmission
+                    if (hp <= definition.getHP() / 2F && smokeEmission == null) {
+                        val position =
+                            characterTransform.getTranslation(
+                                auxVector1
                             )
-                        }
-                        if (isApache || isTank) {
-                            if (!ComponentsMapper.player.has(character)) {
-                                if (MathUtils.random() >= 0.5F) {
-                                    turnCharacterToCorpse(character, planeCrashSoundId)
-                                } else {
-                                    gibCharacter(character, planeCrashSoundId)
-                                }
-                            }
-                        }
-                        gamePlayManagers.dispatcher.dispatchMessage(
-                            SystemEvents.CHARACTER_DIED.ordinal,
-                            character
-                        )
-                    } else {
-                        addExplosion(character)
+                        val smoke =
+                            gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
+                                position = position,
+                                pool = gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
+                                    ParticleEffectDefinition.SMOKE_UP_LOOP
+                                ),
+                                followRelativePosition = definition.getSmokeEmissionRelativePosition(
+                                    auxVector2
+                                )
+                            ).finishAndAddToEngine()
+                        ComponentsMapper.particleEffect.get(smoke).followEntity = character
+                        characterComponent.smokeEmission = smoke
                     }
                 }
             }
@@ -281,8 +294,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_BACK)
         val gameModelInstanceFront =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_FRONT)
-        val frontBoundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_FRONT)
-        val backBoundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_BACK)
+        val frontBoundingBox =
+            gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_FRONT)
+        val backBoundingBox =
+            gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_BACK)
         val backShape = btCompoundShape()
         val btBackShapeMain = btBoxShape(Vector3(0.2F, 0.075F, 0.1F))
         val btBackShapeHorTail = btBoxShape(Vector3(0.05F, 0.05F, 0.135F))
@@ -420,21 +435,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         )
     }
 
-    private fun addExplosion(character: Entity) {
-        val entity =
-            if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(
-                character
-            ).turret else character
-        gamePlayManagers.factories.specialEffectsFactory.generateExplosion(entity, true)
-    }
-
     private fun takeStepForElevatorWithCharacter(
         elevatorTransform: Matrix4,
         character: Entity,
         targetY: Float
     ) {
         val elevatorBeforePosition = elevatorTransform.getTranslation(auxVector3)
-        elevatorTransform.lerp(auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z), 0.06F)
+        elevatorTransform.lerp(
+            auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z),
+            0.06F
+        )
         val newPosition = elevatorTransform.getTranslation(auxVector1)
         newPosition.y = if (abs(newPosition.y - targetY) < 0.03F) targetY else newPosition.y
         elevatorTransform.setTranslation(newPosition)

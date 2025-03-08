@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
@@ -22,10 +23,7 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.*
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.BaseComponent
-import com.gadarts.returnfire.components.BaseDoorComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.StageComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.DecalAnimation
@@ -169,6 +167,17 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                         TreeExplosionPushBackEffect
                     )
                 }
+            },
+            SystemEvents.DEATH_SEQUENCE_FINISHED to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    if (!ComponentsMapper.amb.has(msg.extraInfo as Entity)) return
+
+                    destroyAmbObject(msg.extraInfo as Entity)
+                }
             })
 
     object TreeExplosionPushBackEffect : ExplosionPushBackEffect {
@@ -212,41 +221,91 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
     private fun handleCollisionDestroyableAmbWithFastAndHeavyStuff(entity0: Entity, entity1: Entity): Boolean {
         val ambComponent = ComponentsMapper.amb.get(entity0) ?: return false
-        val ambDefinition = ambComponent.def
-        if (ambDefinition.hp > 0 && ambComponent.hp > 0) {
+
+        if (ambComponent.def.hp > 0 && ambComponent.hp > 0) {
             val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
             val bulletComponent = ComponentsMapper.bullet.get(entity1)
-            if (ambDefinition == AmbDefinition.PALM_TREE) {
+            if (ambComponent.def == AmbDefinition.PALM_TREE) {
                 handleCollisionTreeWithFastAndHeavyStuff(
                     otherRigidBody,
                     bulletComponent,
                     entity0
                 )
-            } else if (bulletComponent != null && bulletComponent.explosive && ambComponent.hp > 0) {
-                val position =
-                    ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
-                        auxVector1
-                    )
-                ambComponent.hp -= MathUtils.random(1, 2)
-                if (ambComponent.hp <= 0) {
-                    val isBigRock = ambDefinition == AmbDefinition.ROCK_BIG
-                    gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
-                        character = entity0,
-                        modelDefinition = if (isBigRock) ModelDefinition.ROCK_PART_BIG else ModelDefinition.ROCK_PART,
-                        min = if (isBigRock) 2 else 4,
-                        max = if (isBigRock) 3 else 8,
-                        mass = if (isBigRock) 3F else 0.5F
-                    )
-                    createIndependentParticleEffect(position, SMOKE)
-                    gamePlayManagers.soundPlayer.play(
-                        gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.ROCKS),
-                        position
-                    )
-                    destroyAmbObject(entity0)
-                }
+            } else if (bulletComponent != null && bulletComponent.explosive) {
+                handleCollisionHealthyAmbWithFastAndHeavyStuff(entity0, ambComponent)
             }
         }
         return true
+    }
+
+    private fun handleCollisionHealthyAmbWithFastAndHeavyStuff(
+        entity0: Entity,
+        ambComponent: AmbComponent
+    ) {
+        val gameModelInstance = ComponentsMapper.modelInstance.get(entity0).gameModelInstance
+        val position =
+            gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        val beforeHp = ambComponent.hp
+        ambComponent.hp -= MathUtils.random(1, 2)
+        val newHp = ambComponent.hp
+        val isBuilding = ambComponent.def == AmbDefinition.BUILDING_0
+        if (newHp <= 0) {
+            val isBigRock = ambComponent.def == AmbDefinition.ROCK_BIG
+            gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
+                character = entity0,
+                modelDefinition = if (isBigRock) ModelDefinition.ROCK_PART_BIG else ModelDefinition.ROCK_PART,
+                min = if (isBigRock) 2 else 4,
+                max = if (isBigRock) 3 else 8,
+                mass = if (isBigRock) 3F else 0.5F
+            )
+            createIndependentParticleEffect(position, SMOKE)
+            gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.ROCKS),
+                position
+            )
+            if (isBuilding) {
+                gamePlayManagers.ecs.entityBuilder.addDeathSequenceComponentToEntity(entity0, true, 6, 9)
+                createIndependentParticleEffect(position.add(0F, 1F, 0F), SMOKE_LOOP_HUGE)
+            } else {
+                destroyAmbObject(entity0)
+            }
+        } else {
+            createSmokeForBuilding(ambComponent, isBuilding, beforeHp, newHp, gameModelInstance)
+        }
+    }
+
+    private fun createSmokeForBuilding(
+        ambComponent: AmbComponent,
+        isBuilding: Boolean,
+        beforeHp: Int,
+        newHp: Int,
+        gameModelInstance: GameModelInstance,
+    ) {
+        val half = ambComponent.def.hp / 2F
+        if (isBuilding && beforeHp >= half && newHp < half) {
+            gameModelInstance.getBoundingBox(auxBoundingBox)
+            val particleEffectDefinition = SMOKE_LOOP_BIG
+            createIndependentParticleEffect(
+                GeneralUtils.getRandomPositionOnBoundingBox(auxBoundingBox, 0F),
+                particleEffectDefinition,
+                0
+            )
+            createIndependentParticleEffect(
+                GeneralUtils.getRandomPositionOnBoundingBox(auxBoundingBox, 0F),
+                particleEffectDefinition, 0
+            )
+            createIndependentParticleEffect(
+                GeneralUtils.getRandomPositionOnBoundingBox(auxBoundingBox, 0F),
+                particleEffectDefinition,
+                0
+            )
+            createIndependentParticleEffect(
+                GeneralUtils.getRandomPositionOnBoundingBox(auxBoundingBox, 0F),
+                particleEffectDefinition, 0
+            )
+        }
     }
 
     private fun handleCollisionTreeWithFastAndHeavyStuff(
@@ -278,12 +337,16 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         }
     }
 
-    private fun createIndependentParticleEffect(position: Vector3, particleEffectDefinition: ParticleEffectDefinition) {
+    private fun createIndependentParticleEffect(
+        position: Vector3,
+        particleEffectDefinition: ParticleEffectDefinition,
+        ttlInSeconds: Int = MathUtils.random(10, 20)
+    ) {
         gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
             position,
             gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
                 particleEffectDefinition
-            ), ttlInSeconds = MathUtils.random(10, 20)
+            ), ttlInSeconds = ttlInSeconds
         ).finishAndAddToEngine()
     }
 
@@ -697,5 +760,6 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         private val auxVector3 = Vector3()
         private val auxMatrix = Matrix4()
         private val auxQuat = Quaternion()
+        private val auxBoundingBox = BoundingBox()
     }
 }

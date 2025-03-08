@@ -12,6 +12,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.AmbAnimationComponent
+import com.gadarts.returnfire.components.DeathSequenceComponent
 import com.gadarts.returnfire.components.TreeComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -157,4 +158,11 @@ interface EntityBuilder {
 
     fun addFlyingPartComponent(): EntityBuilder
     fun addTreeComponentToEntity(entity: Entity): TreeComponent
+    fun addDeathSequenceComponent(): EntityBuilder
+    fun addDeathSequenceComponentToEntity(
+        entity: Entity,
+        createExplosionsAround: Boolean = false,
+        minExplosions: Int,
+        maxExplosions: Int
+    ): DeathSequenceComponent
 }

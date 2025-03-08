@@ -432,6 +432,22 @@ class EntityBuilderImpl : EntityBuilder {
         return treeComponent
     }
 
+    override fun addDeathSequenceComponent(): EntityBuilder {
+        addDeathSequenceComponentToEntity(entity!!, minExplosions = 2, maxExplosions = 4)
+        return this
+    }
+
+    override fun addDeathSequenceComponentToEntity(
+        entity: Entity,
+        createExplosionsAround: Boolean,
+        minExplosions: Int,
+        maxExplosions: Int
+    ): DeathSequenceComponent {
+        val deathSequenceComponent = DeathSequenceComponent(createExplosionsAround, minExplosions, maxExplosions)
+        entity.add(deathSequenceComponent)
+        return deathSequenceComponent
+    }
+
     private fun createParticleEffectComponent(
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,

@@ -12,15 +12,18 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.DeathSequenceComponent
 import com.gadarts.returnfire.components.ParticleEffectComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.utils.GeneralUtils
 
 
-class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(
             SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY to object : HandlerOnEvent {
@@ -38,6 +41,14 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
         engine.getEntitiesFor(
             Family.all(
                 ParticleEffectComponent::class.java,
+            ).get()
+        )
+    }
+
+    private val deathSequenceEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(
+                DeathSequenceComponent::class.java
             ).get()
         )
     }
@@ -66,7 +77,45 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
         particleEntitiesToRemove.clear()
         updateParticleEffectsComponents()
         removeParticleEffectsMarkedToBeRemoved()
+        updateDeathSequences()
     }
+
+    private fun updateDeathSequences() {
+        for (entity in deathSequenceEntities) {
+            val deathSequenceComponent = ComponentsMapper.deathSequence.get(entity)
+            if (deathSequenceComponent.deathSequenceDuration <= 0) {
+                gamePlayManagers.dispatcher.dispatchMessage(
+                    SystemEvents.DEATH_SEQUENCE_FINISHED.ordinal,
+                    entity
+                )
+                entity.remove(DeathSequenceComponent::class.java)
+            } else if (deathSequenceComponent.deathSequenceNextExplosion < TimeUtils.millis()) {
+                deathSequenceComponent.incrementDeathSequence()
+                val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
+                if (ComponentsMapper.character.has(entity)) {
+                    specialEffectsFactory.generateExplosionForCharacter(
+                        character = entity,
+                    )
+                } else {
+                    if (deathSequenceComponent.createExplosionsAround) {
+                        val gameModelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
+                        val position = GeneralUtils.getRandomPositionOnBoundingBox(
+                            gameModelInstance.getBoundingBox(auxBoundingBox),
+                            0.5F
+                        )
+                        specialEffectsFactory.generateExplosion(
+                            position
+                        )
+                    } else {
+                        specialEffectsFactory.generateExplosion(
+                            entity
+                        )
+                    }
+                }
+            }
+        }
+    }
+
 
     override fun dispose() {
         gamePlayManagers.assetsManager.unloadParticleEffects()
@@ -156,5 +205,6 @@ class ParticleEffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySyst
     companion object {
         private val auxMatrix1 = Matrix4()
         private val auxVector = Vector3()
+        private val auxBoundingBox = BoundingBox()
     }
 }
