@@ -3,6 +3,7 @@ package com.gadarts.returnfire.components.model
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Pool
@@ -44,4 +45,7 @@ class ModelInstanceComponent : Component, Pool.Poolable {
     override fun reset() {
     }
 
+    companion object {
+        private val auxMatrix = Matrix4()
+    }
 }

@@ -66,6 +66,5 @@ enum class PooledObjectPhysicalDefinition(
                 return shape
             }
         },
-    ), ;
-
+    ),
 }

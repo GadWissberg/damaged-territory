@@ -38,6 +38,7 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GENERAL
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.MapInflater
 import kotlin.math.max
@@ -45,6 +46,8 @@ import kotlin.math.min
 
 class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
+    private val fallingBuildingsToRemove = ArrayList<Entity>()
+    private val fallingBuildings = ArrayList<Entity>()
     private val waterSplashHandler = WaterSplashHandler(gamePlayManagers.ecs.engine)
     private val fadingAwayHandler: FadingAwayHandler = FadingAwayHandler(gamePlayManagers.ecs.engine)
     private val mapSystemRelatedEntities = MapSystemRelatedEntities(gamePlayManagers.ecs.engine)
@@ -174,9 +177,21 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
-                    if (!ComponentsMapper.amb.has(msg.extraInfo as Entity)) return
+                    val entity = msg.extraInfo as Entity
+                    if (!ComponentsMapper.amb.has(entity)) return
 
-                    destroyAmbObject(msg.extraInfo as Entity)
+                    val rigidBody = ComponentsMapper.physics.get(entity).rigidBody
+                    val collisionWorld = gameSessionData.physicsData.collisionWorld
+                    collisionWorld.removeRigidBody(rigidBody)
+                    rigidBody.collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE
+                    collisionWorld.addRigidBody(
+                        rigidBody,
+                        COLLISION_GROUP_GENERAL,
+                        0
+                    )
+                    rigidBody.gravity = auxVector1.set(0F, -0.5F, 0F)
+                    rigidBody.activationState = Collision.DISABLE_DEACTIVATION
+                    fallingBuildings.add(entity)
                 }
             })
 
@@ -667,6 +682,41 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 }
             }
         }
+        updateFallingBuildings()
+    }
+
+    private fun updateFallingBuildings() {
+        for (fallingBuilding in fallingBuildings) {
+            val physicsComponent = ComponentsMapper.physics.get(fallingBuilding)
+            if (physicsComponent.rigidBody.worldTransform.getTranslation(auxVector1).y < -1.1F) {
+                auxMatrix.set(ComponentsMapper.modelInstance.get(fallingBuilding).gameModelInstance.modelInstance.transform)
+                destroyAmbObject(fallingBuilding)
+                val gameModelInstance = gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+                    ModelDefinition.BUILDING_0_DESTROYED_0
+                )
+                val position = auxMatrix.getTranslation(auxVector1)
+                auxMatrix.setTranslation(position.x, 0F, position.z)
+                val entityBuilder = gamePlayManagers.ecs.entityBuilder
+                val destroyedBuilding = entityBuilder.begin().addModelInstanceComponent(
+                    gameModelInstance,
+                    Vector3.Zero,
+                    gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.BUILDING_0_DESTROYED_0)
+                ).finishAndAddToEngine()
+                val transform = gameModelInstance.modelInstance.transform.set(auxMatrix)
+                entityBuilder.addPhysicsComponentToEntity(
+                    destroyedBuilding,
+                    ModelDefinition.BUILDING_0_DESTROYED_0.physicalShapeCreator!!.create(),
+                    0F,
+                    CollisionFlags.CF_STATIC_OBJECT,
+                    transform
+                )
+                fallingBuildingsToRemove.add(fallingBuilding)
+            }
+        }
+        for (fallingBuilding in fallingBuildingsToRemove) {
+            fallingBuildings.remove(fallingBuilding)
+        }
+        fallingBuildingsToRemove.clear()
     }
 
     private fun updateBaseDoors(base: Entity, deltaTime: Float) {

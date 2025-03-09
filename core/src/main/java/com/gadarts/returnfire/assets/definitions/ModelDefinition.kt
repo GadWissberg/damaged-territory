@@ -70,7 +70,9 @@ enum class ModelDefinition(
     ROCK_SMALL(physicalShapeCreator = AutomaticShapeCreator),
     ROCK_PART,
     ROCK_PART_BIG,
-    BUILDING_0(physicalShapeCreator = AutomaticShapeCreator);
+    BUILDING_0(physicalShapeCreator = AutomaticShapeCreator),
+    BUILDING_0_DESTROYED_0(physicalShapeCreator = Building0DestroyedShapeCreator),
+    BUILDING_0_DESTROYED_1(physicalShapeCreator = Building0DestroyedShapeCreator);
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
@@ -141,6 +143,18 @@ object TurretBasePhysicalShapeCreator : PhysicalShapeCreator {
             trapezoidShape.addPoint(vertex)
         }
         return trapezoidShape
+    }
+
+}
+
+object Building0DestroyedShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        val shape = btCompoundShape()
+        val btBoxShape = btBoxShape(Vector3(2F, 0.5F, 1F))
+        shape.addChildShape(
+            Matrix4().idt().translate(0F, 0.5F, 0F), btBoxShape
+        )
+        return shape
     }
 
 }
