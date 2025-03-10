@@ -151,7 +151,7 @@ object TurretBasePhysicalShapeCreator : PhysicalShapeCreator {
 object Building0DestroyedShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
         val shape = btCompoundShape()
-        val btBoxShape = btBoxShape(Vector3(2F, 0.5F, 1F))
+        val btBoxShape = btBoxShape(Vector3(2F, 0.25F, 1F))
         shape.addChildShape(
             Matrix4().idt().translate(0F, 0.5F, 0F), btBoxShape
         )

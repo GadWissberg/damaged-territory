@@ -66,6 +66,7 @@ class SpecialEffectsFactory(
         position: Vector3,
         blastRing: Boolean = false,
         addBiasToPosition: Boolean = true,
+        playSound: Boolean = true
     ) {
         if (blastRing) {
             generateBlast(position, blastRingTexture, 0.1F, 8F, 500, 0.03F)
@@ -84,10 +85,12 @@ class SpecialEffectsFactory(
         entityBuilder.begin().addParticleEffectComponent(
             position, explosionMedGameParticleEffectPool
         ).finishAndAddToEngine()
-        soundPlayer.play(
-            assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
-            position
-        )
+        if (playSound) {
+            soundPlayer.play(
+                assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+                position
+            )
+        }
     }
 
     fun generateFlyingParts(
