@@ -72,7 +72,8 @@ enum class ModelDefinition(
     ROCK_PART_BIG,
     BUILDING_0(physicalShapeCreator = AutomaticShapeCreator),
     BUILDING_0_DESTROYED_0(physicalShapeCreator = Building0DestroyedShapeCreator),
-    BUILDING_0_DESTROYED_1(physicalShapeCreator = Building0DestroyedShapeCreator);
+    BUILDING_0_DESTROYED_1(physicalShapeCreator = Building0DestroyedShapeCreator),
+    BUILDING_0_PART(fileNames = 2, pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BUILDING_0_PART);
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()

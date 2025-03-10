@@ -247,17 +247,18 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     entity0
                 )
             } else if (bulletComponent != null && bulletComponent.explosive) {
-                handleCollisionHealthyAmbWithFastAndHeavyStuff(entity0, ambComponent)
+                handleCollisionHealthyAmbWithFastAndHeavyStuff(entity0, entity1)
             }
         }
         return true
     }
 
     private fun handleCollisionHealthyAmbWithFastAndHeavyStuff(
-        entity0: Entity,
-        ambComponent: AmbComponent
+        amb: Entity,
+        otherCollider: Entity
     ) {
-        val gameModelInstance = ComponentsMapper.modelInstance.get(entity0).gameModelInstance
+        val ambComponent = ComponentsMapper.amb.get(amb)
+        val gameModelInstance = ComponentsMapper.modelInstance.get(amb).gameModelInstance
         val position =
             gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
@@ -265,29 +266,48 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val beforeHp = ambComponent.hp
         ambComponent.hp -= MathUtils.random(1, 2)
         val newHp = ambComponent.hp
-        val isBuilding = ambComponent.def == AmbDefinition.BUILDING_0
-        if (newHp <= 0) {
-            val isBigRock = ambComponent.def == AmbDefinition.ROCK_BIG
+        if (ambComponent.def.flyingPart != null) {
             gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
-                character = entity0,
-                modelDefinition = if (isBigRock) ModelDefinition.ROCK_PART_BIG else ModelDefinition.ROCK_PART,
-                min = if (isBigRock) 2 else 4,
-                max = if (isBigRock) 3 else 8,
-                mass = if (isBigRock) 3F else 0.5F
+                otherCollider,
+                ambComponent.def.flyingPart
             )
-            createIndependentParticleEffect(position, SMOKE)
-            gamePlayManagers.soundPlayer.play(
-                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.ROCKS),
-                position
-            )
-            if (isBuilding) {
-                gamePlayManagers.ecs.entityBuilder.addDeathSequenceComponentToEntity(entity0, true, 6, 9)
-                createIndependentParticleEffect(position.add(0F, 1F, 0F), SMOKE_LOOP_HUGE)
-            } else {
-                destroyAmbObject(entity0)
-            }
+        }
+        if (newHp <= 0) {
+            initiateAmbDestruction(ambComponent, amb, position)
         } else {
-            createSmokeForBuilding(ambComponent, isBuilding, beforeHp, newHp, gameModelInstance)
+            createSmokeForBuilding(
+                ambComponent,
+                ambComponent.def == AmbDefinition.BUILDING_0,
+                beforeHp,
+                newHp,
+                gameModelInstance
+            )
+        }
+    }
+
+    private fun initiateAmbDestruction(
+        ambComponent: AmbComponent,
+        amb: Entity,
+        position: Vector3
+    ) {
+        val isBigRock = ambComponent.def == AmbDefinition.ROCK_BIG
+        gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
+            character = amb,
+            modelDefinition = if (isBigRock) ModelDefinition.ROCK_PART_BIG else ModelDefinition.ROCK_PART,
+            min = if (isBigRock) 2 else 4,
+            max = if (isBigRock) 3 else 8,
+            mass = if (isBigRock) 3F else 0.5F
+        )
+        createIndependentParticleEffect(position, SMOKE)
+        gamePlayManagers.soundPlayer.play(
+            gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.ROCKS),
+            position
+        )
+        if (ambComponent.def == AmbDefinition.BUILDING_0) {
+            gamePlayManagers.ecs.entityBuilder.addDeathSequenceComponentToEntity(amb, true, 6, 9)
+            createIndependentParticleEffect(position.add(0F, 0F, 0F), SMOKE_BIG_RECTANGLE, ttlInSeconds = 0)
+        } else {
+            destroyAmbObject(amb)
         }
     }
 
@@ -369,12 +389,12 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         tree: Entity,
         decorateWithSmokeAndFire: Boolean
     ) {
-        blowToTreeParts(tree, ModelDefinition.PALM_TREE_LEAF, 1, 5, 0.5F, decorateWithSmokeAndFire)
-        blowToTreeParts(tree, ModelDefinition.PALM_TREE_PART, 1, 2, 1F, decorateWithSmokeAndFire)
         val position =
             ComponentsMapper.modelInstance.get(tree).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
+        blowAmbToParts(auxVector2.set(position), ModelDefinition.PALM_TREE_LEAF, 1, 5, 0.5F, decorateWithSmokeAndFire)
+        blowAmbToParts(auxVector2.set(position), ModelDefinition.PALM_TREE_PART, 1, 2, 1F, decorateWithSmokeAndFire)
         destroyAmbObject(tree)
         gamePlayManagers.soundPlayer.play(
             gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.TREE_FALL),
@@ -396,17 +416,17 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     @Suppress("SameParameterValue")
-    private fun blowToTreeParts(
-        tree: Entity,
+    private fun blowAmbToParts(
+        position: Vector3,
         modelDefinition: ModelDefinition,
         min: Int,
         max: Int,
         gravityScale: Float,
         decorateWithSmokeAndFire: Boolean
     ) {
-        val numberOfLeaves = MathUtils.random(min, max)
-        for (i in 0 until numberOfLeaves) {
-            val entity = createTreePartEntity(modelDefinition, tree)
+        val numberOfParts = MathUtils.random(min, max)
+        for (i in 0 until numberOfParts) {
+            val entity = createAmbPartEntity(modelDefinition, position)
             if (decorateWithSmokeAndFire && MathUtils.random() > 0.6F) {
                 gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
                     entity,
@@ -415,30 +435,27 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     ), ttlInSeconds = MathUtils.random(10, 20)
                 )
             }
-            addPhysicsToTreePart(
+            addPhysicsToAmbPart(
                 entity,
                 gravityScale,
             )
         }
     }
 
-    private fun createTreePartEntity(
+    private fun createAmbPartEntity(
         modelDefinition: ModelDefinition,
-        tree: Entity
+        position: Vector3
     ): Entity {
         val gameModelInstance = gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
             modelDefinition,
         )
-        val transform = ComponentsMapper.modelInstance.get(tree).gameModelInstance.modelInstance.transform
         val entity = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 model = gameModelInstance,
-                position = transform.getTranslation(
-                    auxVector1
-                ).add(
-                    MathUtils.random(-TREE_PART_CREATION_POSITION_BIAS, TREE_PART_CREATION_POSITION_BIAS),
-                    TREE_PART_CREATION_POSITION_BIAS,
-                    MathUtils.random(-TREE_PART_CREATION_POSITION_BIAS, TREE_PART_CREATION_POSITION_BIAS)
+                position = position.add(
+                    MathUtils.random(-AMB_PART_CREATION_POSITION_BIAS, AMB_PART_CREATION_POSITION_BIAS),
+                    AMB_PART_CREATION_POSITION_BIAS,
+                    MathUtils.random(-AMB_PART_CREATION_POSITION_BIAS, AMB_PART_CREATION_POSITION_BIAS)
                 ),
                 boundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition),
             )
@@ -448,7 +465,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         return entity
     }
 
-    private fun addPhysicsToTreePart(
+    private fun addPhysicsToAmbPart(
         entity: Entity,
         gravityScale: Float,
     ) {
@@ -688,35 +705,50 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     private fun updateFallingBuildings() {
         for (fallingBuilding in fallingBuildings) {
             val physicsComponent = ComponentsMapper.physics.get(fallingBuilding)
-            if (physicsComponent.rigidBody.worldTransform.getTranslation(auxVector1).y < -1.1F) {
-                auxMatrix.set(ComponentsMapper.modelInstance.get(fallingBuilding).gameModelInstance.modelInstance.transform)
-                destroyAmbObject(fallingBuilding)
-                val gameModelInstance = gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
-                    ModelDefinition.BUILDING_0_DESTROYED_0
-                )
-                val position = auxMatrix.getTranslation(auxVector1)
-                auxMatrix.setTranslation(position.x, 0F, position.z)
-                val entityBuilder = gamePlayManagers.ecs.entityBuilder
-                val destroyedBuilding = entityBuilder.begin().addModelInstanceComponent(
-                    gameModelInstance,
-                    Vector3.Zero,
-                    gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.BUILDING_0_DESTROYED_0)
-                ).finishAndAddToEngine()
-                val transform = gameModelInstance.modelInstance.transform.set(auxMatrix)
-                entityBuilder.addPhysicsComponentToEntity(
-                    destroyedBuilding,
-                    ModelDefinition.BUILDING_0_DESTROYED_0.physicalShapeCreator!!.create(),
-                    0F,
-                    CollisionFlags.CF_STATIC_OBJECT,
-                    transform
-                )
-                fallingBuildingsToRemove.add(fallingBuilding)
+            if (physicsComponent.rigidBody.worldTransform.getTranslation(auxVector1).y < -0.9F) {
+                fallingBuildingAnimationDone(fallingBuilding)
             }
         }
         for (fallingBuilding in fallingBuildingsToRemove) {
             fallingBuildings.remove(fallingBuilding)
         }
         fallingBuildingsToRemove.clear()
+    }
+
+    private fun fallingBuildingAnimationDone(fallingBuilding: Entity) {
+        auxMatrix.set(ComponentsMapper.modelInstance.get(fallingBuilding).gameModelInstance.modelInstance.transform)
+        destroyAmbObject(fallingBuilding)
+        val gameModelInstance = gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+            ModelDefinition.BUILDING_0_DESTROYED_0
+        )
+        val position = auxMatrix.getTranslation(auxVector1)
+        auxMatrix.setTranslation(position.x, 0F, position.z)
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder
+        val destroyedBuilding = entityBuilder.begin().addModelInstanceComponent(
+            gameModelInstance,
+            Vector3.Zero,
+            gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.BUILDING_0_DESTROYED_0)
+        ).finishAndAddToEngine()
+        val transform = gameModelInstance.modelInstance.transform.set(auxMatrix)
+        entityBuilder.addPhysicsComponentToEntity(
+            destroyedBuilding,
+            ModelDefinition.BUILDING_0_DESTROYED_0.physicalShapeCreator!!.create(),
+            0F,
+            CollisionFlags.CF_STATIC_OBJECT,
+            transform
+        )
+        fallingBuildingsToRemove.add(fallingBuilding)
+        val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
+        val sideBias = 1.5F
+        val height = 0.5F
+        auxMatrix.getTranslation(position)
+        specialEffectsFactory.generateExplosion(auxVector2.set(position).add(-sideBias, height, sideBias), true)
+        specialEffectsFactory.generateExplosion(auxVector2.set(position).add(sideBias, height, sideBias), true)
+        specialEffectsFactory.generateExplosion(auxVector2.set(position).add(sideBias, height, -sideBias), true)
+        specialEffectsFactory.generateExplosion(auxVector2.set(position).add(-sideBias, height, -sideBias), true)
+        specialEffectsFactory.generateExplosion(auxVector2.set(position).add(-sideBias, height, 0F), true)
+        specialEffectsFactory.generateExplosion(auxVector2.set(position).add(sideBias, height, 0F), true)
+        blowAmbToParts(position, ModelDefinition.BUILDING_0_PART, 2, 3, 0.5F, true)
     }
 
     private fun updateBaseDoors(base: Entity, deltaTime: Float) {
@@ -802,7 +834,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     companion object {
-        private const val TREE_PART_CREATION_POSITION_BIAS = 0.05F
+        private const val AMB_PART_CREATION_POSITION_BIAS = 0.05F
         private const val TREE_LEAF_IMPULSE_COMPONENT = 0.1F
         const val DOORS_DELAY = 1000F
         private val auxVector1 = Vector3()

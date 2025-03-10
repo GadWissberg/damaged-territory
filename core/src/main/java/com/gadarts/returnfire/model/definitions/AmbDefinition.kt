@@ -1,6 +1,5 @@
 package com.gadarts.returnfire.model.definitions
 
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.model.ElementType
@@ -13,7 +12,7 @@ enum class AmbDefinition(
     private val scale: Float = 1F,
     val hp: Int = -1,
     val mass: Float = 0F,
-    val destroyedByExplosiveOnly: Boolean = false,
+    val flyingPart: ModelDefinition? = null,
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -35,15 +34,15 @@ enum class AmbDefinition(
         collisionFlags = -1,
         placeInMiddleOfCell = false
     ),
-    ROCK_BIG(modelDefinition = ModelDefinition.ROCK_BIG, hp = 3, destroyedByExplosiveOnly = true),
-    ROCK_MED(modelDefinition = ModelDefinition.ROCK_MED, hp = 2, destroyedByExplosiveOnly = true),
-    ROCK_SMALL(modelDefinition = ModelDefinition.ROCK_SMALL, hp = 1, destroyedByExplosiveOnly = true),
+    ROCK_BIG(modelDefinition = ModelDefinition.ROCK_BIG, hp = 3, flyingPart = ModelDefinition.ROCK_PART),
+    ROCK_MED(modelDefinition = ModelDefinition.ROCK_MED, hp = 2, flyingPart = ModelDefinition.ROCK_PART),
+    ROCK_SMALL(modelDefinition = ModelDefinition.ROCK_SMALL, hp = 1, flyingPart = ModelDefinition.ROCK_PART),
     BUILDING_0(
         modelDefinition = ModelDefinition.BUILDING_0,
         collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
         mass = 1F,
         hp = 4,
-        destroyedByExplosiveOnly = true
+        flyingPart = ModelDefinition.ROCK_PART
     );
 
 
