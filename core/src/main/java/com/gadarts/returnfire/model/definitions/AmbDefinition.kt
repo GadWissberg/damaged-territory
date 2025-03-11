@@ -13,6 +13,8 @@ enum class AmbDefinition(
     val hp: Int = -1,
     val mass: Float = 0F,
     val flyingPart: ModelDefinition? = null,
+    val minFlyingParts: Int = 2,
+    val maxFlyingParts: Int = 4,
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -43,6 +45,15 @@ enum class AmbDefinition(
         mass = 1F,
         hp = 4,
         flyingPart = ModelDefinition.ROCK_PART
+    ),
+    ANTENNA(
+        modelDefinition = ModelDefinition.ANTENNA,
+        collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
+        mass = 0F,
+        hp = 2,
+        flyingPart = ModelDefinition.ANTENNA_PART,
+        minFlyingParts = 3,
+        maxFlyingParts = 5,
     );
 
 

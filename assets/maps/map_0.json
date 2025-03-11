@@ -93,6 +93,13 @@
       "col": 27
     },
     {
+      "definition": "ANTENNA",
+      "type": "AMB",
+      "direction": 0,
+      "row": 19,
+      "col": 23
+    },
+    {
       "definition": "ROCK_MED",
       "type": "AMB",
       "direction": 0,

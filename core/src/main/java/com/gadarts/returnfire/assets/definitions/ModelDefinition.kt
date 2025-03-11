@@ -71,9 +71,12 @@ enum class ModelDefinition(
     ROCK_PART,
     ROCK_PART_BIG,
     BUILDING_0(physicalShapeCreator = AutomaticShapeCreator),
-    BUILDING_0_DESTROYED_0(physicalShapeCreator = Building0DestroyedShapeCreator),
-    BUILDING_0_DESTROYED_1(physicalShapeCreator = Building0DestroyedShapeCreator),
-    BUILDING_0_PART(fileNames = 2, pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BUILDING_0_PART);
+    BUILDING_0_DESTROYED(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator),
+    BUILDING_0_PART(fileNames = 2, pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BUILDING_0_PART),
+    ANTENNA(physicalShapeCreator = AntennaShapeCreator),
+    ANTENNA_DESTROYED_BASE(physicalShapeCreator = AntennaDestroyedBaseShapeCreator),
+    ANTENNA_DESTROYED_BODY(physicalShapeCreator = AntennaDestroyedBodyShapeCreator),
+    ANTENNA_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART);
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
@@ -153,9 +156,42 @@ object Building0DestroyedShapeCreator : PhysicalShapeCreator {
         val shape = btCompoundShape()
         val btBoxShape = btBoxShape(Vector3(2F, 0.25F, 1F))
         shape.addChildShape(
+            Matrix4().idt().translate(0F, 0.125F, 0F), btBoxShape
+        )
+        return shape
+    }
+
+}
+
+object AntennaShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        val shape = btCompoundShape()
+        val btBoxShape = btBoxShape(Vector3(0.125F, 2.125F, 0.125F))
+        shape.addChildShape(
+            Matrix4().idt().translate(0F, 2.125F, 0F), btBoxShape
+        )
+        return shape
+    }
+
+}
+
+object AntennaDestroyedBaseShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        val shape = btCompoundShape()
+        val btBoxShape = btBoxShape(Vector3(0.125F, 0.5F, 0.125F))
+        shape.addChildShape(
             Matrix4().idt().translate(0F, 0.5F, 0F), btBoxShape
         )
         return shape
     }
 
 }
+
+object AntennaDestroyedBodyShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        val btBoxShape = btBoxShape(Vector3(0.125F, 2.5F, 0.125F))
+        return btBoxShape
+    }
+
+}
+

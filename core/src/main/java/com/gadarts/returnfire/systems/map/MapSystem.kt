@@ -274,7 +274,9 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         if (ambComponent.def.flyingPart != null) {
             gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
                 otherCollider,
-                ambComponent.def.flyingPart
+                ambComponent.def.flyingPart,
+                min = ambComponent.def.minFlyingParts,
+                max = ambComponent.def.maxFlyingParts,
             )
         }
         if (newHp <= 0) {
@@ -493,6 +495,13 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             .addFlyingPartComponent()
             .finishAndAddToEngine()
         fadingAwayHandler.add(entity)
+        gameModelInstance.modelInstance.transform.rotate(
+            auxQuat.idt().setEulerAngles(
+                MathUtils.random(0F, 360F),
+                MathUtils.random(0F, 360F),
+                MathUtils.random(0F, 360F)
+            )
+        )
         return entity
     }
 
@@ -507,7 +516,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             entity,
             gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(gameModelInstance.definition!!),
             CollisionFlags.CF_CHARACTER_OBJECT,
-            gameModelInstance.modelInstance.transform.trn(0F, 0.5F, 0F),
+            gameModelInstance.modelInstance.transform,
             gravityScale
         ).rigidBody.applyImpulse(
             auxVector1.set(
@@ -752,7 +761,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         auxMatrix.set(ComponentsMapper.modelInstance.get(fallingBuilding).gameModelInstance.modelInstance.transform)
         destroyAmbObject(fallingBuilding)
         val gameModelInstance = gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
-            ModelDefinition.BUILDING_0_DESTROYED_0
+            ModelDefinition.BUILDING_0_DESTROYED
         )
         val position = auxMatrix.getTranslation(auxVector4)
         auxMatrix.setTranslation(position.x, 0F, position.z)
@@ -760,12 +769,12 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val destroyedBuilding = entityBuilder.begin().addModelInstanceComponent(
             gameModelInstance,
             Vector3.Zero,
-            gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.BUILDING_0_DESTROYED_0)
+            gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.BUILDING_0_DESTROYED)
         ).finishAndAddToEngine()
         val transform = gameModelInstance.modelInstance.transform.set(auxMatrix)
         entityBuilder.addPhysicsComponentToEntity(
             destroyedBuilding,
-            ModelDefinition.BUILDING_0_DESTROYED_0.physicalShapeCreator!!.create(),
+            ModelDefinition.BUILDING_0_DESTROYED.physicalShapeCreator!!.create(),
             0F,
             CollisionFlags.CF_STATIC_OBJECT,
             transform
@@ -815,7 +824,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             2, 3,
             0.5F,
             true,
-            0.5F, 1F, 1.5F
+            2F, 4F, 1.5F
         )
     }
 
