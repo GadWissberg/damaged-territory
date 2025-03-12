@@ -165,4 +165,6 @@ interface EntityBuilder {
         minExplosions: Int,
         maxExplosions: Int
     ): DeathSequenceComponent
+
+    fun addAmbCorpsePart(): EntityBuilder
 }

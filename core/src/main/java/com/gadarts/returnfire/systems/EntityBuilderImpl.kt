@@ -448,6 +448,12 @@ class EntityBuilderImpl : EntityBuilder {
         return deathSequenceComponent
     }
 
+    override fun addAmbCorpsePart(): EntityBuilder {
+        val ambDeathPart = AmbCorpsePart()
+        entity!!.add(ambDeathPart)
+        return this
+    }
+
     private fun createParticleEffectComponent(
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,

@@ -2,6 +2,7 @@ package com.gadarts.returnfire.model.definitions
 
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.model.ElementType
 
 enum class AmbDefinition(
@@ -15,6 +16,8 @@ enum class AmbDefinition(
     val flyingPart: ModelDefinition? = null,
     val minFlyingParts: Int = 2,
     val maxFlyingParts: Int = 4,
+    val hasDeathSequence: Boolean = false,
+    val destructionSound: SoundDefinition? = null
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -36,15 +39,32 @@ enum class AmbDefinition(
         collisionFlags = -1,
         placeInMiddleOfCell = false
     ),
-    ROCK_BIG(modelDefinition = ModelDefinition.ROCK_BIG, hp = 3, flyingPart = ModelDefinition.ROCK_PART),
-    ROCK_MED(modelDefinition = ModelDefinition.ROCK_MED, hp = 2, flyingPart = ModelDefinition.ROCK_PART),
-    ROCK_SMALL(modelDefinition = ModelDefinition.ROCK_SMALL, hp = 1, flyingPart = ModelDefinition.ROCK_PART),
+    ROCK_BIG(
+        modelDefinition = ModelDefinition.ROCK_BIG,
+        hp = 3,
+        flyingPart = ModelDefinition.ROCK_PART,
+        destructionSound = SoundDefinition.ROCKS
+    ),
+    ROCK_MED(
+        modelDefinition = ModelDefinition.ROCK_MED,
+        hp = 2,
+        flyingPart = ModelDefinition.ROCK_PART,
+        destructionSound = SoundDefinition.ROCKS
+    ),
+    ROCK_SMALL(
+        modelDefinition = ModelDefinition.ROCK_SMALL,
+        hp = 1,
+        flyingPart = ModelDefinition.ROCK_PART,
+        destructionSound = SoundDefinition.ROCKS
+    ),
     BUILDING_0(
         modelDefinition = ModelDefinition.BUILDING_0,
         collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
         mass = 1F,
         hp = 4,
-        flyingPart = ModelDefinition.ROCK_PART
+        flyingPart = ModelDefinition.ROCK_PART,
+        hasDeathSequence = true,
+        destructionSound = SoundDefinition.ROCKS
     ),
     ANTENNA(
         modelDefinition = ModelDefinition.ANTENNA,
@@ -54,6 +74,7 @@ enum class AmbDefinition(
         flyingPart = ModelDefinition.ANTENNA_PART,
         minFlyingParts = 3,
         maxFlyingParts = 5,
+        destructionSound = SoundDefinition.METAL_BEND
     );
 
 

@@ -73,4 +73,6 @@ object ComponentsMapper {
         ComponentMapper.getFor(GhostPhysicsComponent::class.java)
     val deathSequence: ComponentMapper<DeathSequenceComponent> =
         ComponentMapper.getFor(DeathSequenceComponent::class.java)
+    val ambCorpsePart: ComponentMapper<AmbCorpsePart> =
+        ComponentMapper.getFor(AmbCorpsePart::class.java)
 }

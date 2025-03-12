@@ -32,7 +32,9 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
     MAJOR_IMPACT(3),
     ROCKS(2),
     FALLING_BUILDING,
-    EXPLOSION_HUGE;
+    EXPLOSION_HUGE,
+    METAL_BEND,
+    METAL_CRASH;
 
     private val paths = ArrayList<String>()
 

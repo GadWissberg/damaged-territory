@@ -70,7 +70,7 @@ enum class ModelDefinition(
     ROCK_SMALL(physicalShapeCreator = AutomaticShapeCreator),
     ROCK_PART,
     ROCK_PART_BIG,
-    BUILDING_0(physicalShapeCreator = AutomaticShapeCreator),
+    BUILDING_0(physicalShapeCreator = Building0ShapeCreator),
     BUILDING_0_DESTROYED(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator),
     BUILDING_0_PART(fileNames = 2, pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BUILDING_0_PART),
     ANTENNA(physicalShapeCreator = AntennaShapeCreator),
@@ -151,6 +151,18 @@ object TurretBasePhysicalShapeCreator : PhysicalShapeCreator {
 
 }
 
+object Building0ShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        val shape = btCompoundShape()
+        val btBoxShape = btBoxShape(Vector3(1.5F, 0.875F, 1F))
+        shape.addChildShape(
+            Matrix4().idt().translate(0F, 0.875F, 0F), btBoxShape
+        )
+        return shape
+    }
+
+}
+
 object Building0DestroyedShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
         val shape = btCompoundShape()
@@ -189,7 +201,7 @@ object AntennaDestroyedBaseShapeCreator : PhysicalShapeCreator {
 
 object AntennaDestroyedBodyShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
-        val btBoxShape = btBoxShape(Vector3(0.125F, 2.5F, 0.125F))
+        val btBoxShape = btBoxShape(Vector3(0.125F, 2.25F, 0.125F))
         return btBoxShape
     }
 
