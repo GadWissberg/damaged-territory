@@ -347,7 +347,9 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             modelDefinition = ModelDefinition.ROCK_PART_BIG,
             min = 2,
             max = 3,
-            mass = 3F
+            mass = 3F,
+            minForce = 8F,
+            maxForce = 14F
         )
     }
 

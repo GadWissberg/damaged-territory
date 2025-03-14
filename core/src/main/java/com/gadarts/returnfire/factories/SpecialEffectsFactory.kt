@@ -98,7 +98,9 @@ class SpecialEffectsFactory(
         modelDefinition: ModelDefinition = ModelDefinition.FLYING_PART,
         min: Int = 2,
         max: Int = 4,
-        mass: Float = 1F
+        mass: Float = 1F,
+        minForce: Float = 4F,
+        maxForce: Float = 7F
     ) {
         val transform = if (ComponentsMapper.turretBase.has(character)) {
             val turretModelInstanceComponent =
@@ -109,7 +111,7 @@ class SpecialEffectsFactory(
         }
         transform.getTranslation(auxVector2)
         val model = assetsManager.getAssetByDefinition(modelDefinition)
-        generateFlyingParts(auxVector2, model, 1F, min, max, mass)
+        generateFlyingParts(auxVector2, model, 1F, min, max, mass, minForce, maxForce)
     }
 
     fun generateSmallFlyingParts(position: Vector3) {
@@ -173,11 +175,13 @@ class SpecialEffectsFactory(
         shapeScale: Float,
         min: Int = 2,
         max: Int = 4,
-        mass: Float = 1F
+        mass: Float = 1F,
+        minForce: Float = 4F,
+        maxForce: Float = 7F
     ) {
         val numberOfFlyingParts = MathUtils.random(min, max)
         for (i in 0 until numberOfFlyingParts) {
-            addFlyingPart(position, model, shapeScale, mass)
+            addFlyingPart(position, model, shapeScale, mass, minForce, maxForce)
         }
     }
 
@@ -185,12 +189,14 @@ class SpecialEffectsFactory(
         @Suppress("SameParameterValue") position: Vector3,
         model: Model,
         shapeScale: Float,
-        mass: Float = 1F
+        mass: Float = 1F,
+        minForce: Float,
+        maxForce: Float
     ) {
         val modelInstance = ModelInstance(model)
         val flyingPart = createFlyingPartEntity(modelInstance, position, shapeScale, mass)
         ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.1F, 0.2F)
-        makeFlyingPartFlyAway(flyingPart)
+        makeFlyingPartFlyAway(flyingPart, minForce, maxForce)
     }
 
     private fun createFlyingPartEntity(
@@ -232,15 +238,15 @@ class SpecialEffectsFactory(
             .finishAndAddToEngine()
     }
 
-    private fun makeFlyingPartFlyAway(flyingPart: Entity) {
+    private fun makeFlyingPartFlyAway(flyingPart: Entity, minForce: Float, maxForce: Float) {
         val rigidBody = ComponentsMapper.physics.get(flyingPart).rigidBody
         rigidBody.applyCentralImpulse(
-            createRandomDirectionUpwards()
+            createRandomDirectionUpwards(minForce, maxForce)
         )
-        rigidBody.applyTorque(createRandomDirectionUpwards())
+        rigidBody.applyTorque(createRandomDirectionUpwards(minForce, maxForce))
     }
 
-    private fun createRandomDirectionUpwards(): Vector3 {
+    private fun createRandomDirectionUpwards(minForce: Float, maxForce: Float): Vector3 {
         return auxVector1.set(1F, 0F, 0F).mul(
             auxQuat.idt()
                 .setEulerAngles(
@@ -248,7 +254,7 @@ class SpecialEffectsFactory(
                     MathUtils.random(360F),
                     MathUtils.random(45F, 135F)
                 )
-        ).scl(MathUtils.random(4F, 7F))
+        ).scl(MathUtils.random(minForce, maxForce))
     }
 
     fun generateExplosionForCharacter(
