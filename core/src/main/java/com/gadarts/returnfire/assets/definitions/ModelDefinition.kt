@@ -232,7 +232,7 @@ object WatchTowerDestroyedPhysicalShapeCreator : PhysicalShapeCreator {
 
 object WatchTowerDestroyedPartPhysicalShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
-        return btBoxShape(Vector3(0.2F, 0.3F, 0.35F))
+        return btBoxShape(Vector3(0.1F, 0.15F, 0.17F))
     }
 
 }

@@ -19,7 +19,7 @@ enum class AmbDefinition(
     val hasDeathSequence: Boolean = false,
     val destructionSound: SoundDefinition? = null,
     val corpsePartCollisionSound: SoundDefinition? = null,
-    val corpsePartDestroyOnGroundImpact: Boolean = false
+    val corpsePartDestroyOnGroundImpact: Boolean = false,
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -36,7 +36,7 @@ enum class AmbDefinition(
         flyingPart = ModelDefinition.FLYING_PART,
         destructionSound = SoundDefinition.ROCKS,
         corpsePartCollisionSound = SoundDefinition.ROCKS,
-        corpsePartDestroyOnGroundImpact = true
+        corpsePartDestroyOnGroundImpact = true,
     ),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
     FLAG(ModelDefinition.FLAG),
@@ -71,6 +71,7 @@ enum class AmbDefinition(
     BUILDING_0(
         modelDefinition = ModelDefinition.BUILDING_0,
         collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
+        mass = 20F,
         hp = 4,
         flyingPart = ModelDefinition.ROCK_PART,
         hasDeathSequence = true,

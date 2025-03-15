@@ -387,7 +387,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
     private fun initiateAntennaDestruction(amb: Entity) {
         createAntennaBase(amb)
-        createAmbCorpsePart(ModelDefinition.ANTENNA_DESTROYED_BODY, amb, auxVector1.setZero(), 3F, 6F)
+        createAmbCorpsePart(ModelDefinition.ANTENNA_DESTROYED_BODY, amb, auxVector1.setZero(), 1.5F, 7F)
     }
 
     private fun createAmbCorpsePart(
@@ -691,7 +691,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         rigidBody: RigidBody,
         entity: Entity
     ) {
-        if (ambCorpsePart.destroyOnGroundImpact) {
+        if (ambCorpsePart.destroyOnGroundImpact && !(entity.isRemoving || entity.isScheduledForRemoval)) {
             val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
             specialEffectsFactory.generateExplosion(
                 rigidBody.worldTransform.getTranslation(auxVector1), blastRing = true, playSound = true
@@ -708,7 +708,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 blastRing = false,
                 playSound = false
             )
-            specialEffectsFactory.generateFlyingParts(entity, ModelDefinition.FLYING_PART, 3, 5)
+            specialEffectsFactory.generateFlyingParts(entity, ModelDefinition.WATCH_TOWER_DESTROYED_PART, 2, 3, 3F)
             engine.removeEntity(entity)
         }
     }
