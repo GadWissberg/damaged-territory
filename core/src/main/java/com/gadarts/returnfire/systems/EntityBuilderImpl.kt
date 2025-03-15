@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
@@ -448,8 +449,11 @@ class EntityBuilderImpl : EntityBuilder {
         return deathSequenceComponent
     }
 
-    override fun addAmbCorpsePart(): EntityBuilder {
-        val ambDeathPart = AmbCorpsePart()
+    override fun addAmbCorpsePart(
+        destroyOnGroundImpact: Boolean,
+        collisionSound: SoundDefinition?,
+    ): EntityBuilder {
+        val ambDeathPart = AmbCorpsePart(collisionSound, destroyOnGroundImpact)
         entity!!.add(ambDeathPart)
         return this
     }

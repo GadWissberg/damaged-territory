@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.AmbAnimationComponent
@@ -166,5 +167,5 @@ interface EntityBuilder {
         maxExplosions: Int
     ): DeathSequenceComponent
 
-    fun addAmbCorpsePart(): EntityBuilder
+    fun addAmbCorpsePart(destroyOnGroundImpact: Boolean, collisionSound: SoundDefinition?): EntityBuilder
 }

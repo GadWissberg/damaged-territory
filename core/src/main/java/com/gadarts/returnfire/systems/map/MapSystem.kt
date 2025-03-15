@@ -30,7 +30,6 @@ import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.RigidBody
-import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.AmbDefinition
@@ -332,17 +331,50 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             gamePlayManagers.ecs.entityBuilder.addDeathSequenceComponentToEntity(amb, true, 6, 9)
             createIndependentParticleEffect(position.add(0F, 0F, 0F), SMOKE_BIG_RECTANGLE, ttlInSeconds = 0)
         } else {
-            if (def == AmbDefinition.ANTENNA) {
-                initiateAntennaDestruction(amb, factories)
-            } else if (def == AmbDefinition.ROCK_BIG) {
-                initiateRockBigDestruction(factories, amb)
+            when (def) {
+                AmbDefinition.ANTENNA -> {
+                    initiateAntennaDestruction(amb)
+                }
+
+                AmbDefinition.ROCK_BIG -> {
+                    initiateRockBigDestruction(amb)
+                }
+
+                AmbDefinition.WATCH_TOWER -> {
+                    initiateWatchTowerDestruction(amb)
+                }
+
+                else -> {}
             }
             destroyAmbObject(amb)
         }
     }
 
-    private fun initiateRockBigDestruction(factories: Factories, amb: Entity) {
-        factories.specialEffectsFactory.generateFlyingParts(
+    private fun initiateWatchTowerDestruction(amb: Entity) {
+        gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
+            character = amb,
+            modelDefinition = ModelDefinition.ROCK_PART_BIG,
+            min = 2,
+            max = 3,
+            mass = 3F,
+            minForce = 8F,
+            maxForce = 14F
+        )
+        createAmbCorpsePart(
+            ModelDefinition.WATCH_TOWER_DESTROYED,
+            amb,
+            auxVector1.set(
+                0F,
+                gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.WATCH_TOWER).height / 2F,
+                0F
+            ),
+            6F,
+            12F
+        )
+    }
+
+    private fun initiateRockBigDestruction(amb: Entity) {
+        gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
             character = amb,
             modelDefinition = ModelDefinition.ROCK_PART_BIG,
             min = 2,
@@ -353,41 +385,51 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         )
     }
 
-    private fun initiateAntennaDestruction(amb: Entity, factories: Factories) {
+    private fun initiateAntennaDestruction(amb: Entity) {
+        createAntennaBase(amb)
+        createAmbCorpsePart(ModelDefinition.ANTENNA_DESTROYED_BODY, amb, auxVector1.setZero(), 3F, 6F)
+    }
+
+    private fun createAmbCorpsePart(
+        modelDefinition: ModelDefinition,
+        amb: Entity,
+        relativePosition: Vector3,
+        impulse: Float,
+        mass: Float
+    ) {
         auxMatrix.set(ComponentsMapper.modelInstance.get(amb).gameModelInstance.modelInstance.transform)
-        createAntennaBase(factories)
         val bodyGameModelInstance =
-            factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.ANTENNA_DESTROYED_BODY)
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(modelDefinition)
         val cachedBoundingBox =
-            gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.ANTENNA_DESTROYED_BODY)
-        gamePlayManagers.ecs.entityBuilder.begin()
+            gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition)
+        val def = ComponentsMapper.amb.get(amb).def
+        val ambCorpsePart = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 bodyGameModelInstance,
                 Vector3.Zero,
                 cachedBoundingBox
-            ).addAmbCorpsePart()
+            ).addAmbCorpsePart(def.corpsePartDestroyOnGroundImpact, def.corpsePartCollisionSound)
             .addPhysicsComponent(
-                ModelDefinition.ANTENNA_DESTROYED_BODY.physicalShapeCreator!!.create(),
+                modelDefinition.physicalShapeCreator!!.create(),
                 CollisionFlags.CF_CHARACTER_OBJECT,
                 bodyGameModelInstance.modelInstance.transform.set(auxMatrix).trn(
                     0F,
                     cachedBoundingBox.height / 2F,
                     0F
-                ),
-                1F,
-                6F
+                ).trn(relativePosition),
+                0.5F,
+                mass
             ).finishAndAddToEngine()
-        ComponentsMapper.physics.get(amb).rigidBody.applyImpulse(
-            auxVector1.setToRandomDirection().set(
-                auxVector1.x, 0F,
-                auxVector1.z
-            ).scl(3F), Vector3.Zero
+        ComponentsMapper.physics.get(ambCorpsePart).rigidBody.applyImpulse(
+            auxVector1.setToRandomDirection().scl(impulse), auxVector2.setToRandomDirection()
         )
+
     }
 
-    private fun createAntennaBase(factories: Factories) {
+    private fun createAntennaBase(amb: Entity) {
+        auxMatrix.set(ComponentsMapper.modelInstance.get(amb).gameModelInstance.modelInstance.transform)
         val baseGameModelInstance =
-            factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.ANTENNA_DESTROYED_BASE)
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.ANTENNA_DESTROYED_BASE)
         gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 baseGameModelInstance,
@@ -620,13 +662,17 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val roadComponent = ComponentsMapper.road.get(entity0)
         val physicsComponent = ComponentsMapper.physics.get(entity1)
         val result = false
-        if (ComponentsMapper.ground.has(entity0) && ComponentsMapper.ambCorpsePart.has(entity1)) {
+        val ambCorpsePart = ComponentsMapper.ambCorpsePart.get(entity1)
+        if (ComponentsMapper.ground.has(entity0) && ambCorpsePart != null) {
             val rigidBody = physicsComponent.rigidBody
-            if (rigidBody.linearVelocity.len2() > 4 && rigidBody.mass > 5) {
-                gamePlayManagers.soundPlayer.play(
-                    gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.METAL_CRASH),
-                    rigidBody.worldTransform.getTranslation(auxVector1)
-                )
+            if (rigidBody.linearVelocity.len2() > 4 && rigidBody.mass > 5 || ambCorpsePart.destroyOnGroundImpact) {
+                if (ambCorpsePart.collisionSound != null) {
+                    gamePlayManagers.soundPlayer.play(
+                        gamePlayManagers.assetsManager.getAssetByDefinition(ambCorpsePart.collisionSound),
+                        rigidBody.worldTransform.getTranslation(auxVector1)
+                    )
+                }
+                applyAmbCorpsePartDestructionOnGroundImpact(ambCorpsePart, rigidBody, entity1)
             }
             return result
         }
@@ -638,6 +684,33 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             return result
         }
         return result
+    }
+
+    private fun applyAmbCorpsePartDestructionOnGroundImpact(
+        ambCorpsePart: AmbCorpsePart,
+        rigidBody: RigidBody,
+        entity: Entity
+    ) {
+        if (ambCorpsePart.destroyOnGroundImpact) {
+            val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
+            specialEffectsFactory.generateExplosion(
+                rigidBody.worldTransform.getTranslation(auxVector1), blastRing = true, playSound = true
+            )
+            specialEffectsFactory.generateExplosion(
+                rigidBody.worldTransform.getTranslation(auxVector1),
+                addBiasToPosition = true,
+                blastRing = false,
+                playSound = false
+            )
+            specialEffectsFactory.generateExplosion(
+                rigidBody.worldTransform.getTranslation(auxVector1),
+                addBiasToPosition = true,
+                blastRing = false,
+                playSound = false
+            )
+            specialEffectsFactory.generateFlyingParts(entity, ModelDefinition.FLYING_PART, 3, 5)
+            engine.removeEntity(entity)
+        }
     }
 
     private fun handleCollisionRoadWithBullets(entity0: Entity, entity1: Entity): Boolean {

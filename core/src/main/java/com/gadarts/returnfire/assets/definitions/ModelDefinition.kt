@@ -37,6 +37,8 @@ enum class ModelDefinition(
     PALM_TREE_LEAF(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_LEAF),
     PALM_TREE_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_PART),
     WATCH_TOWER(physicalShapeCreator = WatchTowerPhysicalShapeCreator),
+    WATCH_TOWER_DESTROYED(physicalShapeCreator = WatchTowerDestroyedPhysicalShapeCreator),
+    WATCH_TOWER_DESTROYED_PART(fileNames = 2, physicalShapeCreator = WatchTowerDestroyedPartPhysicalShapeCreator),
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,
     FLAG,
@@ -75,7 +77,9 @@ enum class ModelDefinition(
     BUILDING_0_PART(fileNames = 2, pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BUILDING_0_PART),
     ANTENNA(physicalShapeCreator = AntennaShapeCreator),
     ANTENNA_DESTROYED_BASE(physicalShapeCreator = AntennaDestroyedBaseShapeCreator),
-    ANTENNA_DESTROYED_BODY(physicalShapeCreator = AntennaDestroyedBodyShapeCreator),
+    ANTENNA_DESTROYED_BODY(
+        physicalShapeCreator = AntennaDestroyedBodyShapeCreator,
+    ),
     ANTENNA_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART);
 
     private val pathFormat = "models/%s.g3dj"
@@ -215,6 +219,20 @@ object WatchTowerPhysicalShapeCreator : PhysicalShapeCreator {
             Matrix4().idt().translate(0F, 0.9F, 0F), btBoxShape
         )
         return shape
+    }
+
+}
+
+object WatchTowerDestroyedPhysicalShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        return btBoxShape(Vector3(0.35F, 0.25F, 0.4F))
+    }
+
+}
+
+object WatchTowerDestroyedPartPhysicalShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        return btBoxShape(Vector3(0.2F, 0.3F, 0.35F))
     }
 
 }

@@ -17,7 +17,9 @@ enum class AmbDefinition(
     val minFlyingParts: Int = 2,
     val maxFlyingParts: Int = 4,
     val hasDeathSequence: Boolean = false,
-    val destructionSound: SoundDefinition? = null
+    val destructionSound: SoundDefinition? = null,
+    val corpsePartCollisionSound: SoundDefinition? = null,
+    val corpsePartDestroyOnGroundImpact: Boolean = false
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -26,7 +28,16 @@ enum class AmbDefinition(
         hp = 1,
         mass = 1F
     ),
-    WATCH_TOWER(ModelDefinition.WATCH_TOWER),
+    WATCH_TOWER(
+        modelDefinition = ModelDefinition.WATCH_TOWER,
+        hp = 3,
+        minFlyingParts = 3,
+        maxFlyingParts = 5,
+        flyingPart = ModelDefinition.FLYING_PART,
+        destructionSound = SoundDefinition.ROCKS,
+        corpsePartCollisionSound = SoundDefinition.ROCKS,
+        corpsePartDestroyOnGroundImpact = true
+    ),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
     FLAG(ModelDefinition.FLAG),
     BASE_BROWN(
@@ -60,7 +71,6 @@ enum class AmbDefinition(
     BUILDING_0(
         modelDefinition = ModelDefinition.BUILDING_0,
         collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
-        mass = 1F,
         hp = 4,
         flyingPart = ModelDefinition.ROCK_PART,
         hasDeathSequence = true,
@@ -68,13 +78,12 @@ enum class AmbDefinition(
     ),
     ANTENNA(
         modelDefinition = ModelDefinition.ANTENNA,
-        collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
-        mass = 0F,
         hp = 2,
         flyingPart = ModelDefinition.ANTENNA_PART,
         minFlyingParts = 3,
         maxFlyingParts = 5,
-        destructionSound = SoundDefinition.METAL_BEND
+        destructionSound = SoundDefinition.METAL_BEND,
+        corpsePartCollisionSound = SoundDefinition.METAL_CRASH
     );
 
 
