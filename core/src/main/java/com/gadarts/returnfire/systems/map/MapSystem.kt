@@ -253,17 +253,55 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         if (ambComponent.def.hp > 0 && ambComponent.hp > 0) {
             val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
             val bulletComponent = ComponentsMapper.bullet.get(entity1)
-            if (ambComponent.def == AmbDefinition.PALM_TREE) {
-                handleCollisionTreeWithFastAndHeavyStuff(
-                    otherRigidBody,
-                    bulletComponent,
-                    entity0
-                )
+            if (!ambComponent.def.destroyedByExplosiveOnly) {
+                destroyLightweightAmb(otherRigidBody, bulletComponent, entity0, ambComponent)
             } else if (bulletComponent != null && bulletComponent.explosive) {
                 handleCollisionHealthyAmbWithFastAndHeavyStuff(entity0, entity1)
             }
         }
         return true
+    }
+
+    private fun destroyLightweightAmb(
+        otherRigidBody: RigidBody,
+        bulletComponent: BulletComponent?,
+        affectedEntity: Entity,
+        ambComponent: AmbComponent
+    ) {
+        val otherSpeed = otherRigidBody.linearVelocity.len2()
+        val isExplosive = bulletComponent != null && bulletComponent.explosive
+        val position =
+            ComponentsMapper.modelInstance.get(affectedEntity).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        if (otherSpeed > 10F || otherSpeed > 0.1F && otherRigidBody.mass > 7) {
+            ambComponent.hp = 0
+            if (bulletComponent != null) {
+                if (isExplosive) {
+                    if (MathUtils.random() >= 0.5F) {
+                        createIndependentParticleEffect(position, FIRE_LOOP_SMALL)
+                    }
+                } else {
+                    createIndependentParticleEffect(position, SMOKE)
+                }
+            }
+            if (ambComponent.def == AmbDefinition.PALM_TREE) {
+                destroyTree(affectedEntity, isExplosive)
+            }
+            if ((ambComponent.def.stayOnDeath)) {
+                val rigidBody = ComponentsMapper.physics.get(affectedEntity).rigidBody
+                rigidBody.activationState = Collision.DISABLE_DEACTIVATION
+                rigidBody.collisionFlags = CollisionFlags.CF_CHARACTER_OBJECT
+                if (ambComponent.def == AmbDefinition.STREET_LIGHT) {
+                    gamePlayManagers.ecs.entityBuilder.begin().addParticleEffectComponent(
+                        position,
+                        gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(
+                            SPARK_MED
+                        )
+                    ).finishAndAddToEngine()
+                }
+            }
+        }
     }
 
     private fun handleCollisionHealthyAmbWithFastAndHeavyStuff(
@@ -473,35 +511,6 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 GeneralUtils.getRandomPositionOnBoundingBox(auxBoundingBox, 0F),
                 particleEffectDefinition, 0
             )
-        }
-    }
-
-    private fun handleCollisionTreeWithFastAndHeavyStuff(
-        otherRigidBody: RigidBody,
-        bulletComponent: BulletComponent?,
-        entity0: Entity
-    ) {
-        val otherSpeed = otherRigidBody.linearVelocity.len2()
-        val isExplosive = bulletComponent != null && bulletComponent.explosive
-        val position =
-            ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
-                auxVector1
-            )
-        if (otherSpeed > 10F || otherSpeed > 0.1F && otherRigidBody.mass > 7) {
-            if (bulletComponent != null) {
-                if (isExplosive) {
-                    if (MathUtils.random() >= 0.5F) {
-                        createIndependentParticleEffect(position, FIRE_LOOP_SMALL)
-                    }
-                } else {
-                    createIndependentParticleEffect(position, SMOKE)
-                }
-                destroyTree(entity0, isExplosive)
-            } else {
-                val treeRigidBody = ComponentsMapper.physics.get(entity0).rigidBody
-                treeRigidBody.activationState = Collision.DISABLE_DEACTIVATION
-                treeRigidBody.collisionFlags = CollisionFlags.CF_CHARACTER_OBJECT
-            }
         }
     }
 

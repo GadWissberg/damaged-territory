@@ -107,9 +107,9 @@
       "col": 24
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
-      "direction": 0,
+      "direction": 270,
       "row": 20,
       "col": 25
     },
@@ -128,9 +128,9 @@
       "col": 28
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
-      "direction": 0,
+      "direction": 270,
       "row": 20,
       "col": 29
     },
@@ -191,25 +191,18 @@
       "col": 22
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
       "direction": 0,
       "row": 22,
       "col": 23
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
       "direction": 90,
       "row": 22,
-      "col": 25
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "direction": 0,
-      "row": 22,
-      "col": 26
+      "col": 27
     },
     {
       "definition": "PALM_TREE",
@@ -324,7 +317,7 @@
       "col": 23
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
       "direction": 180,
       "row": 24,
@@ -373,6 +366,13 @@
       "col": 31
     },
     {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "direction": 180,
+      "row": 24,
+      "col": 33
+    },
+    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
@@ -392,13 +392,6 @@
       "direction": 0,
       "row": 25,
       "col": 21
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 25,
-      "col": 23
     },
     {
       "definition": "ROCK_SMALL",
@@ -471,16 +464,16 @@
       "col": 20
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
       "direction": 0,
       "row": 26,
       "col": 23
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
-      "direction": 0,
+      "direction": 270,
       "row": 26,
       "col": 25
     },
@@ -492,9 +485,9 @@
       "col": 26
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
-      "direction": 0,
+      "direction": 270,
       "row": 26,
       "col": 27
     },
@@ -506,9 +499,9 @@
       "col": 28
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
-      "direction": 0,
+      "direction": 270,
       "row": 26,
       "col": 29
     },
@@ -520,9 +513,9 @@
       "col": 30
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "STREET_LIGHT",
       "type": "AMB",
-      "direction": 0,
+      "direction": 270,
       "row": 26,
       "col": 31
     },

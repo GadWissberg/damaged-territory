@@ -20,13 +20,16 @@ enum class AmbDefinition(
     val destructionSound: SoundDefinition? = null,
     val corpsePartCollisionSound: SoundDefinition? = null,
     val corpsePartDestroyOnGroundImpact: Boolean = false,
+    val stayOnDeath: Boolean = false,
+    val destroyedByExplosiveOnly: Boolean = true
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
         randomizeRotation = true,
         collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
         hp = 1,
-        mass = 1F
+        mass = 1F,
+        destroyedByExplosiveOnly = false
     ),
     WATCH_TOWER(
         modelDefinition = ModelDefinition.WATCH_TOWER,
@@ -85,6 +88,15 @@ enum class AmbDefinition(
         maxFlyingParts = 5,
         destructionSound = SoundDefinition.METAL_BEND,
         corpsePartCollisionSound = SoundDefinition.METAL_CRASH
+    ),
+    STREET_LIGHT(
+        modelDefinition = ModelDefinition.STREET_LIGHT,
+        collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
+        mass = 3F,
+        hp = 1,
+        stayOnDeath = true,
+        destroyedByExplosiveOnly = false,
+        destructionSound = SoundDefinition.METAL_CRASH
     );
 
 

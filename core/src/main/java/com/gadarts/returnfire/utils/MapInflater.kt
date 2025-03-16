@@ -86,16 +86,13 @@ class MapInflater(
         if (def.placeInMiddleOfCell) {
             position.add(0.5F, 0F, 0.5F)
         }
+        position.sub(def.getModelDefinition().origin)
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
             .begin()
-            .addModelInstanceComponent(
-                gameModelInstance,
-                position,
-                null,
-                direction.toFloat(),
-            ).addAmbComponent(
+            .addModelInstanceComponent(gameModelInstance, position, null, direction.toFloat())
+            .addAmbComponent(
                 if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
                 def,
                 auxVector1.set(def.getScale(), def.getScale(), def.getScale()),
@@ -107,12 +104,16 @@ class MapInflater(
         }
         val entity = entityBuilder.finishAndAddToEngine()
         if (def.collisionFlags >= 0) {
-            addPhysicsToObject(entity, gameModelInstance, def.collisionFlags, def.mass, 4F)
+            addPhysicsToObject(
+                entity,
+                gameModelInstance,
+                def.collisionFlags,
+                def.mass,
+                4F,
+            )
         }
         addAnimationToAmb(def, gameModelInstance, entity)
-        if (
-            def == AmbDefinition.PALM_TREE
-        ) {
+        if (def == AmbDefinition.PALM_TREE) {
             entityBuilder.addTreeComponentToEntity(entity)
         }
     }
@@ -164,7 +165,12 @@ class MapInflater(
             .addAiComponent(characterDefinition.getHP())
             .addTurretBaseComponent()
             .finishAndAddToEngine()
-        addPhysicsToObject(baseEntity, gameModelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT, 0F)
+        addPhysicsToObject(
+            baseEntity,
+            gameModelInstance,
+            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
+            0F,
+        )
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
             addTurret(baseEntity)
         }
@@ -179,11 +185,13 @@ class MapInflater(
         friction: Float = 1.5F,
     ): PhysicsComponent {
         return gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
-            entity,
-            createShapeForStaticObject(gameModelInstance.definition!!, entity),
-            mass,
-            collisionFlags,
-            gameModelInstance.modelInstance.transform, gravityScalar = 1F, friction = friction
+            entity = entity,
+            shape = createShapeForStaticObject(gameModelInstance.definition!!, entity),
+            mass = mass,
+            collisionFlag = collisionFlags,
+            transform = gameModelInstance.modelInstance.transform,
+            gravityScalar = 1F,
+            friction = friction,
         )
     }
 

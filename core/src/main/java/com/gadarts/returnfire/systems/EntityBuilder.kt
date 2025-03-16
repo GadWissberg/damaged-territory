@@ -121,7 +121,7 @@ interface EntityBuilder {
         collisionFlag: Int,
         transform: Matrix4,
         gravityScalar: Float = 0F,
-        friction: Float = 1.5F
+        friction: Float = 1.5F,
     ): PhysicsComponent
 
     fun addGroundComponent(): EntityBuilder

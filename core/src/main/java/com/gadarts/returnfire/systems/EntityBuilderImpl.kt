@@ -399,7 +399,7 @@ class EntityBuilderImpl : EntityBuilder {
         collisionFlag: Int,
         transform: Matrix4,
         gravityScalar: Float,
-        friction: Float
+        friction: Float,
     ): PhysicsComponent {
         val rigidBody = factories.rigidBodyFactory.create(mass, shape, null, transform)
         return addPhysicsComponent(entity, rigidBody, collisionFlag, transform, gravityScalar, friction)

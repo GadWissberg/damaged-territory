@@ -4,10 +4,7 @@ import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.collision.btBoxShape
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
-import com.badlogic.gdx.physics.bullet.collision.btConvexHullShape
+import com.badlogic.gdx.physics.bullet.collision.*
 import com.gadarts.returnfire.model.definitions.PooledObjectPhysicalDefinition
 
 
@@ -19,6 +16,7 @@ enum class ModelDefinition(
     val physicalShapeCreator: PhysicalShapeCreator? = null,
     val centerOfMass: Vector3 = Vector3.Zero,
     val separateModelForShadow: Boolean = false,
+    val origin: Vector3 = Vector3.Zero,
 ) :
     AssetDefinition<Model> {
 
@@ -80,7 +78,8 @@ enum class ModelDefinition(
     ANTENNA_DESTROYED_BODY(
         physicalShapeCreator = AntennaDestroyedBodyShapeCreator,
     ),
-    ANTENNA_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART);
+    ANTENNA_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART),
+    STREET_LIGHT(physicalShapeCreator = StreetLightPhysicalShapeCreator, origin = Vector3(0F, -0.7F, 0F)), ;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
@@ -233,6 +232,22 @@ object WatchTowerDestroyedPhysicalShapeCreator : PhysicalShapeCreator {
 object WatchTowerDestroyedPartPhysicalShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
         return btBoxShape(Vector3(0.1F, 0.15F, 0.17F))
+    }
+
+}
+
+object StreetLightPhysicalShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        val shape = btCompoundShape()
+        val body = btConeShape(0.03F, 0.8F)
+        val head = btBoxShape(Vector3(0.15F, 0.05F, 0.05F))
+        shape.addChildShape(
+            Matrix4().idt(), body,
+        )
+        shape.addChildShape(
+            Matrix4().idt().translate(0.17F, 0.8F, 0F), head
+        )
+        return shape
     }
 
 }
