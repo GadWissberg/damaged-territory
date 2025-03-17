@@ -79,7 +79,8 @@ enum class ModelDefinition(
         physicalShapeCreator = AntennaDestroyedBodyShapeCreator,
     ),
     ANTENNA_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART),
-    STREET_LIGHT(physicalShapeCreator = StreetLightPhysicalShapeCreator, origin = Vector3(0F, -0.7F, 0F)), ;
+    STREET_LIGHT(physicalShapeCreator = StreetLightPhysicalShapeCreator, origin = Vector3(0F, -0.7F, 0F)),
+    DESTROYED_BUILDING(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator);
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()

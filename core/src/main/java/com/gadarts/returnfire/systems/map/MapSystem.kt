@@ -418,8 +418,8 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             min = 2,
             max = 3,
             mass = 3F,
-            minForce = 8F,
-            maxForce = 14F
+            minForce = 10F,
+            maxForce = 16F
         )
     }
 

@@ -97,6 +97,9 @@ enum class AmbDefinition(
         stayOnDeath = true,
         destroyedByExplosiveOnly = false,
         destructionSound = SoundDefinition.METAL_CRASH
+    ),
+    RUINS(
+        modelDefinition = ModelDefinition.DESTROYED_BUILDING
     );
 
 

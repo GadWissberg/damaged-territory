@@ -20434,7 +20434,7 @@
       "textures": [
         {
           "id": "Texture.010",
-          "filename": "building_0_texture_destroyed.png",
+          "filename": "building_0_texture_destroyed_0.png",
           "type": "DIFFUSE"
         }
       ]
