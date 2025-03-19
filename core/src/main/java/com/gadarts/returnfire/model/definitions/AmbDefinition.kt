@@ -104,10 +104,6 @@ enum class AmbDefinition(
     FENCE(
         modelDefinition = ModelDefinition.FENCE,
         destructionSound = SoundDefinition.ROCKS
-    ),
-    WALL_PIVOT(
-        modelDefinition = ModelDefinition.WALL_PIVOT,
-        destructionSound = SoundDefinition.ROCKS
     );
 
 

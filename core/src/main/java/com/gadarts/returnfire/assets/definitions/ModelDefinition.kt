@@ -82,7 +82,6 @@ enum class ModelDefinition(
     ANTENNA_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART),
     STREET_LIGHT(physicalShapeCreator = StreetLightPhysicalShapeCreator, origin = Vector3(0F, -0.7F, 0F)),
     FENCE(physicalShapeCreator = WallPhysicalShapeCreator, decal = "fence"),
-    WALL_PIVOT(physicalShapeCreator = WallPivotPhysicalShapeCreator),
     DESTROYED_BUILDING(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator), ;
 
     private val pathFormat = "models/%s.g3dj"
@@ -262,18 +261,6 @@ object WallPhysicalShapeCreator : PhysicalShapeCreator {
         val btBoxShape = btBoxShape(Vector3(0.1F, 0.25F, 0.5F))
         shape.addChildShape(
             Matrix4().idt().translate(0F, 0.25F, 0F), btBoxShape
-        )
-        return shape
-    }
-
-}
-
-object WallPivotPhysicalShapeCreator : PhysicalShapeCreator {
-    override fun create(): btCollisionShape {
-        val shape = btCompoundShape()
-        val btBoxShape = btBoxShape(Vector3(0.5F, 0.5F, 0.5F))
-        shape.addChildShape(
-            Matrix4().idt().translate(0F, 0.5F, 0F), btBoxShape
         )
         return shape
     }
