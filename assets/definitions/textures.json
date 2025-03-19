@@ -512,6 +512,9 @@
     },
     {
       "file_name": "crate_2"
+    },
+    {
+      "file_name": "fence"
     }
   ]
 }

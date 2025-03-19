@@ -101,8 +101,8 @@ enum class AmbDefinition(
     RUINS(
         modelDefinition = ModelDefinition.DESTROYED_BUILDING
     ),
-    WALL(
-        modelDefinition = ModelDefinition.WALL,
+    FENCE(
+        modelDefinition = ModelDefinition.FENCE,
         destructionSound = SoundDefinition.ROCKS
     ),
     WALL_PIVOT(

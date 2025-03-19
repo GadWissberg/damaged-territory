@@ -9,8 +9,10 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
+import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.Bullet
@@ -32,6 +34,7 @@ import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.ArmRenderData
 import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
@@ -43,6 +46,7 @@ import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
+import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.TilesMapping
@@ -97,6 +101,7 @@ class MapInflater(
                 def,
                 auxVector1.set(def.getScale(), def.getScale(), def.getScale()),
             )
+        applyDecalToModel(def, entityBuilder, gameModelInstance)
         val isGreen = def == AmbDefinition.BASE_GREEN
         val isBrown = def == AmbDefinition.BASE_BROWN
         if (isGreen || isBrown) {
@@ -115,6 +120,34 @@ class MapInflater(
         addAnimationToAmb(def, gameModelInstance, entity)
         if (def == AmbDefinition.PALM_TREE) {
             entityBuilder.addTreeComponentToEntity(entity)
+        }
+    }
+
+    private fun applyDecalToModel(
+        def: AmbDefinition,
+        entityBuilder: EntityBuilder,
+        gameModelInstance: GameModelInstance
+    ) {
+        val decal = def.getModelDefinition().decal
+        if (decal != null) {
+            val localRotation = gameModelInstance.modelInstance.transform.getRotation(Quaternion())
+            entityBuilder.addChildDecalComponent(
+                listOf(
+                    ChildDecal(
+                        Decal.newDecal(
+                            1F, 1F,
+                            TextureRegion(
+                                gamePlayManagers.assetsManager.getTexture(
+                                    decal
+                                ),
+                            ),
+                            true
+                        ),
+                        Vector3.Zero,
+                        localRotation.setEulerAngles(localRotation.yaw + 90F, localRotation.pitch, localRotation.roll)
+                    )
+                )
+            )
         }
     }
 

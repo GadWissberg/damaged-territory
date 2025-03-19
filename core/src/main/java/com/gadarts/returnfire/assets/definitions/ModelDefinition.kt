@@ -17,6 +17,7 @@ enum class ModelDefinition(
     val centerOfMass: Vector3 = Vector3.Zero,
     val separateModelForShadow: Boolean = false,
     val origin: Vector3 = Vector3.Zero,
+    val decal: String? = null
 ) :
     AssetDefinition<Model> {
 
@@ -80,7 +81,7 @@ enum class ModelDefinition(
     ),
     ANTENNA_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART),
     STREET_LIGHT(physicalShapeCreator = StreetLightPhysicalShapeCreator, origin = Vector3(0F, -0.7F, 0F)),
-    WALL(physicalShapeCreator = WallPhysicalShapeCreator),
+    FENCE(physicalShapeCreator = WallPhysicalShapeCreator, decal = "fence"),
     WALL_PIVOT(physicalShapeCreator = WallPivotPhysicalShapeCreator),
     DESTROYED_BUILDING(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator), ;
 

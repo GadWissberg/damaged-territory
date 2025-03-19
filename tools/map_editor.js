@@ -23,8 +23,7 @@ const elementsDefinitions = Object.freeze([
   { name: "BUILDING_0", type: "AMB" },
   { name: "ANTENNA", type: "AMB" },
   { name: "STREET_LIGHT", type: "AMB" },
-  { name: "WALL", type: "AMB" },
-  { name: "WALL_PIVOT", type: "AMB" },
+  { name: "FENCE", type: "AMB" },
       {name: "RUINS", type: "AMB"},
   { name: "TURRET_CANNON", type: "CHARACTER" },
 ]);

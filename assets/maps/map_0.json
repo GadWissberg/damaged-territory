@@ -79,104 +79,6 @@
       "col": 24
     },
     {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 0,
-      "row": 15,
-      "col": 20
-    },
-    {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 0,
-      "row": 15,
-      "col": 23
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 270,
-      "row": 15,
-      "col": 24
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 270,
-      "row": 15,
-      "col": 25
-    },
-    {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 0,
-      "row": 15,
-      "col": 26
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 0,
-      "row": 16,
-      "col": 20
-    },
-    {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 0,
-      "row": 16,
-      "col": 26
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 270,
-      "row": 16,
-      "col": 27
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 270,
-      "row": 16,
-      "col": 28
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 270,
-      "row": 16,
-      "col": 29
-    },
-    {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 0,
-      "row": 16,
-      "col": 30
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 0,
-      "row": 17,
-      "col": 20
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 180,
-      "row": 17,
-      "col": 30
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 0,
-      "row": 18,
-      "col": 20
-    },
-    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
@@ -189,41 +91,6 @@
       "direction": 0,
       "row": 18,
       "col": 27
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 180,
-      "row": 18,
-      "col": 30
-    },
-    {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 0,
-      "row": 19,
-      "col": 17
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 270,
-      "row": 19,
-      "col": 18
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 270,
-      "row": 19,
-      "col": 19
-    },
-    {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 0,
-      "row": 19,
-      "col": 20
     },
     {
       "definition": "ANTENNA",
@@ -240,18 +107,39 @@
       "col": 24
     },
     {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 180,
-      "row": 19,
-      "col": 30
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
       "direction": 0,
       "row": 20,
       "col": 17
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 270,
+      "row": 20,
+      "col": 18
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 270,
+      "row": 20,
+      "col": 19
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 270,
+      "row": 20,
+      "col": 20
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 270,
+      "row": 20,
+      "col": 21
     },
     {
       "definition": "STREET_LIGHT",
@@ -282,13 +170,6 @@
       "col": 29
     },
     {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 0,
-      "row": 20,
-      "col": 30
-    },
-    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
@@ -303,7 +184,7 @@
       "col": 7
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
       "row": 21,
@@ -338,7 +219,7 @@
       "col": 11
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
       "row": 22,
@@ -387,7 +268,7 @@
       "col": 11
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
       "row": 23,
@@ -457,32 +338,11 @@
       "col": 30
     },
     {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 270,
-      "row": 23,
-      "col": 33
-    },
-    {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 270,
-      "row": 23,
-      "col": 34
-    },
-    {
       "definition": "TURRET_CANNON",
       "type": "CHARACTER",
       "direction": 0,
       "row": 24,
       "col": 6
-    },
-    {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 0,
-      "row": 24,
-      "col": 17
     },
     {
       "definition": "PALM_TREE",
@@ -555,14 +415,7 @@
       "col": 33
     },
     {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 180,
-      "row": 24,
-      "col": 34
-    },
-    {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
       "row": 25,
@@ -625,13 +478,6 @@
       "col": 31
     },
     {
-      "definition": "WALL",
-      "type": "AMB",
-      "direction": 180,
-      "row": 25,
-      "col": 34
-    },
-    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
@@ -646,7 +492,7 @@
       "col": 15
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
       "row": 26,
@@ -723,13 +569,6 @@
       "col": 31
     },
     {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 270,
-      "row": 26,
-      "col": 34
-    },
-    {
       "definition": "TURRET_CANNON",
       "type": "CHARACTER",
       "direction": 0,
@@ -737,7 +576,7 @@
       "col": 36
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
       "row": 27,
@@ -751,123 +590,116 @@
       "col": 37
     },
     {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
       "direction": 0,
       "row": 28,
       "col": 17
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 18
     },
     {
-      "definition": "WALL_PIVOT",
+      "definition": "FENCE",
       "type": "AMB",
-      "direction": 180,
+      "direction": 90,
       "row": 28,
       "col": 19
     },
     {
-      "definition": "WALL_PIVOT",
+      "definition": "FENCE",
       "type": "AMB",
-      "direction": 180,
+      "direction": 270,
       "row": 28,
       "col": 21
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 22
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 23
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 24
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 25
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 26
     },
     {
-      "definition": "WALL_PIVOT",
+      "definition": "FENCE",
       "type": "AMB",
-      "direction": 180,
+      "direction": 90,
       "row": 28,
       "col": 27
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 28
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 29
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 30
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 31
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 32
     },
     {
-      "definition": "WALL",
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 90,
       "row": 28,
       "col": 33
-    },
-    {
-      "definition": "WALL_PIVOT",
-      "type": "AMB",
-      "direction": 180,
-      "row": 28,
-      "col": 34
     },
     {
       "definition": "WATCH_TOWER",
