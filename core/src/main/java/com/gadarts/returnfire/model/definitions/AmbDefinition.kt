@@ -103,7 +103,12 @@ enum class AmbDefinition(
     ),
     FENCE(
         modelDefinition = ModelDefinition.FENCE,
-        destructionSound = SoundDefinition.ROCKS
+        hp = 1,
+        minFlyingParts = 1,
+        maxFlyingParts = 2,
+        flyingPart = ModelDefinition.FENCE_PART,
+        destructionSound = SoundDefinition.ROCKS,
+        destroyedByExplosiveOnly = false
     );
 
 

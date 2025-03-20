@@ -274,7 +274,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ComponentsMapper.modelInstance.get(affectedEntity).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        if (otherSpeed > 10F || otherSpeed > 0.1F && otherRigidBody.mass > 7) {
+        if (otherSpeed > 10F || (otherSpeed > 0.1F && otherRigidBody.mass > 7)) {
             ambComponent.hp = 0
             if (bulletComponent != null) {
                 if (isExplosive) {
@@ -300,6 +300,8 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                         )
                     ).finishAndAddToEngine()
                 }
+            } else {
+                destroyAmbObject(affectedEntity)
             }
         }
     }
