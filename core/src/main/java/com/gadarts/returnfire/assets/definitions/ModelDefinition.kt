@@ -83,6 +83,8 @@ enum class ModelDefinition(
     STREET_LIGHT(physicalShapeCreator = StreetLightPhysicalShapeCreator, origin = Vector3(0F, -0.7F, 0F)),
     FENCE(physicalShapeCreator = FencePhysicalShapeCreator, decal = "fence"),
     FENCE_PART(physicalShapeCreator = FencePartPhysicalShapeCreator),
+    FENCE_DESTROYED_RIGHT,
+    FENCE_DESTROYED_LEFT,
     DESTROYED_BUILDING(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator), ;
 
     private val pathFormat = "models/%s.g3dj"

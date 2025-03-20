@@ -284,9 +284,9 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 } else {
                     createIndependentParticleEffect(position, SMOKE)
                 }
-            }
-            if (ambComponent.def == AmbDefinition.PALM_TREE) {
-                destroyTree(affectedEntity, isExplosive)
+                if (ambComponent.def == AmbDefinition.PALM_TREE) {
+                    destroyTree(affectedEntity, isExplosive)
+                }
             }
             if ((ambComponent.def.stayOnDeath)) {
                 val rigidBody = ComponentsMapper.physics.get(affectedEntity).rigidBody
@@ -302,6 +302,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 }
             } else {
                 destroyAmbObject(affectedEntity)
+                createFlyingPartsForAmb(affectedEntity, auxVector3.set(0F, 0.5F, 0F))
             }
         }
     }
@@ -319,14 +320,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val beforeHp = ambComponent.hp
         ambComponent.hp -= MathUtils.random(1, 2)
         val newHp = ambComponent.hp
-        if (ambComponent.def.flyingPart != null) {
-            gamePlayManagers.factories.specialEffectsFactory.generateFlyingParts(
-                otherCollider,
-                ambComponent.def.flyingPart,
-                min = ambComponent.def.minFlyingParts,
-                max = ambComponent.def.maxFlyingParts,
-            )
-        }
+        createFlyingPartsForAmb(otherCollider, Vector3.Zero)
         if (newHp <= 0) {
             initiateAmbDestruction(amb, position)
         } else {
@@ -337,6 +331,27 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 newHp,
                 gameModelInstance
             )
+        }
+    }
+
+    private fun createFlyingPartsForAmb(
+        entity: Entity,
+        relativeOffset: Vector3
+    ) {
+        val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
+        val ambComponent = ComponentsMapper.amb.get(entity)
+        if (ambComponent?.def?.flyingPart != null) {
+            specialEffectsFactory.generateFlyingParts(
+                entity,
+                ambComponent.def.flyingPart,
+                min = ambComponent.def.minFlyingParts,
+                max = ambComponent.def.maxFlyingParts,
+                minForce = ambComponent.def.flyingPartMinImpulse,
+                maxForce = ambComponent.def.flyingPartMaxImpulse,
+                relativeOffset = relativeOffset
+            )
+        } else {
+            specialEffectsFactory.generateFlyingParts(entity)
         }
     }
 
@@ -624,7 +639,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 model = gameModelInstance,
                 position = auxVector1.set(position).add(
                     MathUtils.random(-positionBiasMax, positionBiasMax),
-                    MathUtils.random(0F, positionBiasMax),
+                    MathUtils.random(0.1F, positionBiasMax),
                     MathUtils.random(-positionBiasMax, positionBiasMax)
                 ),
                 boundingBox = gamePlayManagers.assetsManager.getCachedBoundingBox(modelDefinition),

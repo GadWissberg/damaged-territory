@@ -16,6 +16,8 @@ enum class AmbDefinition(
     val flyingPart: ModelDefinition? = null,
     val minFlyingParts: Int = 2,
     val maxFlyingParts: Int = 4,
+    val flyingPartMinImpulse: Float = 1F,
+    val flyingPartMaxImpulse: Float = 7F,
     val hasDeathSequence: Boolean = false,
     val destructionSound: SoundDefinition? = null,
     val corpsePartCollisionSound: SoundDefinition? = null,
@@ -29,7 +31,8 @@ enum class AmbDefinition(
         collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
         hp = 1,
         mass = 1F,
-        destroyedByExplosiveOnly = false
+        destroyedByExplosiveOnly = false,
+        stayOnDeath = true
     ),
     WATCH_TOWER(
         modelDefinition = ModelDefinition.WATCH_TOWER,
@@ -108,7 +111,9 @@ enum class AmbDefinition(
         maxFlyingParts = 2,
         flyingPart = ModelDefinition.FENCE_PART,
         destructionSound = SoundDefinition.ROCKS,
-        destroyedByExplosiveOnly = false
+        destroyedByExplosiveOnly = false,
+        flyingPartMinImpulse = 1F,
+        flyingPartMaxImpulse = 4F
     );
 
 

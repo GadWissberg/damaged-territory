@@ -100,7 +100,8 @@ class SpecialEffectsFactory(
         max: Int = 4,
         mass: Float = 1F,
         minForce: Float = 4F,
-        maxForce: Float = 7F
+        maxForce: Float = 7F,
+        relativeOffset: Vector3 = Vector3.Zero
     ) {
         val transform = if (ComponentsMapper.turretBase.has(character)) {
             val turretModelInstanceComponent =
@@ -110,6 +111,7 @@ class SpecialEffectsFactory(
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         }
         transform.getTranslation(auxVector2)
+        auxVector2.add(relativeOffset)
         val model = assetsManager.getAssetByDefinition(modelDefinition)
         generateFlyingParts(auxVector2, model, 1F, min, max, mass, minForce, maxForce)
     }
