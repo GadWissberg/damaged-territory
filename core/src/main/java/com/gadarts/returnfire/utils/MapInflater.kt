@@ -403,6 +403,60 @@ class MapInflater(
                 )
             }
         applyTransformOnAmbEntities()
+        initializeFenceNeighbours()
+    }
+
+    private fun initializeFenceNeighbours() {
+        val tilesEntities = gameSessionData.mapData.tilesEntities
+        val fences = ambEntities.filter { ComponentsMapper.amb.get(it).def == AmbDefinition.FENCE }
+        val fenceGrid = createFenceGrid(fences)
+        fences.forEach {
+            val transform = ComponentsMapper.modelInstance.get(it).gameModelInstance.modelInstance.transform
+            val position = transform.getTranslation(auxVector1)
+            val yaw = transform.getRotation(auxQuat).yaw
+            val row = position.z.toInt()
+            val col = position.x.toInt()
+            if (MathUtils.isEqual(yaw, 0F, 1F)) {
+                ComponentsMapper.fence.get(it).setNeighbors(
+                    if (row > 0) fenceGrid[row - 1][col] else null,
+                    if (row < tilesEntities.size - 1) fenceGrid[row + 1][col] else null
+                )
+            } else if (MathUtils.isEqual(yaw, 180F, 1F)) {
+                ComponentsMapper.fence.get(it).setNeighbors(
+                    if (row < tilesEntities.size - 1) fenceGrid[row + 1][col] else null,
+                    if (row > 0) fenceGrid[row - 1][col] else null,
+                )
+            } else if (MathUtils.isEqual(yaw, 90F, 1F)) {
+                ComponentsMapper.fence.get(it).setNeighbors(
+                    if (col > 0) fenceGrid[row][col - 1] else null,
+                    if (col < tilesEntities[0].size - 1) fenceGrid[row][col + 1] else null
+                )
+            } else if (MathUtils.isEqual(yaw, 270F, 1F)) {
+                ComponentsMapper.fence.get(it).setNeighbors(
+                    if (col < tilesEntities[0].size - 1) fenceGrid[row][col + 1] else null,
+                    if (col > 0) fenceGrid[row][col - 1] else null,
+                )
+
+            }
+        }
+    }
+
+    private fun createFenceGrid(
+        fences: List<Entity>
+    ): Array<Array<Entity?>> {
+        val tilesEntities = gameSessionData.mapData.tilesEntities
+        val fenceGrid = Array<Array<Entity?>>(tilesEntities.size) { arrayOfNulls(tilesEntities[0].size) }
+        fences.forEach {
+            val position =
+                ComponentsMapper.modelInstance.get(it).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
+                )
+            val x = position.x.toInt()
+            val z = position.z.toInt()
+            gamePlayManagers.ecs.entityBuilder.addFenceComponentToEntity(it)
+            fenceGrid[z][x] = it
+        }
+        return fenceGrid
     }
 
     private fun addFloor(exculdedTiles: ArrayList<Pair<Int, Int>>) {
@@ -615,6 +669,7 @@ class MapInflater(
         private val auxVector3 = Vector3()
         private val auxMatrix = Matrix4()
         private val auxBoundingBox = BoundingBox()
+        private val auxQuat = Quaternion()
         private const val EXT_SIZE = 48
         private val TILES_CHARS = CharArray(80) { (it + 48).toChar() }.joinToString("")
     }

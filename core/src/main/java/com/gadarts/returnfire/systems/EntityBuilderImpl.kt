@@ -345,10 +345,25 @@ class EntityBuilderImpl : EntityBuilder {
         followParentRotation: Boolean,
         relativePosition: Vector3
     ): EntityBuilder {
+        addChildModelInstanceComponentToEntity(
+            entity!!,
+            gameModelInstance,
+            followParentRotation,
+            relativePosition
+        )
+        return this
+    }
+
+    override fun addChildModelInstanceComponentToEntity(
+        entity: Entity,
+        gameModelInstance: GameModelInstance,
+        followParentRotation: Boolean,
+        relativePosition: Vector3
+    ): ChildModelInstanceComponent {
         val childModelInstanceComponent =
             ChildModelInstanceComponent(gameModelInstance, followParentRotation, relativePosition)
-        entity!!.add(childModelInstanceComponent)
-        return this
+        entity.add(childModelInstanceComponent)
+        return childModelInstanceComponent
     }
 
     override fun addPhysicsComponent(
@@ -456,6 +471,12 @@ class EntityBuilderImpl : EntityBuilder {
         val ambDeathPart = AmbCorpsePart(collisionSound, destroyOnGroundImpact)
         entity!!.add(ambDeathPart)
         return this
+    }
+
+    override fun addFenceComponentToEntity(entity: Entity): FenceComponent {
+        val fenceComponent = FenceComponent()
+        entity.add(fenceComponent)
+        return fenceComponent
     }
 
     private fun createParticleEffectComponent(

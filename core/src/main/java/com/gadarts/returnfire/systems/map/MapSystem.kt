@@ -591,6 +591,27 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         val ambComponent = ComponentsMapper.amb.get(entity)
         gamePlayManagers.stainsHandler.addBigHole(position)
         ambComponent.hp = 0
+        if (ComponentsMapper.fence.has(entity)) {
+            val fenceComponent = ComponentsMapper.fence.get(entity)
+            val entityBuilder = gamePlayManagers.ecs.entityBuilder
+            val gameModelInstanceFactory = gamePlayManagers.factories.gameModelInstanceFactory
+            fenceComponent.left?.let {
+                entityBuilder.addChildModelInstanceComponentToEntity(
+                    it,
+                    gameModelInstanceFactory.createGameModelInstance(ModelDefinition.FENCE_DESTROYED_RIGHT),
+                    true,
+                    auxVector1.set(0F, 0F, 0.95F)
+                )
+            }
+            fenceComponent.right?.let {
+                entityBuilder.addChildModelInstanceComponentToEntity(
+                    it,
+                    gameModelInstanceFactory.createGameModelInstance(ModelDefinition.FENCE_DESTROYED_LEFT),
+                    true,
+                    auxVector1.set(0F, 0F, -0.95F)
+                )
+            }
+        }
         engine.removeEntity(entity)
     }
 

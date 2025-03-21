@@ -11,10 +11,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.components.AiComponent
-import com.gadarts.returnfire.components.AmbAnimationComponent
-import com.gadarts.returnfire.components.DeathSequenceComponent
-import com.gadarts.returnfire.components.TreeComponent
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
@@ -105,6 +102,13 @@ interface EntityBuilder {
         relativePosition: Vector3 = Vector3.Zero
     ): EntityBuilder
 
+    fun addChildModelInstanceComponentToEntity(
+        entity: Entity,
+        gameModelInstance: GameModelInstance,
+        followParentRotation: Boolean,
+        relativePosition: Vector3 = Vector3.Zero
+    ): ChildModelInstanceComponent
+
     fun addSecondaryArmComponent(
         spark: Entity,
         armProperties: ArmProperties,
@@ -168,4 +172,5 @@ interface EntityBuilder {
     ): DeathSequenceComponent
 
     fun addAmbCorpsePart(destroyOnGroundImpact: Boolean, collisionSound: SoundDefinition?): EntityBuilder
+    fun addFenceComponentToEntity(entity: Entity): FenceComponent
 }
