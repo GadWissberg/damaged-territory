@@ -114,6 +114,15 @@ enum class AmbDefinition(
         destroyedByExplosiveOnly = false,
         flyingPartMinImpulse = 1F,
         flyingPartMaxImpulse = 4F
+    ),
+    HANGAR(
+        modelDefinition = ModelDefinition.HANGAR,
+        hp = 4,
+        flyingPart = ModelDefinition.FLYING_PART,
+        collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
+        hasDeathSequence = true,
+        mass = 20F,
+        destructionSound = SoundDefinition.METAL_CRASH,
     );
 
 

@@ -240,20 +240,6 @@
       "col": 23
     },
     {
-      "definition": "STREET_LIGHT",
-      "type": "AMB",
-      "direction": 90,
-      "row": 22,
-      "col": 27
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 22,
-      "col": 28
-    },
-    {
       "definition": "ROCK_BIG",
       "type": "AMB",
       "direction": 0,
@@ -307,27 +293,6 @@
       "type": "AMB",
       "direction": 0,
       "row": 23,
-      "col": 26
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 23,
-      "col": 27
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "direction": 0,
-      "row": 23,
-      "col": 28
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 23,
       "col": 29
     },
     {
@@ -366,25 +331,11 @@
       "col": 25
     },
     {
-      "definition": "PALM_TREE",
+      "definition": "HANGAR",
       "type": "AMB",
-      "direction": 90,
-      "row": 24,
-      "col": 26
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "direction": 90,
+      "direction": 270,
       "row": 24,
       "col": 27
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 24,
-      "col": 28
     },
     {
       "definition": "PALM_TREE",
@@ -441,20 +392,6 @@
       "direction": 90,
       "row": 25,
       "col": 25
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 25,
-      "col": 26
-    },
-    {
-      "definition": "BUILDING_FLAG",
-      "type": "AMB",
-      "direction": 0,
-      "row": 25,
-      "col": 27
     },
     {
       "definition": "PALM_TREE",
@@ -525,27 +462,6 @@
       "direction": 270,
       "row": 26,
       "col": 25
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "direction": 90,
-      "row": 26,
-      "col": 26
-    },
-    {
-      "definition": "STREET_LIGHT",
-      "type": "AMB",
-      "direction": 270,
-      "row": 26,
-      "col": 27
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 26,
-      "col": 28
     },
     {
       "definition": "STREET_LIGHT",
