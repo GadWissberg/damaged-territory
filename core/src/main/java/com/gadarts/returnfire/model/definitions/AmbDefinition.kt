@@ -20,6 +20,8 @@ enum class AmbDefinition(
     val flyingPartMaxImpulse: Float = 7F,
     val hasDeathSequence: Boolean = false,
     val destructionSound: SoundDefinition? = null,
+    val corpse: ModelDefinition? = null,
+    val collapseThreshold: Float = 0F,
     val corpsePartCollisionSound: SoundDefinition? = null,
     val corpsePartDestroyOnGroundImpact: Boolean = false,
     val stayOnDeath: Boolean = false,
@@ -81,7 +83,9 @@ enum class AmbDefinition(
         hp = 4,
         flyingPart = ModelDefinition.ROCK_PART,
         hasDeathSequence = true,
-        destructionSound = SoundDefinition.ROCKS
+        destructionSound = SoundDefinition.ROCKS,
+        corpse = ModelDefinition.BUILDING_0_DESTROYED,
+        collapseThreshold = 0.9F
     ),
     ANTENNA(
         modelDefinition = ModelDefinition.ANTENNA,
@@ -123,6 +127,8 @@ enum class AmbDefinition(
         hasDeathSequence = true,
         mass = 20F,
         destructionSound = SoundDefinition.METAL_CRASH,
+        corpse = ModelDefinition.HANGAR_DESTROYED,
+        collapseThreshold = 0.5F
     );
 
 

@@ -962,7 +962,10 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     private fun updateFallingBuildings() {
         for (fallingBuilding in fallingBuildings) {
             val physicsComponent = ComponentsMapper.physics.get(fallingBuilding)
-            if (physicsComponent.rigidBody.worldTransform.getTranslation(auxVector1).y < -0.9F) {
+            if (physicsComponent.rigidBody.worldTransform.getTranslation(auxVector1).y < -ComponentsMapper.amb.get(
+                    fallingBuilding
+                ).def.collapseThreshold
+            ) {
                 fallingBuildingAnimationDone(fallingBuilding)
             }
         }
@@ -973,10 +976,12 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     private fun fallingBuildingAnimationDone(fallingBuilding: Entity) {
+        val corpse = ComponentsMapper.amb.get(fallingBuilding).def.corpse ?: return
+
         auxMatrix.set(ComponentsMapper.modelInstance.get(fallingBuilding).gameModelInstance.modelInstance.transform)
         destroyAmbObject(fallingBuilding)
         val gameModelInstance = gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
-            ModelDefinition.BUILDING_0_DESTROYED
+            corpse
         )
         val position = auxMatrix.getTranslation(auxVector4)
         auxMatrix.setTranslation(position.x, 0F, position.z)

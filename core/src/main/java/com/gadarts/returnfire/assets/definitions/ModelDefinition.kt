@@ -86,7 +86,8 @@ enum class ModelDefinition(
     FENCE_DESTROYED_RIGHT,
     FENCE_DESTROYED_LEFT,
     DESTROYED_BUILDING(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator),
-    HANGAR(physicalShapeCreator = HangarPhysicalShapeCreator);
+    HANGAR(physicalShapeCreator = HangarPhysicalShapeCreator),
+    HANGAR_DESTROYED(physicalShapeCreator = HangarDestroyedPhysicalShapeCreator);
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
@@ -284,6 +285,18 @@ object HangarPhysicalShapeCreator : PhysicalShapeCreator {
         val btBoxShape = btBoxShape(Vector3(2F, 0.75F, 1.5F))
         shape.addChildShape(
             Matrix4().idt().translate(0F, 0.75F, 0F), btBoxShape
+        )
+        return shape
+    }
+
+}
+
+object HangarDestroyedPhysicalShapeCreator : PhysicalShapeCreator {
+    override fun create(): btCollisionShape {
+        val shape = btCompoundShape()
+        val btBoxShape = btBoxShape(Vector3(2F, 0.362F, 1.5F))
+        shape.addChildShape(
+            Matrix4().idt().translate(0F, 0.362F, 0F), btBoxShape
         )
         return shape
     }
