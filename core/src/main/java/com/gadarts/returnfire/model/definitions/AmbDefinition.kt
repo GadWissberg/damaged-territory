@@ -129,6 +129,15 @@ enum class AmbDefinition(
         destructionSound = SoundDefinition.METAL_CRASH,
         corpse = ModelDefinition.HANGAR_DESTROYED,
         collapseThreshold = 0.5F
+    ),
+    SIGN(
+        modelDefinition = ModelDefinition.SIGN,
+        collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
+        mass = 0.5F,
+        hp = 1,
+        stayOnDeath = true,
+        destroyedByExplosiveOnly = false,
+        destructionSound = SoundDefinition.METAL_CRASH
     );
 
 

@@ -240,6 +240,13 @@
       "col": 23
     },
     {
+      "definition": "SIGN",
+      "type": "AMB",
+      "direction": 0,
+      "row": 22,
+      "col": 25
+    },
+    {
       "definition": "ROCK_BIG",
       "type": "AMB",
       "direction": 0,
