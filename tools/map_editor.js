@@ -27,6 +27,7 @@ const elementsDefinitions = Object.freeze([
       {name: "RUINS", type: "AMB"},
   { name: "HANGAR", type: "AMB" },
   { name: "SIGN", type: "AMB" },
+  { name: "SIGN_BIG", type: "AMB" },
   { name: "TURRET_CANNON", type: "CHARACTER" },
 ]);
 const Directions = Object.freeze({ east: 0, north: 90, west: 180, south: 270 });

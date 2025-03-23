@@ -138,6 +138,15 @@ enum class AmbDefinition(
         stayOnDeath = true,
         destroyedByExplosiveOnly = false,
         destructionSound = SoundDefinition.METAL_CRASH
+    ),
+    SIGN_BIG(
+        modelDefinition = ModelDefinition.SIGN_BIG,
+        collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
+        mass = 1F,
+        hp = 1,
+        stayOnDeath = true,
+        destroyedByExplosiveOnly = false,
+        destructionSound = SoundDefinition.METAL_CRASH
     );
 
 

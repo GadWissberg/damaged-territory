@@ -233,9 +233,9 @@
       "col": 22
     },
     {
-      "definition": "STREET_LIGHT",
+      "definition": "SIGN_BIG",
       "type": "AMB",
-      "direction": 0,
+      "direction": 270,
       "row": 22,
       "col": 23
     },
@@ -287,13 +287,6 @@
       "direction": 0,
       "row": 23,
       "col": 23
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 180,
-      "row": 23,
-      "col": 25
     },
     {
       "definition": "PALM_TREE",
