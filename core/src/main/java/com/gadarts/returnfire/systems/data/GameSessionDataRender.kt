@@ -11,11 +11,12 @@ class GameSessionDataRender : Disposable {
     val camera: PerspectiveCamera = GeneralUtils.createCamera(60F)
     lateinit var particleSystem: ParticleSystem
     lateinit var modelCache: ModelCache
+    lateinit var floorModel: Model
+
     override fun dispose() {
         modelCache.dispose()
         floorModel.dispose()
     }
 
-    lateinit var floorModel: Model
 
 }

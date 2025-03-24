@@ -22,7 +22,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.StainsHandler
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.systems.hud.HudSystem
-import com.gadarts.returnfire.systems.map.MapSystem
+import com.gadarts.returnfire.systems.map.MapSystemImpl
 import com.gadarts.returnfire.systems.physics.PhysicsSystem
 import com.gadarts.returnfire.systems.player.PlayerSystemImpl
 import com.gadarts.returnfire.systems.render.RenderSystem
@@ -115,7 +115,7 @@ class GamePlayScreen(
             CameraSystem(gamePlayManagers),
             HudSystem(gamePlayManagers),
             ProfilingSystem(gamePlayManagers),
-            MapSystem(gamePlayManagers),
+            MapSystemImpl(gamePlayManagers),
             AiSystem(gamePlayManagers),
             BulletSystem(gamePlayManagers),
         )
