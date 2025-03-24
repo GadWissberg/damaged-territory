@@ -219,7 +219,7 @@ class MapSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         override fun go(entity: Entity, affectedEntityPosition: Vector3, explosionPosition: Vector3) {
             ComponentsMapper.physics.get(entity).rigidBody.applyCentralImpulse(
                 auxVector3.set(affectedEntityPosition).sub(explosionPosition).nor()
-                    .scl(MathUtils.random(0.25F, 0.5F)),
+                    .scl(MathUtils.random(2F, 4F)),
             )
         }
 
