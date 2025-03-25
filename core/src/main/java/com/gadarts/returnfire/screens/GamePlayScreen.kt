@@ -36,7 +36,7 @@ class GamePlayScreen(
 ) : Screen {
 
     init {
-        val fileName = MapDefinition.MAP_0.getPaths()[0]
+        val fileName = MapDefinition.TO_OPTIMIZE.getPaths()[0]
         generalManagers.assetsManager.load(
             fileName,
             GameMap::class.java
@@ -155,7 +155,7 @@ class GamePlayScreen(
     }
 
     override fun hide() {
-        generalManagers.assetsManager.unload(MapDefinition.MAP_0.getPaths()[0])
+        generalManagers.assetsManager.unload(MapDefinition.TO_OPTIMIZE.getPaths()[0])
     }
 
     override fun dispose() {

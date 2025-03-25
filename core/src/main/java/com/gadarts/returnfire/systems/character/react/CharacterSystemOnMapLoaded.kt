@@ -22,7 +22,7 @@ class CharacterSystemOnMapLoaded(engine: Engine) : HandlerOnEvent {
 
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.MAP_0)
+        val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.TO_OPTIMIZE)
         baseEntities.forEach {
             val base =
                 map.placedElements.find { placedElement ->

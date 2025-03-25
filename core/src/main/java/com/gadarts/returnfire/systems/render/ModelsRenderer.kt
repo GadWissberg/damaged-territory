@@ -19,7 +19,6 @@ import com.gadarts.returnfire.systems.data.GameSessionDataRender
 import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxBox
 import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxVector3_1
 import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxVector3_2
-import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxVector3_3
 
 class ModelsRenderer(
     private val relatedEntities: RenderSystemRelatedEntities,
@@ -160,10 +159,11 @@ class ModelsRenderer(
         if (extendBoundingBoxSize) {
             dims.scl(10.6F)
         }
+
         val frustum = renderData.camera.frustum
         return if (gameModelInstance.sphere) frustum.sphereInFrustum(
             gameModelInstance.modelInstance.transform.getTranslation(
-                auxVector3_3
+                auxVector
             ), dims.len2()
         )
         else frustum.boundsInFrustum(center, dims)
@@ -222,6 +222,7 @@ class ModelsRenderer(
     companion object {
         private const val SHADOW_VIEWPORT_SIZE: Float = 38F
         private const val SHADOW_MAP_SIZE = 2056
+        private val auxVector = Vector3()
         private val auxQuat1 = Quaternion()
     }
 }

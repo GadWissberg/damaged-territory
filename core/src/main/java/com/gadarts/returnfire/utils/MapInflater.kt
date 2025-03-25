@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.Bullet
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.ISLAND_SLEEPING
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
@@ -225,6 +226,7 @@ class MapInflater(
             transform = gameModelInstance.modelInstance.transform,
             gravityScalar = 1F,
             friction = friction,
+            activationState = ISLAND_SLEEPING
         )
     }
 
@@ -528,7 +530,8 @@ class MapInflater(
             btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
             0F,
             btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
-            modelInstance.modelInstance.transform
+            modelInstance.modelInstance.transform,
+            activationState = ISLAND_SLEEPING
         )
     }
 

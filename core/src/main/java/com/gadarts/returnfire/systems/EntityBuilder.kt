@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -126,6 +127,7 @@ interface EntityBuilder {
         transform: Matrix4,
         gravityScalar: Float = 0F,
         friction: Float = 1.5F,
+        activationState: Int = DISABLE_DEACTIVATION
     ): PhysicsComponent
 
     fun addGroundComponent(): EntityBuilder

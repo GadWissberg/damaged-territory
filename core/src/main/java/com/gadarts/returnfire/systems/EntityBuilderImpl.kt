@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.badlogic.gdx.physics.bullet.collision.Collision
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
@@ -415,9 +415,18 @@ class EntityBuilderImpl : EntityBuilder {
         transform: Matrix4,
         gravityScalar: Float,
         friction: Float,
+        activationState: Int
     ): PhysicsComponent {
         val rigidBody = factories.rigidBodyFactory.create(mass, shape, null, transform)
-        return addPhysicsComponent(entity, rigidBody, collisionFlag, transform, gravityScalar, friction)
+        return addPhysicsComponent(
+            entity,
+            rigidBody,
+            collisionFlag,
+            transform,
+            gravityScalar,
+            friction,
+            activationState
+        )
     }
 
     override fun addGhostPhysicsComponentToEntity(
@@ -520,14 +529,15 @@ class EntityBuilderImpl : EntityBuilder {
         collisionFlag: Int?,
         transform: Matrix4?,
         gravityScalar: Float,
-        friction: Float = 1.5F
+        friction: Float = 1.5F,
+        activationState: Int = DISABLE_DEACTIVATION
     ): PhysicsComponent {
         rigidBody.angularVelocity = Vector3.Zero
         rigidBody.clearForces()
         rigidBody.setSleepingThresholds(1f, 1f)
         rigidBody.deactivationTime = 5f
         rigidBody.activate()
-        rigidBody.activationState = Collision.DISABLE_DEACTIVATION
+        rigidBody.activationState = activationState
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
         rigidBody.friction = friction
         if (collisionFlag != null) {
