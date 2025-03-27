@@ -57,12 +57,8 @@ class TankFactory(
         val character = entityBuilder.finish()
         val cannon = addTankCannon(character)
         addTurret(character, cannon, color)
-        applyOpponentColor(character, color)
+        applyOpponentColor(character, color, "tank_body_texture")
         return character
-    }
-
-    override fun getTextureFileName(): String {
-        return "tank_body_texture"
     }
 
     override fun dispose() {
@@ -93,7 +89,7 @@ class TankFactory(
         )
         val turret = entityBuilder.finishAndAddToEngine()
         ComponentsMapper.turretBase.get(player).turret = turret
-        applyOpponentColor(turret, color)
+        applyOpponentColor(turret, color, "tank_turret_texture")
     }
 
     private fun addTankPrimaryArmComponent(
@@ -193,6 +189,7 @@ class TankFactory(
             null
         )
         val cannon = entityBuilder.finishAndAddToEngine()
+        applyOpponentColor(cannon, ComponentsMapper.character.get(player).color, "tank_cannon_texture")
         return cannon
     }
 

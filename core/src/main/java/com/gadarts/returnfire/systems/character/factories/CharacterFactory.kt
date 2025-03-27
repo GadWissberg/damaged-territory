@@ -78,7 +78,8 @@ abstract class CharacterFactory(
 
     protected fun applyOpponentColor(
         character: Entity,
-        color: CharacterColor
+        color: CharacterColor,
+        textureFileName: String
     ) {
         val textureAttribute =
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.materials.find {
@@ -88,10 +89,8 @@ abstract class CharacterFactory(
             }
                 ?.get(TextureAttribute.Diffuse) as TextureAttribute
         textureAttribute.textureDescription.texture =
-            assetsManager.getTexture("${getTextureFileName()}_${color.name.lowercase()}")
+            assetsManager.getTexture("${textureFileName}_${color.name.lowercase()}")
     }
-
-    abstract fun getTextureFileName(): String
 
     companion object {
         private val auxVector3_1 = Vector3()

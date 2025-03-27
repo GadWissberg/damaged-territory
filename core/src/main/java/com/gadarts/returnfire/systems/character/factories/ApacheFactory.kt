@@ -60,12 +60,8 @@ class ApacheFactory(
         addPropeller()
         val character = entityBuilder.finish()
         ComponentsMapper.spark.get(secondarySpark).parent = character
-        applyOpponentColor(character, color)
+        applyOpponentColor(character, color, "apache_texture")
         return character
-    }
-
-    override fun getTextureFileName(): String {
-        return "apache_texture"
     }
 
     override fun dispose() {
