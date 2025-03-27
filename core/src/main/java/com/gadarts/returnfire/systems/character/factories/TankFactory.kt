@@ -54,10 +54,15 @@ class TankFactory(
         entityBuilder.addTurretBaseComponent()
         entityBuilder.addLimitedVelocityComponent(1.1F)
         entityBuilder.addAmbSoundComponent(assetsManager.getAssetByDefinition(SoundDefinition.ENGINE))
-        val player = entityBuilder.finish()
-        val cannon = addTankCannon(player)
-        addTurret(player, cannon)
-        return player
+        val character = entityBuilder.finish()
+        val cannon = addTankCannon(character)
+        addTurret(character, cannon, color)
+        applyOpponentColor(character, color)
+        return character
+    }
+
+    override fun getTextureFileName(): String {
+        return "tank_body_texture"
     }
 
     override fun dispose() {
@@ -66,7 +71,8 @@ class TankFactory(
 
     private fun addTurret(
         player: Entity,
-        cannon: Entity
+        cannon: Entity,
+        color: CharacterColor
     ) {
         entityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
@@ -87,6 +93,7 @@ class TankFactory(
         )
         val turret = entityBuilder.finishAndAddToEngine()
         ComponentsMapper.turretBase.get(player).turret = turret
+        applyOpponentColor(turret, color)
     }
 
     private fun addTankPrimaryArmComponent(

@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.character.factories
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
@@ -74,6 +75,23 @@ abstract class CharacterFactory(
         ComponentsMapper.spark.get(secondarySpark).parent = EntityBuilderImpl.entity!!
         return gameModelInstance
     }
+
+    protected fun applyOpponentColor(
+        character: Entity,
+        color: CharacterColor
+    ) {
+        val textureAttribute =
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.materials.find {
+                it.has(
+                    TextureAttribute.Diffuse
+                )
+            }
+                ?.get(TextureAttribute.Diffuse) as TextureAttribute
+        textureAttribute.textureDescription.texture =
+            assetsManager.getTexture("${getTextureFileName()}_${color.name.lowercase()}")
+    }
+
+    abstract fun getTextureFileName(): String
 
     companion object {
         private val auxVector3_1 = Vector3()

@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems.character.factories
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
@@ -65,22 +64,13 @@ class ApacheFactory(
         return character
     }
 
+    override fun getTextureFileName(): String {
+        return "apache_texture"
+    }
+
     override fun dispose() {
     }
 
-    private fun applyOpponentColor(
-        character: Entity,
-        color: CharacterColor
-    ) {
-        (ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.materials.find {
-            it.has(
-                TextureAttribute.Diffuse
-            )
-        }
-            ?.get(TextureAttribute.Diffuse) as TextureAttribute
-            ).textureDescription.texture =
-            assetsManager.getTexture(if (color == CharacterColor.BROWN) "apache_texture_brown" else "apache_texture_green")
-    }
 
     private fun addApachePrimaryArmComponent(
         primarySpark: Entity,

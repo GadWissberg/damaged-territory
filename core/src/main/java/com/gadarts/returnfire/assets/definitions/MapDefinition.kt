@@ -6,7 +6,7 @@ import com.gadarts.returnfire.model.GameMap
 enum class MapDefinition :
     AssetDefinition<GameMap> {
 
-    TO_OPTIMIZE;
+    MAP_0;
 
 
     private val pathFormat = "maps/%s.json"
