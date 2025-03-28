@@ -43,11 +43,12 @@ import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.CharacterType
 import com.gadarts.returnfire.model.ElementType
-import com.gadarts.returnfire.model.GraphMap
+import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
+import com.gadarts.returnfire.model.graph.GraphNode
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
@@ -75,63 +76,72 @@ class MapInflater(
 
     private fun createGraph() {
         val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
-        val graphMap = GraphMap(tilesMapping[0].size)
+        val mapGraph = MapGraph(tilesMapping[0].size, tilesMapping.size)
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
-        createGraphNodes(width, depth, graphMap)
-        connectGraphNodes(width, depth, graphMap)
-        gameSessionData.mapData.graphMap = graphMap
+        createGraphNodes(width, depth, mapGraph)
+        connectGraphNodes(width, depth, mapGraph)
+        gameSessionData.mapData.mapGraph = mapGraph
     }
 
     private fun connectGraphNodes(
         width: Int,
         depth: Int,
-        graphMap: GraphMap
+        mapGraph: MapGraph
     ) {
         val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
         for (i in 0 until width * depth) {
             val x = i % width
             val y = i / width
-            if (tilesMapping[y][x] != WATER_TILE_INDEX) {
-                if (x > 0 && tilesMapping[y][x - 1] != WATER_TILE_INDEX) {
-                    graphMap.connect(graphMap.getNode(x, y), graphMap.getNode(x - 1, y))
-                }
-                if (x > 0 && y < tilesMapping.size - 1 && tilesMapping[y + 1][x - 1] != WATER_TILE_INDEX) {
-                    graphMap.connect(graphMap.getNode(x, y), graphMap.getNode(x - 1, y + 1))
-                }
-                if (y < tilesMapping.size - 1 && tilesMapping[y + 1][x] != WATER_TILE_INDEX) {
-                    graphMap.connect(graphMap.getNode(x, y), graphMap.getNode(x, y + 1))
-                }
-                if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1 && tilesMapping[y + 1][x + 1] != WATER_TILE_INDEX) {
-                    graphMap.connect(graphMap.getNode(x, y), graphMap.getNode(x + 1, y + 1))
-                }
-                if (x < tilesMapping[0].size - 1 && tilesMapping[y][x + 1] != WATER_TILE_INDEX) {
-                    graphMap.connect(graphMap.getNode(x, y), graphMap.getNode(x + 1, y))
-                }
-                if (x < tilesMapping[0].size - 1 && y > 0 && tilesMapping[y - 1][x + 1] != WATER_TILE_INDEX) {
-                    graphMap.connect(graphMap.getNode(x, y), graphMap.getNode(x + 1, y - 1))
-                }
-                if (y > 0 && tilesMapping[y - 1][x] != WATER_TILE_INDEX) {
-                    graphMap.connect(graphMap.getNode(x, y), graphMap.getNode(x, y - 1))
-                }
-                if (x > 0 && y > 0 && tilesMapping[y - 1][x - 1] != WATER_TILE_INDEX) {
-                    graphMap.connect(graphMap.getNode(x, y), graphMap.getNode(x - 1, y - 1))
-                }
+            val from = mapGraph.getNode(x, y)
+
+            if (x > 0 && tilesMapping[y][x - 1] != WATER_TILE_INDEX) {
+                connect(mapGraph, from, x - 1, y)
+            }
+            if (x > 0 && y < tilesMapping.size - 1 && tilesMapping[y + 1][x - 1] != WATER_TILE_INDEX) {
+                connect(mapGraph, from, x - 1, y + 1)
+            }
+            if (y < tilesMapping.size - 1 && tilesMapping[y + 1][x] != WATER_TILE_INDEX) {
+                connect(mapGraph, from, x, y + 1)
+            }
+            if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1 && tilesMapping[y + 1][x + 1] != WATER_TILE_INDEX) {
+                connect(mapGraph, from, x + 1, y + 1)
+            }
+            if (x < tilesMapping[0].size - 1 && tilesMapping[y][x + 1] != WATER_TILE_INDEX) {
+                connect(mapGraph, from, x + 1, y)
+            }
+            if (x < tilesMapping[0].size - 1 && y > 0 && tilesMapping[y - 1][x + 1] != WATER_TILE_INDEX) {
+                connect(mapGraph, from, x + 1, y - 1)
+            }
+            if (y > 0 && tilesMapping[y - 1][x] != WATER_TILE_INDEX) {
+                connect(mapGraph, from, x, y - 1)
+            }
+            if (x > 0 && y > 0 && tilesMapping[y - 1][x - 1] != WATER_TILE_INDEX) {
+                connect(mapGraph, from, x - 1, y - 1)
             }
         }
+    }
+
+    private fun connect(
+        mapGraph: MapGraph,
+        from: GraphNode,
+        toX: Int,
+        toY: Int,
+    ) {
+        if (gameSessionData.mapData.currentMap.tilesMapping[toY][toX] == WATER_TILE_INDEX) return
+
+        val to = mapGraph.getNode(toX, toY)
+        mapGraph.connect(from, to)
     }
 
     private fun createGraphNodes(
         width: Int,
         depth: Int,
-        graphMap: GraphMap
+        mapGraph: MapGraph
     ) {
-        val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
         for (y in 0 until depth) {
             for (x in 0 until width) {
-                if (tilesMapping[y][x] != WATER_TILE_INDEX) {
-                    graphMap.addNode(x, y)
-                }
+                mapGraph.addNode(x, y)
             }
         }
     }
@@ -447,8 +457,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                    && definition != SimpleCharacterDefinition.APACHE
-                    && definition != TurretCharacterDefinition.TANK
+                && definition != SimpleCharacterDefinition.APACHE
+                && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -713,9 +723,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.currentMap.tilesMapping.size
-            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+        && col >= 0
+        && row < gameSessionData.mapData.currentMap.tilesMapping.size
+        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

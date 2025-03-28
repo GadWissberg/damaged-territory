@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class TankMovementHandlerMobile(player: Entity) :
-    TankMovementHandler(player) {
+class TankMovementHandlerMobile :
+    TankMovementHandler() {
     private val desiredDirection = Vector2()
     private var desiredDirectionChanged: Boolean = false
     private var reverse = false
@@ -22,15 +22,15 @@ class TankMovementHandlerMobile(player: Entity) :
     }
 
     override fun update(
-        player: Entity,
+        character: Entity,
         deltaTime: Float,
     ) {
-        super.update(player, deltaTime)
-        val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+        super.update(character, deltaTime)
+        val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
                 .transform(auxVector3.set(1F, 0F, 0F))
-            pushForward(rigidBody, if (!reverse) 1 else -1)
+            pushForward(rigidBody, if (!reverse) 1 else -1, character)
             val yaw = auxQuaternion.yaw
             if (!MathUtils.isEqual(
                     yaw + (if (yaw >= 0) 0F else 360F),
@@ -50,49 +50,43 @@ class TankMovementHandlerMobile(player: Entity) :
         }
     }
 
-    override fun onReverseScreenButtonReleased() {
-        stopMoving()
+    override fun onReverseScreenButtonReleased(character: Entity) {
+        stopMoving(character)
     }
 
     override fun strafe(left: Boolean) {
-        TODO("Not yet implemented")
     }
 
     override fun isStrafing(): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun stopStrafe() {
-        TODO("Not yet implemented")
     }
 
-    override fun pressedAlt() {
-        TODO("Not yet implemented")
+    override fun pressedAlt(character: Entity) {
     }
 
-    override fun pressedLeft() {
-        TODO("Not yet implemented")
+    override fun pressedLeft(character: Entity) {
     }
 
-    override fun pressedRight() {
-        TODO("Not yet implemented")
+    override fun pressedRight(character: Entity) {
     }
 
-    override fun releasedAlt() {
-        TODO("Not yet implemented")
+    override fun releasedAlt(character: Entity) {
     }
 
-    override fun isThrusting(): Boolean {
+    override fun isThrusting(character: Entity): Boolean {
         return !reverse
     }
 
-    override fun isReversing(): Boolean {
+    override fun isReversing(character: Entity): Boolean {
         return reverse
     }
 
-    override fun onReverseScreenButtonPressed() {
+    override fun onReverseScreenButtonPressed(character: Entity) {
         val direction = auxVector2.set(Vector2.X).setAngleDeg(
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getRotation(
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getRotation(
                 auxQuaternion
             ).yaw
         )
@@ -106,17 +100,17 @@ class TankMovementHandlerMobile(player: Entity) :
 
     }
 
-    override fun onMovementTouchUp(keycode: Int) {
-        stopMoving()
+    override fun onMovementTouchUp(character: Entity, keycode: Int) {
+        stopMoving(character)
     }
 
-    private fun stopMoving() {
+    private fun stopMoving(character: Entity) {
         desiredDirection.setZero()
-        idleEngineSound()
+        idleEngineSound(character)
     }
 
-    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
-        val turret = ComponentsMapper.turretBase.get(player).turret
+    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float, character: Entity) {
+        val turret = ComponentsMapper.turretBase.get(character).turret
         val turretInstance =
             ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance
         val currentYaw = turretInstance.transform.getRotation(auxQuaternion).yaw
@@ -130,7 +124,7 @@ class TankMovementHandlerMobile(player: Entity) :
         }
     }
 
-    override fun onTurretTouchPadTouchUp() {
+    override fun onTurretTouchPadTouchUp(character: Entity) {
         turretRotating = 0
     }
 

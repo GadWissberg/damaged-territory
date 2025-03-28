@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.ai
+package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
@@ -16,13 +16,12 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 
-
 class AiApacheLogic(
     private val gameSessionData: GameSessionData,
     private val dispatcher: MessageDispatcher,
     entityBuilder: EntityBuilder,
     autoAim: btPairCachingGhostObject
-) {
+) : AiCharacterLogic {
     private var nextStrafeActivation: Long = 0
     private val shootingHandler = CharacterShootingHandler(entityBuilder)
     private val movementHandler: ApacheMovementHandlerDesktop by lazy {
@@ -34,10 +33,8 @@ class AiApacheLogic(
         shootingHandler.initialize(dispatcher, gameSessionData, autoAim)
     }
 
-    fun updateCharacter(character: Entity, deltaTime: Float) {
+    override fun preUpdate(character: Entity, deltaTime: Float) {
         val boardingComponent = ComponentsMapper.boarding.get(character)
-        if ((boardingComponent != null && boardingComponent.isBoarding()) || ComponentsMapper.character.get(character).dead) return
-
         val targetModelInstance =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
         val aiComponent = ComponentsMapper.ai.get(character)
@@ -86,8 +83,8 @@ class AiApacheLogic(
         } else {
             applyMainLogic(characterTransform, targetPosition, character)
         }
-        handleRotation(targetPosition, characterTransform)
-        updateHandlers(character, deltaTime)
+        handleRotation(targetPosition, characterTransform, character)
+        update(character, deltaTime)
     }
 
     private fun applyMainLogic(
@@ -176,7 +173,7 @@ class AiApacheLogic(
         nextStrafeActivation = MathUtils.random(2000, 6000) + TimeUtils.millis()
     }
 
-    private fun updateHandlers(character: Entity, deltaTime: Float) {
+    override fun update(character: Entity, deltaTime: Float) {
         movementHandler.update(
             character,
             deltaTime
@@ -186,7 +183,8 @@ class AiApacheLogic(
 
     private fun handleRotation(
         targetPosition: Vector3,
-        characterTransform: Matrix4
+        characterTransform: Matrix4,
+        character: Entity
     ) {
         val directionToTarget =
             auxVector3.set(targetPosition).sub(characterTransform.getTranslation(auxVector2)).nor()
@@ -197,9 +195,9 @@ class AiApacheLogic(
         if (!directionToTarget.epsilonEquals(characterDirection, 0.4F)) {
             val crossProductY =
                 characterDirection.x * directionToTarget.z - characterDirection.z * directionToTarget.x
-            movementHandler.applyRotation(if (crossProductY > 0) -1 else 1)
+            movementHandler.applyRotation(if (crossProductY > 0) -1 else 1, character)
         } else {
-            movementHandler.applyRotation(0)
+            movementHandler.applyRotation(0, character)
         }
     }
 

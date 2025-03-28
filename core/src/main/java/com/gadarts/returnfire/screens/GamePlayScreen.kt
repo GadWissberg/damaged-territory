@@ -11,10 +11,12 @@ import com.gadarts.returnfire.factories.*
 import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
+import com.gadarts.returnfire.managers.PathHeuristic
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.*
 import com.gadarts.returnfire.systems.ai.AiSystem
+import com.gadarts.returnfire.systems.ai.MapPathFinder
 import com.gadarts.returnfire.systems.bullet.BulletSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
@@ -72,7 +74,8 @@ class GamePlayScreen(
             factories,
             generalManagers.screensManagers,
             ecs,
-            StainsHandler(generalManagers.assetsManager)
+            StainsHandler(generalManagers.assetsManager),
+            MapPathFinder(gameSessionData.mapData, PathHeuristic()),
         )
         initializeSystems(gamePlayManagers)
     }

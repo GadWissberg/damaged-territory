@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.ai
+package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils

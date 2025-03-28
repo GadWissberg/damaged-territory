@@ -63,7 +63,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonPressed()
+                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonPressed(gameSessionData.gamePlayData.player!!)
             }
         },
         BUTTON_REVERSE_RELEASED to object : HandlerOnEvent {
@@ -72,7 +72,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonReleased()
+                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonReleased(gameSessionData.gamePlayData.player!!)
             }
         },
         CHARACTER_OFF_BOARDED to PlayerSystemOnCharacterOffBoarded(this),
@@ -145,8 +145,8 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (player == null
-                || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player).isBoarding())
-                || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
+            || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player).isBoarding())
+            || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -164,11 +164,11 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.LEFT -> {
-                gameSessionData.gamePlayData.playerMovementHandler.pressedLeft()
+                gameSessionData.gamePlayData.playerMovementHandler.pressedLeft(gameSessionData.gamePlayData.player!!)
             }
 
             Input.Keys.RIGHT -> {
-                gameSessionData.gamePlayData.playerMovementHandler.pressedRight()
+                gameSessionData.gamePlayData.playerMovementHandler.pressedRight(gameSessionData.gamePlayData.player!!)
             }
 
             Input.Keys.CONTROL_LEFT -> {
@@ -196,7 +196,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.ALT_LEFT -> {
-                gameSessionData.gamePlayData.playerMovementHandler.pressedAlt()
+                gameSessionData.gamePlayData.playerMovementHandler.pressedAlt(gameSessionData.gamePlayData.player!!)
             }
 
         }
@@ -210,7 +210,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
-                gameSessionData.gamePlayData.playerMovementHandler.onMovementTouchUp(keycode)
+                gameSessionData.gamePlayData.playerMovementHandler.onMovementTouchUp(
+                    gameSessionData.gamePlayData.player!!,
+                    keycode,
+                )
             }
 
             Input.Keys.CONTROL_LEFT -> {
@@ -222,7 +225,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.ALT_LEFT -> {
-                gameSessionData.gamePlayData.playerMovementHandler.releasedAlt()
+                gameSessionData.gamePlayData.playerMovementHandler.releasedAlt(gameSessionData.gamePlayData.player!!)
             }
 
         }
@@ -259,16 +262,18 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
     override fun initInputMethod() {
         if (gameSessionData.runsOnMobile) {
+            val player = gameSessionData.gamePlayData.player!!
             gameSessionData.hudData.movementTouchpad.addListener(
                 MovementTouchPadListener(
                     gameSessionData.gamePlayData.playerMovementHandler,
-                    gameSessionData.gamePlayData.player!!
+                    player
                 )
             )
             gameSessionData.hudData.turretTouchpad.addListener(
                 TurretTouchPadListener(
                     gameSessionData.gamePlayData.playerMovementHandler,
-                    playerShootingHandler
+                    playerShootingHandler,
+                    player
                 )
             )
         } else {
@@ -288,9 +293,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
         } else {
             if (runsOnMobile) {
-                TankMovementHandlerMobile(player!!)
+                TankMovementHandlerMobile()
             } else {
-                TankMovementHandlerDesktop(player!!)
+                TankMovementHandlerDesktop()
             }
         }
     }
@@ -311,9 +316,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-                && position.x >= stagePosition.x - LANDING_OK_OFFSET
-                && position.z <= stagePosition.z + LANDING_OK_OFFSET
-                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(

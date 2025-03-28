@@ -45,15 +45,15 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
     }
 
     override fun update(
-        player: Entity,
+        character: Entity,
         deltaTime: Float,
     ) {
-        super.update(player, deltaTime)
-        syncModelInstanceTransformToRigidBody(player)
-        tiltAnimationHandler.update(player)
+        super.update(character, deltaTime)
+        syncModelInstanceTransformToRigidBody(character)
+        tiltAnimationHandler.update(character)
     }
 
-    override fun applyRotation(clockwise: Int) {
+    override fun applyRotation(clockwise: Int, character: Entity) {
         if (clockwise == 0) return
         tiltAnimationHandler.lateralTilt(clockwise)
     }

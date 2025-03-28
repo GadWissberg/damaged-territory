@@ -52,14 +52,14 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun calculateCameraNextPosition(
         deltaTime: Float
     ): Vector3 {
-        val player = gameSessionData.gamePlayData.player
+        val player = gameSessionData.gamePlayData.player!!
         val playerTransform = ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val cameraPosition = auxVector3_4.set(gameSessionData.renderData.camera.position)
         val rotation = playerTransform.getRotation(auxQuat)
         rotation.setEulerAngles(rotation.yaw, 0F, 0F)
         val rotationVector = auxVector3_3.set(1F, 0F, 0F).rot(auxMatrix.idt().set(rotation)).nor()
-        val thrusting = gameSessionData.gamePlayData.playerMovementHandler.isThrusting()
-        val reversing = gameSessionData.gamePlayData.playerMovementHandler.isReversing()
+        val thrusting = gameSessionData.gamePlayData.playerMovementHandler.isThrusting(player)
+        val reversing = gameSessionData.gamePlayData.playerMovementHandler.isReversing(player)
         val cameraTarget = auxVector3_2.set(playerTransform.getTranslation(auxVector3_1))
             .add(
                 auxVector3_5.set(rotationVector)

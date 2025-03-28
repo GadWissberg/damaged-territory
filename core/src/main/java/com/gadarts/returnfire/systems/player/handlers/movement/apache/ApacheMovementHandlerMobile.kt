@@ -20,15 +20,15 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
     }
 
     override fun update(
-        player: Entity,
+        character: Entity,
         deltaTime: Float,
     ) {
-        super.update(player, deltaTime)
-        val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+        super.update(character, deltaTime)
+        val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
                 .transform(auxVector3.set(1F, 0F, 0F))
-            pushForward(rigidBody, 1)
+            pushForward(rigidBody, 1, character)
             if (!MathUtils.isEqual(
                     auxQuaternion.yaw + (if (auxQuaternion.yaw >= 0) 0F else 360F),
                     desiredDirection.angleDeg(),
@@ -50,49 +50,49 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
 
     }
 
-    override fun onMovementTouchUp(keycode: Int) {
+    override fun onMovementTouchUp(character: Entity, keycode: Int) {
         desiredDirection.setZero()
         tiltAnimationHandler.returnToRollIdle()
         tiltAnimationHandler.returnToPitchIdle()
     }
 
-    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
+    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float, character: Entity) {
 
     }
 
-    override fun onTurretTouchPadTouchUp() {
+    override fun onTurretTouchPadTouchUp(character: Entity) {
 
     }
 
     override fun strafe(left: Boolean) {
-        TODO("Not yet implemented")
+
     }
 
     override fun isStrafing(): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun stopStrafe() {
-        TODO("Not yet implemented")
     }
 
-    override fun pressedAlt() {
+    override fun pressedAlt(character: Entity) {
     }
 
-    override fun pressedLeft() {
+    override fun pressedLeft(character: Entity) {
     }
 
-    override fun pressedRight() {
+    override fun pressedRight(character: Entity) {
     }
 
-    override fun releasedAlt() {
+    override fun releasedAlt(character: Entity) {
     }
 
-    override fun isThrusting(): Boolean {
+
+    override fun isThrusting(character: Entity): Boolean {
         return !desiredDirection.isZero
     }
 
-    override fun isReversing(): Boolean {
+    override fun isReversing(character: Entity): Boolean {
         return false
     }
 

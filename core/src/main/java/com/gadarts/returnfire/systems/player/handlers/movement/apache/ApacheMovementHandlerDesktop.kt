@@ -12,7 +12,7 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var strafe: Int = 0
     private var rotation: Int = 0
 
-    override fun onMovementTouchUp(keycode: Int) {
+    override fun onMovementTouchUp(character: Entity, keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
                 if (movement == MOVEMENT_FORWARD) {
@@ -27,22 +27,22 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
             }
 
             Input.Keys.LEFT -> {
-                applyFunctionalityForHorizontalKeyRelease(rotation > 0F)
+                applyFunctionalityForHorizontalKeyRelease(rotation > 0F, character)
             }
 
             Input.Keys.RIGHT -> {
-                applyFunctionalityForHorizontalKeyRelease(rotation < 0F)
+                applyFunctionalityForHorizontalKeyRelease(rotation < 0F, character)
             }
 
         }
     }
 
-    private fun applyFunctionalityForHorizontalKeyRelease(rotationCheck: Boolean) {
+    private fun applyFunctionalityForHorizontalKeyRelease(rotationCheck: Boolean, character: Entity) {
         if (strafeActivated) {
             strafe = 0
             tiltAnimationHandler.returnToPitchIdle()
         } else if (rotationCheck) {
-            applyRotation(0)
+            applyRotation(0, character)
             tiltAnimationHandler.returnToPitchIdle()
         }
     }
@@ -65,51 +65,51 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         strafe = 0
     }
 
-    override fun pressedAlt() {
+    override fun pressedAlt(character: Entity) {
         strafeActivated = true
         if (rotation != 0) {
             strafe(rotation > 0)
-            applyRotation(0)
+            applyRotation(0, character)
         }
     }
 
-    override fun pressedLeft() {
-        applyHorizontalKeyFunctionality(true)
+    override fun pressedLeft(character: Entity) {
+        applyHorizontalKeyFunctionality(true, character)
     }
 
-    private fun applyHorizontalKeyFunctionality(left: Boolean) {
+    private fun applyHorizontalKeyFunctionality(left: Boolean, character: Entity) {
         if (strafeActivated) {
             strafe(left)
         } else {
-            applyRotation(if (left) 1 else -1)
+            applyRotation(if (left) 1 else -1, character)
         }
     }
 
-    override fun pressedRight() {
-        applyHorizontalKeyFunctionality(false)
+    override fun pressedRight(character: Entity) {
+        applyHorizontalKeyFunctionality(false, character)
     }
 
-    override fun releasedAlt() {
+    override fun releasedAlt(character: Entity) {
         strafeActivated = false
         if (isStrafing()) {
-            applyRotation(strafe * -1)
+            applyRotation(strafe * -1, character)
             strafe = 0
         }
     }
 
-    override fun isThrusting(): Boolean {
+    override fun isThrusting(character: Entity): Boolean {
         return movement > 0
     }
 
-    override fun isReversing(): Boolean {
+    override fun isReversing(character: Entity): Boolean {
         return movement < 0
     }
 
-    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
+    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float, character: Entity) {
 
     }
 
-    override fun onTurretTouchPadTouchUp() {
+    override fun onTurretTouchPadTouchUp(character: Entity) {
 
     }
 
@@ -118,13 +118,13 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
         movement = MOVEMENT_FORWARD
     }
 
-    override fun update(player: Entity, deltaTime: Float) {
-        super.update(player, deltaTime)
-        val physicsComponent = ComponentsMapper.physics.get(player) ?: return
+    override fun update(character: Entity, deltaTime: Float) {
+        super.update(character, deltaTime)
+        val physicsComponent = ComponentsMapper.physics.get(character) ?: return
 
         val rigidBody = physicsComponent.rigidBody
         if (movement != 0) {
-            pushForward(rigidBody, movement)
+            pushForward(rigidBody, movement, character)
         }
         if (rotation != ROTATION_IDLE) {
             rotate(rigidBody, rotation)
@@ -141,8 +141,8 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     }
 
 
-    override fun applyRotation(clockwise: Int) {
-        super.applyRotation(clockwise)
+    override fun applyRotation(clockwise: Int, character: Entity) {
+        super.applyRotation(clockwise, character)
         rotation = clockwise
     }
 

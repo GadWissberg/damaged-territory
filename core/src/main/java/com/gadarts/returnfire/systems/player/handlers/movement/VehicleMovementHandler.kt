@@ -17,7 +17,7 @@ abstract class VehicleMovementHandler(
     private val maxVelocity: Float
 ) {
 
-    protected open fun pushForward(rigidBody: btRigidBody, forwardDirection: Int) {
+    protected open fun pushForward(rigidBody: btRigidBody, forwardDirection: Int, character: Entity) {
         val direction = auxVector3_2.set(forwardDirection * 1F, 0F, 0F)
         val scale = if (forwardDirection > 0) forwardForceSize else reverseForceSize
         push(rigidBody, direction, scale)
@@ -41,12 +41,12 @@ abstract class VehicleMovementHandler(
     }
 
     open fun update(
-        player: Entity,
+        character: Entity,
         deltaTime: Float,
     ) {
-        applyLateralDamping(player)
-        if (ComponentsMapper.character.get(player).definition == TurretCharacterDefinition.TANK) {
-            val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+        applyLateralDamping(character)
+        if (ComponentsMapper.character.get(character).definition == TurretCharacterDefinition.TANK) {
+            val rigidBody = ComponentsMapper.physics.get(character).rigidBody
             if (!rigidBody.linearVelocity.epsilonEquals(Vector3.Zero)) {
                 val transform: Matrix4 = rigidBody.worldTransform
                 transform.getRotation(auxQuaternion1)
@@ -68,7 +68,7 @@ abstract class VehicleMovementHandler(
 
     abstract fun reverse()
 
-    abstract fun onMovementTouchUp(keycode: Int = -1)
+    abstract fun onMovementTouchUp(character: Entity, keycode: Int = -1)
 
     protected fun rotate(rigidBody: btRigidBody, clockwise: Int) {
         val newVelocity = auxVector3_1.set(rigidBody.angularVelocity)
@@ -82,7 +82,7 @@ abstract class VehicleMovementHandler(
         }
     }
 
-    abstract fun applyRotation(clockwise: Int)
+    abstract fun applyRotation(clockwise: Int, character: Entity)
 
     private fun applyLateralDamping(character: Entity) {
         if (!ComponentsMapper.physics.has(character)) return
@@ -94,10 +94,10 @@ abstract class VehicleMovementHandler(
         rigidBody.applyCentralForce(dampingForce)
     }
 
-    abstract fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float)
-    abstract fun onTurretTouchPadTouchUp()
-    open fun onReverseScreenButtonPressed() {}
-    open fun onReverseScreenButtonReleased() {}
+    abstract fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float, character: Entity)
+    abstract fun onTurretTouchPadTouchUp(character: Entity)
+    open fun onReverseScreenButtonPressed(character: Entity) {}
+    open fun onReverseScreenButtonReleased(character: Entity) {}
     open fun stopMovement() {
 
     }
@@ -105,12 +105,12 @@ abstract class VehicleMovementHandler(
     abstract fun strafe(left: Boolean)
     abstract fun isStrafing(): Boolean
     abstract fun stopStrafe()
-    abstract fun pressedAlt()
-    abstract fun pressedLeft()
-    abstract fun pressedRight()
-    abstract fun releasedAlt()
-    abstract fun isThrusting(): Boolean
-    abstract fun isReversing(): Boolean
+    abstract fun pressedAlt(character: Entity)
+    abstract fun pressedLeft(character: Entity)
+    abstract fun pressedRight(character: Entity)
+    abstract fun releasedAlt(character: Entity)
+    abstract fun isThrusting(character: Entity): Boolean
+    abstract fun isReversing(character: Entity): Boolean
 
     companion object {
         private val auxVector3_1 = Vector3()

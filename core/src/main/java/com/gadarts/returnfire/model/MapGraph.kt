@@ -6,13 +6,14 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph
 import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.model.graph.GraphNode
 
-class GraphMap(private val width: Int) : IndexedGraph<GraphNode> {
-    private val nodes = mutableListOf<GraphNode>()
+class MapGraph(private val width: Int, private val depth: Int) : IndexedGraph<GraphNode> {
+    private val nodes: kotlin.Array<kotlin.Array<GraphNode>> = Array(depth) { Array(width) { GraphNode(-1, -1, -1) } }
     private val connections = mutableMapOf<GraphNode, Array<Connection<GraphNode>>>()
 
     fun addNode(x: Int, y: Int): GraphNode {
-        val node = GraphNode(nodes.size, x, y)
-        nodes.add(node)
+        val index = y * width + x
+        val node = GraphNode(index, x, y)
+        nodes[y][x] = node
         return node
     }
 
@@ -25,8 +26,9 @@ class GraphMap(private val width: Int) : IndexedGraph<GraphNode> {
     override fun getConnections(fromNode: GraphNode): Array<Connection<GraphNode>> =
         connections[fromNode] ?: Array()
 
-    override fun getNodeCount(): Int = nodes.size
+    override fun getNodeCount(): Int = width * depth
+
     fun getNode(x: Int, y: Int): GraphNode {
-        return nodes[y * width + x]
+        return nodes[y][x]
     }
 }

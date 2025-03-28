@@ -5,50 +5,50 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class TankMovementHandlerDesktop(player: Entity) :
-    TankMovementHandler(player) {
+class TankMovementHandlerDesktop :
+    TankMovementHandler() {
     private var turretRotationEnabled: Boolean = false
     private var movement: Int = 0
     private var rotation: Int = 0
 
-    override fun idleEngineSound() {
-        super.idleEngineSound()
+    override fun idleEngineSound(character: Entity) {
+        super.idleEngineSound(character)
         movement = 0
     }
 
-    override fun onMovementTouchUp(keycode: Int) {
+    override fun onMovementTouchUp(character: Entity, keycode: Int) {
         when (keycode) {
             Input.Keys.UP -> {
-                stopFunctionForVerticalKey(MOVEMENT_FORWARD)
+                stopFunctionForVerticalKey(MOVEMENT_FORWARD, character)
             }
 
             Input.Keys.DOWN -> {
-                stopFunctionForVerticalKey(MOVEMENT_REVERSE)
+                stopFunctionForVerticalKey(MOVEMENT_REVERSE, character)
             }
 
             Input.Keys.LEFT -> {
-                stopFunctionForSideKey(rotation > 0F)
+                stopFunctionForSideKey(rotation > 0F, character)
             }
 
             Input.Keys.RIGHT -> {
-                stopFunctionForSideKey(rotation < 0F)
+                stopFunctionForSideKey(rotation < 0F, character)
             }
 
         }
     }
 
-    private fun stopFunctionForVerticalKey(movementConstant: Int) {
+    private fun stopFunctionForVerticalKey(movementConstant: Int, character: Entity) {
         if (movement == movementConstant) {
-            idleEngineSound()
+            idleEngineSound(character)
         }
     }
 
-    private fun stopFunctionForSideKey(rotationCheck: Boolean) {
+    private fun stopFunctionForSideKey(rotationCheck: Boolean, character: Entity) {
         if (turretRotationEnabled) {
             turretRotating = 0
         } else if (rotationCheck) {
             rotation = 0
-            val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+            val rigidBody = ComponentsMapper.physics.get(character).rigidBody
             rigidBody.angularFactor = Vector3.Zero
         }
     }
@@ -58,22 +58,22 @@ class TankMovementHandlerDesktop(player: Entity) :
         movement = MOVEMENT_FORWARD
     }
 
-    override fun update(player: Entity, deltaTime: Float) {
-        super.update(player, deltaTime)
-        val rigidBody = ComponentsMapper.physics.get(player).rigidBody
+    override fun update(character: Entity, deltaTime: Float) {
+        super.update(character, deltaTime)
+        val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         if (movement != 0) {
-            pushForward(rigidBody, movement)
+            pushForward(rigidBody, movement, character)
         }
         if (rotation != ROTATION_IDLE) {
             rotate(rigidBody, rotation)
         }
     }
 
-    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {
+    override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float, character: Entity) {
 
     }
 
-    override fun onTurretTouchPadTouchUp() {
+    override fun onTurretTouchPadTouchUp(character: Entity) {
 
     }
 
@@ -87,48 +87,48 @@ class TankMovementHandlerDesktop(player: Entity) :
     override fun stopStrafe() {
     }
 
-    override fun pressedAlt() {
+    override fun pressedAlt(character: Entity) {
         turretRotationEnabled = true
         if (rotation != 0) {
             turretRotating = rotation
-            applyRotation(0)
+            applyRotation(0, character)
         }
     }
 
-    override fun pressedLeft() {
+    override fun pressedLeft(character: Entity) {
         if (turretRotationEnabled) {
             turretRotating = 1
         } else {
-            applyRotation(1)
+            applyRotation(1, character)
         }
     }
 
-    override fun pressedRight() {
+    override fun pressedRight(character: Entity) {
         if (turretRotationEnabled) {
             turretRotating = -1
         } else {
-            applyRotation(-1)
+            applyRotation(-1, character)
         }
     }
 
-    override fun releasedAlt() {
+    override fun releasedAlt(character: Entity) {
         turretRotationEnabled = false
         if (turretRotating != 0) {
-            applyRotation(turretRotating)
+            applyRotation(turretRotating, character)
         }
         turretRotating = 0
     }
 
-    override fun isThrusting(): Boolean {
+    override fun isThrusting(character: Entity): Boolean {
         return movement > 0
     }
 
-    override fun isReversing(): Boolean {
+    override fun isReversing(character: Entity): Boolean {
         return movement < 0
     }
 
-    override fun applyRotation(clockwise: Int) {
-        super.applyRotation(clockwise)
+    override fun applyRotation(clockwise: Int, character: Entity) {
+        super.applyRotation(clockwise, character)
         rotation = clockwise
     }
 

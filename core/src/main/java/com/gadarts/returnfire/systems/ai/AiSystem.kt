@@ -14,7 +14,6 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.TurretBaseComponent
 import com.gadarts.returnfire.components.TurretComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
@@ -22,12 +21,22 @@ import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.CharacterType
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
+import com.gadarts.returnfire.systems.ai.logic.AiLogicHandler
+import com.gadarts.returnfire.systems.ai.logic.TurretLogic
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 
 
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+    private val aiLogicHandler: AiLogicHandler by lazy {
+        AiLogicHandler(
+            gameSessionData, gamePlayManagers, autoAim, engine.getEntitiesFor(
+                Family.all(AiComponent::class.java)
+                    .get()
+            )
+        )
+    }
     private val autoAim by lazy {
         gamePlayManagers.factories.autoAimShapeFactory.generate(
             BulletEngineHandler.COLLISION_GROUP_AI,
@@ -37,14 +46,6 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
 
     private val turretLogic by lazy { TurretLogic(gameSessionData, this.gamePlayManagers) }
-    private val aiApacheLogic by lazy {
-        AiApacheLogic(
-            gameSessionData,
-            gamePlayManagers.dispatcher,
-            gamePlayManagers.ecs.entityBuilder,
-            autoAim
-        )
-    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
@@ -111,13 +112,6 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         engine.getEntitiesFor(Family.all(TurretComponent::class.java, AiComponent::class.java).get())
     }
 
-    private val aiCharacterEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(
-            Family.all(AiComponent::class.java).exclude(TurretComponent::class.java, TurretBaseComponent::class.java)
-                .get()
-        )
-    }
-
 
     override fun update(deltaTime: Float) {
         if (GameDebugSettings.AI_DISABLED
@@ -132,9 +126,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
             turretLogic.attack(deltaTime, turret)
         }
-        for (character in aiCharacterEntities) {
-            aiApacheLogic.updateCharacter(character, deltaTime)
-        }
+        aiLogicHandler.update(deltaTime)
     }
 
 

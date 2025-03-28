@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.systems.player.handlers.movement.touchpad
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
@@ -11,6 +12,7 @@ import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHa
 class TurretTouchPadListener(
     private val movementHandler: VehicleMovementHandler,
     private val shootingHandler: PlayerShootingHandler,
+    private val player: Entity,
 ) : ClickListener() {
     private var lastTouchDown: Long = 0
 
@@ -38,7 +40,7 @@ class TurretTouchPadListener(
         pointer: Int,
         button: Int
     ) {
-        movementHandler.onTurretTouchPadTouchUp()
+        movementHandler.onTurretTouchPadTouchUp(player)
         shootingHandler.onTurretTouchPadTouchUp()
         super.touchUp(event, x, y, pointer, button)
     }
@@ -46,7 +48,7 @@ class TurretTouchPadListener(
     private fun touchPadTouched(actor: Actor) {
         val deltaX = (actor as Touchpad).knobPercentX
         val deltaY = actor.knobPercentY
-        movementHandler.onTurretTouchPadTouchDown(deltaX, deltaY)
+        movementHandler.onTurretTouchPadTouchDown(deltaX, deltaY, player)
         shootingHandler.onTurretTouchPadTouchDown(actor.knobPercentX, actor.knobPercentY)
     }
 }
