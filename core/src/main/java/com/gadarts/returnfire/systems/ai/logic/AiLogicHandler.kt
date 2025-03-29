@@ -33,12 +33,16 @@ class AiLogicHandler(
     fun update(deltaTime: Float) {
         for (character in aiCharacterEntities) {
             val boardingComponent = ComponentsMapper.boarding.get(character)
-            if ((boardingComponent != null && boardingComponent.isBoarding()) || ComponentsMapper.character.get(
-                    character
-                ).dead
+            val characterComponent = ComponentsMapper.character.get(
+                character
+            )
+
+            if ((boardingComponent != null && boardingComponent.isBoarding())
+                || characterComponent == null
+                || characterComponent.dead
             ) continue
 
-            if (ComponentsMapper.character.get(character).definition == SimpleCharacterDefinition.APACHE) {
+            if (characterComponent.definition == SimpleCharacterDefinition.APACHE) {
                 updateLogic(character, deltaTime, aiApacheLogic)
             } else {
                 updateLogic(character, deltaTime, aiTankLogic)

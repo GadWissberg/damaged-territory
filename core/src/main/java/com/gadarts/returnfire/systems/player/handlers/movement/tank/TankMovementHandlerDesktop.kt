@@ -13,6 +13,11 @@ class TankMovementHandlerDesktop :
 
     override fun idleEngineSound(character: Entity) {
         super.idleEngineSound(character)
+        stopMovement()
+    }
+
+    override fun stopMovement() {
+        super.stopMovement()
         movement = 0
     }
 
