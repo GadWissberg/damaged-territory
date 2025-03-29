@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.MapGraph
-import com.gadarts.returnfire.model.MapGraphPath
 import com.gadarts.returnfire.systems.ai.AiStatus
 import com.gadarts.returnfire.systems.ai.MapPathFinder
 import com.gadarts.returnfire.systems.data.GameSessionDataGameplay
@@ -42,15 +41,15 @@ class AiTankLogic(
                     auxVector3_1
                 )
             val end = mapGraph.getNode(playerPosition.x.toInt(), playerPosition.z.toInt())
-            path.clear()
+            aiComponent.path.clear()
             val pathFound = pathFinder.searchNodePath(start, end, aiComponent.path)
             if (pathFound) {
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
-                Gdx.app.log(
-                    "AiTankLogic",
-                    "destination: ${aiComponent.path.nodes.get(aiComponent.path.nodes.size - 1)}, enemy position: $position "
-                )
+                Gdx.app.log("AiTankLogic", "Moving ${aiComponent.path.nodes.size}")
+                aiComponent.path.nodes.forEach {
+                    Gdx.app.log("AiTankLogic", "Node: $it")
+                }
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             applyMovement(character, aiComponent, deltaTime)
@@ -128,7 +127,6 @@ class AiTankLogic(
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
         private val auxVector2 = Vector2()
-        private val path = MapGraphPath()
         private val auxQuaternion = Quaternion()
     }
 }
