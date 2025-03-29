@@ -46,10 +46,6 @@ class AiTankLogic(
             if (pathFound) {
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
-                Gdx.app.log("AiTankLogic", "Moving ${aiComponent.path.nodes.size}")
-                aiComponent.path.nodes.forEach {
-                    Gdx.app.log("AiTankLogic", "Node: $it")
-                }
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             applyMovement(character, aiComponent, deltaTime)
