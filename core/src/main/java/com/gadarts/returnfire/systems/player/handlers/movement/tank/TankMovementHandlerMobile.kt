@@ -117,7 +117,7 @@ class TankMovementHandlerMobile :
         val targetAngle = auxVector2.set(deltaX, deltaY).angleDeg()
         var angleDifference = targetAngle - currentYaw
         angleDifference = (angleDifference + 360F) % 360F
-        turretRotating = when {
+        ComponentsMapper.turret.get(turret).turretRotating = when {
             angleDifference < ROTATION_EPSILON || angleDifference > 360 - ROTATION_EPSILON -> 0
             angleDifference > 180 -> -1
             else -> 1
@@ -125,7 +125,7 @@ class TankMovementHandlerMobile :
     }
 
     override fun onTurretTouchPadTouchUp(character: Entity) {
-        turretRotating = 0
+        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRotating = 0
     }
 
 

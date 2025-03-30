@@ -9,6 +9,7 @@ class TurretComponent(val base: Entity, val followBase: Boolean, val cannon: Ent
     var baseOffsetApplied = false
     private var currentShootingArm: Int = 1
     var turretRelativeRotation: Float = 0F
+    var turretRotating: Int = 0
 
 
     fun updateCurrentShootingArm(): Int {

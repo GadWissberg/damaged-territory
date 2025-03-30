@@ -50,7 +50,8 @@ class TankMovementHandlerDesktop :
 
     private fun stopFunctionForSideKey(rotationCheck: Boolean, character: Entity) {
         if (turretRotationEnabled) {
-            turretRotating = 0
+            val turretComponent = ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret)
+            turretComponent.turretRotating = 0
         } else if (rotationCheck) {
             rotation = 0
             val rigidBody = ComponentsMapper.physics.get(character).rigidBody
@@ -95,14 +96,15 @@ class TankMovementHandlerDesktop :
     override fun pressedAlt(character: Entity) {
         turretRotationEnabled = true
         if (rotation != 0) {
-            turretRotating = rotation
+            val turretComponent = ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret)
+            turretComponent.turretRotating = rotation
             applyRotation(0, character)
         }
     }
 
     override fun pressedLeft(character: Entity) {
         if (turretRotationEnabled) {
-            turretRotating = 1
+            applyTurretRotation(1, ComponentsMapper.turretBase.get(character).turret)
         } else {
             applyRotation(1, character)
         }
@@ -110,18 +112,24 @@ class TankMovementHandlerDesktop :
 
     override fun pressedRight(character: Entity) {
         if (turretRotationEnabled) {
-            turretRotating = -1
+            applyTurretRotation(-1, ComponentsMapper.turretBase.get(character).turret)
         } else {
             applyRotation(-1, character)
         }
     }
 
+    fun applyTurretRotation(side: Int, turret: Entity) {
+        ComponentsMapper.turret.get(turret).turretRotating = side
+    }
+
     override fun releasedAlt(character: Entity) {
         turretRotationEnabled = false
+        val turretComponent = ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret)
+        val turretRotating = turretComponent.turretRotating
         if (turretRotating != 0) {
             applyRotation(turretRotating, character)
         }
-        turretRotating = 0
+        turretComponent.turretRotating = 0
     }
 
     override fun isThrusting(character: Entity): Boolean {

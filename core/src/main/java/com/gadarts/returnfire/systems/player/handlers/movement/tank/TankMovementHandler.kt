@@ -14,7 +14,6 @@ abstract class TankMovementHandler :
         25F,
         6F
     ) {
-    protected var turretRotating: Int = 0
 
     protected open fun idleEngineSound(character: Entity) {
         ComponentsMapper.ambSound.get(character).pitchTarget = 1F
@@ -32,6 +31,8 @@ abstract class TankMovementHandler :
 
     override fun update(character: Entity, deltaTime: Float) {
         super.update(character, deltaTime)
+        val turretRotating =
+            ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRotating
         if (turretRotating != 0) {
             val turretRelativeRotation =
                 ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRelativeRotation
