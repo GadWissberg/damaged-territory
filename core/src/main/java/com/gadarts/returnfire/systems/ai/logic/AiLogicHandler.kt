@@ -26,7 +26,10 @@ class AiLogicHandler(
         AiTankLogic(
             gamePlayManagers.pathFinder,
             gameSessionData.mapData.mapGraph,
-            gameSessionData.gamePlayData,
+            gamePlayManagers.ecs.entityBuilder,
+            gamePlayManagers.dispatcher,
+            gameSessionData,
+            autoAim
         )
     }
 
