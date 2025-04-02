@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.ai.logic
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
+import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
@@ -13,7 +14,7 @@ class AiLogicHandler(
     gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject,
     private val aiCharacterEntities: ImmutableArray<Entity>
-) {
+) : Disposable {
     private val aiApacheLogic by lazy {
         AiApacheLogic(
             gameSessionData,
@@ -24,12 +25,10 @@ class AiLogicHandler(
     }
     private val aiTankLogic by lazy {
         AiTankLogic(
-            gamePlayManagers.pathFinder,
             gameSessionData.mapData.mapGraph,
-            gamePlayManagers.ecs.entityBuilder,
-            gamePlayManagers.dispatcher,
             gameSessionData,
-            autoAim
+            autoAim,
+            gamePlayManagers
         )
     }
 
@@ -56,5 +55,9 @@ class AiLogicHandler(
     private fun updateLogic(character: Entity, deltaTime: Float, logic: AiCharacterLogic) {
         logic.preUpdate(character, deltaTime)
         logic.update(character, deltaTime)
+    }
+
+    override fun dispose() {
+        aiTankLogic.dispose()
     }
 }

@@ -4,9 +4,11 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.model.MapGraphPath
+import com.gadarts.returnfire.model.graph.GraphNode
 import com.gadarts.returnfire.systems.ai.AiStatus
 
 class AiComponent : Component {
+    var currentNode: GraphNode? = null
     val path: MapGraphPath = MapGraphPath()
     var state: AiStatus = AiStatus.IDLE
     var returnToBase: Boolean = false

@@ -7,12 +7,13 @@ import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.model.graph.GraphNode
 
 class MapGraph(private val width: Int, private val depth: Int) : IndexedGraph<GraphNode> {
-    private val nodes: kotlin.Array<kotlin.Array<GraphNode>> = Array(depth) { Array(width) { GraphNode(-1, -1, -1) } }
+    private val nodes: kotlin.Array<kotlin.Array<GraphNode>> =
+        Array(depth) { Array(width) { GraphNode(-1, -1, -1, MapGraphType.AVAILABLE) } }
     private val connections = mutableMapOf<GraphNode, Array<Connection<GraphNode>>>()
 
-    fun addNode(x: Int, y: Int): GraphNode {
+    fun addNode(x: Int, y: Int, type: MapGraphType): GraphNode {
         val index = y * width + x
-        val node = GraphNode(index, x, y)
+        val node = GraphNode(index, x, y, type)
         nodes[y][x] = node
         return node
     }

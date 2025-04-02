@@ -26,7 +26,10 @@ abstract class TankMovementHandler :
 
     override fun pushForward(rigidBody: btRigidBody, forwardDirection: Int, character: Entity) {
         super.pushForward(rigidBody, forwardDirection, character)
-        ComponentsMapper.ambSound.get(character).pitchTarget = 2F
+
+        if (ComponentsMapper.ambSound.has(character)) {
+            ComponentsMapper.ambSound.get(character).pitchTarget = 2F
+        }
     }
 
     override fun update(character: Entity, deltaTime: Float) {

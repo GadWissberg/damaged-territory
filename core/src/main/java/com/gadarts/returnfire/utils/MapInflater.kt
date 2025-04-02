@@ -29,6 +29,7 @@ import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.AmbComponent
 import com.gadarts.returnfire.components.AnimatedTextureComponent
+import com.gadarts.returnfire.components.BaseComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmEffectsData
@@ -44,6 +45,7 @@ import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.CharacterType
 import com.gadarts.returnfire.model.ElementType
 import com.gadarts.returnfire.model.MapGraph
+import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
@@ -53,6 +55,7 @@ import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.TilesMapping
+import kotlin.math.floor
 
 class MapInflater(
     private val gameSessionData: GameSessionData,
@@ -79,45 +82,97 @@ class MapInflater(
         val mapGraph = MapGraph(tilesMapping[0].size, tilesMapping.size)
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
-        createGraphNodes(width, depth, mapGraph)
+        val occupiedTiles = mutableSetOf<Pair<Int, Int>>()
+        engine.getEntitiesFor(Family.all(AmbComponent::class.java).exclude(BaseComponent::class.java).get()).forEach {
+            val gameModelInstance = ComponentsMapper.modelInstance.get(it).gameModelInstance
+            occupiedTiles.addAll(getTilesCoveredByBoundingBox(gameModelInstance))
+        }
+        createGraphNodes(width, depth, mapGraph, tilesMapping, occupiedTiles)
         connectGraphNodes(width, depth, mapGraph)
         gameSessionData.mapData.mapGraph = mapGraph
+    }
+
+    private fun getTilesCoveredByBoundingBox(gameModelInstance: GameModelInstance): List<Pair<Int, Int>> {
+        val boundingBox = scaleBoundingBox(gameModelInstance.getBoundingBox(auxBoundingBox), 1F)
+        val min = Vector3(boundingBox.min)
+        val max = Vector3(boundingBox.max)
+        val minX = floor(min.x).toInt()
+        val minZ = floor(min.z).toInt()
+        val maxX = floor(max.x).toInt()
+        val maxZ = floor(max.z).toInt()
+
+        val tilesCovered = mutableListOf<Pair<Int, Int>>()
+
+        for (x in minX..maxX) {
+            for (z in minZ..maxZ) {
+                tilesCovered.add(x to z)
+            }
+        }
+
+        return tilesCovered
+    }
+
+    private fun scaleBoundingBox(box: BoundingBox, scaleFactor: Float): BoundingBox {
+        val center = box.getCenter(Vector3())
+        val dimensions = box.getDimensions(Vector3()).scl(0.5F * scaleFactor)
+
+        val scaledMin = Vector3(center).sub(dimensions)
+        val scaledMax = Vector3(center).add(dimensions)
+
+        return BoundingBox(scaledMin, scaledMax)
     }
 
     private fun connectGraphNodes(
         width: Int,
         depth: Int,
-        mapGraph: MapGraph
+        mapGraph: MapGraph,
     ) {
         val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
         for (i in 0 until width * depth) {
             val x = i % width
             val y = i / width
             val from = mapGraph.getNode(x, y)
+            if (from.type == MapGraphType.BLOCKED) continue
 
-            if (x > 0 && tilesMapping[y][x - 1] != WATER_TILE_INDEX) {
+            if (x > 0) {
                 connect(mapGraph, from, x - 1, y)
             }
-            if (x > 0 && y < tilesMapping.size - 1 && tilesMapping[y + 1][x - 1] != WATER_TILE_INDEX) {
-                connect(mapGraph, from, x - 1, y + 1)
+            if (x > 0 && y < tilesMapping.size - 1) {
+                if (mapGraph.getNode(x - 1, y).type == MapGraphType.AVAILABLE
+                    && mapGraph.getNode(x, y + 1).type == MapGraphType.AVAILABLE
+                ) {
+                    connect(mapGraph, from, x - 1, y + 1)
+                }
             }
-            if (y < tilesMapping.size - 1 && tilesMapping[y + 1][x] != WATER_TILE_INDEX) {
+            if (y < tilesMapping.size - 1) {
                 connect(mapGraph, from, x, y + 1)
             }
-            if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1 && tilesMapping[y + 1][x + 1] != WATER_TILE_INDEX) {
-                connect(mapGraph, from, x + 1, y + 1)
+            if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1) {
+                if (mapGraph.getNode(x + 1, y).type == MapGraphType.AVAILABLE
+                    && mapGraph.getNode(x, y + 1).type == MapGraphType.AVAILABLE
+                ) {
+                    connect(mapGraph, from, x + 1, y + 1)
+                }
             }
-            if (x < tilesMapping[0].size - 1 && tilesMapping[y][x + 1] != WATER_TILE_INDEX) {
+            if (x < tilesMapping[0].size - 1) {
                 connect(mapGraph, from, x + 1, y)
             }
-            if (x < tilesMapping[0].size - 1 && y > 0 && tilesMapping[y - 1][x + 1] != WATER_TILE_INDEX) {
-                connect(mapGraph, from, x + 1, y - 1)
+            if (x < tilesMapping[0].size - 1 && y > 0) {
+                if (mapGraph.getNode(x + 1, y).type == MapGraphType.AVAILABLE
+                    && mapGraph.getNode(x, y - 1).type == MapGraphType.AVAILABLE
+                ) {
+                    connect(mapGraph, from, x + 1, y - 1)
+                }
             }
-            if (y > 0 && tilesMapping[y - 1][x] != WATER_TILE_INDEX) {
+            if (y > 0) {
                 connect(mapGraph, from, x, y - 1)
             }
-            if (x > 0 && y > 0 && tilesMapping[y - 1][x - 1] != WATER_TILE_INDEX) {
-                connect(mapGraph, from, x - 1, y - 1)
+            if (x > 0 && y > 0) {
+                if (mapGraph.getNode(x - 1, y).type == MapGraphType.AVAILABLE
+                    && mapGraph.getNode(x, y - 1).type == MapGraphType.AVAILABLE
+                ) {
+                    connect(mapGraph, from, x - 1, y - 1)
+                }
             }
         }
     }
@@ -128,20 +183,25 @@ class MapInflater(
         toX: Int,
         toY: Int,
     ) {
-        if (gameSessionData.mapData.currentMap.tilesMapping[toY][toX] == WATER_TILE_INDEX) return
-
         val to = mapGraph.getNode(toX, toY)
+        if (to.type == MapGraphType.BLOCKED) return
+
         mapGraph.connect(from, to)
     }
 
     private fun createGraphNodes(
         width: Int,
         depth: Int,
-        mapGraph: MapGraph
+        mapGraph: MapGraph,
+        tilesMapping: Array<CharArray>,
+        occupiedTiles: MutableSet<Pair<Int, Int>>
     ) {
         for (y in 0 until depth) {
             for (x in 0 until width) {
-                mapGraph.addNode(x, y)
+                mapGraph.addNode(
+                    x, y, if (tilesMapping[y][x] == WATER_TILE_INDEX || occupiedTiles.contains(x to y)
+                    ) MapGraphType.BLOCKED else MapGraphType.AVAILABLE
+                )
             }
         }
     }

@@ -135,6 +135,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
     override fun dispose() {
         autoAim.dispose()
+        aiLogicHandler.dispose()
     }
 
     companion object {
