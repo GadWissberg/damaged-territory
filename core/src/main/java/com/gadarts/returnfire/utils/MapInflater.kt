@@ -83,12 +83,20 @@ class MapInflater(
         val width = tilesMapping[0].size
         val occupiedTiles = mutableSetOf<Pair<Int, Int>>()
         engine.getEntitiesFor(Family.all(AmbComponent::class.java).exclude(BaseComponent::class.java).get()).forEach {
-            val gameModelInstance = ComponentsMapper.modelInstance.get(it).gameModelInstance
-            val output = mutableListOf<Pair<Int, Int>>()
-            GeneralUtils.getTilesCoveredByBoundingBox(gameModelInstance, mapGraph) { x, z, _ ->
-                output.add(Pair(x, z))
+            if (!(ComponentsMapper.amb.get(it).def == AmbDefinition.FENCE
+                    || ComponentsMapper.amb.get(it).def == AmbDefinition.SIGN
+                    || ComponentsMapper.amb.get(it).def == AmbDefinition.SIGN_BIG
+                    || ComponentsMapper.amb.get(it).def == AmbDefinition.PALM_TREE
+                    || ComponentsMapper.amb.get(it).def == AmbDefinition.STREET_LIGHT
+                    )
+            ) {
+                val gameModelInstance = ComponentsMapper.modelInstance.get(it).gameModelInstance
+                val output = mutableListOf<Pair<Int, Int>>()
+                GeneralUtils.getTilesCoveredByBoundingBox(gameModelInstance, mapGraph) { x, z, _ ->
+                    output.add(Pair(x, z))
+                }
+                occupiedTiles.addAll(output)
             }
-            occupiedTiles.addAll(output)
         }
         createGraphNodes(width, depth, mapGraph, tilesMapping, occupiedTiles)
         connectGraphNodes(width, depth, mapGraph)

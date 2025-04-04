@@ -31,7 +31,6 @@ import kotlin.math.atan2
 
 
 class AiTankLogic(
-    private val mapGraph: MapGraph,
     private val gameSessionData: GameSessionData,
     autoAim: btPairCachingGhostObject,
     private val gamePlayManagers: GamePlayManagers,
@@ -53,14 +52,14 @@ class AiTankLogic(
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector3_2
                 )
-            val start = mapGraph.getNode(position.x.toInt(), position.z.toInt())
+            val start = gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
             val transform =
                 ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
             val playerPosition =
                 transform.getTranslation(
                     auxVector3_1
                 )
-            val end = mapGraph.getNode(playerPosition.x.toInt(), playerPosition.z.toInt())
+            val end = gameSessionData.mapData.mapGraph.getNode(playerPosition.x.toInt(), playerPosition.z.toInt())
             aiComponent.path.clear()
             val pathFound =
                 gamePlayManagers.pathFinder.searchNodePath(start, end, aiComponent.path, aiComponent.nodesToExclude)
@@ -209,7 +208,7 @@ class AiTankLogic(
             transform.getTranslation(
                 auxVector3_1
             )
-        val currentNode = mapGraph.getNode(position.x.toInt(), position.z.toInt())
+        val currentNode = gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
         val nextNode = pathNodes.first()
         if (currentNode == nextNode) {
             pathNodes.removeIndex(0)
@@ -277,7 +276,7 @@ class AiTankLogic(
     }
 
     object BaseRotationAnglesMatch : RotationCallback {
-        const val MAX_LOOKING_AHEAD = 2F
+        const val MAX_LOOKING_AHEAD = 0.5F
         private val result = mutableListOf<MapGraphNode>()
         private val tileCollector: (Int, Int, MapGraph) -> Unit = { x, z, mapGraph ->
             if (x >= 0 && z >= 0 && x < mapGraph.width && z < mapGraph.depth) {

@@ -25,7 +25,6 @@ class AiLogicHandler(
     }
     private val aiTankLogic by lazy {
         AiTankLogic(
-            gameSessionData.mapData.mapGraph,
             gameSessionData,
             autoAim,
             gamePlayManagers
