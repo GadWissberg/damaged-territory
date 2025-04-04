@@ -4,32 +4,47 @@ import com.badlogic.gdx.ai.pfa.Connection
 import com.badlogic.gdx.ai.pfa.DefaultConnection
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph
 import com.badlogic.gdx.utils.Array
-import com.gadarts.returnfire.model.graph.GraphNode
+import com.gadarts.returnfire.model.graph.MapGraphNode
 
-class MapGraph(private val width: Int, private val depth: Int) : IndexedGraph<GraphNode> {
-    private val nodes: kotlin.Array<kotlin.Array<GraphNode>> =
-        Array(depth) { Array(width) { GraphNode(-1, -1, -1, MapGraphType.AVAILABLE) } }
-    private val connections = mutableMapOf<GraphNode, Array<Connection<GraphNode>>>()
+class MapGraph(val width: Int, val depth: Int) : IndexedGraph<MapGraphNode> {
+    private val nodes: kotlin.Array<kotlin.Array<MapGraphNode>> =
+        Array(depth) { Array(width) { MapGraphNode(-1, -1, -1, MapGraphType.AVAILABLE) } }
+    private val connections = mutableMapOf<MapGraphNode, Array<Connection<MapGraphNode>>>()
 
-    fun addNode(x: Int, y: Int, type: MapGraphType): GraphNode {
+    fun addNode(x: Int, y: Int, type: MapGraphType): MapGraphNode {
         val index = y * width + x
-        val node = GraphNode(index, x, y, type)
+        val node = MapGraphNode(index, x, y, type)
         nodes[y][x] = node
         return node
     }
 
-    fun connect(from: GraphNode, to: GraphNode) {
+    fun connect(from: MapGraphNode, to: MapGraphNode) {
         connections.computeIfAbsent(from) { Array() }.add(DefaultConnection(from, to))
     }
 
-    override fun getIndex(node: GraphNode): Int = node.index
+    override fun getIndex(node: MapGraphNode): Int = node.index
 
-    override fun getConnections(fromNode: GraphNode): Array<Connection<GraphNode>> =
-        connections[fromNode] ?: Array()
+    override fun getConnections(fromNode: MapGraphNode): Array<Connection<MapGraphNode>> {
+        auxConnectionsList.clear()
+        if (fromNode.type == MapGraphType.BLOCKED) {
+            return auxConnectionsList
+        }
+
+        connections[fromNode]?.forEach {
+            if (it.toNode.type != MapGraphType.BLOCKED) {
+                auxConnectionsList.add(it)
+            }
+        }
+        return auxConnectionsList
+    }
 
     override fun getNodeCount(): Int = width * depth
 
-    fun getNode(x: Int, y: Int): GraphNode {
+    fun getNode(x: Int, y: Int): MapGraphNode {
         return nodes[y][x]
+    }
+
+    companion object {
+        private val auxConnectionsList = Array<Connection<MapGraphNode>>(8)
     }
 }

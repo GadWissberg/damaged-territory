@@ -10,11 +10,15 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.ScreenUtils
+import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.model.MapGraph
+import kotlin.math.floor
 
 object GeneralUtils {
 
-    val auxVector = Vector3()
-
+    val auxVector1 = Vector3()
+    val auxVector2 = Vector3()
+    private val auxBoundingBox = BoundingBox()
     fun createFlatMesh(
         builder: ModelBuilder,
         meshName: String,
@@ -66,9 +70,29 @@ object GeneralUtils {
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(
             GL20.GL_COLOR_BUFFER_BIT
-                    or GL20.GL_DEPTH_BUFFER_BIT
-                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+                or GL20.GL_DEPTH_BUFFER_BIT
+                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
+    }
+
+    fun getTilesCoveredByBoundingBox(
+        gameModelInstance: GameModelInstance,
+        mapGraph: MapGraph,
+        resultFiller: (Int, Int, MapGraph) -> Unit,
+    ) {
+        val boundingBox = gameModelInstance.getBoundingBox(auxBoundingBox)
+        val min = Vector3(boundingBox.min)
+        val max = Vector3(boundingBox.max)
+        val minX = floor(min.x).toInt()
+        val minZ = floor(min.z).toInt()
+        val maxX = floor(max.x).toInt()
+        val maxZ = floor(max.z).toInt()
+        for (x in minX..maxX) {
+            for (z in minZ..maxZ) {
+                resultFiller(x, z, mapGraph)
+            }
+        }
+
     }
 
     fun getRandomPositionOnBoundingBox(bb: BoundingBox, bias: Float): Vector3 {
@@ -78,7 +102,7 @@ object GeneralUtils {
         val yRange = max.y - min.y
         val zRange = max.z - min.z
         val face = MathUtils.random(5)
-        val position = auxVector
+        val position = auxVector1
         when (face) {
             0 -> position.set(
                 min.x - bias,

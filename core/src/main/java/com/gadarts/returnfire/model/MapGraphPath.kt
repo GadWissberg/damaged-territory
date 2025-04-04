@@ -1,6 +1,6 @@
 package com.gadarts.returnfire.model
 
 import com.badlogic.gdx.ai.pfa.DefaultGraphPath
-import com.gadarts.returnfire.model.graph.GraphNode
+import com.gadarts.returnfire.model.graph.MapGraphNode
 
-class MapGraphPath : DefaultGraphPath<GraphNode>()
+class MapGraphPath : DefaultGraphPath<MapGraphNode>()

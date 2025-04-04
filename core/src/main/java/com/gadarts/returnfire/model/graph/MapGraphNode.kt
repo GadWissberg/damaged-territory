@@ -2,12 +2,12 @@ package com.gadarts.returnfire.model.graph
 
 import com.gadarts.returnfire.model.MapGraphType
 
-data class GraphNode(val index: Int, val x: Int, val y: Int, val type: MapGraphType) {
+data class MapGraphNode(val index: Int, val x: Int, val y: Int, var type: MapGraphType) {
     override fun toString(): String = "Node($index, x=$x, y=$y)"
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
-        val node = other as GraphNode
+        val node = other as MapGraphNode
         return x == node.x && y == node.y
     }
 

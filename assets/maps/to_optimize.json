@@ -947,13 +947,6 @@
       "col": 31
     },
     {
-      "definition": "RUINS",
-      "type": "AMB",
-      "direction": 180,
-      "row": 30,
-      "col": 34
-    },
-    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,

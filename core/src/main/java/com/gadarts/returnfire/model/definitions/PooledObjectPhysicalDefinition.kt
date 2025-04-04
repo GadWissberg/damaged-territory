@@ -14,7 +14,7 @@ enum class PooledObjectPhysicalDefinition(
         0.035F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
-                val auxVector = GeneralUtils.auxVector
+                val auxVector = GeneralUtils.auxVector1
                 val halfExtents = boundingBox.getDimensions(auxVector).scl(0.5F)
                 val shape = btBoxShape(halfExtents)
                 return shape
@@ -26,7 +26,7 @@ enum class PooledObjectPhysicalDefinition(
         10F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
-                val auxVector = GeneralUtils.auxVector
+                val auxVector = GeneralUtils.auxVector1
                 val halfExtents = boundingBox.getDimensions(auxVector).scl(0.5F)
                 val shape = btBoxShape(halfExtents)
                 return shape
@@ -38,7 +38,7 @@ enum class PooledObjectPhysicalDefinition(
         8F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
-                val auxVector = GeneralUtils.auxVector
+                val auxVector = GeneralUtils.auxVector1
                 val halfExtents = boundingBox.getDimensions(auxVector).scl(0.5F)
                 val shape = btBoxShape(halfExtents)
                 return shape
@@ -49,7 +49,7 @@ enum class PooledObjectPhysicalDefinition(
         0.06F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
-                val auxVector = GeneralUtils.auxVector
+                val auxVector = GeneralUtils.auxVector1
                 val halfExtents = boundingBox.getDimensions(auxVector).scl(0.5F)
                 val shape = btBoxShape(halfExtents)
                 return shape
@@ -60,7 +60,7 @@ enum class PooledObjectPhysicalDefinition(
         0.12F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
-                val auxVector = GeneralUtils.auxVector
+                val auxVector = GeneralUtils.auxVector1
                 val halfExtents = boundingBox.getDimensions(auxVector).scl(0.5F)
                 val shape = btBoxShape(halfExtents)
                 return shape
@@ -71,7 +71,7 @@ enum class PooledObjectPhysicalDefinition(
         8F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
-                val shape = btBoxShape(GeneralUtils.auxVector.set(0.25F, 0.25F, 0.065F))
+                val shape = btBoxShape(GeneralUtils.auxVector1.set(0.25F, 0.25F, 0.065F))
                 return shape
             }
         },
@@ -80,7 +80,7 @@ enum class PooledObjectPhysicalDefinition(
         0.12F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
-                val shape = btBoxShape(GeneralUtils.auxVector.set(0.065F, 0.03F, 0.03F))
+                val shape = btBoxShape(GeneralUtils.auxVector1.set(0.065F, 0.03F, 0.03F))
                 return shape
             }
         },

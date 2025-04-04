@@ -50,12 +50,11 @@ import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
-import com.gadarts.returnfire.model.graph.GraphNode
+import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.TilesMapping
-import kotlin.math.floor
 
 class MapInflater(
     private val gameSessionData: GameSessionData,
@@ -85,42 +84,17 @@ class MapInflater(
         val occupiedTiles = mutableSetOf<Pair<Int, Int>>()
         engine.getEntitiesFor(Family.all(AmbComponent::class.java).exclude(BaseComponent::class.java).get()).forEach {
             val gameModelInstance = ComponentsMapper.modelInstance.get(it).gameModelInstance
-            occupiedTiles.addAll(getTilesCoveredByBoundingBox(gameModelInstance))
+            val output = mutableListOf<Pair<Int, Int>>()
+            GeneralUtils.getTilesCoveredByBoundingBox(gameModelInstance, mapGraph) { x, z, _ ->
+                output.add(Pair(x, z))
+            }
+            occupiedTiles.addAll(output)
         }
         createGraphNodes(width, depth, mapGraph, tilesMapping, occupiedTiles)
         connectGraphNodes(width, depth, mapGraph)
         gameSessionData.mapData.mapGraph = mapGraph
     }
 
-    private fun getTilesCoveredByBoundingBox(gameModelInstance: GameModelInstance): List<Pair<Int, Int>> {
-        val boundingBox = scaleBoundingBox(gameModelInstance.getBoundingBox(auxBoundingBox), 1F)
-        val min = Vector3(boundingBox.min)
-        val max = Vector3(boundingBox.max)
-        val minX = floor(min.x).toInt()
-        val minZ = floor(min.z).toInt()
-        val maxX = floor(max.x).toInt()
-        val maxZ = floor(max.z).toInt()
-
-        val tilesCovered = mutableListOf<Pair<Int, Int>>()
-
-        for (x in minX..maxX) {
-            for (z in minZ..maxZ) {
-                tilesCovered.add(x to z)
-            }
-        }
-
-        return tilesCovered
-    }
-
-    private fun scaleBoundingBox(box: BoundingBox, scaleFactor: Float): BoundingBox {
-        val center = box.getCenter(Vector3())
-        val dimensions = box.getDimensions(Vector3()).scl(0.5F * scaleFactor)
-
-        val scaledMin = Vector3(center).sub(dimensions)
-        val scaledMax = Vector3(center).add(dimensions)
-
-        return BoundingBox(scaledMin, scaledMax)
-    }
 
     private fun connectGraphNodes(
         width: Int,
@@ -179,7 +153,7 @@ class MapInflater(
 
     private fun connect(
         mapGraph: MapGraph,
-        from: GraphNode,
+        from: MapGraphNode,
         toX: Int,
         toY: Int,
     ) {
