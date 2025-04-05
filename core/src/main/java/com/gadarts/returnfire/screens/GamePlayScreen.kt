@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.MapDefinition
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.factories.*
 import com.gadarts.returnfire.managers.EcsManager
@@ -38,7 +38,7 @@ class GamePlayScreen(
 ) : Screen {
 
     init {
-        val fileName = MapDefinition.TO_OPTIMIZE.getPaths()[0]
+        val fileName = GameDebugSettings.MAP.getPaths()[0]
         generalManagers.assetsManager.load(
             fileName,
             GameMap::class.java
@@ -158,7 +158,7 @@ class GamePlayScreen(
     }
 
     override fun hide() {
-        generalManagers.assetsManager.unload(MapDefinition.TO_OPTIMIZE.getPaths()[0])
+        generalManagers.assetsManager.unload(GameDebugSettings.MAP.getPaths()[0])
     }
 
     override fun dispose() {

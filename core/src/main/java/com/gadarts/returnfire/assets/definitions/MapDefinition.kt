@@ -6,6 +6,7 @@ import com.gadarts.returnfire.model.GameMap
 enum class MapDefinition :
     AssetDefinition<GameMap> {
 
+    MAP_0,
     TO_OPTIMIZE;
 
 

@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
@@ -67,11 +66,6 @@ class AiTankLogic(
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
                 aiComponent.currentNode = start
-            } else {
-                Gdx.app.log(
-                    "AiTankLogic",
-                    "Path not found. Start: $start, End: $end, Excluded nodes: ${aiComponent.nodesToExclude.size}"
-                )
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, aiComponent, deltaTime)
@@ -94,7 +88,7 @@ class AiTankLogic(
         deltaTime: Float
     ) {
         applyMovement(character, aiComponent, deltaTime)
-//        aimAndShoot(character, deltaTime)
+        aimAndShoot(character, deltaTime)
     }
 
 
@@ -181,7 +175,7 @@ class AiTankLogic(
 
     override fun update(character: Entity, deltaTime: Float) {
         movementHandler.update(character, deltaTime)
-//        shootingHandler.update(character)
+        shootingHandler.update(character)
     }
 
     private fun applyMovement(
@@ -299,10 +293,6 @@ class AiTankLogic(
                     gameSessionData.physicsData.collisionWorld
                 )
             ) {
-                Gdx.app.log(
-                    "AiTankLogic",
-                    "Blocked by obstacle. Character: $character, callback: $callback"
-                )
                 val colliderModelInstanceComponent =
                     ComponentsMapper.modelInstance.get(callback.collisionObject.userData as Entity)
                 val aiComponent = ComponentsMapper.ai.get(character)
@@ -426,15 +416,15 @@ class AiTankLogic(
                 )
             val direction = auxVector3_1.set(Vector3.X).rot(transform).nor()
             callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
-            callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_GENERAL or COLLISION_GROUP_AI
+            callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
             return rayTest(position, direction, collisionWorld, callback, Vector3.Zero) ||
-                rayTest(
-                    position,
-                    direction,
-                    collisionWorld,
-                    callback,
-                    auxVector3_3.set(0F, 0F, LOOKING_OFFSET)
-                ) || rayTest(
+                    rayTest(
+                        position,
+                        direction,
+                        collisionWorld,
+                        callback,
+                        auxVector3_3.set(0F, 0F, LOOKING_OFFSET)
+                    ) || rayTest(
                 position,
                 direction,
                 collisionWorld,
@@ -457,7 +447,8 @@ class AiTankLogic(
             ).add(offset)
             rayTo.set(rayFrom).mulAdd(direction, MAX_LOOKING_AHEAD)
             collisionWorld.rayTest(rayFrom, rayTo, callback)
-            return callback.hasHit()
+            val hasHit = callback.hasHit()
+            return hasHit
         }
 
         private val rayFrom = Vector3()

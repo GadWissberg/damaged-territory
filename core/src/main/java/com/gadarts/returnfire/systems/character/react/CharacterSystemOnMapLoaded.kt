@@ -6,7 +6,6 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.definitions.MapDefinition
 import com.gadarts.returnfire.components.BaseComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.character.CharacterColor
@@ -22,7 +21,7 @@ class CharacterSystemOnMapLoaded(engine: Engine) : HandlerOnEvent {
 
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        val map = gamePlayManagers.assetsManager.getAssetByDefinition(MapDefinition.TO_OPTIMIZE)
+        val map = gamePlayManagers.assetsManager.getAssetByDefinition(GameDebugSettings.MAP)
         baseEntities.forEach {
             val base =
                 map.placedElements.find { placedElement ->

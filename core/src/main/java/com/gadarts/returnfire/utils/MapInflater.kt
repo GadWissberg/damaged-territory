@@ -27,10 +27,7 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.components.AmbComponent
-import com.gadarts.returnfire.components.AnimatedTextureComponent
-import com.gadarts.returnfire.components.BaseComponent
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.*
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmEffectsData
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -82,13 +79,15 @@ class MapInflater(
         val depth = tilesMapping.size
         val width = tilesMapping[0].size
         val occupiedTiles = mutableSetOf<Pair<Int, Int>>()
-        engine.getEntitiesFor(Family.all(AmbComponent::class.java).exclude(BaseComponent::class.java).get()).forEach {
-            if (!(ComponentsMapper.amb.get(it).def == AmbDefinition.FENCE
-                    || ComponentsMapper.amb.get(it).def == AmbDefinition.SIGN
-                    || ComponentsMapper.amb.get(it).def == AmbDefinition.SIGN_BIG
-                    || ComponentsMapper.amb.get(it).def == AmbDefinition.PALM_TREE
-                    || ComponentsMapper.amb.get(it).def == AmbDefinition.STREET_LIGHT
-                    )
+        engine.getEntitiesFor(
+            Family.one(AmbComponent::class.java, TurretBaseComponent::class.java).exclude(BaseComponent::class.java)
+                .get()
+        ).forEach {
+            if ((ComponentsMapper.amb.has(it)
+                        && (ComponentsMapper.amb.get(it).def != AmbDefinition.FENCE
+                        && ComponentsMapper.amb.get(it).def != AmbDefinition.PALM_TREE))
+                || (ComponentsMapper.character.has(it)
+                        && ComponentsMapper.character.get(it).definition == TurretCharacterDefinition.TURRET_CANNON)
             ) {
                 val gameModelInstance = ComponentsMapper.modelInstance.get(it).gameModelInstance
                 val output = mutableListOf<Pair<Int, Int>>()
@@ -499,8 +498,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                && definition != SimpleCharacterDefinition.APACHE
-                && definition != TurretCharacterDefinition.TANK
+                    && definition != SimpleCharacterDefinition.APACHE
+                    && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -765,9 +764,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-        && col >= 0
-        && row < gameSessionData.mapData.currentMap.tilesMapping.size
-        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+            && col >= 0
+            && row < gameSessionData.mapData.currentMap.tilesMapping.size
+            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

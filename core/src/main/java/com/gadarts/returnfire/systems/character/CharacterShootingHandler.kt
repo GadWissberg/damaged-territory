@@ -154,8 +154,8 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
                 )
                 val isFlyer = characterComponent.definition.isFlyer()
                 if ((aimingRestriction == null
-                        || (isFlyer && aimingRestriction == AimingRestriction.ONLY_SKY)
-                        || (!isFlyer && aimingRestriction == AimingRestriction.ONLY_GROUND))
+                            || (isFlyer && aimingRestriction == AimingRestriction.ONLY_SKY)
+                            || (!isFlyer && aimingRestriction == AimingRestriction.ONLY_GROUND))
                     && !characterComponent.dead
                 ) {
                     val gameModelInstance =
@@ -199,6 +199,8 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
     }
 
     open fun update(character: Entity) {
+        if (!ComponentsMapper.primaryArm.has(character)) return
+
         updateAutoAim(character)
         var armComp: ArmComponent = ComponentsMapper.primaryArm.get(character)
         handleShooting(
