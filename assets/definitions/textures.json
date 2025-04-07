@@ -493,10 +493,10 @@
       "file_name": "tank_body_texture_green"
     },
     {
-      "file_name": "tank_body_dead_texture_brown"
+      "file_name": "tank_body_texture_dead_brown"
     },
     {
-      "file_name": "tank_body_dead_texture_green"
+      "file_name": "tank_body_texture_dead_green"
     },
     {
       "file_name": "tank_turret_texture_green"

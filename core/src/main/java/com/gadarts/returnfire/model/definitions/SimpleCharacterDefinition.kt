@@ -11,8 +11,13 @@ enum class SimpleCharacterDefinition(
     private val linearFactor: Vector3,
     private val startHeight: Float,
     private val flyer: Boolean,
+    private val gibable: Boolean,
+    private val corpseModelDefinition: ModelDefinition,
 ) : CharacterDefinition {
-    APACHE(1F, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), CharacterDefinition.FLYER_HEIGHT, true);
+    APACHE(
+        1F, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), CharacterDefinition.FLYER_HEIGHT, true, true,
+        ModelDefinition.APACHE_DEAD
+    );
 
     override fun isFlyer(): Boolean {
         return flyer
@@ -56,5 +61,13 @@ enum class SimpleCharacterDefinition(
 
     override fun getScale(): Float {
         return 1F
+    }
+
+    override fun isGibable(): Boolean {
+        return gibable
+    }
+
+    override fun getCorpseModelDefinition(): ModelDefinition {
+        return corpseModelDefinition
     }
 }

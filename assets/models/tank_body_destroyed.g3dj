@@ -53610,7 +53610,7 @@
       "textures": [
         {
           "id": "Texture.003",
-          "filename": "tank_body_dead_texture_brown.png",
+          "filename": "tank_body_dead_texture.png",
           "type": "DIFFUSE"
         }
       ]

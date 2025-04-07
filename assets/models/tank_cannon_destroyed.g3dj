@@ -4293,7 +4293,7 @@
       "textures": [
         {
           "id": "Texture.006",
-          "filename": "tank_cannon_texture_dead_brown.png",
+          "filename": "tank_cannon_texture_dead.png",
           "type": "DIFFUSE"
         }
       ]

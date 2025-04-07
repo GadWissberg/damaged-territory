@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -30,6 +31,7 @@ import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.model.CharacterType
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -108,7 +110,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         }
         if (isApache || characterComponent.definition == TurretCharacterDefinition.TANK) {
             if (!ComponentsMapper.player.has(character)) {
-                if (MathUtils.random() >= 0.5F) {
+                if (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F) {
                     turnCharacterToCorpse(character, planeCrashSoundId)
                 } else {
                     gibCharacter(character, planeCrashSoundId)
@@ -367,21 +369,26 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         planeCrashSoundId: Long
     ) {
         val assetsManager = gamePlayManagers.assetsManager
+        val characterComponent = ComponentsMapper.character.get(
+            character
+        )
+        val characterDefinition = characterComponent.definition
         val deadGameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
-                ModelDefinition.APACHE_DEAD
+                characterDefinition.getCorpseModelDefinition()
             )
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
         val position = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
             auxVector1
         )
+        val color = characterComponent.color.name.lowercase()
         modelInstanceComponent.init(
             deadGameModelInstance,
             position,
             assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
             0F,
             false,
-            assetsManager.getTexture("apache_texture_dead_green")
+            assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$color")
         )
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         rigidBody.gravity = auxVector2.set(PhysicsComponent.worldGravity).scl(0.25F)
@@ -393,20 +400,22 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         motionState.setWorldTransform(deadGameModelInstanceTransform)
         rigidBody.linearFactor = Vector3(1F, 1F, 1F)
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
-        pushRigidBodyRandomly(rigidBody, 12F)
-        rigidBody.applyTorqueImpulse(
-            Vector3(
-                MathUtils.random(),
-                MathUtils.random(),
-                MathUtils.random()
-            ).scl(4F)
-        )
+        if (characterDefinition == SimpleCharacterDefinition.APACHE) {
+            pushRigidBodyRandomly(rigidBody, 12F)
+            rigidBody.applyTorqueImpulse(
+                Vector3(
+                    MathUtils.random(),
+                    MathUtils.random(),
+                    MathUtils.random()
+                ).scl(4F)
+            )
+            gamePlayManagers.ecs.entityBuilder.addCrashSoundEmitterComponentToEntity(
+                character,
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
+                planeCrashSoundId
+            )
+        }
         character.remove(ChildDecalComponent::class.java)
-        gamePlayManagers.ecs.entityBuilder.addCrashSoundEmitterComponentToEntity(
-            character,
-            gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
-            planeCrashSoundId
-        )
         val particleEffectsPools = gameSessionData.gamePlayData.pools.particleEffectsPools
         addFire(position, character)
         gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
@@ -414,6 +423,38 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             pool = particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
         )
         addSmokeUpToCharacter(character)
+        if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
+            val turretCharacterDefinition = characterDefinition as TurretCharacterDefinition
+            val turretModelInstanceComponent =
+                ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
+            val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
+            (modelInstance.materials[0].get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                assetsManager.getTexture("${turretCharacterDefinition.getModelDefinition().name.lowercase()}_texture_dead_${color}")
+            auxMatrix.set(modelInstance.transform)
+            val transform = modelInstance.transform
+            val turretPosition = transform.getTranslation(auxVector1)
+            val randomDeadModel = turretCharacterDefinition.turretCorpseModelDefinitions.random()
+            turretModelInstanceComponent.gameModelInstance = GameModelInstance(
+                ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(randomDeadModel)),
+                randomDeadModel,
+            )
+            modelInstance.transform.set(auxMatrix)
+            turretModelInstanceComponent.gameModelInstance.setBoundingBox(
+                gamePlayManagers.assetsManager.getCachedBoundingBox(randomDeadModel)
+            )
+            gamePlayManagers.ecs.entityBuilder.begin()
+                .addParticleEffectComponent(
+                    turretPosition,
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
+                )
+                .finishAndAddToEngine()
+            gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
+                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector2
+                ),
+            )
+        }
     }
 
     private fun addSmokeUpToCharacter(

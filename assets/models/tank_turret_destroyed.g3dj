@@ -11533,7 +11533,7 @@
       "textures": [
         {
           "id": "Texture.004",
-          "filename": "tank_turret_texture_dead_brown.png",
+          "filename": "tank_turret_texture_dead.png",
           "type": "DIFFUSE"
         }
       ]
