@@ -161,12 +161,14 @@ class ModelsRenderer(
         }
 
         val frustum = renderData.camera.frustum
-        return if (gameModelInstance.sphere) frustum.sphereInFrustum(
+        val isInFrustum = if (gameModelInstance.sphere) frustum.sphereInFrustum(
             gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector
             ), dims.len2()
         )
         else frustum.boundsInFrustum(center, dims)
+
+        return isInFrustum
     }
 
     fun renderShadows() {

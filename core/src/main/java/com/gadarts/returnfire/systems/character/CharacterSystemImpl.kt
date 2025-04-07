@@ -21,6 +21,7 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.CharacterComponent
+import com.gadarts.returnfire.components.ChildModelInstanceComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
@@ -391,16 +392,23 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$color")
         )
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody
-        rigidBody.gravity = auxVector2.set(PhysicsComponent.worldGravity).scl(0.25F)
-        ComponentsMapper.physics.get(character).rigidBody
         val motionState = rigidBody.motionState as MotionState
         val deadGameModelInstanceTransform = deadGameModelInstance.modelInstance.transform
         deadGameModelInstanceTransform.set(auxMatrix.set(rigidBody.worldTransform))
         motionState.transformObject = deadGameModelInstanceTransform
         motionState.setWorldTransform(deadGameModelInstanceTransform)
+        gameSessionData.physicsData.collisionWorld.removeRigidBody(rigidBody)
+        rigidBody.gravity = Vector3(0F, -10F, 0F)
         rigidBody.linearFactor = Vector3(1F, 1F, 1F)
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
+        rigidBody.friction = 4F
+        rigidBody.setDamping(
+            0.1F,
+            0.99F
+        )
+        gameSessionData.physicsData.collisionWorld.addRigidBody(rigidBody)
         if (characterDefinition == SimpleCharacterDefinition.APACHE) {
+            rigidBody.gravity = auxVector2.set(PhysicsComponent.worldGravity).scl(0.25F)
             pushRigidBodyRandomly(rigidBody, 12F)
             rigidBody.applyTorqueImpulse(
                 Vector3(
@@ -425,19 +433,23 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         addSmokeUpToCharacter(character)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
             val turretCharacterDefinition = characterDefinition as TurretCharacterDefinition
+            val turret = ComponentsMapper.turretBase.get(character).turret
+            turret.remove(ChildModelInstanceComponent::class.java)
             val turretModelInstanceComponent =
-                ComponentsMapper.modelInstance.get(ComponentsMapper.turretBase.get(character).turret)
-            val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
-            (modelInstance.materials[0].get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                assetsManager.getTexture("${turretCharacterDefinition.getModelDefinition().name.lowercase()}_texture_dead_${color}")
-            auxMatrix.set(modelInstance.transform)
-            val transform = modelInstance.transform
-            val turretPosition = transform.getTranslation(auxVector1)
+                ComponentsMapper.modelInstance.get(turret)
             val randomDeadModel = turretCharacterDefinition.turretCorpseModelDefinitions.random()
             turretModelInstanceComponent.gameModelInstance = GameModelInstance(
                 ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(randomDeadModel)),
                 randomDeadModel,
             )
+            val turretDeadTextureName =
+                "${characterDefinition.name.lowercase()}_turret_texture_destroyed_${color}"
+            val turretDeadTexture = assetsManager.getTexture(turretDeadTextureName)
+            val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
+            auxMatrix.set(modelInstance.transform)
+            val transform = modelInstance.transform
+            val turretPosition = transform.getTranslation(auxVector1)
+            modelInstance.materials[0].set(TextureAttribute.createDiffuse(turretDeadTexture))
             modelInstance.transform.set(auxMatrix)
             turretModelInstanceComponent.gameModelInstance.setBoundingBox(
                 gamePlayManagers.assetsManager.getCachedBoundingBox(randomDeadModel)
@@ -454,6 +466,21 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     auxVector2
                 ),
             )
+            val cannon = ComponentsMapper.turret.get(turret).cannon
+            if (cannon != null) {
+                val cannonModelInstanceComponent = ComponentsMapper.modelInstance.get(cannon)
+                auxMatrix.set(cannonModelInstanceComponent.gameModelInstance.modelInstance.transform)
+                val newGameModelInstance =
+                    gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TANK_CANNON_DESTROYED)
+                cannonModelInstanceComponent.gameModelInstance = newGameModelInstance
+                cannonModelInstanceComponent.gameModelInstance.setBoundingBox(
+                    gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.TANK_CANNON_DESTROYED)
+                )
+                newGameModelInstance.modelInstance.transform.set(auxMatrix)
+                val cannonModelInstance = cannonModelInstanceComponent.gameModelInstance.modelInstance
+                (cannonModelInstance.materials[0].get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                    assetsManager.getTexture("${characterDefinition.name.lowercase()}_cannon_texture_destroyed_$color")
+            }
         }
     }
 

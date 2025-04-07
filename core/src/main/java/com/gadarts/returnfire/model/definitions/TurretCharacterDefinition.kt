@@ -14,23 +14,23 @@ enum class TurretCharacterDefinition(
     val turretCorpseModelDefinitions: List<ModelDefinition>
 ) : CharacterDefinition {
     TURRET_CANNON(
-        40F,
-        ModelDefinition.TURRET_BASE,
-        Vector3(0F, 2F, 0F),
-        Vector3.Zero,
-        Vector3.Zero,
-        ModelDefinition.TURRET_CANNON_DEAD_0,
-        listOf(
+        hp = 40F,
+        baseModelDefinition = ModelDefinition.TURRET_BASE,
+        smokeEmissionRelativePosition = Vector3(0F, 2F, 0F),
+        gravity = Vector3.Zero,
+        linearFactor = Vector3.Zero,
+        corpseModelDefinition = ModelDefinition.TURRET_CANNON_DEAD_0,
+        turretCorpseModelDefinitions = listOf(
             ModelDefinition.TURRET_CANNON_DEAD_0,
             ModelDefinition.TURRET_CANNON_DEAD_1,
         )
     ),
     TANK(
-        1F,
-        ModelDefinition.TANK_BODY,
-        Vector3.Zero,
-        Vector3(0F, -10F, 0F),
-        Vector3(1F, 1F, 1F),
+        hp = 1F,
+        baseModelDefinition = ModelDefinition.TANK_BODY,
+        smokeEmissionRelativePosition = Vector3.Zero,
+        gravity = Vector3(0F, -10F, 0F),
+        linearFactor = Vector3(1F, 1F, 1F),
         ModelDefinition.TANK_BODY_DESTROYED,
         listOf(
             ModelDefinition.TANK_TURRET_DESTROYED,
@@ -51,6 +51,10 @@ enum class TurretCharacterDefinition(
 
     override fun getLinearFactor(output: Vector3): Vector3 {
         return output.set(linearFactor)
+    }
+
+    override fun getAngularFactor(output: Vector3): Vector3 {
+        return output.setZero()
     }
 
     override fun getGravity(output: Vector3): Vector3 {

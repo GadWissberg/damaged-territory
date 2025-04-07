@@ -16,6 +16,7 @@ interface CharacterDefinition : ElementDefinition {
     fun getSmokeEmissionRelativePosition(output: Vector3): Vector3
     fun getGravity(output: Vector3): Vector3
     fun getLinearFactor(output: Vector3): Vector3
+    fun getAngularFactor(output: Vector3): Vector3
     fun getMovementHeight(): Float
     fun isFlyer(): Boolean
     fun isGibable(): Boolean

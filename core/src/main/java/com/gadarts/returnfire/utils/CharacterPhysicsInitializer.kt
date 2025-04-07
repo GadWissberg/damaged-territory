@@ -39,7 +39,7 @@ class CharacterPhysicsInitializer {
         if (!isApache) {
             rigidBody.friction = 0F
         }
-        rigidBody.angularFactor = if (isApache) Vector3.Y else Vector3.Zero
+        rigidBody.angularFactor = characterDefinition.getAngularFactor(Vector3())
         rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
     }
 

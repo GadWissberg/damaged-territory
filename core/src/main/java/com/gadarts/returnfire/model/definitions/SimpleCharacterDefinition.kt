@@ -9,13 +9,21 @@ enum class SimpleCharacterDefinition(
     private val modelDefinition: ModelDefinition,
     private val gravity: Vector3,
     private val linearFactor: Vector3,
+    private val angularFactor: Vector3,
     private val startHeight: Float,
     private val flyer: Boolean,
     private val gibable: Boolean,
     private val corpseModelDefinition: ModelDefinition,
 ) : CharacterDefinition {
     APACHE(
-        1F, ModelDefinition.APACHE, Vector3.Zero, Vector3(1F, 0F, 1F), CharacterDefinition.FLYER_HEIGHT, true, true,
+        1F,
+        ModelDefinition.APACHE,
+        Vector3.Zero,
+        Vector3(1F, 0F, 1F),
+        Vector3(Vector3.Y),
+        CharacterDefinition.FLYER_HEIGHT,
+        true,
+        true,
         ModelDefinition.APACHE_DEAD
     );
 
@@ -25,6 +33,10 @@ enum class SimpleCharacterDefinition(
 
     override fun getLinearFactor(output: Vector3): Vector3 {
         return output.set(linearFactor)
+    }
+
+    override fun getAngularFactor(output: Vector3): Vector3 {
+        return output.set(angularFactor)
     }
 
     override fun getMovementHeight(): Float {
@@ -70,4 +82,6 @@ enum class SimpleCharacterDefinition(
     override fun getCorpseModelDefinition(): ModelDefinition {
         return corpseModelDefinition
     }
+
+
 }

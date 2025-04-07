@@ -179,10 +179,7 @@ class TankFactory(
     ): Entity {
         entityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
-            GameModelInstance(
-                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_CANNON)),
-                ModelDefinition.TANK_CANNON
-            ),
+            gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TANK_CANNON),
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_1
             ),

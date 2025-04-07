@@ -502,25 +502,25 @@
       "file_name": "tank_turret_texture_green"
     },
     {
-      "file_name": "tank_turret_texture_dead_green"
+      "file_name": "tank_turret_texture_destroyed_green"
     },
     {
       "file_name": "tank_turret_texture_brown"
     },
     {
-      "file_name": "tank_turret_texture_dead_brown"
+      "file_name": "tank_turret_texture_destroyed_brown"
     },
     {
       "file_name": "tank_cannon_texture_brown"
     },
     {
-      "file_name": "tank_cannon_texture_dead_brown"
+      "file_name": "tank_cannon_texture_destroyed_brown"
     },
     {
       "file_name": "tank_cannon_texture_green"
     },
     {
-      "file_name": "tank_cannon_texture_dead_green"
+      "file_name": "tank_cannon_texture_destroyed_green"
     },
     {
       "file_name": "bullet_hole_small_0"
