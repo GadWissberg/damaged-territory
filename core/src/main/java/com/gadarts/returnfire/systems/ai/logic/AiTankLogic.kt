@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
@@ -66,6 +67,12 @@ class AiTankLogic(
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
                 aiComponent.currentNode = start
+            } else {
+                Gdx.app.log(
+                    "AiTankLogic",
+                    "Path found from $start to $end with ${aiComponent.path.nodes.size} nodes"
+                )
+
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, aiComponent, deltaTime)
@@ -88,7 +95,7 @@ class AiTankLogic(
         deltaTime: Float
     ) {
         applyMovement(character, aiComponent, deltaTime)
-        aimAndShoot(character, deltaTime)
+//        aimAndShoot(character, deltaTime)
     }
 
 
@@ -418,13 +425,13 @@ class AiTankLogic(
             callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
             callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
             return rayTest(position, direction, collisionWorld, callback, Vector3.Zero) ||
-                    rayTest(
-                        position,
-                        direction,
-                        collisionWorld,
-                        callback,
-                        auxVector3_3.set(0F, 0F, LOOKING_OFFSET)
-                    ) || rayTest(
+                rayTest(
+                    position,
+                    direction,
+                    collisionWorld,
+                    callback,
+                    auxVector3_3.set(0F, 0F, LOOKING_OFFSET)
+                ) || rayTest(
                 position,
                 direction,
                 collisionWorld,

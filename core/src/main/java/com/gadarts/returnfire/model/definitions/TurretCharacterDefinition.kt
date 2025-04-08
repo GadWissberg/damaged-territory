@@ -11,7 +11,8 @@ enum class TurretCharacterDefinition(
     private val gravity: Vector3,
     private val linearFactor: Vector3,
     private val corpseModelDefinition: ModelDefinition,
-    val turretCorpseModelDefinitions: List<ModelDefinition>
+    val turretCorpseModelDefinitions: List<ModelDefinition>,
+    private val isNonMoving: Boolean,
 ) : CharacterDefinition {
     TURRET_CANNON(
         hp = 40F,
@@ -23,18 +24,20 @@ enum class TurretCharacterDefinition(
         turretCorpseModelDefinitions = listOf(
             ModelDefinition.TURRET_CANNON_DEAD_0,
             ModelDefinition.TURRET_CANNON_DEAD_1,
-        )
+        ),
+        isNonMoving = true
     ),
     TANK(
-        hp = 1F,
+        hp = 100F,
         baseModelDefinition = ModelDefinition.TANK_BODY,
         smokeEmissionRelativePosition = Vector3.Zero,
         gravity = Vector3(0F, -10F, 0F),
-        linearFactor = Vector3(1F, 1F, 1F),
+        linearFactor = Vector3(1F, 1F, 0F),
         ModelDefinition.TANK_BODY_DESTROYED,
         listOf(
             ModelDefinition.TANK_TURRET_DESTROYED,
-        )
+        ),
+        isNonMoving = false
     );
 
     override fun isFlyer(): Boolean {
@@ -91,5 +94,9 @@ enum class TurretCharacterDefinition(
 
     override fun getCorpseModelDefinition(): ModelDefinition {
         return corpseModelDefinition
+    }
+
+    override fun isMarksNodeAsBlocked(): Boolean {
+        return isNonMoving
     }
 }

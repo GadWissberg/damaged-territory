@@ -397,16 +397,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         deadGameModelInstanceTransform.set(auxMatrix.set(rigidBody.worldTransform))
         motionState.transformObject = deadGameModelInstanceTransform
         motionState.setWorldTransform(deadGameModelInstanceTransform)
-        gameSessionData.physicsData.collisionWorld.removeRigidBody(rigidBody)
-        rigidBody.gravity = Vector3(0F, -10F, 0F)
         rigidBody.linearFactor = Vector3(1F, 1F, 1F)
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
-        rigidBody.friction = 4F
-        rigidBody.setDamping(
-            0.1F,
-            0.99F
-        )
-        gameSessionData.physicsData.collisionWorld.addRigidBody(rigidBody)
+        if (characterDefinition == TurretCharacterDefinition.TANK) {
+            rigidBody.friction = 1F
+        }
         if (characterDefinition == SimpleCharacterDefinition.APACHE) {
             rigidBody.gravity = auxVector2.set(PhysicsComponent.worldGravity).scl(0.25F)
             pushRigidBodyRandomly(rigidBody, 12F)
@@ -424,12 +419,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             )
         }
         character.remove(ChildDecalComponent::class.java)
-        val particleEffectsPools = gameSessionData.gamePlayData.pools.particleEffectsPools
         addFire(position, character)
-        gamePlayManagers.ecs.entityBuilder.addParticleEffectComponentToEntity(
-            entity = character,
-            pool = particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
-        )
         addSmokeUpToCharacter(character)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
             val turretCharacterDefinition = characterDefinition as TurretCharacterDefinition
@@ -438,33 +428,23 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             val turretModelInstanceComponent =
                 ComponentsMapper.modelInstance.get(turret)
             val randomDeadModel = turretCharacterDefinition.turretCorpseModelDefinitions.random()
+            val oldModelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
+            auxMatrix.set(oldModelInstance.transform)
             turretModelInstanceComponent.gameModelInstance = GameModelInstance(
                 ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(randomDeadModel)),
                 randomDeadModel,
             )
+            val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
             val turretDeadTextureName =
                 "${characterDefinition.name.lowercase()}_turret_texture_destroyed_${color}"
             val turretDeadTexture = assetsManager.getTexture(turretDeadTextureName)
-            val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
-            auxMatrix.set(modelInstance.transform)
-            val transform = modelInstance.transform
-            val turretPosition = transform.getTranslation(auxVector1)
             modelInstance.materials[0].set(TextureAttribute.createDiffuse(turretDeadTexture))
             modelInstance.transform.set(auxMatrix)
             turretModelInstanceComponent.gameModelInstance.setBoundingBox(
                 gamePlayManagers.assetsManager.getCachedBoundingBox(randomDeadModel)
             )
-            gamePlayManagers.ecs.entityBuilder.begin()
-                .addParticleEffectComponent(
-                    turretPosition,
-                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
-                )
-                .finishAndAddToEngine()
-            gamePlayManagers.soundPlayer.play(
-                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
-                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector2
-                ),
+            gamePlayManagers.factories.specialEffectsFactory.generateExplosionForCharacter(
+                character = turret,
             )
             val cannon = ComponentsMapper.turret.get(turret).cannon
             if (cannon != null) {

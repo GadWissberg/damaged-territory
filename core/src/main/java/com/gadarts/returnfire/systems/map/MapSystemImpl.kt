@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.map
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
@@ -30,6 +31,7 @@ import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -293,6 +295,23 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
         gameSessionData.renderData.floorModel = createFloorModel()
         gameSessionData.renderData.modelCache = ModelCache()
+        engine.addEntityListener(object : EntityListener {
+            override fun entityAdded(entity: Entity) {
+
+            }
+
+            override fun entityRemoved(entity: Entity) {
+                if (GeneralUtils.isEntityMarksNodeAsBlocked(entity)) {
+                    val position = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
+                        .getTranslation(auxVector1)
+                    gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
+                        .let { node ->
+                            node.type = MapGraphType.AVAILABLE
+                        }
+                }
+            }
+
+        })
     }
 
 

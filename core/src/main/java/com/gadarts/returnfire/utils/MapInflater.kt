@@ -83,12 +83,7 @@ class MapInflater(
             Family.one(AmbComponent::class.java, TurretBaseComponent::class.java).exclude(BaseComponent::class.java)
                 .get()
         ).forEach {
-            if ((ComponentsMapper.amb.has(it)
-                        && (ComponentsMapper.amb.get(it).def != AmbDefinition.FENCE
-                        && ComponentsMapper.amb.get(it).def != AmbDefinition.PALM_TREE))
-                || (ComponentsMapper.character.has(it)
-                        && ComponentsMapper.character.get(it).definition == TurretCharacterDefinition.TURRET_CANNON)
-            ) {
+            if (GeneralUtils.isEntityMarksNodeAsBlocked(it)) {
                 val gameModelInstance = ComponentsMapper.modelInstance.get(it).gameModelInstance
                 val output = mutableListOf<Pair<Int, Int>>()
                 GeneralUtils.getTilesCoveredByBoundingBox(gameModelInstance, mapGraph) { x, z, _ ->
@@ -113,14 +108,14 @@ class MapInflater(
             val x = i % width
             val y = i / width
             val from = mapGraph.getNode(x, y)
-            if (from.type == MapGraphType.BLOCKED) continue
+            if (from.type == MapGraphType.UNCONNECTED) continue
 
             if (x > 0) {
                 connect(mapGraph, from, x - 1, y)
             }
             if (x > 0 && y < tilesMapping.size - 1) {
-                if (mapGraph.getNode(x - 1, y).type == MapGraphType.AVAILABLE
-                    && mapGraph.getNode(x, y + 1).type == MapGraphType.AVAILABLE
+                if (mapGraph.getNode(x - 1, y).type != MapGraphType.UNCONNECTED
+                    && mapGraph.getNode(x, y + 1).type != MapGraphType.UNCONNECTED
                 ) {
                     connect(mapGraph, from, x - 1, y + 1)
                 }
@@ -129,8 +124,8 @@ class MapInflater(
                 connect(mapGraph, from, x, y + 1)
             }
             if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1) {
-                if (mapGraph.getNode(x + 1, y).type == MapGraphType.AVAILABLE
-                    && mapGraph.getNode(x, y + 1).type == MapGraphType.AVAILABLE
+                if (mapGraph.getNode(x + 1, y).type != MapGraphType.UNCONNECTED
+                    && mapGraph.getNode(x, y + 1).type != MapGraphType.UNCONNECTED
                 ) {
                     connect(mapGraph, from, x + 1, y + 1)
                 }
@@ -139,8 +134,8 @@ class MapInflater(
                 connect(mapGraph, from, x + 1, y)
             }
             if (x < tilesMapping[0].size - 1 && y > 0) {
-                if (mapGraph.getNode(x + 1, y).type == MapGraphType.AVAILABLE
-                    && mapGraph.getNode(x, y - 1).type == MapGraphType.AVAILABLE
+                if (mapGraph.getNode(x + 1, y).type != MapGraphType.UNCONNECTED
+                    && mapGraph.getNode(x, y - 1).type != MapGraphType.UNCONNECTED
                 ) {
                     connect(mapGraph, from, x + 1, y - 1)
                 }
@@ -149,8 +144,8 @@ class MapInflater(
                 connect(mapGraph, from, x, y - 1)
             }
             if (x > 0 && y > 0) {
-                if (mapGraph.getNode(x - 1, y).type == MapGraphType.AVAILABLE
-                    && mapGraph.getNode(x, y - 1).type == MapGraphType.AVAILABLE
+                if (mapGraph.getNode(x - 1, y).type != MapGraphType.UNCONNECTED
+                    && mapGraph.getNode(x, y - 1).type != MapGraphType.UNCONNECTED
                 ) {
                     connect(mapGraph, from, x - 1, y - 1)
                 }
@@ -165,7 +160,7 @@ class MapInflater(
         toY: Int,
     ) {
         val to = mapGraph.getNode(toX, toY)
-        if (to.type == MapGraphType.BLOCKED) return
+        if (to.type == MapGraphType.UNCONNECTED) return
 
         mapGraph.connect(from, to)
     }
@@ -179,9 +174,15 @@ class MapInflater(
     ) {
         for (y in 0 until depth) {
             for (x in 0 until width) {
+                val type = if (tilesMapping[y][x] == WATER_TILE_INDEX) {
+                    MapGraphType.UNCONNECTED
+                } else if (occupiedTiles.contains(x to y)) {
+                    MapGraphType.BLOCKED
+                } else {
+                    MapGraphType.AVAILABLE
+                }
                 mapGraph.addNode(
-                    x, y, if (tilesMapping[y][x] == WATER_TILE_INDEX || occupiedTiles.contains(x to y)
-                    ) MapGraphType.BLOCKED else MapGraphType.AVAILABLE
+                    x, y, type
                 )
             }
         }
@@ -498,8 +499,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                    && definition != SimpleCharacterDefinition.APACHE
-                    && definition != TurretCharacterDefinition.TANK
+                && definition != SimpleCharacterDefinition.APACHE
+                && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -764,9 +765,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.currentMap.tilesMapping.size
-            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+        && col >= 0
+        && row < gameSessionData.mapData.currentMap.tilesMapping.size
+        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

@@ -9,4 +9,5 @@ interface ElementDefinition {
     fun isRandomizeRotation(): Boolean
     fun getType(): ElementType
     fun getName(): String
+    fun isMarksNodeAsBlocked(): Boolean
 }

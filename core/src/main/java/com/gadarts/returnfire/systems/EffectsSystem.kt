@@ -32,7 +32,9 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
-                    playParticleEffect(ComponentsMapper.particleEffect.get(msg.extraInfo as Entity).effect)
+                    val particleEffectComponent = ComponentsMapper.particleEffect.get(msg.extraInfo as Entity)
+                    updatePositionToParent(particleEffectComponent)
+                    playParticleEffect(particleEffectComponent.effect)
                 }
             }
         )
@@ -73,11 +75,11 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
     override fun update(deltaTime: Float) {
-        updateSystem(deltaTime)
         particleEntitiesToRemove.clear()
         updateParticleEffectsComponents()
         removeParticleEffectsMarkedToBeRemoved()
         updateDeathSequences()
+        updateSystem(deltaTime)
     }
 
     private fun updateDeathSequences() {
@@ -169,15 +171,22 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                     particleEntitiesToRemove.add(entity)
                 }
             } else if (parent != null) {
-                if (ComponentsMapper.modelInstance.has(parent)) {
-                    auxMatrix1.idt().trn(
-                        ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
-                            auxVector
-                        )
-                    ).translate(particleEffectComponent.followRelativePosition)
-                    effect.setTransform(auxMatrix1)
-                }
+                updatePositionToParent(particleEffectComponent)
             }
+        }
+    }
+
+    private fun updatePositionToParent(
+        particleEffectComponent: ParticleEffectComponent,
+    ) {
+        val parent = particleEffectComponent.followEntity
+        if (ComponentsMapper.modelInstance.has(parent)) {
+            auxMatrix1.idt().trn(
+                ComponentsMapper.modelInstance.get(parent).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector
+                )
+            ).translate(particleEffectComponent.followRelativePosition)
+            particleEffectComponent.effect.setTransform(auxMatrix1)
         }
     }
 

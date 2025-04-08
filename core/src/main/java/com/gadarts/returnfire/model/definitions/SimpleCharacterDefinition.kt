@@ -83,5 +83,8 @@ enum class SimpleCharacterDefinition(
         return corpseModelDefinition
     }
 
+    override fun isMarksNodeAsBlocked(): Boolean {
+        return false
+    }
 
 }

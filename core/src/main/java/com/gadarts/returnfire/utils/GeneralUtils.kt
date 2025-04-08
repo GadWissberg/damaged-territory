@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.utils
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g3d.Material
@@ -10,6 +11,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.ScreenUtils
+import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.MapGraph
 import kotlin.math.floor
@@ -136,6 +138,11 @@ object GeneralUtils {
         }
 
         return position
+    }
+
+    fun isEntityMarksNodeAsBlocked(entity: Entity): Boolean {
+        return (ComponentsMapper.amb.has(entity) && ComponentsMapper.amb.get(entity).def.isMarksNodeAsBlocked())
+            || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
     }
 
 }

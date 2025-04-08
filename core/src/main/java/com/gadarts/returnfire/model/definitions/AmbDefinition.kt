@@ -25,7 +25,8 @@ enum class AmbDefinition(
     val corpsePartCollisionSound: SoundDefinition? = null,
     val corpsePartDestroyOnGroundImpact: Boolean = false,
     val stayOnDeath: Boolean = false,
-    val destroyedByExplosiveOnly: Boolean = true
+    val destroyedByExplosiveOnly: Boolean = true,
+    val marksNodeAsBlocked: Boolean = true,
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -34,7 +35,8 @@ enum class AmbDefinition(
         hp = 1,
         mass = 1F,
         destroyedByExplosiveOnly = false,
-        stayOnDeath = true
+        stayOnDeath = true,
+        marksNodeAsBlocked = true
     ),
     WATCH_TOWER(
         modelDefinition = ModelDefinition.WATCH_TOWER,
@@ -117,7 +119,8 @@ enum class AmbDefinition(
         destructionSound = SoundDefinition.ROCKS,
         destroyedByExplosiveOnly = false,
         flyingPartMinImpulse = 1F,
-        flyingPartMaxImpulse = 4F
+        flyingPartMaxImpulse = 4F,
+        marksNodeAsBlocked = true
     ),
     HANGAR(
         modelDefinition = ModelDefinition.HANGAR,
@@ -168,5 +171,9 @@ enum class AmbDefinition(
 
     override fun getScale(): Float {
         return scale
+    }
+
+    override fun isMarksNodeAsBlocked(): Boolean {
+        return marksNodeAsBlocked
     }
 }
