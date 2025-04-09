@@ -6,10 +6,10 @@
       "type": "CHARACTER",
       "direction": 0,
       "row": 1,
-      "col": 8
+      "col": 7
     },
     {
-      "definition": "BASE_BROWN",
+      "definition": "BASE_GREEN",
       "type": "AMB",
       "direction": 0,
       "row": 2,
@@ -23,11 +23,11 @@
       "col": 5
     },
     {
-      "definition": "TURRET_CANNON",
-      "type": "CHARACTER",
+      "definition": "BASE_BROWN",
+      "type": "AMB",
       "direction": 0,
       "row": 2,
-      "col": 8
+      "col": 10
     },
     {
       "definition": "FENCE",
@@ -48,14 +48,7 @@
       "type": "CHARACTER",
       "direction": 0,
       "row": 3,
-      "col": 8
-    },
-    {
-      "definition": "BASE_GREEN",
-      "type": "AMB",
-      "direction": 0,
-      "row": 3,
-      "col": 11
+      "col": 9
     },
     {
       "definition": "FENCE",
@@ -69,7 +62,7 @@
       "type": "CHARACTER",
       "direction": 0,
       "row": 4,
-      "col": 8
+      "col": 7
     },
     {
       "definition": "FENCE",
@@ -77,6 +70,13 @@
       "direction": 0,
       "row": 4,
       "col": 13
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 5,
+      "col": 9
     },
     {
       "definition": "PALM_TREE",

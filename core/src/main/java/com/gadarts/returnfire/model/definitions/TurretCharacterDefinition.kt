@@ -32,7 +32,7 @@ enum class TurretCharacterDefinition(
         baseModelDefinition = ModelDefinition.TANK_BODY,
         smokeEmissionRelativePosition = Vector3.Zero,
         gravity = Vector3(0F, -10F, 0F),
-        linearFactor = Vector3(1F, 1F, 0F),
+        linearFactor = Vector3(1F, 1F, 1F),
         ModelDefinition.TANK_BODY_DESTROYED,
         listOf(
             ModelDefinition.TANK_TURRET_DESTROYED,

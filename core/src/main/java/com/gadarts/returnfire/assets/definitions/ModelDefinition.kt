@@ -146,9 +146,9 @@ object PalmTreePhysicalShapeCreator : PhysicalShapeCreator {
 object TurretBasePhysicalShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
         val trapezoidShape = btConvexHullShape()
-        val bottomWidth = 0.5F
+        val bottomWidth = 0.4F
         val height = 1.5F
-        val topWidth = 0.4F
+        val topWidth = 0.3F
         val vertices = arrayOf(
             Vector3(-bottomWidth, 0f, -bottomWidth),
             Vector3(bottomWidth, 0f, -bottomWidth),
