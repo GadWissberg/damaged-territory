@@ -53,12 +53,14 @@ enum class AmbDefinition(
     BASE_BROWN(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
-        placeInMiddleOfCell = false
+        placeInMiddleOfCell = false,
+        marksNodeAsBlocked = false
     ),
     BASE_GREEN(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
-        placeInMiddleOfCell = false
+        placeInMiddleOfCell = false,
+        marksNodeAsBlocked = false
     ),
     ROCK_BIG(
         modelDefinition = ModelDefinition.ROCK_BIG,

@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
@@ -11,8 +10,10 @@ import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.ComponentsMapper.ai
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraph
@@ -46,7 +47,7 @@ class AiTankLogic(
     }
     private val closestRayResultCallback = ClosestRayResultCallback(rayFrom, rayTo)
     override fun preUpdate(character: Entity, deltaTime: Float) {
-        val aiComponent = ComponentsMapper.ai.get(character)
+        val aiComponent = ai.get(character)
         if (aiComponent.state == AiStatus.PLANNING) {
             val position =
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
@@ -67,12 +68,6 @@ class AiTankLogic(
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
                 aiComponent.currentNode = start
-            } else {
-                Gdx.app.log(
-                    "AiTankLogic",
-                    "Path found from $start to $end with ${aiComponent.path.nodes.size} nodes"
-                )
-
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, aiComponent, deltaTime)
@@ -95,11 +90,13 @@ class AiTankLogic(
         deltaTime: Float
     ) {
         applyMovement(character, aiComponent, deltaTime)
-//        aimAndShoot(character, deltaTime)
+        aimAndShoot(character, deltaTime)
     }
 
 
     private fun aimAndShoot(character: Entity, deltaTime: Float) {
+        if (GameDebugSettings.AI_ATTACK_DISABLED) return
+
         val playerTransform =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
         val playerPosition = playerTransform.getTranslation(auxVector3_1)
@@ -277,7 +274,7 @@ class AiTankLogic(
     }
 
     object BaseRotationAnglesMatch : RotationCallback {
-        const val MAX_LOOKING_AHEAD = 0.5F
+        const val MAX_LOOKING_AHEAD = 1F
         private val result = mutableListOf<MapGraphNode>()
         private val tileCollector: (Int, Int, MapGraph) -> Unit = { x, z, mapGraph ->
             if (x >= 0 && z >= 0 && x < mapGraph.width && z < mapGraph.depth) {
@@ -302,7 +299,7 @@ class AiTankLogic(
             ) {
                 val colliderModelInstanceComponent =
                     ComponentsMapper.modelInstance.get(callback.collisionObject.userData as Entity)
-                val aiComponent = ComponentsMapper.ai.get(character)
+                val aiComponent = ai.get(character)
                 if (colliderModelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
                         .dst2(
                             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
@@ -311,6 +308,8 @@ class AiTankLogic(
                         )
                     < MAX_LOOKING_AHEAD / 2F
                 ) {
+                    result.clear()
+                    aiComponent.setNodesToExclude(result)
                     aiComponent.state = AiStatus.REVERSE
                 } else {
                     wayBlockedByObstacle(colliderModelInstanceComponent, gameSessionData, aiComponent)
@@ -425,13 +424,13 @@ class AiTankLogic(
             callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
             callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
             return rayTest(position, direction, collisionWorld, callback, Vector3.Zero) ||
-                rayTest(
-                    position,
-                    direction,
-                    collisionWorld,
-                    callback,
-                    auxVector3_3.set(0F, 0F, LOOKING_OFFSET)
-                ) || rayTest(
+                    rayTest(
+                        position,
+                        direction,
+                        collisionWorld,
+                        callback,
+                        auxVector3_3.set(0F, 0F, LOOKING_OFFSET)
+                    ) || rayTest(
                 position,
                 direction,
                 collisionWorld,

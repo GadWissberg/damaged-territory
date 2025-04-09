@@ -114,41 +114,25 @@ class MapInflater(
                 connect(mapGraph, from, x - 1, y)
             }
             if (x > 0 && y < tilesMapping.size - 1) {
-                if (mapGraph.getNode(x - 1, y).type != MapGraphType.UNCONNECTED
-                    && mapGraph.getNode(x, y + 1).type != MapGraphType.UNCONNECTED
-                ) {
-                    connect(mapGraph, from, x - 1, y + 1)
-                }
+                connect(mapGraph, from, x - 1, y + 1)
             }
             if (y < tilesMapping.size - 1) {
                 connect(mapGraph, from, x, y + 1)
             }
             if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1) {
-                if (mapGraph.getNode(x + 1, y).type != MapGraphType.UNCONNECTED
-                    && mapGraph.getNode(x, y + 1).type != MapGraphType.UNCONNECTED
-                ) {
-                    connect(mapGraph, from, x + 1, y + 1)
-                }
+                connect(mapGraph, from, x + 1, y + 1)
             }
             if (x < tilesMapping[0].size - 1) {
                 connect(mapGraph, from, x + 1, y)
             }
             if (x < tilesMapping[0].size - 1 && y > 0) {
-                if (mapGraph.getNode(x + 1, y).type != MapGraphType.UNCONNECTED
-                    && mapGraph.getNode(x, y - 1).type != MapGraphType.UNCONNECTED
-                ) {
-                    connect(mapGraph, from, x + 1, y - 1)
-                }
+                connect(mapGraph, from, x + 1, y - 1)
             }
             if (y > 0) {
                 connect(mapGraph, from, x, y - 1)
             }
             if (x > 0 && y > 0) {
-                if (mapGraph.getNode(x - 1, y).type != MapGraphType.UNCONNECTED
-                    && mapGraph.getNode(x, y - 1).type != MapGraphType.UNCONNECTED
-                ) {
-                    connect(mapGraph, from, x - 1, y - 1)
-                }
+                connect(mapGraph, from, x - 1, y - 1)
             }
         }
     }
@@ -499,8 +483,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                && definition != SimpleCharacterDefinition.APACHE
-                && definition != TurretCharacterDefinition.TANK
+                    && definition != SimpleCharacterDefinition.APACHE
+                    && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -765,9 +749,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-        && col >= 0
-        && row < gameSessionData.mapData.currentMap.tilesMapping.size
-        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+            && col >= 0
+            && row < gameSessionData.mapData.currentMap.tilesMapping.size
+            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

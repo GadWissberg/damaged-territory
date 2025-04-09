@@ -44,13 +44,6 @@
       "col": 5
     },
     {
-      "definition": "BASE_BROWN",
-      "type": "AMB",
-      "direction": 0,
-      "row": 6,
-      "col": 7
-    },
-    {
       "definition": "ROCK_MED",
       "type": "AMB",
       "direction": 0,
@@ -945,6 +938,13 @@
       "direction": 0,
       "row": 30,
       "col": 31
+    },
+    {
+      "definition": "BASE_BROWN",
+      "type": "AMB",
+      "direction": 0,
+      "row": 30,
+      "col": 34
     },
     {
       "definition": "PALM_TREE",

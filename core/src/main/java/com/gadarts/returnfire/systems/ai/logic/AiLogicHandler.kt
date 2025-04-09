@@ -2,9 +2,12 @@ package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -32,16 +35,29 @@ class AiLogicHandler(
     }
 
     fun update(deltaTime: Float) {
-        for (character in aiCharacterEntities) {
+        for (i in 0 until aiCharacterEntities.size()) {
+            val character = aiCharacterEntities[i]
             val boardingComponent = ComponentsMapper.boarding.get(character)
             val characterComponent = ComponentsMapper.character.get(
                 character
             )
 
+
             if ((boardingComponent != null && boardingComponent.isBoarding())
                 || characterComponent == null
                 || characterComponent.dead
             ) continue
+
+            if (characterComponent.color == CharacterColor.GREEN) {
+                Gdx.app.log(
+                    javaClass.simpleName,
+                    "${
+                        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                            Vector3()
+                        )
+                    }"
+                )
+            }
 
             if (characterComponent.definition == SimpleCharacterDefinition.APACHE) {
                 updateLogic(character, deltaTime, aiApacheLogic)
