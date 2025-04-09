@@ -68,6 +68,10 @@ class AiTankLogic(
             if (pathFound) {
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
+                Gdx.app.log(
+                    javaClass.simpleName,
+                    "Path found from $start to $end, ${aiComponent.path.nodes.first()}"
+                )
                 aiComponent.currentNode = start
             } else {
                 Gdx.app.log(
@@ -263,10 +267,6 @@ class AiTankLogic(
                 ai.get(character).state = AiStatus.REVERSE
                 return
             }
-            Gdx.app.log(
-                AiTankLogic::class.java.simpleName,
-                "BaseRotationLessThan180: $angleToTarget, rayFrom: $rayFrom, rayTo: $rayTo"
-            )
 
             val facingDirection = getFacingDirection(character)
             movementHandler.applyRotation(if (facingDirection > angleToTarget) -1 else 1, character)
@@ -469,12 +469,6 @@ class AiTankLogic(
                 MAX_LOOKING_AHEAD
             )
 
-            if (collided) {
-                Gdx.app.log(
-                    AiTankLogic::class.java.simpleName,
-                    "checkIfForwardIsBlocked: $collided, rayFrom: $rayFrom, rayTo: $rayTo"
-                )
-            }
             return collided
         }
 
@@ -493,8 +487,8 @@ class AiTankLogic(
                 )
             val direction = auxVector3_1.set(Vector3.X).rot(transform).rotate(Vector3.Y, rotationAroundY).nor()
             callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
-            callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_GENERAL
-            val collided = rayTest(position, direction, collisionWorld, callback, Vector3.Zero, 2F)
+            callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
+            val collided = rayTest(position, direction, collisionWorld, callback, Vector3.Zero, 0.5F)
 
             if (collided) {
                 val collider = callback.collisionObject.userData as Entity
