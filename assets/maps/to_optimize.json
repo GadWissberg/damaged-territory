@@ -1269,13 +1269,6 @@
       "col": 24
     },
     {
-      "definition": "ANTENNA",
-      "type": "AMB",
-      "direction": 0,
-      "row": 36,
-      "col": 33
-    },
-    {
       "definition": "STREET_LIGHT",
       "type": "AMB",
       "direction": 90,
@@ -1330,6 +1323,13 @@
       "direction": 270,
       "row": 37,
       "col": 30
+    },
+    {
+      "definition": "ANTENNA",
+      "type": "AMB",
+      "direction": 0,
+      "row": 37,
+      "col": 31
     },
     {
       "definition": "STREET_LIGHT",

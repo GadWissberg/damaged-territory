@@ -126,8 +126,8 @@ class MapInflater(
                 connect(mapGraph, from, x - 1, y)
             }
             if (x > 0 && y < tilesMapping.size - 1) {
-                if (mapGraph.getNode(x - 1, y).type != MapGraphType.AVAILABLE
-                    || mapGraph.getNode(x, y + 1).type != MapGraphType.AVAILABLE
+                if (mapGraph.getNode(x - 1, y).type == MapGraphType.AVAILABLE
+                    && mapGraph.getNode(x, y + 1).type == MapGraphType.AVAILABLE
                 ) {
                     connect(mapGraph, from, x - 1, y + 1)
                 }
@@ -136,8 +136,8 @@ class MapInflater(
                 connect(mapGraph, from, x, y + 1)
             }
             if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1) {
-                if (mapGraph.getNode(x + 1, y).type != MapGraphType.AVAILABLE
-                    || mapGraph.getNode(x, y + 1).type != MapGraphType.AVAILABLE
+                if (mapGraph.getNode(x + 1, y).type == MapGraphType.AVAILABLE
+                    && mapGraph.getNode(x, y + 1).type == MapGraphType.AVAILABLE
                 ) {
                     connect(mapGraph, from, x + 1, y + 1)
                 }
@@ -146,8 +146,8 @@ class MapInflater(
                 connect(mapGraph, from, x + 1, y)
             }
             if (x < tilesMapping[0].size - 1 && y > 0) {
-                if (mapGraph.getNode(x + 1, y).type != MapGraphType.AVAILABLE
-                    || mapGraph.getNode(x, y - 1).type != MapGraphType.AVAILABLE
+                if (mapGraph.getNode(x + 1, y).type == MapGraphType.AVAILABLE
+                    && mapGraph.getNode(x, y - 1).type == MapGraphType.AVAILABLE
                 ) {
                     connect(mapGraph, from, x + 1, y - 1)
                 }
@@ -156,8 +156,8 @@ class MapInflater(
                 connect(mapGraph, from, x, y - 1)
             }
             if (x > 0 && y > 0) {
-                if (mapGraph.getNode(x - 1, y).type != MapGraphType.AVAILABLE
-                    || mapGraph.getNode(x, y - 1).type != MapGraphType.AVAILABLE
+                if (mapGraph.getNode(x - 1, y).type == MapGraphType.AVAILABLE
+                    && mapGraph.getNode(x, y - 1).type == MapGraphType.AVAILABLE
                 ) {
                     connect(mapGraph, from, x - 1, y - 1)
                 }

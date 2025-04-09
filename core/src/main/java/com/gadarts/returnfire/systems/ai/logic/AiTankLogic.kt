@@ -68,16 +68,7 @@ class AiTankLogic(
             if (pathFound) {
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
-                Gdx.app.log(
-                    javaClass.simpleName,
-                    "Path found from $start to $end, ${aiComponent.path.nodes.first()}"
-                )
                 aiComponent.currentNode = start
-            } else {
-                Gdx.app.log(
-                    javaClass.simpleName,
-                    "Path not found from $start to $end"
-                )
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, aiComponent, deltaTime)
@@ -90,6 +81,12 @@ class AiTankLogic(
                 )
             ) {
                 aiComponent.state = AiStatus.PLANNING
+            }
+            if (closestRayResultCallback.collisionObject != null && ComponentsMapper.turretBase.has(character)) {
+                Gdx.app.log(
+                    "AiTankLogic",
+                    "AI ${ComponentsMapper.character.get(character).definition} is blocked by"
+                )
             }
         }
     }
@@ -299,7 +296,7 @@ class AiTankLogic(
     }
 
     object BaseRotationAnglesMatch : RotationCallback {
-        const val MAX_LOOKING_AHEAD = 1F
+        const val MAX_LOOKING_AHEAD = 1.5F
         private val result = mutableListOf<MapGraphNode>()
         private val tileCollector: (Int, Int, MapGraph) -> Unit = { x, z, mapGraph ->
             if (x >= 0 && z >= 0 && x < mapGraph.width && z < mapGraph.depth) {
@@ -429,7 +426,7 @@ class AiTankLogic(
         private val auxVector3_3 = Vector3()
         private val auxVector2 = Vector2()
         private val auxQuaternion = Quaternion()
-        private const val LOOKING_OFFSET = 0.5F
+        private const val LOOKING_OFFSET = 0.6F
         private fun getFacingDirection(entity: Entity): Float {
             val transform = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
             val rotationAroundY =
@@ -452,20 +449,27 @@ class AiTankLogic(
             val direction = auxVector3_1.set(Vector3.X).rot(transform).nor()
             callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
             callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
-            val collided = rayTest(position, direction, collisionWorld, callback, Vector3.Zero, MAX_LOOKING_AHEAD) ||
+            val collided = rayTest(
+                position,
+                direction,
+                collisionWorld,
+                callback,
+                Vector3(10F, 0F, 0F),
+                MAX_LOOKING_AHEAD
+            ) ||
                     rayTest(
                         position,
                         direction,
                         collisionWorld,
                         callback,
-                        auxVector3_3.set(0F, 0F, LOOKING_OFFSET),
+                        auxVector3_3.set(10F, 0F, LOOKING_OFFSET),
                         MAX_LOOKING_AHEAD
                     ) || rayTest(
                 position,
                 direction,
                 collisionWorld,
                 callback,
-                auxVector3_3.set(0F, 0F, -LOOKING_OFFSET),
+                auxVector3_3.set(10F, 0F, -LOOKING_OFFSET),
                 MAX_LOOKING_AHEAD
             )
 
@@ -487,7 +491,7 @@ class AiTankLogic(
                 )
             val direction = auxVector3_1.set(Vector3.X).rot(transform).rotate(Vector3.Y, rotationAroundY).nor()
             callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
-            callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
+            callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_GENERAL
             val collided = rayTest(position, direction, collisionWorld, callback, Vector3.Zero, 0.5F)
 
             if (collided) {
