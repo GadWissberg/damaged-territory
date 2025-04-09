@@ -91,7 +91,11 @@ object GeneralUtils {
         val maxZ = floor(max.z).toInt()
         for (x in minX..maxX) {
             for (z in minZ..maxZ) {
-                resultFiller(x, z, mapGraph)
+                val centerX = x + 0.5f
+                val centerZ = z + 0.5f
+                if (centerX in min.x..max.x && centerZ in min.z..max.z) {
+                    resultFiller(x, z, mapGraph)
+                }
             }
         }
     }
