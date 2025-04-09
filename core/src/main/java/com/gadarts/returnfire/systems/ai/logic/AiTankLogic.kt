@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
@@ -53,6 +54,12 @@ class AiTankLogic(
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector3_2
                 )
+
+            Gdx.app.log(
+                javaClass.simpleName,
+                "${ComponentsMapper.character.get(character).definition}"
+            )
+
             val start = gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
             val transform =
                 ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
@@ -68,6 +75,11 @@ class AiTankLogic(
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
                 aiComponent.currentNode = start
+            } else {
+                Gdx.app.log(
+                    javaClass.simpleName,
+                    "Path not found from $start to $end"
+                )
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, aiComponent, deltaTime)
