@@ -12,7 +12,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.model.MapGraph
 import kotlin.math.floor
 
@@ -72,16 +71,17 @@ object GeneralUtils {
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(
             GL20.GL_COLOR_BUFFER_BIT
-                or GL20.GL_DEPTH_BUFFER_BIT
-                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+                    or GL20.GL_DEPTH_BUFFER_BIT
+                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
     }
 
     fun getTilesCoveredByBoundingBox(
-        gameModelInstance: GameModelInstance,
+        entity: Entity,
         mapGraph: MapGraph,
         resultFiller: (Int, Int, MapGraph) -> Unit,
     ) {
+        val gameModelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
         val boundingBox = gameModelInstance.getBoundingBox(auxBoundingBox)
         val min = Vector3(boundingBox.min)
         val max = Vector3(boundingBox.max)
@@ -94,7 +94,6 @@ object GeneralUtils {
                 resultFiller(x, z, mapGraph)
             }
         }
-
     }
 
     fun getRandomPositionOnBoundingBox(bb: BoundingBox, bias: Float): Vector3 {
@@ -142,7 +141,7 @@ object GeneralUtils {
 
     fun isEntityMarksNodeAsBlocked(entity: Entity): Boolean {
         return (ComponentsMapper.amb.has(entity) && ComponentsMapper.amb.get(entity).def.isMarksNodeAsBlocked())
-            || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
+                || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
     }
 
 }

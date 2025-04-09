@@ -84,10 +84,22 @@ class MapInflater(
                 .get()
         ).forEach {
             if (GeneralUtils.isEntityMarksNodeAsBlocked(it)) {
-                val gameModelInstance = ComponentsMapper.modelInstance.get(it).gameModelInstance
+                val ambComponent = ComponentsMapper.amb.get(it)
                 val output = mutableListOf<Pair<Int, Int>>()
-                GeneralUtils.getTilesCoveredByBoundingBox(gameModelInstance, mapGraph) { x, z, _ ->
-                    output.add(Pair(x, z))
+                if (ambComponent == null || !ambComponent.def.forceSingleNodeForMarksNodeAsBlocked) {
+                    GeneralUtils.getTilesCoveredByBoundingBox(it, mapGraph) { x, z, _ ->
+                        output.add(Pair(x, z))
+                    }
+                } else {
+                    val position =
+                        ComponentsMapper.modelInstance.get(it).gameModelInstance.modelInstance.transform.getTranslation(
+                            auxVector1
+                        )
+                    output.add(
+                        Pair(
+                            position.x.toInt(), position.z.toInt()
+                        )
+                    )
                 }
                 occupiedTiles.addAll(output)
             }

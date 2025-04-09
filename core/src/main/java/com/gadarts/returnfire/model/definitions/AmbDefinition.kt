@@ -27,6 +27,7 @@ enum class AmbDefinition(
     val stayOnDeath: Boolean = false,
     val destroyedByExplosiveOnly: Boolean = true,
     val marksNodeAsBlocked: Boolean = true,
+    val forceSingleNodeForMarksNodeAsBlocked: Boolean = false,
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -36,7 +37,7 @@ enum class AmbDefinition(
         mass = 1F,
         destroyedByExplosiveOnly = false,
         stayOnDeath = true,
-        marksNodeAsBlocked = true
+        marksNodeAsBlocked = false
     ),
     WATCH_TOWER(
         modelDefinition = ModelDefinition.WATCH_TOWER,
@@ -98,7 +99,8 @@ enum class AmbDefinition(
         minFlyingParts = 3,
         maxFlyingParts = 5,
         destructionSound = SoundDefinition.METAL_BEND,
-        corpsePartCollisionSound = SoundDefinition.METAL_CRASH
+        corpsePartCollisionSound = SoundDefinition.METAL_CRASH,
+        forceSingleNodeForMarksNodeAsBlocked = true
     ),
     STREET_LIGHT(
         modelDefinition = ModelDefinition.STREET_LIGHT,
@@ -107,7 +109,8 @@ enum class AmbDefinition(
         hp = 1,
         stayOnDeath = true,
         destroyedByExplosiveOnly = false,
-        destructionSound = SoundDefinition.METAL_CRASH
+        destructionSound = SoundDefinition.METAL_CRASH,
+        forceSingleNodeForMarksNodeAsBlocked = true
     ),
     RUINS(
         modelDefinition = ModelDefinition.DESTROYED_BUILDING
@@ -122,7 +125,7 @@ enum class AmbDefinition(
         destroyedByExplosiveOnly = false,
         flyingPartMinImpulse = 1F,
         flyingPartMaxImpulse = 4F,
-        marksNodeAsBlocked = true
+        forceSingleNodeForMarksNodeAsBlocked = true
     ),
     HANGAR(
         modelDefinition = ModelDefinition.HANGAR,

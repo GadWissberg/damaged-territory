@@ -15,7 +15,6 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.ai
-import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.returnfire.model.graph.MapGraphNode
@@ -54,11 +53,6 @@ class AiTankLogic(
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector3_2
                 )
-
-            Gdx.app.log(
-                javaClass.simpleName,
-                "${ComponentsMapper.character.get(character).definition}"
-            )
 
             val start = gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
             val transform =
@@ -324,7 +318,7 @@ class AiTankLogic(
                     aiComponent.setNodesToExclude(result)
                     aiComponent.state = AiStatus.REVERSE
                 } else {
-                    wayBlockedByObstacle(colliderModelInstanceComponent, gameSessionData, aiComponent)
+                    wayBlockedByObstacle(callback.collisionObject.userData as Entity, gameSessionData, aiComponent)
                 }
                 return
             }
@@ -334,13 +328,13 @@ class AiTankLogic(
         }
 
         private fun wayBlockedByObstacle(
-            colliderModelInstanceComponent: ModelInstanceComponent,
+            obstacle: Entity,
             gameSessionData: GameSessionData,
             aiComponent: AiComponent
         ) {
             result.clear()
             GeneralUtils.getTilesCoveredByBoundingBox(
-                colliderModelInstanceComponent.gameModelInstance,
+                obstacle,
                 gameSessionData.mapData.mapGraph,
                 tileCollector
             )
@@ -435,7 +429,7 @@ class AiTankLogic(
             val direction = auxVector3_1.set(Vector3.X).rot(transform).nor()
             callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
             callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
-            return rayTest(position, direction, collisionWorld, callback, Vector3.Zero) ||
+            val collided = rayTest(position, direction, collisionWorld, callback, Vector3.Zero) ||
                     rayTest(
                         position,
                         direction,
@@ -449,6 +443,15 @@ class AiTankLogic(
                 callback,
                 auxVector3_3.set(0F, 0F, -LOOKING_OFFSET)
             )
+
+            if (collided) {
+                val collider = callback.collisionObject.userData as Entity
+                val ambComponent = ComponentsMapper.amb.get(collider)
+                if (ambComponent != null && !ambComponent.def.isMarksNodeAsBlocked()) {
+                    return false
+                }
+            }
+            return collided
         }
 
         private fun rayTest(
