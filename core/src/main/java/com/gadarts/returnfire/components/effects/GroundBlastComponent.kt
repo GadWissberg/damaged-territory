@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.components
+package com.gadarts.returnfire.components.effects
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.MathUtils

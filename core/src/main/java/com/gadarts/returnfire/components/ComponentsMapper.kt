@@ -1,14 +1,28 @@
 package com.gadarts.returnfire.components
 
 import com.badlogic.ashley.core.ComponentMapper
+import com.gadarts.returnfire.components.ai.AiComponent
+import com.gadarts.returnfire.components.ai.AiTurretComponent
+import com.gadarts.returnfire.components.amb.AmbAnimationComponent
+import com.gadarts.returnfire.components.amb.AmbComponent
+import com.gadarts.returnfire.components.amb.AmbCorpsePart
+import com.gadarts.returnfire.components.amb.AmbSoundComponent
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.components.effects.CrashingAircraftEmitter
+import com.gadarts.returnfire.components.effects.GroundBlastComponent
+import com.gadarts.returnfire.components.effects.ParticleEffectComponent
+import com.gadarts.returnfire.components.effects.SparkComponent
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.onboarding.BoardingComponent
 import com.gadarts.returnfire.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
+import com.gadarts.returnfire.components.pit.BaseComponent
+import com.gadarts.returnfire.components.pit.BaseDoorComponent
+import com.gadarts.returnfire.components.turret.TurretBaseComponent
+import com.gadarts.returnfire.components.turret.TurretComponent
 
 object ComponentsMapper {
     val modelInstance: ComponentMapper<ModelInstanceComponent> =
@@ -37,6 +51,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(PhysicsComponent::class.java)
     val ai: ComponentMapper<AiComponent> =
         ComponentMapper.getFor(AiComponent::class.java)
+    val aiTurret: ComponentMapper<AiTurretComponent> =
+        ComponentMapper.getFor(AiTurretComponent::class.java)
     val character: ComponentMapper<CharacterComponent> =
         ComponentMapper.getFor(CharacterComponent::class.java)
     val spark: ComponentMapper<SparkComponent> =

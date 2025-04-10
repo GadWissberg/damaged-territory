@@ -7,7 +7,7 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.TurretComponent
+import com.gadarts.returnfire.components.turret.TurretComponent
 
 class TurretsHandler(engine: PooledEngine) {
     private val turretEntities: ImmutableArray<Entity> = engine.getEntitiesFor(

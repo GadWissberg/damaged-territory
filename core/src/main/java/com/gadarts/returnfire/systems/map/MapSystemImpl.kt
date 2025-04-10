@@ -22,14 +22,14 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.FIRE_LOOP_SMALL
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.SMOKE_UP_LOOP
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.BaseComponent
-import com.gadarts.returnfire.components.BaseDoorComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.DecalAnimation
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.components.pit.BaseComponent
+import com.gadarts.returnfire.components.pit.BaseDoorComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.systems.GameEntitySystem

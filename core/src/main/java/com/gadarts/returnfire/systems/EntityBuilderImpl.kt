@@ -16,6 +16,12 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.ai.AiComponent
+import com.gadarts.returnfire.components.ai.AiTurretComponent
+import com.gadarts.returnfire.components.amb.AmbAnimationComponent
+import com.gadarts.returnfire.components.amb.AmbComponent
+import com.gadarts.returnfire.components.amb.AmbCorpsePart
+import com.gadarts.returnfire.components.amb.AmbSoundComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.arm.PrimaryArmComponent
@@ -25,6 +31,7 @@ import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.character.CharacterColor
+import com.gadarts.returnfire.components.effects.*
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
@@ -33,6 +40,10 @@ import com.gadarts.returnfire.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
+import com.gadarts.returnfire.components.pit.BaseComponent
+import com.gadarts.returnfire.components.pit.BaseDoorComponent
+import com.gadarts.returnfire.components.turret.TurretBaseComponent
+import com.gadarts.returnfire.components.turret.TurretComponent
 import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
@@ -486,6 +497,12 @@ class EntityBuilderImpl : EntityBuilder {
         val fenceComponent = FenceComponent()
         entity.add(fenceComponent)
         return fenceComponent
+    }
+
+    override fun addAiTurretComponentToEntity(turret: Entity): AiTurretComponent {
+        val aiTurretComponent = AiTurretComponent()
+        turret.add(aiTurretComponent)
+        return aiTurretComponent
     }
 
     private fun createParticleEffectComponent(

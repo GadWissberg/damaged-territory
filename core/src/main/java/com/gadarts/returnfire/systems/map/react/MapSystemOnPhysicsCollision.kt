@@ -12,9 +12,9 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.*
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.components.AmbComponent
-import com.gadarts.returnfire.components.AmbCorpsePart
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.amb.AmbComponent
+import com.gadarts.returnfire.components.amb.AmbCorpsePart
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.RigidBody

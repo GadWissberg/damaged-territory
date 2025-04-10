@@ -5,10 +5,10 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.TurretComponent
+import com.gadarts.returnfire.components.ai.AiComponent
 import com.gadarts.returnfire.components.character.CharacterColor
+import com.gadarts.returnfire.components.turret.TurretComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -49,6 +49,12 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                         entity,
                         characterComponent.definition.getHP()
                     )
+                    val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
+                    if (turretBaseComponent != null) {
+                        gamePlayManagers.ecs.entityBuilder.addAiTurretComponentToEntity(
+                            turretBaseComponent.turret,
+                        )
+                    }
                 }
             }
         },

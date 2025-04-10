@@ -11,13 +11,14 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.AiComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.ai
+import com.gadarts.returnfire.components.ai.AiComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.systems.ai.AiStatus
+import com.gadarts.returnfire.systems.ai.AiTurretStatus
 import com.gadarts.returnfire.systems.ai.logic.AiTankLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -90,35 +91,83 @@ class AiTankLogic(
         deltaTime: Float
     ) {
         applyMovement(character, aiComponent, deltaTime)
-        aimAndShoot(character, deltaTime)
+        handleTurret(character, deltaTime)
     }
 
 
-    private fun aimAndShoot(character: Entity, deltaTime: Float) {
-        if (GameDebugSettings.AI_ATTACK_DISABLED) return
+    private fun shouldSkipHandlingTurret(baseTurret: Entity): Boolean {
+        if (GameDebugSettings.AI_ATTACK_DISABLED) return true
 
         val playerTransform =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
-        val playerPosition = playerTransform.getTranslation(auxVector3_1)
+        val destinationPosition = playerTransform.getTranslation(auxVector3_1)
         val characterPosition =
-            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(baseTurret).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_2
             )
-        val turret = ComponentsMapper.turretBase.get(character).turret
-        if (playerPosition.set(playerPosition.x, 0F, playerPosition.z)
+        val turret = ComponentsMapper.turretBase.get(baseTurret).turret
+        if (destinationPosition.set(destinationPosition.x, 0F, destinationPosition.z)
                 .dst2(characterPosition.set(characterPosition.x, 0F, characterPosition.z)) > 88F
         ) {
-            shootingHandler.stopSecondaryShooting()
-            shootingHandler.stopPrimaryShooting()
+            stopAttack()
             movementHandler.applyTurretRotation(0, turret)
-            return
+            return true
         }
 
-        handleRotation(
-            auxVector2.set(playerPosition.x, playerPosition.z),
+        return false
+    }
+
+    private fun stopAttack() {
+        shootingHandler.stopSecondaryShooting()
+        shootingHandler.stopPrimaryShooting()
+    }
+
+    private fun handleTurret(character: Entity, deltaTime: Float) {
+        if (shouldSkipHandlingTurret(character)) return
+
+        val playerTransform =
+            ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
+        val destinationPosition = playerTransform.getTranslation(auxVector3_1)
+        val turret = ComponentsMapper.turretBase.get(character).turret
+        val aiTurretComponent = ComponentsMapper.aiTurret.get(turret)
+        if (aiTurretComponent.state == AiTurretStatus.ATTACK) {
+            rotateAndEngageTurret(
+                auxVector2.set(destinationPosition.x, destinationPosition.z),
+                turret,
+                deltaTime,
+                TurretRotationAnglesMatchForAttack
+            )
+            if (aiTurretComponent.nextLookingAroundTime < System.currentTimeMillis()) {
+                aiTurretComponent.state = AiTurretStatus.LOOK_AROUND
+                aiTurretComponent.setDestination(
+                    auxVector2.set(
+                        MathUtils.random(gameSessionData.mapData.mapGraph.width).toFloat(),
+                        MathUtils.random(gameSessionData.mapData.mapGraph.depth).toFloat()
+                    )
+                )
+                stopAttack()
+            }
+        } else if (aiTurretComponent.state == AiTurretStatus.LOOK_AROUND) {
+            rotateAndEngageTurret(
+                ComponentsMapper.aiTurret.get(turret).getDestination(auxVector2),
+                turret,
+                deltaTime,
+                TurretRotationAnglesMatchForLookingAround
+            )
+        }
+    }
+
+    private fun rotateAndEngageTurret(
+        destinationPosition: Vector2,
+        turret: Entity,
+        deltaTime: Float,
+        callbackForAnglesMatch: RotationCallback
+    ) {
+        rotateAndEngage(
+            destinationPosition,
             turret,
             deltaTime,
-            TurretRotationAnglesMatch,
+            callbackForAnglesMatch,
             TurretRotationGreaterThan180,
             TurretRotationLessThan180,
             4f
@@ -159,7 +208,7 @@ class AiTankLogic(
 
     }
 
-    object TurretRotationAnglesMatch : RotationCallback {
+    object TurretRotationAnglesMatchForAttack : RotationCallback {
         override fun invoke(
             movementHandler: TankMovementHandlerDesktop,
             shootingHandler: CharacterShootingHandler,
@@ -176,6 +225,24 @@ class AiTankLogic(
             } else {
                 shootingHandler.startPrimaryShooting()
             }
+        }
+
+    }
+
+    object TurretRotationAnglesMatchForLookingAround : RotationCallback {
+        override fun invoke(
+            movementHandler: TankMovementHandlerDesktop,
+            shootingHandler: CharacterShootingHandler,
+            character: Entity,
+            deltaTime: Float,
+            angleToTarget: Float,
+            gameSessionData: GameSessionData,
+            callback: ClosestRayResultCallback,
+            rayLength: Float
+        ) {
+            val aiTurretComponent = ComponentsMapper.aiTurret.get(character)
+            aiTurretComponent.state = AiTurretStatus.ATTACK
+            aiTurretComponent.nextLookingAroundTime = System.currentTimeMillis() + MathUtils.random(6000L)
         }
 
     }
@@ -217,7 +284,7 @@ class AiTankLogic(
                 aiComponent.state = AiStatus.PLANNING
             }
         } else {
-            handleRotation(
+            rotateAndEngage(
                 auxVector2.set(nextNode.x.toFloat() + 0.5F, nextNode.y.toFloat() + 0.5F),
                 character,
                 deltaTime,
@@ -354,7 +421,7 @@ class AiTankLogic(
 
     }
 
-    private fun handleRotation(
+    private fun rotateAndEngage(
         target: Vector2,
         entityToRotate: Entity,
         deltaTime: Float,
@@ -451,14 +518,14 @@ class AiTankLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                    rayTest(
-                        position,
-                        direction,
-                        collisionWorld,
-                        callback,
-                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                        MAX_LOOKING_AHEAD
-                    ) || rayTest(
+                rayTest(
+                    position,
+                    direction,
+                    collisionWorld,
+                    callback,
+                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                    MAX_LOOKING_AHEAD
+                ) || rayTest(
                 position,
                 direction,
                 collisionWorld,
