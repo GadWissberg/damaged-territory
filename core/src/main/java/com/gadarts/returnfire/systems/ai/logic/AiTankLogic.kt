@@ -16,6 +16,8 @@ import com.gadarts.returnfire.components.ComponentsMapper.ai
 import com.gadarts.returnfire.components.ai.AiComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraph
+import com.gadarts.returnfire.model.MapGraphCost
+import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.systems.ai.AiStatus
 import com.gadarts.returnfire.systems.ai.AiTurretStatus
@@ -46,6 +48,7 @@ class AiTankLogic(
         handler
     }
     private val closestRayResultCallback = ClosestRayResultCallback(rayFrom, rayTo)
+
     override fun preUpdate(character: Entity, deltaTime: Float) {
         val aiComponent = ai.get(character)
         if (aiComponent.state == AiStatus.PLANNING) {
@@ -64,11 +67,30 @@ class AiTankLogic(
             val end = gameSessionData.mapData.mapGraph.getNode(playerPosition.x.toInt(), playerPosition.z.toInt())
             aiComponent.path.clear()
             val pathFound =
-                gamePlayManagers.pathFinder.searchNodePath(start, end, aiComponent.path, aiComponent.nodesToExclude)
+                gamePlayManagers.pathFinder.searchNodePath(
+                    start,
+                    end,
+                    aiComponent.path,
+                    aiComponent.nodesToExclude,
+                    MapGraphCost.FREE_WAY
+                )
             if (pathFound) {
                 aiComponent.state = AiStatus.MOVING
                 aiComponent.path.nodes.removeIndex(0)
                 aiComponent.currentNode = start
+            } else {
+                val pathFoundIncludingBlockedWAY = gamePlayManagers.pathFinder.searchNodePath(
+                    start,
+                    end,
+                    aiComponent.path,
+                    aiComponent.nodesToExclude,
+                    MapGraphCost.BLOCKED_WAY
+                )
+                if (pathFoundIncludingBlockedWAY) {
+                    aiComponent.state = AiStatus.MOVING
+                    aiComponent.path.nodes.removeIndex(0)
+                    aiComponent.currentNode = start
+                }
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, aiComponent, deltaTime)
@@ -78,6 +100,7 @@ class AiTankLogic(
                     character,
                     closestRayResultCallback,
                     gameSessionData.physicsData.collisionWorld,
+                    gameSessionData.mapData.mapGraph
                 )
             ) {
                 aiComponent.state = AiStatus.PLANNING
@@ -242,7 +265,7 @@ class AiTankLogic(
         ) {
             val aiTurretComponent = ComponentsMapper.aiTurret.get(character)
             aiTurretComponent.state = AiTurretStatus.ATTACK
-            aiTurretComponent.nextLookingAroundTime = System.currentTimeMillis() + MathUtils.random(6000L)
+            aiTurretComponent.nextLookingAroundTime = System.currentTimeMillis() + MathUtils.random(12000L)
         }
 
     }
@@ -300,7 +323,7 @@ class AiTankLogic(
         playerPosition: Vector3,
         pathNodes: Array<MapGraphNode>
     ): Boolean {
-        return playerPosition.dst2(
+        return playerPosition.set(playerPosition.x, 0F, playerPosition.z).dst2(
             auxVector3_2.set(
                 pathNodes.get(pathNodes.size - 1).x.toFloat() + 0.5F,
                 0F,
@@ -378,25 +401,31 @@ class AiTankLogic(
                     character,
                     callback,
                     gameSessionData.physicsData.collisionWorld,
+                    gameSessionData.mapData.mapGraph,
                 )
             ) {
-                val colliderModelInstanceComponent =
-                    ComponentsMapper.modelInstance.get(callback.collisionObject.userData as Entity)
-                val aiComponent = ai.get(character)
-                if (colliderModelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(auxVector3_1)
-                        .dst2(
-                            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
-                                auxVector3_2
-                            )
+                if (callback.collisionObject != null) {
+                    val colliderModelInstanceComponent =
+                        ComponentsMapper.modelInstance.get(callback.collisionObject.userData as Entity)
+                    val aiComponent = ai.get(character)
+                    if (colliderModelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+                            auxVector3_1
                         )
-                    < rayLength / 2F
-                ) {
-                    result.clear()
-                    aiComponent.setNodesToExclude(result)
-                    aiComponent.state = AiStatus.REVERSE
-                } else {
-                    wayBlockedByObstacle(callback.collisionObject.userData as Entity, gameSessionData, aiComponent)
+                            .dst2(
+                                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                                    auxVector3_2
+                                )
+                            )
+                        < rayLength / 2F
+                    ) {
+                        result.clear()
+                        aiComponent.setNodesToExclude(result)
+                        aiComponent.state = AiStatus.REVERSE
+                    } else {
+                        wayBlockedByObstacle(callback.collisionObject.userData as Entity, gameSessionData, aiComponent)
+                    }
                 }
+                movementHandler.stopMovement()
                 return
             }
 
@@ -499,6 +528,7 @@ class AiTankLogic(
             character: Entity,
             callback: ClosestRayResultCallback,
             collisionWorld: btDiscreteDynamicsWorld,
+            mapGraph: MapGraph,
         ): Boolean {
             callback.collisionObject = null
             callback.closestHitFraction = 1f
@@ -508,6 +538,17 @@ class AiTankLogic(
                     auxVector3_2
                 )
             val direction = auxVector3_1.set(Vector3.X).rot(transform).nor()
+            val positionInFront = auxVector3_3.set(position).add(direction).add(direction).add(direction)
+            val type = mapGraph.getNode(positionInFront.x.toInt(), positionInFront.z.toInt()).type
+            if (positionInFront.x < 0
+                || positionInFront.z < 0
+                || positionInFront.x >= mapGraph.width
+                || positionInFront.z >= mapGraph.depth
+                || type == MapGraphType.WATER
+            ) {
+                return true
+            }
+
             callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
             callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
             val collided = rayTest(

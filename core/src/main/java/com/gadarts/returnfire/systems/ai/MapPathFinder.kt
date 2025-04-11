@@ -2,6 +2,7 @@ package com.gadarts.returnfire.systems.ai
 
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
 import com.gadarts.returnfire.managers.PathHeuristic
+import com.gadarts.returnfire.model.MapGraphCost
 import com.gadarts.returnfire.model.MapGraphPath
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.model.graph.MapGraphNode
@@ -17,10 +18,12 @@ class MapPathFinder(private val mapData: GameSessionDataMap, private val pathHeu
         end: MapGraphNode,
         path: MapGraphPath,
         nodesToExclude: MutableList<MapGraphNode>,
+        maxCost: MapGraphCost,
     ): Boolean {
         nodesToExclude.forEach { node ->
             node.type = MapGraphType.BLOCKED
         }
+        mapData.mapGraph.maxCost = maxCost
         val searchNodePath = pathFinder.searchNodePath(start, end, pathHeuristic, path)
         nodesToExclude.forEach { node ->
             node.type = MapGraphType.AVAILABLE

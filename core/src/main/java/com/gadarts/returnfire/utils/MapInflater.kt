@@ -27,7 +27,8 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.components.*
+import com.gadarts.returnfire.components.AnimatedTextureComponent
+import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.amb.AmbComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmEffectsData
@@ -42,10 +43,7 @@ import com.gadarts.returnfire.components.pit.BaseComponent
 import com.gadarts.returnfire.components.turret.TurretBaseComponent
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.CharacterType
-import com.gadarts.returnfire.model.ElementType
-import com.gadarts.returnfire.model.MapGraph
-import com.gadarts.returnfire.model.MapGraphType
+import com.gadarts.returnfire.model.*
 import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
@@ -123,49 +121,46 @@ class MapInflater(
             val x = i % width
             val y = i / width
             val from = mapGraph.getNode(x, y)
-            if (from.type == MapGraphType.UNCONNECTED) continue
 
             if (x > 0) {
-                connect(mapGraph, from, x - 1, y)
+                connect(mapGraph, from, x - 1, y, MapGraphCost.FREE_WAY)
             }
             if (x > 0 && y < tilesMapping.size - 1) {
-                if (mapGraph.getNode(x - 1, y).type == MapGraphType.AVAILABLE
-                    && mapGraph.getNode(x, y + 1).type == MapGraphType.AVAILABLE
-                ) {
-                    connect(mapGraph, from, x - 1, y + 1)
-                }
+                connect(mapGraph, from, x - 1, y + 1, calculateDiagonalCost(mapGraph, x - 1, y, x, y + 1))
             }
             if (y < tilesMapping.size - 1) {
-                connect(mapGraph, from, x, y + 1)
+                connect(mapGraph, from, x, y + 1, MapGraphCost.FREE_WAY)
             }
             if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1) {
-                if (mapGraph.getNode(x + 1, y).type == MapGraphType.AVAILABLE
-                    && mapGraph.getNode(x, y + 1).type == MapGraphType.AVAILABLE
-                ) {
-                    connect(mapGraph, from, x + 1, y + 1)
-                }
+                connect(mapGraph, from, x + 1, y + 1, calculateDiagonalCost(mapGraph, x + 1, y, x, y + 1))
             }
             if (x < tilesMapping[0].size - 1) {
-                connect(mapGraph, from, x + 1, y)
+                connect(mapGraph, from, x + 1, y, MapGraphCost.FREE_WAY)
             }
             if (x < tilesMapping[0].size - 1 && y > 0) {
-                if (mapGraph.getNode(x + 1, y).type == MapGraphType.AVAILABLE
-                    && mapGraph.getNode(x, y - 1).type == MapGraphType.AVAILABLE
-                ) {
-                    connect(mapGraph, from, x + 1, y - 1)
-                }
+                connect(mapGraph, from, x + 1, y - 1, calculateDiagonalCost(mapGraph, x + 1, y, x, y - 1))
             }
             if (y > 0) {
-                connect(mapGraph, from, x, y - 1)
+                connect(mapGraph, from, x, y - 1, MapGraphCost.FREE_WAY)
             }
             if (x > 0 && y > 0) {
-                if (mapGraph.getNode(x - 1, y).type == MapGraphType.AVAILABLE
-                    && mapGraph.getNode(x, y - 1).type == MapGraphType.AVAILABLE
-                ) {
-                    connect(mapGraph, from, x - 1, y - 1)
-                }
+                connect(
+                    mapGraph, from, x - 1, y - 1, calculateDiagonalCost(mapGraph, x - 1, y, x, y - 1)
+                )
             }
         }
+    }
+
+    private fun calculateDiagonalCost(
+        mapGraph: MapGraph,
+        x1: Int,
+        y1: Int,
+        x2: Int,
+        y2: Int
+    ): MapGraphCost {
+        return if (mapGraph.getNode(x1, y1).type == MapGraphType.AVAILABLE
+            && mapGraph.getNode(x2, y2).type == MapGraphType.AVAILABLE
+        ) MapGraphCost.FREE_WAY else MapGraphCost.BLOCKED_DIAGONAL
     }
 
     private fun connect(
@@ -173,11 +168,14 @@ class MapInflater(
         from: MapGraphNode,
         toX: Int,
         toY: Int,
+        cost: MapGraphCost,
     ) {
         val to = mapGraph.getNode(toX, toY)
-        if (to.type == MapGraphType.UNCONNECTED) return
-
-        mapGraph.connect(from, to)
+        mapGraph.connect(
+            from,
+            to,
+            if (from.type == MapGraphType.WATER || to.type == MapGraphType.WATER) MapGraphCost.BLOCKED_WAY else cost
+        )
     }
 
     private fun createGraphNodes(
@@ -190,7 +188,7 @@ class MapInflater(
         for (y in 0 until depth) {
             for (x in 0 until width) {
                 val type = if (tilesMapping[y][x] == WATER_TILE_INDEX) {
-                    MapGraphType.UNCONNECTED
+                    MapGraphType.WATER
                 } else if (occupiedTiles.contains(x to y)) {
                     MapGraphType.BLOCKED
                 } else {
@@ -514,8 +512,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                    && definition != SimpleCharacterDefinition.APACHE
-                    && definition != TurretCharacterDefinition.TANK
+                && definition != SimpleCharacterDefinition.APACHE
+                && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -780,9 +778,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.currentMap.tilesMapping.size
-            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+        && col >= 0
+        && row < gameSessionData.mapData.currentMap.tilesMapping.size
+        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

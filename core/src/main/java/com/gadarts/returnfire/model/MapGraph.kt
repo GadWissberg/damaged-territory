@@ -1,12 +1,12 @@
 package com.gadarts.returnfire.model
 
 import com.badlogic.gdx.ai.pfa.Connection
-import com.badlogic.gdx.ai.pfa.DefaultConnection
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph
 import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.model.graph.MapGraphNode
 
 class MapGraph(val width: Int, val depth: Int) : IndexedGraph<MapGraphNode> {
+    var maxCost: MapGraphCost = MapGraphCost.FREE_WAY
     private val nodes: kotlin.Array<kotlin.Array<MapGraphNode>> =
         Array(depth) { Array(width) { MapGraphNode(-1, -1, -1, MapGraphType.AVAILABLE) } }
     private val connections = mutableMapOf<MapGraphNode, Array<Connection<MapGraphNode>>>()
@@ -18,8 +18,8 @@ class MapGraph(val width: Int, val depth: Int) : IndexedGraph<MapGraphNode> {
         return node
     }
 
-    fun connect(from: MapGraphNode, to: MapGraphNode) {
-        connections.computeIfAbsent(from) { Array() }.add(DefaultConnection(from, to))
+    fun connect(from: MapGraphNode, to: MapGraphNode, cost: MapGraphCost) {
+        connections.computeIfAbsent(from) { Array() }.add(MapGraphConnection(from, to, cost))
     }
 
     override fun getIndex(node: MapGraphNode): Int = node.index
@@ -31,7 +31,7 @@ class MapGraph(val width: Int, val depth: Int) : IndexedGraph<MapGraphNode> {
         }
 
         connections[fromNode]?.forEach {
-            if (it.toNode.type != MapGraphType.BLOCKED) {
+            if (it.cost <= maxCost.ordinal.toFloat() && it.toNode.type != MapGraphType.BLOCKED) {
                 auxConnectionsList.add(it)
             }
         }
