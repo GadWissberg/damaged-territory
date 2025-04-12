@@ -69,7 +69,7 @@ object ComponentsMapper {
         ComponentMapper.getFor(BoardingComponent::class.java)
     val baseDoor: ComponentMapper<BaseDoorComponent> =
         ComponentMapper.getFor(BaseDoorComponent::class.java)
-    val base: ComponentMapper<BaseComponent> =
+    val hangar: ComponentMapper<BaseComponent> =
         ComponentMapper.getFor(BaseComponent::class.java)
     val stage: ComponentMapper<StageComponent> =
         ComponentMapper.getFor(StageComponent::class.java)

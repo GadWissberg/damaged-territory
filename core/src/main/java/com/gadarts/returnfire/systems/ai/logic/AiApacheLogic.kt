@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.systems.ai.AiStatus
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
@@ -34,26 +35,26 @@ class AiApacheLogic(
     }
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
-        val boardingComponent = ComponentsMapper.boarding.get(character)
         val targetModelInstance =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
         val aiComponent = ComponentsMapper.ai.get(character)
-        val returnToBase = aiComponent.returnToBase
+        val target = aiComponent.target
+        val returningToBase = ComponentsMapper.hangar.has(target)
         val targetPosition =
-            if (!returnToBase && aiComponent.runAway.isZero) targetModelInstance.transform.getTranslation(
-                auxVector4
-            ) else if (!aiComponent.runAway.isZero) {
+            if (!returningToBase && aiComponent.runAway.isZero) {
+                targetModelInstance.transform.getTranslation(
+                    auxVector4
+                )
+            } else if (!aiComponent.runAway.isZero) {
                 auxVector4.set(aiComponent.runAway)
             } else {
-                ComponentsMapper.modelInstance.get(
-                    gameSessionData.mapData.stages[boardingComponent.color]
-                ).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector4
+                ComponentsMapper.modelInstance.get(target).gameModelInstance.modelInstance.transform.getTranslation(
+                    auxVector1
                 )
             }
         val characterTransform =
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
-        if (returnToBase) {
+        if (returningToBase) {
             movementHandler.thrust(character)
             val characterPosition = characterTransform.getTranslation(auxVector2)
             if (characterPosition.epsilonEquals(
@@ -87,6 +88,7 @@ class AiApacheLogic(
         update(character, deltaTime)
     }
 
+
     private fun applyMainLogic(
         characterTransform: Matrix4,
         targetPosition: Vector3,
@@ -113,7 +115,10 @@ class AiApacheLogic(
         val quarter = characterComponent.definition.getHP() / 4F
         val aiComponent = ComponentsMapper.ai.get(character)
         if (characterComponent.hp <= quarter) {
-            aiComponent.returnToBase()
+            aiComponent.state = AiStatus.MOVING
+            aiComponent.target = gameSessionData.mapData.hangars[ComponentsMapper.boarding.get(
+                character
+            ).color]
             stopAttack()
         } else if (aiComponent.runAway.isZero) {
             val lastHpCheck = aiComponent.lastHpCheck

@@ -268,11 +268,11 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun findBase(entity: Entity): Entity {
         val characterColor = ComponentsMapper.character.get(entity).color
-        return bases.find { ComponentsMapper.base.get(it).color == characterColor }!!
+        return bases.find { ComponentsMapper.hangar.get(it).color == characterColor }!!
     }
 
     override fun closeDoors(base: Entity) {
-        val baseComponent = ComponentsMapper.base.get(base)
+        val baseComponent = ComponentsMapper.hangar.get(base)
         baseComponent.close()
         baseComponent.baseDoorSoundId =
             gamePlayManagers.soundPlayer.play(
@@ -326,7 +326,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     private fun initializeBase(base: Entity) {
         addStage(base)
-        val baseComponent = ComponentsMapper.base.get(base)
+        val baseComponent = ComponentsMapper.hangar.get(base)
         baseComponent.init(
             addBaseDoor(base, 0F, -1F),
             addBaseDoor(base, 180F, 1F)
@@ -360,7 +360,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             .addBaseDoorComponent(basePosition.x, basePosition.x + relativeTargetX)
             .finishAndAddToEngine()
         doorModelInstance.modelInstance.transform.rotate(Vector3.Y, rotationAroundY)
-        val baseComponent = ComponentsMapper.base.get(base)
+        val baseComponent = ComponentsMapper.hangar.get(base)
         val color =
             if (baseComponent.color == CharacterColor.BROWN) "pit_door_texture_brown" else "pit_door_texture_green"
         val textureAttribute =
@@ -374,7 +374,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     private fun addStage(base: Entity): Entity {
         val color =
-            if (ComponentsMapper.base.get(base).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
+            if (ComponentsMapper.hangar.get(base).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
         val texture =
             gamePlayManagers.assetsManager.getTexture(color)
         return gamePlayManagers.ecs.entityBuilder.begin()
@@ -434,7 +434,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
 
     private fun updateBaseDoors(base: Entity, deltaTime: Float) {
-        val baseComponent = ComponentsMapper.base.get(base)
+        val baseComponent = ComponentsMapper.hangar.get(base)
         if (baseComponent.isIdle()) return
 
         val westDoorTransform =

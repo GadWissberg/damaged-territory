@@ -14,7 +14,7 @@ class CharacterSystemOnCharacterRequestBoarding : HandlerOnEvent {
         ComponentsMapper.boarding.get(character).onBoard()
         val boardingComponent =
             ComponentsMapper.boarding.get(character)
-        boardingComponent.boardingAnimation?.init(gameSessionData.mapData.stages[boardingComponent.color])
+        boardingComponent.boardingAnimation?.init(gameSessionData.mapData.hangars[boardingComponent.color])
         gamePlayManagers.dispatcher.dispatchMessage(
             SystemEvents.CHARACTER_BOARDING.ordinal,
             character

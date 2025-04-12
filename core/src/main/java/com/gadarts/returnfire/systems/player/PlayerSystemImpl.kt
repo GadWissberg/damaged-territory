@@ -38,7 +38,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private val playerStage: Entity by lazy {
         engine.getEntitiesFor(
             Family.all(StageComponent::class.java).get()
-        ).find { ComponentsMapper.base.get(ComponentsMapper.stage.get(it).base).color == CharacterColor.BROWN }!!
+        ).find { ComponentsMapper.hangar.get(ComponentsMapper.stage.get(it).base).color == CharacterColor.BROWN }!!
     }
     private val autoAim by lazy {
         if (gameSessionData.autoAim) {
@@ -75,7 +75,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonReleased(gameSessionData.gamePlayData.player!!)
             }
         },
-        CHARACTER_OFF_BOARDED to PlayerSystemOnCharacterOffBoarded(this),
+        CHARACTER_DEPLOYED to PlayerSystemOnCharacterOffBoarded(this),
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
         BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {

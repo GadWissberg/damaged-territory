@@ -29,7 +29,7 @@ class CharacterSystemOnMapLoaded(engine: Engine) : HandlerOnEvent {
                         it
                     ).def
                 }
-            val characterColor = ComponentsMapper.base.get(it).color
+            val characterColor = ComponentsMapper.hangar.get(it).color
             val opponent =
                 gamePlayManagers.factories.opponentCharacterFactory.create(
                     base!!,

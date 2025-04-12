@@ -12,8 +12,6 @@ class AiComponent : Component {
     var currentNode: MapGraphNode? = null
     val path: MapGraphPath = MapGraphPath()
     var state: AiStatus = AiStatus.PLANNING
-    var returnToBase: Boolean = false
-        private set
     var lastHpCheck: Float = 0F
     val runAway = Vector3()
     var target: Entity? = null
@@ -25,10 +23,6 @@ class AiComponent : Component {
         this.lastHpCheck = initialHp
         this.attackReadyTime = 0
         this.attackReady = true
-    }
-
-    fun returnToBase() {
-        returnToBase = true
     }
 
     fun setNodesToExclude(nodesToExclude: List<MapGraphNode>) {

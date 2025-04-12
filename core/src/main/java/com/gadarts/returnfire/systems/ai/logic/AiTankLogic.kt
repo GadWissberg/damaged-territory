@@ -59,12 +59,12 @@ class AiTankLogic(
 
             val start = gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
             val transform =
-                ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
-            val playerPosition =
+                ComponentsMapper.modelInstance.get(aiComponent.target).gameModelInstance.modelInstance.transform
+            val targetPosition =
                 transform.getTranslation(
                     auxVector3_1
                 )
-            val end = gameSessionData.mapData.mapGraph.getNode(playerPosition.x.toInt(), playerPosition.z.toInt())
+            val end = gameSessionData.mapData.mapGraph.getNode(targetPosition.x.toInt(), targetPosition.z.toInt())
             aiComponent.path.clear()
             val pathFound =
                 gamePlayManagers.pathFinder.searchNodePath(
@@ -243,7 +243,9 @@ class AiTankLogic(
             rayLength: Float
         ) {
             movementHandler.applyTurretRotation(0, character)
-            if (ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition.isFlyer()) {
+            val target = ComponentsMapper.aiTurret.get(character).target ?: return
+
+            if (ComponentsMapper.character.get(target).definition.isFlyer()) {
                 shootingHandler.startSecondaryShooting()
             } else {
                 shootingHandler.startPrimaryShooting()
@@ -265,6 +267,7 @@ class AiTankLogic(
         ) {
             val aiTurretComponent = ComponentsMapper.aiTurret.get(character)
             aiTurretComponent.state = AiTurretStatus.ATTACK
+            aiTurretComponent.target = gameSessionData.gamePlayData.player
             aiTurretComponent.nextLookingAroundTime = System.currentTimeMillis() + MathUtils.random(12000L)
         }
 
@@ -273,6 +276,14 @@ class AiTankLogic(
     override fun update(character: Entity, deltaTime: Float) {
         movementHandler.update(character, deltaTime)
         shootingHandler.update(character)
+        val characterComponent = ComponentsMapper.character.get(character)
+        val aiComponent = ai.get(character)
+        val target = aiComponent.target
+        val initialHp = characterComponent.definition.getHP()
+        if (characterComponent.hp <= initialHp / 4F && target != null && !ComponentsMapper.hangar.has(target)) {
+            aiComponent.state = AiStatus.PLANNING
+            aiComponent.target = gameSessionData.mapData.hangars[ComponentsMapper.boarding.get(character).color]
+        }
     }
 
     private fun applyMovement(
@@ -559,14 +570,14 @@ class AiTankLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                rayTest(
-                    position,
-                    direction,
-                    collisionWorld,
-                    callback,
-                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                    MAX_LOOKING_AHEAD
-                ) || rayTest(
+                    rayTest(
+                        position,
+                        direction,
+                        collisionWorld,
+                        callback,
+                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                        MAX_LOOKING_AHEAD
+                    ) || rayTest(
                 position,
                 direction,
                 collisionWorld,
