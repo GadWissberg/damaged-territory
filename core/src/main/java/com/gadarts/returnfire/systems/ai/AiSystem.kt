@@ -55,17 +55,24 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                             turretBaseComponent.turret,
                         )
                     }
+                    if (gameSessionData.gamePlayData.player != null) {
+                        setTargetForAi(entity, gameSessionData.gamePlayData.player!!)
+                    }
                 } else {
                     aiEntities.forEach {
-                        ComponentsMapper.ai.get(it).target = entity
-                        if (ComponentsMapper.aiTurret.has(it)) {
-                            ComponentsMapper.aiTurret.get(it).target = entity
-                        }
+                        setTargetForAi(it, entity)
                     }
                 }
             }
         },
     )
+
+    private fun setTargetForAi(character: Entity, target: Entity) {
+        ComponentsMapper.ai.get(character).target = target
+        if (ComponentsMapper.aiTurret.has(character)) {
+            ComponentsMapper.aiTurret.get(character).target = target
+        }
+    }
 
 
     private val enemyTurretEntities: ImmutableArray<Entity> by lazy {

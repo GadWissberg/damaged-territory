@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
@@ -38,7 +39,7 @@ class AiApacheLogic(
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
         val aiComponent = ComponentsMapper.ai.get(character)
         val target = aiComponent.target
-        val returningToBase = ComponentsMapper.hangar.has(target)
+        val returningToBase = ComponentsMapper.hangarStage.has(target)
         val targetPosition =
             if (!returningToBase && aiComponent.runAway.isZero) {
                 targetModelInstance.transform.getTranslation(
@@ -55,7 +56,7 @@ class AiApacheLogic(
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         if (returningToBase) {
             movementHandler.thrust(character)
-            onboard(characterTransform, targetPosition)
+            onboard(character, 0.8F)
         } else if (!aiComponent.runAway.isZero) {
             val characterPosition =
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
@@ -99,9 +100,12 @@ class AiApacheLogic(
             stopAttack()
         }
         val characterComponent = ComponentsMapper.character.get(character)
-        val quarter = characterComponent.definition.getHP() / 4F
         val aiComponent = ComponentsMapper.ai.get(character)
-        if (characterComponent.hp <= quarter) {
+        if (shouldReturnToBase(character)) {
+            Gdx.app.log(
+                AiApacheLogic::class.java.simpleName,
+                "Character ${ComponentsMapper.character.get(character).definition.getName()} is returning to base."
+            )
             aiComponent.state = AiStatus.MOVING
             aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(
                 character
@@ -109,7 +113,7 @@ class AiApacheLogic(
             stopAttack()
         } else if (aiComponent.runAway.isZero) {
             val lastHpCheck = aiComponent.lastHpCheck
-            if (characterComponent.hp <= lastHpCheck - quarter) {
+            if (characterComponent.hp <= lastHpCheck - characterComponent.definition.getHP() / 4F) {
                 aiComponent.lastHpCheck = characterComponent.hp
                 val angle = MathUtils.random(0f, MathUtils.PI2)
                 val x: Float = targetPosition.x + RUN_AWAY_RADIUS * MathUtils.cos(angle)

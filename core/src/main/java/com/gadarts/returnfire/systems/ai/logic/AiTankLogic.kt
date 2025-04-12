@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
@@ -51,6 +52,8 @@ class AiTankLogic(
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
         val aiComponent = ai.get(character)
+        if (aiComponent.target == null) return
+
         if (aiComponent.state == AiStatus.PLANNING) {
             val position =
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
@@ -79,6 +82,10 @@ class AiTankLogic(
                 aiComponent.path.nodes.removeIndex(0)
                 aiComponent.currentNode = start
             } else {
+                Gdx.app.log(
+                    "AiTankLogic",
+                    "Path not found from ${start.x},${start.y} to ${end.x},${end.y} with nodesToExclude: ${aiComponent.nodesToExclude.size}"
+                )
                 val pathFoundIncludingBlockedWAY = gamePlayManagers.pathFinder.searchNodePath(
                     start,
                     end,
@@ -275,15 +282,13 @@ class AiTankLogic(
     override fun update(character: Entity, deltaTime: Float) {
         movementHandler.update(character, deltaTime)
         shootingHandler.update(character)
-        val characterComponent = ComponentsMapper.character.get(character)
         val aiComponent = ai.get(character)
-        val target = aiComponent.target
-        val initialHp = characterComponent.definition.getHP()
-        if (characterComponent.hp <= initialHp / 4F && target != null && !ComponentsMapper.hangarStage.has(target)) {
+        if (shouldReturnToBase(character)) {
             aiComponent.state = AiStatus.PLANNING
             aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(character).color]
         }
     }
+
 
     private fun applyMovement(
         character: Entity,
@@ -311,8 +316,8 @@ class AiTankLogic(
                     )
                 )
                 onboard(
-                    ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform,
-                    targetPosition
+                    character,
+                    0.1F,
                 )
             } else {
                 aiComponent.state = AiStatus.PLANNING
@@ -433,8 +438,9 @@ class AiTankLogic(
                 )
             ) {
                 if (callback.collisionObject != null) {
+                    val collisionObjectEntity = callback.collisionObject.userData as Entity
                     val colliderModelInstanceComponent =
-                        ComponentsMapper.modelInstance.get(callback.collisionObject.userData as Entity)
+                        ComponentsMapper.modelInstance.get(collisionObjectEntity)
                     val aiComponent = ai.get(character)
                     if (colliderModelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector3_1
@@ -450,7 +456,11 @@ class AiTankLogic(
                         aiComponent.setNodesToExclude(result)
                         aiComponent.state = AiStatus.REVERSE
                     } else {
-                        wayBlockedByObstacle(callback.collisionObject.userData as Entity, gameSessionData, aiComponent)
+                        wayBlockedByObstacle(
+                            callback.collisionObject.userData as Entity,
+                            gameSessionData,
+                            aiComponent
+                        )
                     }
                 }
                 movementHandler.stopMovement()

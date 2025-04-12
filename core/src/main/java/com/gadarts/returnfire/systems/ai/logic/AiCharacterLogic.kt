@@ -2,30 +2,51 @@ package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.ComponentsMapper.ai
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 abstract class AiCharacterLogic(protected val dispatcher: MessageDispatcher) {
     abstract fun preUpdate(character: Entity, deltaTime: Float)
     abstract fun update(character: Entity, deltaTime: Float)
-    fun onboard(characterTransform: Matrix4, hangarStagePosition: Vector3) {
-        val characterPosition = characterTransform.getTranslation(auxVector1)
+    fun onboard(character: Entity, epsilon: Float) {
+        val characterPosition =
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector1
+            )
+        val hangarStageTransform =
+            ComponentsMapper.modelInstance.get(ai.get(character).target).gameModelInstance.modelInstance.transform
+        val hangarStagePosition =
+            hangarStageTransform.getTranslation(
+                auxVector2
+            )
         if (characterPosition.epsilonEquals(
                 hangarStagePosition.x,
                 characterPosition.y,
                 hangarStagePosition.z,
-                0.8F
+                epsilon
             )
         ) {
             dispatcher.dispatchMessage(
                 SystemEvents.CHARACTER_REQUEST_BOARDING.ordinal,
-                characterTransform
+                character
             )
         }
     }
 
+    protected fun shouldReturnToBase(
+        character: Entity,
+    ): Boolean {
+        val aiComponent = ai.get(character)
+        val characterComponent = ComponentsMapper.character.get(character)
+        val target = aiComponent.target
+        val initialHp = characterComponent.definition.getHP()
+        return characterComponent.hp <= initialHp / 4F && target != null && !ComponentsMapper.hangarStage.has(target)
+    }
+
     companion object {
         val auxVector1 = Vector3()
+        val auxVector2 = Vector3()
     }
 }
