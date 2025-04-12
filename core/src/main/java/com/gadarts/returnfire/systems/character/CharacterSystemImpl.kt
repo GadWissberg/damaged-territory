@@ -70,9 +70,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             ) {
                 val stageEntities =
                     engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
-                gameSessionData.mapData.hangars =
+                gameSessionData.mapData.stages =
                     stageEntities.associateBy(
-                        { ComponentsMapper.hangar.get(ComponentsMapper.stage.get(it).base).color },
+                        { ComponentsMapper.hangar.get(ComponentsMapper.hangarStage.get(it).base).color },
                         { it })
             }
         },
@@ -197,7 +197,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             )
             if (boardingComponent != null && boardingComponent.isBoarding()) {
                 val stageTransform =
-                    ComponentsMapper.modelInstance.get(gameSessionData.mapData.hangars[boardingComponent.color]).gameModelInstance.modelInstance.transform
+                    ComponentsMapper.modelInstance.get(gameSessionData.mapData.stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isOffboarding()) {
                     if (stageTransform.getTranslation(auxVector1).y < MAX_Y) {
                         takeStepForElevatorWithCharacter(stageTransform, character, MAX_Y)

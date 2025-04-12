@@ -37,7 +37,7 @@ class AiTankLogic(
     private val gameSessionData: GameSessionData,
     autoAim: btPairCachingGhostObject,
     private val gamePlayManagers: GamePlayManagers,
-) : AiCharacterLogic, Disposable {
+) : AiCharacterLogic(gamePlayManagers.dispatcher), Disposable {
     private val movementHandler: TankMovementHandlerDesktop by lazy {
         val movementHandler = TankMovementHandlerDesktop()
         movementHandler
@@ -93,7 +93,7 @@ class AiTankLogic(
                 }
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
-            handleMovingState(character, aiComponent, deltaTime)
+            handleMovingState(character, deltaTime)
         } else if (aiComponent.state == AiStatus.REVERSE) {
             movementHandler.reverse()
             if (!checkIfForwardIsBlocked(
@@ -110,10 +110,9 @@ class AiTankLogic(
 
     private fun handleMovingState(
         character: Entity,
-        aiComponent: AiComponent,
         deltaTime: Float
     ) {
-        applyMovement(character, aiComponent, deltaTime)
+        applyMovement(character, deltaTime)
         handleTurret(character, deltaTime)
     }
 
@@ -280,28 +279,46 @@ class AiTankLogic(
         val aiComponent = ai.get(character)
         val target = aiComponent.target
         val initialHp = characterComponent.definition.getHP()
-        if (characterComponent.hp <= initialHp / 4F && target != null && !ComponentsMapper.hangar.has(target)) {
+        if (characterComponent.hp <= initialHp / 4F && target != null && !ComponentsMapper.hangarStage.has(target)) {
             aiComponent.state = AiStatus.PLANNING
-            aiComponent.target = gameSessionData.mapData.hangars[ComponentsMapper.boarding.get(character).color]
+            aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(character).color]
         }
     }
 
     private fun applyMovement(
         character: Entity,
-        aiComponent: AiComponent,
         deltaTime: Float
     ) {
+        val aiComponent = ai.get(character)
         val pathNodes = aiComponent.path.nodes
-        val playerTransform =
-            ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
-        val playerPosition =
-            playerTransform.getTranslation(
+        val targetTransform =
+            ComponentsMapper.modelInstance.get(aiComponent.target).gameModelInstance.modelInstance.transform
+        val targetPosition =
+            targetTransform.getTranslation(
                 auxVector3_1
             )
-        if (pathNodes.size == 0 || isPlayerFarFromDestination(playerPosition, pathNodes)) {
-            aiComponent.state = AiStatus.PLANNING
-            movementHandler.stopMovement()
-            movementHandler.applyRotation(0, character)
+        val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
+        if (pathNodes.size == 0 || (!returningToBase && isTargetFarFromDestination(
+                targetPosition,
+                pathNodes
+            ))
+        ) {
+            if (returningToBase) {
+                pathNodes.add(
+                    gameSessionData.mapData.mapGraph.getNode(
+                        targetPosition.x.toInt(),
+                        targetPosition.z.toInt()
+                    )
+                )
+                onboard(
+                    ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform,
+                    targetPosition
+                )
+            } else {
+                aiComponent.state = AiStatus.PLANNING
+                movementHandler.stopMovement()
+                movementHandler.applyRotation(0, character)
+            }
             return
         }
 
@@ -330,7 +347,7 @@ class AiTankLogic(
         }
     }
 
-    private fun isPlayerFarFromDestination(
+    private fun isTargetFarFromDestination(
         playerPosition: Vector3,
         pathNodes: Array<MapGraphNode>
     ): Boolean {

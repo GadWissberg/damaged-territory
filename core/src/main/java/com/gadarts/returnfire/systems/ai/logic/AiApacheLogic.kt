@@ -14,15 +14,14 @@ import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.ai.AiStatus
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 
 class AiApacheLogic(
     private val gameSessionData: GameSessionData,
-    private val dispatcher: MessageDispatcher,
+    dispatcher: MessageDispatcher,
     entityBuilder: EntityBuilder,
     autoAim: btPairCachingGhostObject
-) : AiCharacterLogic {
+) : AiCharacterLogic(dispatcher) {
     private var nextStrafeActivation: Long = 0
     private val shootingHandler = CharacterShootingHandler(entityBuilder)
     private val movementHandler: ApacheMovementHandlerDesktop by lazy {
@@ -56,19 +55,7 @@ class AiApacheLogic(
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         if (returningToBase) {
             movementHandler.thrust(character)
-            val characterPosition = characterTransform.getTranslation(auxVector2)
-            if (characterPosition.epsilonEquals(
-                    targetPosition.x,
-                    characterPosition.y,
-                    targetPosition.z,
-                    0.8F
-                )
-            ) {
-                dispatcher.dispatchMessage(
-                    SystemEvents.CHARACTER_REQUEST_BOARDING.ordinal,
-                    character
-                )
-            }
+            onboard(characterTransform, targetPosition)
         } else if (!aiComponent.runAway.isZero) {
             val characterPosition =
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
@@ -116,7 +103,7 @@ class AiApacheLogic(
         val aiComponent = ComponentsMapper.ai.get(character)
         if (characterComponent.hp <= quarter) {
             aiComponent.state = AiStatus.MOVING
-            aiComponent.target = gameSessionData.mapData.hangars[ComponentsMapper.boarding.get(
+            aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(
                 character
             ).color]
             stopAttack()

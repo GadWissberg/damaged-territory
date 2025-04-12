@@ -38,7 +38,8 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private val playerStage: Entity by lazy {
         engine.getEntitiesFor(
             Family.all(StageComponent::class.java).get()
-        ).find { ComponentsMapper.hangar.get(ComponentsMapper.stage.get(it).base).color == CharacterColor.BROWN }!!
+        )
+            .find { ComponentsMapper.hangar.get(ComponentsMapper.hangarStage.get(it).base).color == CharacterColor.BROWN }!!
     }
     private val autoAim by lazy {
         if (gameSessionData.autoAim) {
