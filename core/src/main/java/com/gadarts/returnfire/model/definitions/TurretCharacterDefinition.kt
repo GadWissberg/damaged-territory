@@ -15,7 +15,7 @@ enum class TurretCharacterDefinition(
     private val isNonMoving: Boolean,
 ) : CharacterDefinition {
     TURRET_CANNON(
-        hp = 40F,
+        hp = 75F,
         baseModelDefinition = ModelDefinition.TURRET_BASE,
         smokeEmissionRelativePosition = Vector3(0F, 2F, 0F),
         gravity = Vector3.Zero,
@@ -28,7 +28,7 @@ enum class TurretCharacterDefinition(
         isNonMoving = true
     ),
     TANK(
-        hp = 50F,
+        hp = 125F,
         baseModelDefinition = ModelDefinition.TANK_BODY,
         smokeEmissionRelativePosition = Vector3.Zero,
         gravity = Vector3(0F, -10F, 0F),

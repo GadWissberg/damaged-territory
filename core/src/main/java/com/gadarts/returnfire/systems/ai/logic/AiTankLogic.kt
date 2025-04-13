@@ -54,6 +54,7 @@ class AiTankLogic(
         val aiComponent = ai.get(character)
         if (aiComponent.target == null) return
 
+        val roamingEndTime = aiComponent.roamingEndTime
         val mapGraph = gameSessionData.mapData.mapGraph
         val path = aiComponent.path
         if (aiComponent.state == AiStatus.PLANNING) {
@@ -96,14 +97,13 @@ class AiTankLogic(
                     path.nodes.removeIndex(0)
                     aiComponent.currentNode = start
                 } else {
-                    aiComponent.state = AiStatus.ROAMING
-                    aiComponent.roamingEndTime = System.currentTimeMillis() + 10000L
+                    activateRoaming(aiComponent)
                 }
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, deltaTime)
         } else {
-            val roamingEndTime = aiComponent.roamingEndTime
+            deactivateRoamingIfNeeded(aiComponent)
             if (aiComponent.state == AiStatus.REVERSE) {
                 movementHandler.reverse()
                 if (!checkIfForwardIsBlocked(
@@ -129,11 +129,23 @@ class AiTankLogic(
                     path.add(connections.random().toNode)
                     aiComponent.state = AiStatus.MOVING
                 }
-                if (roamingEndTime == null || roamingEndTime < TimeUtils.millis()) {
-                    aiComponent.state = AiStatus.PLANNING
-                }
             }
         }
+    }
+
+    private fun deactivateRoamingIfNeeded(aiComponent: AiComponent) {
+        val roamingEndTime = aiComponent.roamingEndTime
+        if (roamingEndTime == null || roamingEndTime < TimeUtils.millis()) {
+            aiComponent.roamingEndTime = null
+            if (aiComponent.state == AiStatus.ROAMING) {
+                aiComponent.state = AiStatus.PLANNING
+            }
+        }
+    }
+
+    private fun activateRoaming(aiComponent: AiComponent) {
+        aiComponent.state = AiStatus.ROAMING
+        aiComponent.roamingEndTime = System.currentTimeMillis() + 10000L
     }
 
     private fun handleMovingState(
@@ -142,6 +154,7 @@ class AiTankLogic(
     ) {
         applyMovement(character, deltaTime)
         handleTurret(character, deltaTime)
+        deactivateRoamingIfNeeded(ai.get(character))
     }
 
 
@@ -318,48 +331,57 @@ class AiTankLogic(
     ) {
         val aiComponent = ai.get(character)
         val pathNodes = aiComponent.path.nodes
+        val target = aiComponent.target
         val targetTransform =
-            ComponentsMapper.modelInstance.get(aiComponent.target).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(target).gameModelInstance.modelInstance.transform
         val targetPosition =
             targetTransform.getTranslation(
                 auxVector3_1
             )
-        val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
-        if (pathNodes.size == 0 || (!returningToBase && aiComponent.roamingEndTime == null && isTargetFarFromDestination(
-                targetPosition,
-                pathNodes
-            ))
+        val returningToBase = ComponentsMapper.hangarStage.has(target)
+        val emptyPath = pathNodes.size == 0
+        if (aiComponent.roamingEndTime == null && target != null && ComponentsMapper.character.has(target) && auxVector3_2.set(
+                targetPosition.x,
+                0F,
+                targetPosition.z
+            ).dst2(getPositionOfCharacter(character)) < 4F
         ) {
-            if (returningToBase) {
-                pathNodes.add(
-                    gameSessionData.mapData.mapGraph.getNode(
-                        targetPosition.x.toInt(),
-                        targetPosition.z.toInt()
-                    )
-                )
-                onboard(
-                    character,
-                    0.1F,
-                )
-            } else {
-                aiComponent.state =
-                    if (aiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
-                movementHandler.stopMovement()
-                movementHandler.applyRotation(0, character)
-            }
+            activateRoaming(aiComponent)
             return
+        } else {
+            if (emptyPath
+                || (!returningToBase && aiComponent.roamingEndTime == null && isTargetFarFromDestination(
+                    targetPosition,
+                    pathNodes
+                ))
+            ) {
+                if (returningToBase) {
+                    pathNodes.add(
+                        gameSessionData.mapData.mapGraph.getNode(
+                            targetPosition.x.toInt(),
+                            targetPosition.z.toInt()
+                        )
+                    )
+                    onboard(
+                        character,
+                        0.1F,
+                    )
+                } else {
+                    aiComponent.state =
+                        if (aiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
+                    movementHandler.stopMovement()
+                    movementHandler.applyRotation(0, character)
+                }
+                return
+            }
         }
-
-        val transform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         val position =
-            transform.getTranslation(
-                auxVector3_1
-            )
+            getPositionOfCharacter(character)
         val currentNode = gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
         val nextNode = pathNodes.first()
         if (currentNode == nextNode) {
             pathNodes.removeIndex(0)
-            if (pathNodes.size == 0) {
+            if (pathNodes.isEmpty) {
                 aiComponent.state =
                     if (aiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
             }
@@ -524,8 +546,7 @@ class AiTankLogic(
     ) {
         if (gameSessionData.gamePlayData.player == null) return
 
-        val transform = ComponentsMapper.modelInstance.get(entityToRotate).gameModelInstance.modelInstance.transform
-        val position = transform.getTranslation(auxVector3_1)
+        val position = getPositionOfCharacter(entityToRotate)
         val facingDirection = getFacingDirection(entityToRotate)
         val directionToTarget = target.sub(position.x, position.z).nor()
         val angle = atan2(directionToTarget.y.toDouble(), directionToTarget.x.toDouble()).toFloat()
@@ -555,6 +576,15 @@ class AiTankLogic(
                 MAX_LOOKING_AHEAD
             )
         }
+    }
+
+    private fun getPositionOfCharacter(character: Entity): Vector3 {
+        val transform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
+        val position =
+            transform.getTranslation(
+                auxVector3_3
+            )
+        return position
     }
 
 
@@ -602,12 +632,13 @@ class AiTankLogic(
                 )
             val direction = auxVector3_1.set(Vector3.X).rot(transform).nor()
             val positionInFront = auxVector3_3.set(position).add(direction).add(direction).add(direction)
-            val type = mapGraph.getNode(positionInFront.x.toInt(), positionInFront.z.toInt()).type
-            if (positionInFront.x < 0
-                || positionInFront.z < 0
-                || positionInFront.x >= mapGraph.width
-                || positionInFront.z >= mapGraph.depth
-                || type == MapGraphType.WATER
+            val nodeX = positionInFront.x.toInt()
+            val nodeY = positionInFront.z.toInt()
+            if (nodeX < 0
+                || nodeY < 0
+                || nodeX >= mapGraph.width
+                || nodeY >= mapGraph.depth
+                || mapGraph.getNode(nodeX, nodeY).type == MapGraphType.WATER
             ) {
                 return true
             }
