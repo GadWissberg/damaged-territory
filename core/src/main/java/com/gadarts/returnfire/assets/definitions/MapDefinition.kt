@@ -7,7 +7,8 @@ enum class MapDefinition :
     AssetDefinition<GameMap> {
 
     MAP_0,
-    TO_OPTIMIZE;
+    TO_OPTIMIZE,
+    STRANDED;
 
 
     private val pathFormat = "maps/%s.json"

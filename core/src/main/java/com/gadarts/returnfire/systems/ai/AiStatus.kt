@@ -4,4 +4,5 @@ enum class AiStatus {
     PLANNING,
     MOVING,
     REVERSE,
+    ROAMING,
 }

@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
@@ -11,6 +10,7 @@ import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.ai
@@ -54,63 +54,84 @@ class AiTankLogic(
         val aiComponent = ai.get(character)
         if (aiComponent.target == null) return
 
+        val mapGraph = gameSessionData.mapData.mapGraph
+        val path = aiComponent.path
         if (aiComponent.state == AiStatus.PLANNING) {
             val position =
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector3_2
                 )
 
-            val start = gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
+            val start = mapGraph.getNode(position.x.toInt(), position.z.toInt())
             val transform =
                 ComponentsMapper.modelInstance.get(aiComponent.target).gameModelInstance.modelInstance.transform
             val targetPosition =
                 transform.getTranslation(
                     auxVector3_1
                 )
-            val end = gameSessionData.mapData.mapGraph.getNode(targetPosition.x.toInt(), targetPosition.z.toInt())
-            aiComponent.path.clear()
+            val end = mapGraph.getNode(targetPosition.x.toInt(), targetPosition.z.toInt())
+            path.clear()
             val pathFound =
                 gamePlayManagers.pathFinder.searchNodePath(
                     start,
                     end,
-                    aiComponent.path,
+                    path,
                     aiComponent.nodesToExclude,
                     MapGraphCost.FREE_WAY
                 )
             if (pathFound) {
                 aiComponent.state = AiStatus.MOVING
-                aiComponent.path.nodes.removeIndex(0)
+                path.nodes.removeIndex(0)
                 aiComponent.currentNode = start
             } else {
-                Gdx.app.log(
-                    "AiTankLogic",
-                    "Path not found from ${start.x},${start.y} to ${end.x},${end.y} with nodesToExclude: ${aiComponent.nodesToExclude.size}"
-                )
                 val pathFoundIncludingBlockedWAY = gamePlayManagers.pathFinder.searchNodePath(
                     start,
                     end,
-                    aiComponent.path,
+                    path,
                     aiComponent.nodesToExclude,
                     MapGraphCost.BLOCKED_WAY
                 )
                 if (pathFoundIncludingBlockedWAY) {
                     aiComponent.state = AiStatus.MOVING
-                    aiComponent.path.nodes.removeIndex(0)
+                    path.nodes.removeIndex(0)
                     aiComponent.currentNode = start
+                } else {
+                    aiComponent.state = AiStatus.ROAMING
+                    aiComponent.roamingEndTime = System.currentTimeMillis() + 10000L
                 }
             }
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, deltaTime)
-        } else if (aiComponent.state == AiStatus.REVERSE) {
-            movementHandler.reverse()
-            if (!checkIfForwardIsBlocked(
-                    character,
-                    closestRayResultCallback,
-                    gameSessionData.physicsData.collisionWorld,
-                    gameSessionData.mapData.mapGraph
-                )
-            ) {
-                aiComponent.state = AiStatus.PLANNING
+        } else {
+            val roamingEndTime = aiComponent.roamingEndTime
+            if (aiComponent.state == AiStatus.REVERSE) {
+                movementHandler.reverse()
+                if (!checkIfForwardIsBlocked(
+                        character,
+                        closestRayResultCallback,
+                        gameSessionData.physicsData.collisionWorld,
+                        mapGraph
+                    )
+                ) {
+                    aiComponent.state =
+                        if (roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
+                }
+            } else if (aiComponent.state == AiStatus.ROAMING) {
+                val position =
+                    ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector3_1
+                    )
+                val currentNode = mapGraph.getNode(position.x.toInt(), position.z.toInt())
+                mapGraph.maxCost = MapGraphCost.FREE_WAY
+                val connections = mapGraph.getConnections(currentNode)
+                if (!connections.isEmpty) {
+                    path.clear()
+                    path.add(connections.random().toNode)
+                    aiComponent.state = AiStatus.MOVING
+                }
+                if (roamingEndTime == null || roamingEndTime < TimeUtils.millis()) {
+                    aiComponent.state = AiStatus.PLANNING
+                }
             }
         }
     }
@@ -285,6 +306,7 @@ class AiTankLogic(
         val aiComponent = ai.get(character)
         if (shouldReturnToBase(character)) {
             aiComponent.state = AiStatus.PLANNING
+            aiComponent.roamingEndTime = 0
             aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(character).color]
         }
     }
@@ -303,7 +325,7 @@ class AiTankLogic(
                 auxVector3_1
             )
         val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
-        if (pathNodes.size == 0 || (!returningToBase && isTargetFarFromDestination(
+        if (pathNodes.size == 0 || (!returningToBase && aiComponent.roamingEndTime == null && isTargetFarFromDestination(
                 targetPosition,
                 pathNodes
             ))
@@ -320,7 +342,8 @@ class AiTankLogic(
                     0.1F,
                 )
             } else {
-                aiComponent.state = AiStatus.PLANNING
+                aiComponent.state =
+                    if (aiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
                 movementHandler.stopMovement()
                 movementHandler.applyRotation(0, character)
             }
@@ -337,7 +360,8 @@ class AiTankLogic(
         if (currentNode == nextNode) {
             pathNodes.removeIndex(0)
             if (pathNodes.size == 0) {
-                aiComponent.state = AiStatus.PLANNING
+                aiComponent.state =
+                    if (aiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
             }
         } else {
             rotateAndEngage(
@@ -482,7 +506,8 @@ class AiTankLogic(
                 gameSessionData.mapData.mapGraph,
                 tileCollector
             )
-            aiComponent.state = AiStatus.PLANNING
+            aiComponent.state =
+                if (aiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
             aiComponent.setNodesToExclude(result)
         }
 

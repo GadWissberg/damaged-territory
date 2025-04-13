@@ -8,6 +8,7 @@ import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.systems.ai.AiStatus
 
 class AiComponent : Component {
+    var roamingEndTime: Long? = null
     val nodesToExclude: MutableList<MapGraphNode> = ArrayList()
     var currentNode: MapGraphNode? = null
     val path: MapGraphPath = MapGraphPath()
