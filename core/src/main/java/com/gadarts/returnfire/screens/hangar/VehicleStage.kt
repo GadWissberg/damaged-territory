@@ -83,6 +83,6 @@ class VehicleStage(val modelInstance: ModelInstance, private val initialPosition
 
     companion object {
         private val auxVector = Vector3()
-        private const val STAGE_STEP_SIZE = 2F
+        private const val STAGE_STEP_SIZE = 3F
     }
 }

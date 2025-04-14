@@ -7,14 +7,14 @@ import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 @Suppress("RedundantNullableReturnType", "RedundantSuppression")
 object GameDebugSettings {
 
-    val MAP = MapDefinition.TO_OPTIMIZE
+    val MAP = MapDefinition.MAP_0
     const val SHOW_OBJECT_POOL_PROFILING = false
-    const val SHOW_COLLISION_SHAPES = false
+    const val SHOW_COLLISION_SHAPES = true
     const val SHOW_GL_PROFILING = true
     const val SHOW_HEAP_SIZE = false
     const val DEBUG_INPUT = false
     const val UI_DEBUG = false
-    const val SFX = true
+    const val SFX = false
     const val DISABLE_MUSIC = false
     const val DISABLE_AMB_SOUNDS = false
     const val HIDE_PLAYER = false

@@ -19,7 +19,11 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private var lastZoomOut = 0L
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
                 initializeCamera()
             }
         })
@@ -53,7 +57,8 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         deltaTime: Float
     ): Vector3 {
         val player = gameSessionData.gamePlayData.player!!
-        val playerTransform = ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
+        val playerTransform =
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform
         val cameraPosition = auxVector3_4.set(gameSessionData.renderData.camera.position)
         val rotation = playerTransform.getRotation(auxQuat)
         rotation.setEulerAngles(rotation.yaw, 0F, 0F)
@@ -63,7 +68,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val cameraTarget = auxVector3_2.set(playerTransform.getTranslation(auxVector3_1))
             .add(
                 auxVector3_5.set(rotationVector)
-                    .scl(if (thrusting) CAMERA_TARGET_MOVEMENT_GAP_FORWARD else if (reversing) -CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS else 0F)
+                    .scl(if (thrusting) getCameraTargetMovementGapForward() else if (reversing) -CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS else 0F)
                     .add(
                         0F, 0F,
                         max(abs(rotationVector.x), 0.6F) * Z_OFFSET
@@ -121,8 +126,10 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         private const val MAX_Y = 12F
         private const val MIN_Y = 9F
         private const val Z_OFFSET = 1.5F
-        private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD = 5.5F
-        private const val CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS = CAMERA_TARGET_MOVEMENT_GAP_FORWARD / 2F
+        private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD_PC = 5.5F
+        private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD_MOBILE = 3.5F
+        private const val CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS =
+            CAMERA_TARGET_MOVEMENT_GAP_FORWARD_PC / 2F
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
         private val auxVector3_3 = Vector3()
@@ -130,6 +137,10 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         private val auxVector3_5 = Vector3()
         private val auxMatrix = Matrix4()
         private val auxQuat = Quaternion()
+    }
+
+    private fun getCameraTargetMovementGapForward(): Float {
+        return if (gameSessionData.runsOnMobile) CAMERA_TARGET_MOVEMENT_GAP_FORWARD_MOBILE else CAMERA_TARGET_MOVEMENT_GAP_FORWARD_PC
     }
 
 }

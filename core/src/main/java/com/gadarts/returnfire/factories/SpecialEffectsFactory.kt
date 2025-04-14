@@ -2,8 +2,6 @@ package com.gadarts.returnfire.factories
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g3d.Model
-import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.MathUtils
@@ -28,7 +26,8 @@ class SpecialEffectsFactory(
     private val soundPlayer: SoundPlayer,
     private val assetsManager: GameAssetManager,
     private val entityBuilder: EntityBuilder,
-    private val ecs: EcsManager
+    private val ecs: EcsManager,
+    private val gameModelInstanceFactory: GameModelInstanceFactory
 ) {
     fun generateWaterSplash(position: Vector3, large: Boolean = false) {
         entityBuilder.begin()
@@ -112,13 +111,11 @@ class SpecialEffectsFactory(
         }
         transform.getTranslation(auxVector2)
         auxVector2.add(relativeOffset)
-        val model = assetsManager.getAssetByDefinition(modelDefinition)
-        generateFlyingParts(auxVector2, model, 1F, min, max, mass, minForce, maxForce)
+        generateFlyingParts(auxVector2, modelDefinition, 1F, min, max, mass, minForce, maxForce)
     }
 
     fun generateSmallFlyingParts(position: Vector3) {
-        val model = assetsManager.getAssetByDefinition(ModelDefinition.FLYING_PART_SMALL)
-        generateFlyingParts(position, model, 0.5F)
+        generateFlyingParts(position, ModelDefinition.FLYING_PART_SMALL, 0.5F)
     }
 
     fun generateBlast(
@@ -173,7 +170,7 @@ class SpecialEffectsFactory(
 
     private fun generateFlyingParts(
         position: Vector3,
-        model: Model,
+        modelDefinition: ModelDefinition,
         shapeScale: Float,
         min: Int = 2,
         max: Int = 4,
@@ -183,36 +180,38 @@ class SpecialEffectsFactory(
     ) {
         val numberOfFlyingParts = MathUtils.random(min, max)
         for (i in 0 until numberOfFlyingParts) {
-            addFlyingPart(position, model, shapeScale, mass, minForce, maxForce)
+            addFlyingPart(position, modelDefinition, shapeScale, mass, minForce, maxForce)
         }
     }
 
     private fun addFlyingPart(
         @Suppress("SameParameterValue") position: Vector3,
-        model: Model,
+        modelDefinition: ModelDefinition,
         shapeScale: Float,
         mass: Float = 1F,
         minForce: Float,
         maxForce: Float
     ) {
-        val modelInstance = ModelInstance(model)
+        val modelInstance = gameModelInstanceFactory.createGameModelInstance(modelDefinition)
         val flyingPart = createFlyingPartEntity(modelInstance, position, shapeScale, mass)
         ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.1F, 0.2F)
         makeFlyingPartFlyAway(flyingPart, minForce, maxForce)
     }
 
     private fun createFlyingPartEntity(
-        modelInstance: ModelInstance,
+        gameModelInstance: GameModelInstance,
         position: Vector3,
         shapeScale: Float,
         mass: Float = 1F
     ): Entity {
         val randomParticleEffect =
             if (MathUtils.random() >= 0.15) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP_SMALL
+        val transform = gameModelInstance.modelInstance.transform
+        val physicalShapeCreator = gameModelInstance.definition?.physicalShapeCreator
         return ecs.entityBuilder
             .begin()
             .addModelInstanceComponent(
-                GameModelInstance(modelInstance, ModelDefinition.FLYING_PART),
+                gameModelInstance,
                 auxVector1.set(position).add(0F, 0.1F, 0F).add(
                     MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
                     MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
@@ -221,18 +220,19 @@ class SpecialEffectsFactory(
                 flyingPartBoundingBox
             )
             .addPhysicsComponent(
-                btBoxShape(
-                    flyingPartBoundingBox.getDimensions(
-                        auxVector1
-                    ).scl(0.4F * shapeScale)
-                ),
+                physicalShapeCreator?.create()
+                    ?: btBoxShape(
+                        flyingPartBoundingBox.getDimensions(
+                            auxVector1
+                        ).scl(0.4F * shapeScale)
+                    ),
                 CollisionFlags.CF_CHARACTER_OBJECT,
-                modelInstance.transform,
+                transform,
                 1F,
                 mass
             )
             .addParticleEffectComponent(
-                modelInstance.transform.getTranslation(auxVector1),
+                transform.getTranslation(auxVector1),
                 gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(randomParticleEffect),
                 ttlInSeconds = MathUtils.random(20, 25)
             )

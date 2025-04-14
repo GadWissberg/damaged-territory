@@ -15,7 +15,7 @@ class TreeEffectsHandler(
         for (tree in treeEntities) {
             val physicsComponent = ComponentsMapper.physics.get(tree)
             val rigidBody = physicsComponent.rigidBody
-            if (rigidBody.collisionFlags == CollisionFlags.CF_CHARACTER_OBJECT) {
+            if (!rigidBody.isDisposed && rigidBody.collisionFlags == CollisionFlags.CF_CHARACTER_OBJECT) {
                 rigidBody.getWorldTransform(auxMatrix)
                 auxMatrix.getRotation(auxQuat)
                 val upVector = auxVector.set(0f, 1f, 0f)

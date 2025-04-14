@@ -100,7 +100,8 @@ class GamePlayScreen(
                 generalManagers.soundPlayer,
                 generalManagers.assetsManager,
                 entityBuilderImpl,
-                ecs
+                ecs,
+                gameModelInstanceFactory
             ),
             gameModelInstanceFactory,
             AutoAimShapeFactory(gameSessionData),

@@ -18,6 +18,7 @@ import com.gadarts.returnfire.components.amb.AmbCorpsePart
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.RigidBody
+import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.systems.HandlerOnEvent
@@ -239,9 +240,24 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 blastRing = false,
                 playSound = false
             )
-            specialEffectsFactory.generateFlyingParts(entity, ModelDefinition.WATCH_TOWER_DESTROYED_PART, 2, 3, 3F)
+            generateWatchTowerPart(specialEffectsFactory, entity)
             gamePlayManagers.ecs.engine.removeEntity(entity)
         }
+    }
+
+    private fun generateWatchTowerPart(
+        specialEffectsFactory: SpecialEffectsFactory,
+        entity: Entity
+    ) {
+        specialEffectsFactory.generateFlyingParts(
+            character = entity,
+            modelDefinition = ModelDefinition.WATCH_TOWER_DESTROYED_PART,
+            min = 2,
+            max = 3,
+            mass = 3F,
+            minForce = 8F,
+            maxForce = 14F
+        )
     }
 
     private fun handleRoadHit(
