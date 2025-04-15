@@ -93,7 +93,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         override fun go(entity: Entity, affectedEntityPosition: Vector3, explosionPosition: Vector3) {
             ComponentsMapper.physics.get(entity).rigidBody.applyCentralImpulse(
                 auxVector3.set(affectedEntityPosition).sub(explosionPosition).nor()
-                    .scl(MathUtils.random(2F, 4F)),
+                    .scl(MathUtils.random(0.5F, 1F)),
             )
         }
 

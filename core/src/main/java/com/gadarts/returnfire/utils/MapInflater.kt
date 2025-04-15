@@ -446,7 +446,7 @@ class MapInflater(
         val bulletModelDefinition = ModelDefinition.TANK_CANNON_BULLET
         val particleEffectsPools = gameSessionData.gamePlayData.pools.particleEffectsPools
         return ArmProperties(
-            8F,
+            5F,
             assetsManager.getAssetByDefinition(SoundDefinition.CANNON_B),
             5000L,
             10F,

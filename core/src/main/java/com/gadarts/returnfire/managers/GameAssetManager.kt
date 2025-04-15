@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -180,8 +181,7 @@ open class GameAssetManager : AssetManager() {
 
     inline fun <reified T> getAssetByDefinition(definition: AssetDefinition<T>, index: Int = -1): T {
         val paths = definition.getPaths()
-        val selectedPath = if (index == -1) paths.random() else paths[index]
-        return get(selectedPath, T::class.java)
+        return get(paths[if (index == -1) MathUtils.random(paths.size - 1) else index], T::class.java)
     }
 
     inline fun <reified T> getAllAssetsByDefinition(definition: AssetDefinition<T>): List<T> {

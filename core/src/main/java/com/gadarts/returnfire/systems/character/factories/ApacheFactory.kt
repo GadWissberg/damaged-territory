@@ -132,12 +132,12 @@ class ApacheFactory(
         entityBuilder.addSecondaryArmComponent(
             secondarySpark,
             ArmProperties(
-                5F,
+                2F,
                 assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
                 SEC_RELOAD_DUR,
                 SEC_BULLET_SPEED,
                 ArmEffectsData(
-                    ParticleEffectDefinition.EXPLOSION_SMALL,
+                    ParticleEffectDefinition.EXPLOSION_MED,
                     gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
                     gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
                     gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP),

@@ -126,7 +126,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         private const val MAX_Y = 12F
         private const val MIN_Y = 9F
         private const val Z_OFFSET = 1.5F
-        private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD_PC = 5.5F
+        private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD_PC = 7.5F
         private const val CAMERA_TARGET_MOVEMENT_GAP_FORWARD_MOBILE = 3.5F
         private const val CAMERA_TARGET_MOVEMENT_GAP_BACKWARDS =
             CAMERA_TARGET_MOVEMENT_GAP_FORWARD_PC / 2F

@@ -8,10 +8,10 @@ import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHa
 
 abstract class ApacheMovementHandler : VehicleMovementHandler(
     -15F,
-    8F,
+    9F,
     50F,
     25F,
-    6F
+    7F
 ) {
 
     protected var tiltAnimationHandler = TiltAnimationHandler()
