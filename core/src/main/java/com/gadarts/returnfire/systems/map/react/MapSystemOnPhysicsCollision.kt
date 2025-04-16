@@ -32,16 +32,11 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
         val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
-        handleCollisionRoadWithBullets(
+        RoadWithBullets(entity0, entity1, gamePlayManagers)
+                || handleCollisionGroundWithHeavyStuffOnHighSpeed(
             entity0,
-            entity1, gamePlayManagers
-        ) || handleCollisionRoadWithBullets(
             entity1,
-            entity0,
             gamePlayManagers
-        ) || handleCollisionGroundWithHeavyStuffOnHighSpeed(
-            entity0,
-            entity1, gamePlayManagers
         ) || handleCollisionGroundWithHeavyStuffOnHighSpeed(
             entity1,
             entity0,
@@ -57,7 +52,39 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             gameSessionData,
             gamePlayManagers
         )
+        playCorpseCollisionSound(entity0, gamePlayManagers)
+        playCorpseCollisionSound(entity1, gamePlayManagers)
     }
+
+    private fun playCorpseCollisionSound(
+        entity: Entity,
+        gamePlayManagers: GamePlayManagers
+    ) {
+        val ambComponent = ComponentsMapper.amb.get(entity) ?: return
+
+        val corpseCollisionSound = ambComponent.def.corpseCollisionSound
+        val rigidBody = ComponentsMapper.physics.get(
+            entity
+        ).rigidBody
+        val deadAmb = !isAliveAmb(ambComponent)
+        if (deadAmb && corpseCollisionSound != null && (rigidBody.linearVelocity.len2() > 8F || rigidBody.angularVelocity.len2() > 16F)
+        ) {
+            gamePlayManagers.soundPlayer.play(corpseCollisionSound, entity)
+        }
+    }
+
+    private fun RoadWithBullets(
+        entity0: Entity,
+        entity1: Entity,
+        gamePlayManagers: GamePlayManagers
+    ) = handleCollisionRoadWithBullets(
+        entity0,
+        entity1, gamePlayManagers
+    ) || handleCollisionRoadWithBullets(
+        entity1,
+        entity0,
+        gamePlayManagers
+    )
 
     private fun handleCollisionDestroyableAmbWithFastAndHeavyStuff(
         entity0: Entity,
@@ -66,11 +93,11 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         gamePlayManagers: GamePlayManagers
     ): Boolean {
         val ambComponent = ComponentsMapper.amb.get(entity0) ?: return false
-
-        if (ambComponent.def.hp > 0 && ambComponent.hp > 0) {
-            val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
+        val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
+        val ambDefinition = ambComponent.def
+        if (isAliveAmb(ambComponent)) {
             val bulletComponent = ComponentsMapper.bullet.get(entity1)
-            if (!ambComponent.def.destroyedByExplosiveOnly) {
+            if (!ambDefinition.destroyedByExplosiveOnly) {
                 destroyLightweightAmb(
                     otherRigidBody,
                     bulletComponent,
@@ -84,6 +111,13 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             }
         }
         return true
+    }
+
+    private fun isAliveAmb(
+        ambComponent: AmbComponent
+    ): Boolean {
+        val ambDefinition = ambComponent.def
+        return ambDefinition.hp > 0 && ambComponent.hp > 0
     }
 
     private fun handleCollisionRoadWithBullets(
@@ -147,12 +181,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
             position
         )
-        if (def.destructionSound != null) {
-            gamePlayManagers.soundPlayer.play(
-                gamePlayManagers.assetsManager.getAssetByDefinition(def.destructionSound),
-                position
-            )
-        }
+        playDestructionSound(def, gamePlayManagers, position)
         if (def.hasDeathSequence) {
             gamePlayManagers.ecs.entityBuilder.addDeathSequenceComponentToEntity(amb, true, 6, 9)
             createIndependentParticleEffect(
@@ -179,6 +208,19 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 else -> {}
             }
             mapSystem.destroyAmbObject(amb)
+        }
+    }
+
+    private fun playDestructionSound(
+        def: AmbDefinition,
+        gamePlayManagers: GamePlayManagers,
+        position: Vector3
+    ) {
+        if (def.destructionSound != null) {
+            gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.assetsManager.getAssetByDefinition(def.destructionSound),
+                position
+            )
         }
     }
 
@@ -390,7 +432,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 bodyGameModelInstance,
                 Vector3.Zero,
                 cachedBoundingBox
-            ).addAmbCorpsePart(def.corpsePartDestroyOnGroundImpact, def.corpsePartCollisionSound)
+            ).addAmbCorpsePart(def.corpsePartDestroyOnGroundImpact, def.corpseCollisionSound)
             .addPhysicsComponent(
                 modelDefinition.physicalShapeCreator!!.create(),
                 CollisionFlags.CF_CHARACTER_OBJECT,
@@ -448,13 +490,12 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         gameSessionData: GameSessionData,
         gamePlayManagers: GamePlayManagers
     ) {
-        val otherSpeed = otherRigidBody.linearVelocity.len2()
         val isExplosive = bulletComponent != null && bulletComponent.explosive
         val position =
             ComponentsMapper.modelInstance.get(affectedEntity).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
-        if (otherSpeed > 10F || (otherSpeed > 0.1F && otherRigidBody.mass > 7)) {
+        if (isFastOrHeavy(otherRigidBody)) {
             ambComponent.hp = 0
             if (bulletComponent != null) {
                 if (isExplosive) {
@@ -468,6 +509,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                     mapSystem.destroyTree(affectedEntity, isExplosive)
                 }
             }
+            playDestructionSound(ambComponent.def, gamePlayManagers, position)
             if ((ambComponent.def.stayOnDeath)) {
                 val rigidBody = ComponentsMapper.physics.get(affectedEntity).rigidBody
                 rigidBody.activationState = Collision.DISABLE_DEACTIVATION
@@ -487,6 +529,12 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         }
     }
 
+    private fun isFastOrHeavy(otherRigidBody: RigidBody): Boolean {
+        val len2 = otherRigidBody.linearVelocity.len2()
+        return len2 > 10F || (len2 > 0.1F && otherRigidBody.mass > 7)
+    }
+
+
     private fun handleCollisionHealthyAmbWithFastAndHeavyStuff(
         amb: Entity,
         otherCollider: Entity,
@@ -500,7 +548,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 auxVector1
             )
         val beforeHp = ambComponent.hp
-        ambComponent.hp -= MathUtils.random(1, 2)
+        applyDamageToAmb(ambComponent)
         val newHp = ambComponent.hp
         createFlyingPartsForAmb(otherCollider, Vector3.Zero, gamePlayManagers)
         if (newHp <= 0) {
@@ -515,6 +563,10 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 gameSessionData, gamePlayManagers
             )
         }
+    }
+
+    private fun applyDamageToAmb(ambComponent: AmbComponent) {
+        ambComponent.hp -= MathUtils.random(1, 2)
     }
 
     companion object {

@@ -18,7 +18,7 @@ import com.gadarts.returnfire.screens.hangar.HangarScreenImpl
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
     private val dispatcher = MessageDispatcher()
-    private val soundPlayer: SoundPlayer by lazy { SoundPlayer() }
+    private val soundPlayer: SoundPlayer by lazy { SoundPlayer(assetsManager) }
     private val hangarScreenImpl by lazy {
         HangarScreenImpl(
             dispatcher,

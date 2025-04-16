@@ -198,12 +198,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             if (boardingComponent != null && boardingComponent.isBoarding()) {
                 val stageTransform =
                     ComponentsMapper.modelInstance.get(gameSessionData.mapData.stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
-                if (boardingComponent.isOffboarding()) {
+                if (boardingComponent.isDeploying()) {
                     if (stageTransform.getTranslation(auxVector1).y < MAX_Y) {
                         takeStepForElevatorWithCharacter(stageTransform, character, MAX_Y)
                     } else {
                         val animationDone = updateBoardingAnimation(deltaTime, character)
-                        if (animationDone && boardingComponent.isOffboarding()) {
+                        if (animationDone && boardingComponent.isDeploying()) {
                             boardingDone(character)
                         }
                     }
@@ -489,12 +489,14 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         targetY: Float
     ) {
         val elevatorBeforePosition = elevatorTransform.getTranslation(auxVector3)
+        val isOnboarding = targetY < elevatorBeforePosition.y
         elevatorTransform.lerp(
             auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z),
-            0.06F
+            if (isOnboarding) 0.006F else 0.06F
         )
         val newPosition = elevatorTransform.getTranslation(auxVector1)
-        newPosition.y = if (abs(newPosition.y - targetY) < 0.03F) targetY else newPosition.y
+        newPosition.y =
+            if (abs(newPosition.y - targetY) < (if (isOnboarding) 0.3F else 0.03F)) targetY else newPosition.y
         elevatorTransform.setTranslation(newPosition)
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,

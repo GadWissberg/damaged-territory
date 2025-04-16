@@ -22,7 +22,7 @@ enum class AmbDefinition(
     val destructionSound: SoundDefinition? = null,
     val corpse: ModelDefinition? = null,
     val collapseThreshold: Float = 0F,
-    val corpsePartCollisionSound: SoundDefinition? = null,
+    val corpseCollisionSound: SoundDefinition? = null,
     val corpsePartDestroyOnGroundImpact: Boolean = false,
     val stayOnDeath: Boolean = false,
     val destroyedByExplosiveOnly: Boolean = true,
@@ -46,7 +46,7 @@ enum class AmbDefinition(
         maxFlyingParts = 5,
         flyingPart = ModelDefinition.FLYING_PART,
         destructionSound = SoundDefinition.ROCKS,
-        corpsePartCollisionSound = SoundDefinition.ROCKS,
+        corpseCollisionSound = SoundDefinition.ROCKS,
         corpsePartDestroyOnGroundImpact = true,
     ),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
@@ -65,7 +65,7 @@ enum class AmbDefinition(
     ),
     ROCK_BIG(
         modelDefinition = ModelDefinition.ROCK_BIG,
-        hp = 3,
+        hp = 2,
         flyingPart = ModelDefinition.ROCK_PART,
         destructionSound = SoundDefinition.ROCKS
     ),
@@ -99,7 +99,7 @@ enum class AmbDefinition(
         minFlyingParts = 3,
         maxFlyingParts = 5,
         destructionSound = SoundDefinition.METAL_BEND,
-        corpsePartCollisionSound = SoundDefinition.METAL_CRASH,
+        corpseCollisionSound = SoundDefinition.METAL_CRASH,
         forceSingleNodeForMarksNodeAsBlocked = true
     ),
     STREET_LIGHT(
@@ -110,7 +110,8 @@ enum class AmbDefinition(
         stayOnDeath = true,
         destroyedByExplosiveOnly = false,
         destructionSound = SoundDefinition.METAL_CRASH,
-        forceSingleNodeForMarksNodeAsBlocked = true
+        forceSingleNodeForMarksNodeAsBlocked = true,
+        corpseCollisionSound = SoundDefinition.METAL_LIGHT
     ),
     RUINS(
         modelDefinition = ModelDefinition.DESTROYED_BUILDING

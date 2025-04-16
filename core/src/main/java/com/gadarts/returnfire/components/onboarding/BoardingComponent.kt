@@ -12,7 +12,7 @@ class BoardingComponent(val color: CharacterColor, val boardingAnimation: Boardi
         boardingStatus = -1
     }
 
-    fun isOffboarding(): Boolean {
+    fun isDeploying(): Boolean {
         return boardingStatus > 0
     }
 

@@ -27,7 +27,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         assetsManager: GameAssetManager
     ): Boolean {
         val boardingComponent = ComponentsMapper.boarding.get(character)
-        if (boardingComponent.isOffboarding()) {
+        if (boardingComponent.isDeploying()) {
             val done = takeOff(deltaTime, soundPlayer, assetsManager, character)
             if (done) {
                 this.done = true

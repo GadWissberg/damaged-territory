@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.managers
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Camera
@@ -7,8 +8,9 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.components.ComponentsMapper
 
-class SoundPlayer {
+class SoundPlayer(private val assetsManager: GameAssetManager) {
 
     private var camera: Camera? = null
 
@@ -61,9 +63,19 @@ class SoundPlayer {
         return 0F
     }
 
+    fun play(sound: SoundDefinition, source: Entity): Long {
+        return play(
+            assetsManager.getAssetByDefinition(sound),
+            ComponentsMapper.modelInstance.get(source).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector
+            )
+        )
+    }
+
     companion object {
         const val PITCH_MIN = 0.9F
         const val PITCH_MAX = 1.1F
         const val RANDOM_VOLUME_MIN = 0.6F
+        private val auxVector = Vector3()
     }
 }
