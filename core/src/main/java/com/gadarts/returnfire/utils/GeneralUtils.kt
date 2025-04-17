@@ -154,4 +154,8 @@ object GeneralUtils {
         )
     }
 
+    fun isBodyDisposed(entity: Entity): Boolean {
+        return !ComponentsMapper.physics.has(entity) || ComponentsMapper.physics.get(entity).disposed
+    }
+
 }

@@ -1,9 +1,12 @@
 package com.gadarts.returnfire.screens
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
+import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.console.ConsoleImpl
@@ -23,6 +26,7 @@ import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFacto
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.StainsHandler
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
+import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.hud.HudSystem
 import com.gadarts.returnfire.systems.map.MapSystemImpl
 import com.gadarts.returnfire.systems.physics.PhysicsSystem
@@ -35,7 +39,7 @@ class GamePlayScreen(
     private val generalManagers: GeneralManagers,
     private val selected: CharacterDefinition,
     autoAim: Boolean,
-) : Screen {
+) : Screen, Telegraph {
 
     init {
         val fileName = GameDebugSettings.MAP.getPaths()[0]
@@ -46,6 +50,7 @@ class GamePlayScreen(
         generalManagers.assetsManager.finishLoading()
     }
 
+    private val entitiesToRemove = mutableListOf<Entity>()
     private lateinit var factories: Factories
     private var pauseTime: Long = 0
     private val gameSessionData: GameSessionData by lazy {
@@ -77,6 +82,7 @@ class GamePlayScreen(
             StainsHandler(generalManagers.assetsManager),
             MapPathFinder(gameSessionData.mapData, PathHeuristic()),
         )
+        generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_ENTITY.ordinal)
         initializeSystems(gamePlayManagers)
     }
 
@@ -140,6 +146,10 @@ class GamePlayScreen(
     }
 
     override fun render(delta: Float) {
+        entitiesToRemove.forEach {
+            engine.removeEntity(it)
+        }
+        entitiesToRemove.clear()
         engine.update(delta)
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.BACK)) {
             generalManagers.screensManagers.goToHangarScreen()
@@ -166,6 +176,13 @@ class GamePlayScreen(
         gameSessionData.finishSession()
         engine.systems.forEach { (it as GameEntitySystem).dispose() }
         factories.dispose()
+    }
+
+    override fun handleMessage(msg: Telegram?): Boolean {
+        if (msg == null) return false
+
+        entitiesToRemove.add(msg.extraInfo as Entity)
+        return true
     }
 
 

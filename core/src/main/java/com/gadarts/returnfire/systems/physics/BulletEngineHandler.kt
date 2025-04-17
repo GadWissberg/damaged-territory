@@ -26,6 +26,7 @@ class BulletEngineHandler(
     private val engine: Engine,
 ) : Disposable, EntityListener {
 
+    private val toRemove = mutableListOf<PhysicsComponent>()
     private val debugDrawer: DebugDrawer by lazy { DebugDrawer() }
     private val broadPhase: btAxisSweep3 by lazy {
         val corner1 = Vector3(-100F, -100F, -100F)
@@ -120,12 +121,7 @@ class BulletEngineHandler(
     }
 
     fun removePhysicsOfComponent(physicsComponent: PhysicsComponent) {
-        physicsComponent.rigidBody.activationState = 0
-        gameSessionData.physicsData.collisionWorld.removeCollisionObject(
-            physicsComponent.rigidBody
-        )
-
-        physicsComponent.dispose()
+        toRemove.add(physicsComponent)
     }
 
 
@@ -154,6 +150,14 @@ class BulletEngineHandler(
             20,
             1f / gameSessionData.fpsTarget
         )
+        toRemove.forEach {
+            it.rigidBody.activationState = 0
+            gameSessionData.physicsData.collisionWorld.removeCollisionObject(
+                it.rigidBody
+            )
+            it.dispose()
+        }
+        toRemove.clear()
     }
 
     fun initialize() {

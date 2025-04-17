@@ -285,6 +285,8 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         bullet: Entity,
         other: Entity,
     ) {
+        if (GeneralUtils.isBodyDisposed(bullet) || GeneralUtils.isBodyDisposed(other)) return
+
         val rigidBody = ComponentsMapper.physics.get(other).rigidBody
         val position = GeneralUtils.getPositionOfModel(bullet)
         val otherIsGround = ComponentsMapper.ground.has(other)
@@ -297,6 +299,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             destroyBullet(bullet)
         }
     }
+
 
     private fun bulletCollidesWithWater(position: Vector3, entity0: Entity) {
         gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
@@ -365,7 +368,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun destroyBullet(entity: Entity) {
-        engine.removeEntity(entity)
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, entity)
     }
 
     companion object {
