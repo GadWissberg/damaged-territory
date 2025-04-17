@@ -31,6 +31,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.returnfire.utils.GeneralUtils
 
 
 class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
@@ -255,8 +256,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun handleBulletCollision(entity0: Entity, entity1: Entity): Boolean {
-        val isBullet = ComponentsMapper.bullet.has(entity0)
-        if (isBullet) {
+        if (ComponentsMapper.bullet.has(entity0)) {
             val position =
                 ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
@@ -266,28 +266,43 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             val tilesEntities = gameSessionData.mapData.tilesEntities
             if (z >= 0 && z < tilesEntities.size && x >= 0 && x < tilesEntities[0].size) {
                 val tileEntity = tilesEntities[z][x]
-                val isGround = ComponentsMapper.ground.has(entity1)
-                if (isGround && tileEntity != null && ComponentsMapper.ground.get(
-                        tileEntity
-                    ).isWater
-                ) {
-                    gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
-                        position.set(position.x, SpecialEffectsFactory.WATER_SPLASH_Y, position.z)
-                    )
+                val otherIsGround = ComponentsMapper.ground.has(entity1)
+                if (otherIsGround && tileEntity != null && ComponentsMapper.ground.get(tileEntity).isWater) {
+                    bulletCollidesWithWater(position, entity0)
                 } else {
-                    addBulletExplosion(entity0, position)
-                    if (isGround) {
-                        addBulletHole(position, entity0)
-                    }
+                    bulletCollidesWithOtherBody(entity0, entity1)
                 }
             }
-            destroyBullet(entity0)
             if (ComponentsMapper.bullet.has(entity1)) {
                 destroyBullet(entity1)
             }
             return true
         }
         return false
+    }
+
+    private fun bulletCollidesWithOtherBody(
+        bullet: Entity,
+        other: Entity,
+    ) {
+        val rigidBody = ComponentsMapper.physics.get(other).rigidBody
+        val position = GeneralUtils.getPositionOfModel(bullet)
+        val otherIsGround = ComponentsMapper.ground.has(other)
+        val collisionFlags = rigidBody.collisionFlags
+        if (collisionFlags == CollisionFlags.CF_STATIC_OBJECT || collisionFlags == CollisionFlags.CF_KINEMATIC_OBJECT || rigidBody.mass > 0.75F) {
+            addBulletExplosion(bullet, position)
+            if (otherIsGround) {
+                addBulletHole(position, bullet)
+            }
+            destroyBullet(bullet)
+        }
+    }
+
+    private fun bulletCollidesWithWater(position: Vector3, entity0: Entity) {
+        gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
+            position.set(position.x, SpecialEffectsFactory.WATER_SPLASH_Y, position.z)
+        )
+        destroyBullet(entity0)
     }
 
     private fun addBulletHole(position: Vector3, bullet: Entity) {

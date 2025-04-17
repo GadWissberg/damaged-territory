@@ -71,8 +71,8 @@ object GeneralUtils {
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
         Gdx.gl.glClear(
             GL20.GL_COLOR_BUFFER_BIT
-                    or GL20.GL_DEPTH_BUFFER_BIT
-                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+                or GL20.GL_DEPTH_BUFFER_BIT
+                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
     }
 
@@ -145,7 +145,13 @@ object GeneralUtils {
 
     fun isEntityMarksNodeAsBlocked(entity: Entity): Boolean {
         return (ComponentsMapper.amb.has(entity) && ComponentsMapper.amb.get(entity).def.isMarksNodeAsBlocked())
-                || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
+            || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
+    }
+
+    fun getPositionOfModel(entity: Entity): Vector3 {
+        return ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
+            auxVector1
+        )
     }
 
 }
