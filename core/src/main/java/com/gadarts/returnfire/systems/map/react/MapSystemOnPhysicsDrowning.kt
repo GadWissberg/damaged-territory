@@ -31,14 +31,11 @@ class MapSystemOnPhysicsDrowning : HandlerOnEvent {
         val physicsComponent = ComponentsMapper.physics.get(
             entity
         )
-        if (physicsComponent != null) {
-            val rigidBody = physicsComponent.rigidBody
-            gameSessionData.physicsData.collisionWorld.removeRigidBody(
-                rigidBody
-            )
-            gamePlayManagers.ecs.engine.removeEntity(entity)
-        }
-
+        val rigidBody = physicsComponent.rigidBody
+        gameSessionData.physicsData.collisionWorld.removeRigidBody(
+            rigidBody
+        )
+        gamePlayManagers.ecs.engine.removeEntity(entity)
     }
 
     companion object {
