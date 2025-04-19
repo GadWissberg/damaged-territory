@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.map
+package com.gadarts.returnfire.systems.map.handlers
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family

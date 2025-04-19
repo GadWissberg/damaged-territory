@@ -9,6 +9,7 @@ import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.events.SystemEvents
 
 class MapSystemOnPhysicsDrowning : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
@@ -35,7 +36,7 @@ class MapSystemOnPhysicsDrowning : HandlerOnEvent {
         gameSessionData.physicsData.collisionWorld.removeRigidBody(
             rigidBody
         )
-        gamePlayManagers.ecs.engine.removeEntity(entity)
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, entity)
     }
 
     companion object {

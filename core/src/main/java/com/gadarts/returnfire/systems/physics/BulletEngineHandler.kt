@@ -3,7 +3,6 @@ package com.gadarts.returnfire.systems.physics
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.DebugDrawer
@@ -20,7 +19,6 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.utils.GeneralUtils
 
 class BulletEngineHandler(
     private val gameSessionData: GameSessionData,
@@ -60,23 +58,12 @@ class BulletEngineHandler(
         if (ComponentsMapper.physics.has(entity)) {
             val isBullet = ComponentsMapper.bullet.has(entity)
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
-            if (GeneralUtils.isBodyInWorld(btRigidBody, collisionWorld)) {
-                Gdx.app.log(
-                    "BulletEngineHandler",
-                    "Entity already in collision world: $isBullet"
-                )
-                return
-            }
             if (isBullet) {
                 val bulletComponent = ComponentsMapper.bullet.get(entity)
                 val friendly = bulletComponent.friendly
                 val mask =
                     0x11111111 xor (if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_AI_BULLET)
                 btRigidBody.contactCallbackFilter = mask
-                Gdx.app.log(
-                    "BulletEngineHandler",
-                    "A body is added: ${entity}, ${ComponentsMapper.physics.get(entity).rigidBody}"
-                )
                 collisionWorld.addRigidBody(
                     btRigidBody,
                     if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_AI_BULLET,

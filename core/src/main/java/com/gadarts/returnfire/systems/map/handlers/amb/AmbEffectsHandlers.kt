@@ -1,6 +1,9 @@
-package com.gadarts.returnfire.systems.map
+package com.gadarts.returnfire.systems.map.handlers.amb
 
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.systems.map.MapSystem
+import com.gadarts.returnfire.systems.map.MapSystemRelatedEntities
+import com.gadarts.returnfire.systems.map.handlers.*
 
 class AmbEffectsHandlers(
     gamePlayManagers: GamePlayManagers,

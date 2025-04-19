@@ -16,9 +16,10 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.Bullet
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION
 import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.ISLAND_SLEEPING
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GameDebugSettings
@@ -244,8 +245,9 @@ class MapInflater(
                 entity,
                 gameModelInstance,
                 def.collisionFlags,
-                def.mass,
+                if (def.collisionFlags == CollisionFlags.CF_STATIC_OBJECT) 0F else def.mass,
                 4F,
+                activationState = if (def.collisionFlags == CollisionFlags.CF_KINEMATIC_OBJECT) DISABLE_DEACTIVATION else ISLAND_SLEEPING
             )
         }
         addAnimationToAmb(def, gameModelInstance, entity)
@@ -332,7 +334,7 @@ class MapInflater(
         addPhysicsToObject(
             baseEntity,
             gameModelInstance,
-            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
+            CollisionFlags.CF_STATIC_OBJECT,
             0F,
         )
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
@@ -347,6 +349,7 @@ class MapInflater(
         collisionFlags: Int,
         mass: Float,
         friction: Float = 1.5F,
+        activationState: Int = ISLAND_SLEEPING
     ): PhysicsComponent {
         return gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
             entity = entity,
@@ -356,7 +359,7 @@ class MapInflater(
             transform = gameModelInstance.modelInstance.transform,
             gravityScalar = 1F,
             friction = friction,
-            activationState = ISLAND_SLEEPING
+            activationState = activationState
         )
     }
 
@@ -437,7 +440,7 @@ class MapInflater(
             turret,
             shape,
             10F,
-            btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT,
+            CollisionFlags.CF_KINEMATIC_OBJECT,
             modelInstance.transform,
         )
     }
@@ -659,7 +662,7 @@ class MapInflater(
             entity,
             btBoxShape(Vector3(0.5F, 0.1F, 0.5F)),
             0F,
-            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
+            CollisionFlags.CF_STATIC_OBJECT,
             modelInstance.modelInstance.transform,
             activationState = ISLAND_SLEEPING
         )

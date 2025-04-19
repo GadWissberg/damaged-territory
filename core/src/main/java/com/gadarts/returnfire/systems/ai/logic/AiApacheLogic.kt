@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
@@ -102,10 +101,6 @@ class AiApacheLogic(
         val characterComponent = ComponentsMapper.character.get(character)
         val aiComponent = ComponentsMapper.ai.get(character)
         if (shouldReturnToBase(character)) {
-            Gdx.app.log(
-                AiApacheLogic::class.java.simpleName,
-                "Character ${ComponentsMapper.character.get(character).definition.getName()} is returning to base."
-            )
             aiComponent.state = AiStatus.MOVING
             aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(
                 character

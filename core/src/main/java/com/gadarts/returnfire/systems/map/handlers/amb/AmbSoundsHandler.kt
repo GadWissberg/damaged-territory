@@ -1,6 +1,6 @@
-package com.gadarts.returnfire.systems.map
+package com.gadarts.returnfire.systems.map.handlers.amb
 
-import com.badlogic.gdx.math.MathUtils.random
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.managers.GamePlayManagers
@@ -13,7 +13,7 @@ class AmbSoundsHandler {
     fun update(gamePlayManagers: GamePlayManagers) {
         val now = TimeUtils.millis()
         if (nextAmbSound < now) {
-            nextAmbSound = now + random(AMB_SND_INTERVAL_MIN, AMB_SND_INTERVAL_MAX)
+            nextAmbSound = now + MathUtils.random(AMB_SND_INTERVAL_MIN, AMB_SND_INTERVAL_MAX)
             gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(ambSounds.random()))
         }
     }
@@ -24,7 +24,7 @@ class AmbSoundsHandler {
         SoundDefinition.AMB_OUD
     )
 
-    private var nextAmbSound: Long = TimeUtils.millis() + random(
+    private var nextAmbSound: Long = TimeUtils.millis() + MathUtils.random(
         AMB_SND_INTERVAL_MIN,
         AMB_SND_INTERVAL_MAX
     )

@@ -1,16 +1,17 @@
-package com.gadarts.returnfire.systems.map
+package com.gadarts.returnfire.systems.map.handlers
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.Collision
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GENERAL
+import com.gadarts.returnfire.systems.map.MapSystem
+import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 
 class FallingBuildingsHandler(private val mapSystem: MapSystem, private val gamePlayManagers: GamePlayManagers) {
     private val fallingBuildingsToRemove = ArrayList<Entity>()
@@ -22,11 +23,14 @@ class FallingBuildingsHandler(private val mapSystem: MapSystem, private val game
     ) {
         val rigidBody = ComponentsMapper.physics.get(entity).rigidBody
         val collisionWorld = gameSessionData.physicsData.collisionWorld
+        rigidBody.clearForces()
+        rigidBody.linearVelocity = Vector3.Zero
+        rigidBody.angularVelocity = Vector3.Zero
         collisionWorld.removeRigidBody(rigidBody)
-        rigidBody.collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE
+        rigidBody.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
         collisionWorld.addRigidBody(
             rigidBody,
-            COLLISION_GROUP_GENERAL,
+            BulletEngineHandler.COLLISION_GROUP_GENERAL,
             0
         )
         rigidBody.gravity = auxVector1.set(0F, -0.5F, 0F)
@@ -76,7 +80,7 @@ class FallingBuildingsHandler(private val mapSystem: MapSystem, private val game
             destroyedBuilding,
             ModelDefinition.BUILDING_0_DESTROYED.physicalShapeCreator!!.create(),
             0F,
-            CollisionFlags.CF_STATIC_OBJECT,
+            btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
             transform
         )
         fallingBuildingsToRemove.add(fallingBuilding)
