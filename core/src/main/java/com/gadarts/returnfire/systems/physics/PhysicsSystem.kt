@@ -49,8 +49,8 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         },
         SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY to object : HandlerOnEvent {
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                val physicsComponent = msg.extraInfo as PhysicsComponent
-                bulletEngineHandler.removePhysicsOfComponent(physicsComponent)
+                val entity = msg.extraInfo as Entity
+                bulletEngineHandler.removePhysicsOfComponent(entity)
             }
         }
     )

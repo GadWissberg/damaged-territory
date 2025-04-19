@@ -42,7 +42,8 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             entity1,
             entity0,
             gamePlayManagers
-        ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
+        ) ||
+            handleCollisionDestroyableAmbWithFastAndHeavyStuff(
             entity0,
             entity1,
             gameSessionData,

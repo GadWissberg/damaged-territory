@@ -3,6 +3,7 @@ package com.gadarts.returnfire.systems.physics
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.DebugDrawer
@@ -17,16 +18,15 @@ import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSol
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.utils.GeneralUtils
 
 class BulletEngineHandler(
     private val gameSessionData: GameSessionData,
     private val engine: Engine,
 ) : Disposable, EntityListener {
 
-    private val toRemove = mutableListOf<PhysicsComponent>()
     private val debugDrawer: DebugDrawer by lazy { DebugDrawer() }
     private val broadPhase: btAxisSweep3 by lazy {
         val corner1 = Vector3(-100F, -100F, -100F)
@@ -56,15 +56,28 @@ class BulletEngineHandler(
     }
 
     fun addBodyOfEntityToCollisionWorld(entity: Entity) {
+        val collisionWorld = gameSessionData.physicsData.collisionWorld
         if (ComponentsMapper.physics.has(entity)) {
+            val isBullet = ComponentsMapper.bullet.has(entity)
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
-            if (ComponentsMapper.bullet.has(entity)) {
+            if (GeneralUtils.isBodyInWorld(btRigidBody, collisionWorld)) {
+                Gdx.app.log(
+                    "BulletEngineHandler",
+                    "Entity already in collision world: $isBullet"
+                )
+                return
+            }
+            if (isBullet) {
                 val bulletComponent = ComponentsMapper.bullet.get(entity)
                 val friendly = bulletComponent.friendly
                 val mask =
                     0x11111111 xor (if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_AI_BULLET)
                 btRigidBody.contactCallbackFilter = mask
-                gameSessionData.physicsData.collisionWorld.addRigidBody(
+                Gdx.app.log(
+                    "BulletEngineHandler",
+                    "A body is added: ${entity}, ${ComponentsMapper.physics.get(entity).rigidBody}"
+                )
+                collisionWorld.addRigidBody(
                     btRigidBody,
                     if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_AI_BULLET,
                     mask
@@ -73,27 +86,27 @@ class BulletEngineHandler(
                 val mask =
                     COLLISION_GROUP_AI_BULLET or COLLISION_GROUP_AI or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
                 btRigidBody.contactCallbackFilter = mask
-                gameSessionData.physicsData.collisionWorld.addRigidBody(
+                collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_PLAYER,
                     mask
                 )
             } else if (ComponentsMapper.ai.has(entity)) {
-                gameSessionData.physicsData.collisionWorld.addRigidBody(
+                collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_AI,
                     COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL or COLLISION_GROUP_PLAYER_BULLET or COLLISION_GROUP_GROUND
                 )
             } else if (ComponentsMapper.ground.has(entity)) {
                 btRigidBody.contactCallbackFilter = AllFilter
-                gameSessionData.physicsData.collisionWorld.addRigidBody(
+                collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_GROUND,
                     AllFilter
                 )
             } else {
                 btRigidBody.contactCallbackFilter = AllFilter
-                gameSessionData.physicsData.collisionWorld.addRigidBody(
+                collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_GENERAL,
                     AllFilter
@@ -101,7 +114,7 @@ class BulletEngineHandler(
             }
         } else if (ComponentsMapper.ghostPhysics.has(entity)) {
             val ghostObject = ComponentsMapper.ghostPhysics.get(entity).ghost
-            gameSessionData.physicsData.collisionWorld.addCollisionObject(
+            collisionWorld.addCollisionObject(
                 ghostObject,
                 COLLISION_GROUP_GENERAL,
                 COLLISION_GROUP_AI_BULLET or COLLISION_GROUP_AI
@@ -112,7 +125,7 @@ class BulletEngineHandler(
     override fun entityRemoved(entity: Entity) {
         val physicsComponent = ComponentsMapper.physics.get(entity)
         if (physicsComponent != null) {
-            removePhysicsOfComponent(physicsComponent)
+            removePhysicsOfComponent(entity)
         } else if (ComponentsMapper.ghostPhysics.has(entity)) {
             val ghostPhysicsComponent = ComponentsMapper.ghostPhysics.get(entity)
             gameSessionData.physicsData.collisionWorld.removeCollisionObject(ghostPhysicsComponent.ghost)
@@ -120,8 +133,12 @@ class BulletEngineHandler(
         }
     }
 
-    fun removePhysicsOfComponent(physicsComponent: PhysicsComponent) {
-        toRemove.add(physicsComponent)
+    fun removePhysicsOfComponent(entity: Entity) {
+        val physicsComponent = ComponentsMapper.physics.get(entity)
+        gameSessionData.physicsData.collisionWorld.removeCollisionObject(
+            physicsComponent.rigidBody
+        )
+        physicsComponent.dispose()
     }
 
 
@@ -150,14 +167,6 @@ class BulletEngineHandler(
             20,
             1f / gameSessionData.fpsTarget
         )
-        toRemove.forEach {
-            it.rigidBody.activationState = 0
-            gameSessionData.physicsData.collisionWorld.removeCollisionObject(
-                it.rigidBody
-            )
-            it.dispose()
-        }
-        toRemove.clear()
     }
 
     fun initialize() {

@@ -193,7 +193,10 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     private fun removeParticleEffectsMarkedToBeRemoved() {
         for (entity in particleEntitiesToRemove) {
             removeParticleEffect(entity)
-            engine.removeEntity(entity)
+            gamePlayManagers.dispatcher.dispatchMessage(
+                SystemEvents.REMOVE_ENTITY.ordinal,
+                entity
+            )
         }
     }
 

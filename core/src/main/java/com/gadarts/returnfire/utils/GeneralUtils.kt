@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
+import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.MapGraph
@@ -156,6 +158,15 @@ object GeneralUtils {
 
     fun isBodyDisposed(entity: Entity): Boolean {
         return !ComponentsMapper.physics.has(entity) || ComponentsMapper.physics.get(entity).disposed
+    }
+
+    fun isBodyInWorld(btRigidBody: btRigidBody, collisionWorld: btDiscreteDynamicsWorld): Boolean {
+        for (i in 0 until collisionWorld.numCollisionObjects) {
+            if (collisionWorld.collisionObjectArray.atConst(i) == btRigidBody) {
+                return true
+            }
+        }
+        return false
     }
 
 }

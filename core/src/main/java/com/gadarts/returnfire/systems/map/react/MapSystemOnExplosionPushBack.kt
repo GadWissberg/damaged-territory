@@ -8,22 +8,22 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.map.MapSystemImpl.*
+import com.gadarts.returnfire.systems.map.MapSystemImpl.ExplosionPushBackEffect
 import com.gadarts.returnfire.systems.map.MapSystemRelatedEntities
 
 class MapSystemOnExplosionPushBack(private val mapSystemRelatedEntities: MapSystemRelatedEntities) : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        val position = msg.extraInfo as Vector3
-        applyExplosionPushBackOnEnvironment(
-            position,
-            mapSystemRelatedEntities.flyingPartEntities,
-            FlyingPartExplosionPushBackEffect
-        )
-        applyExplosionPushBackOnEnvironment(
-            position,
-            mapSystemRelatedEntities.treeEntities,
-            TreeExplosionPushBackEffect
-        )
+//        val position = msg.extraInfo as Vector3
+//        applyExplosionPushBackOnEnvironment(
+//            position,
+//            mapSystemRelatedEntities.flyingPartEntities,
+//            FlyingPartExplosionPushBackEffect
+//        )
+//        applyExplosionPushBackOnEnvironment(
+//            position,
+//            mapSystemRelatedEntities.treeEntities,
+//            TreeExplosionPushBackEffect
+//        )
     }
 
     private fun applyExplosionPushBackOnEnvironment(

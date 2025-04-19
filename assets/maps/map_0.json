@@ -30,6 +30,34 @@
       "col": 7
     },
     {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 1,
+      "col": 9
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 1,
+      "col": 10
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 1,
+      "col": 11
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 1,
+      "col": 12
+    },
+    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "direction": 0,
@@ -69,6 +97,13 @@
       "type": "AMB",
       "direction": 0,
       "row": 2,
+      "col": 12
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 2,
       "col": 13
     },
     {
@@ -91,6 +126,34 @@
       "direction": 0,
       "row": 3,
       "col": 7
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 3,
+      "col": 9
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 3,
+      "col": 10
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 3,
+      "col": 11
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 3,
+      "col": 12
     },
     {
       "definition": "FENCE",
@@ -132,7 +195,56 @@
       "type": "AMB",
       "direction": 0,
       "row": 4,
+      "col": 9
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 4,
+      "col": 10
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 4,
+      "col": 11
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 4,
+      "col": 12
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 4,
       "col": 13
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 5,
+      "col": 5
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 5,
+      "col": 6
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 5,
+      "col": 7
     },
     {
       "definition": "ROCK_SMALL",
@@ -142,6 +254,27 @@
       "col": 9
     },
     {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 5,
+      "col": 11
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 5,
+      "col": 12
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 6,
+      "col": 8
+    },
+    {
       "definition": "ANTENNA",
       "type": "AMB",
       "direction": 0,
@@ -149,11 +282,116 @@
       "col": 9
     },
     {
-      "definition": "BASE_GREEN",
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 6,
+      "col": 10
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 6,
+      "col": 11
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 6,
+      "col": 12
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 7,
+      "col": 8
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 7,
+      "col": 9
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 7,
+      "col": 10
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 7,
+      "col": 11
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 7,
+      "col": 12
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 8,
+      "col": 9
+    },
+    {
+      "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
       "row": 8,
       "col": 10
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 8,
+      "col": 11
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 8,
+      "col": 12
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 9,
+      "col": 9
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 9,
+      "col": 10
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 9,
+      "col": 11
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 9,
+      "col": 12
     }
   ],
   "size": 48

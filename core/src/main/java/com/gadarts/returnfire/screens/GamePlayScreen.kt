@@ -9,6 +9,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
+import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.factories.*
 import com.gadarts.returnfire.managers.EcsManager
@@ -146,11 +147,23 @@ class GamePlayScreen(
     }
 
     override fun render(delta: Float) {
+        engine.update(delta)
+        if (entitiesToRemove.isNotEmpty()) {
+            Gdx.app.log(
+                "GamePlayScreen",
+                "REMOVING"
+            )
+        }
         entitiesToRemove.forEach {
+            if (ComponentsMapper.physics.has(it)) {
+                Gdx.app.log(
+                    "GamePlayScreen",
+                    "Removing Entity is bullet: ${it},${ComponentsMapper.physics.get(it).rigidBody}"
+                )
+            }
             engine.removeEntity(it)
         }
         entitiesToRemove.clear()
-        engine.update(delta)
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.BACK)) {
             generalManagers.screensManagers.goToHangarScreen()
         }
@@ -182,6 +195,7 @@ class GamePlayScreen(
         if (msg == null) return false
 
         entitiesToRemove.add(msg.extraInfo as Entity)
+
         return true
     }
 

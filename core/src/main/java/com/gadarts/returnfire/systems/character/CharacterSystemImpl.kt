@@ -221,7 +221,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         }
                         gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.PHYSICS_COMPONENT_REMOVED_MANUALLY.ordinal,
-                            physicsComponent
+                            character
                         )
                         character.remove(PhysicsComponent::class.java)
                     }
