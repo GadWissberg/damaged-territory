@@ -149,14 +149,7 @@
       "col": 7
     },
     {
-      "definition": "FENCE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 4,
-      "col": 12
-    },
-    {
-      "definition": "FENCE",
+      "definition": "ANTENNA",
       "type": "AMB",
       "direction": 0,
       "row": 4,

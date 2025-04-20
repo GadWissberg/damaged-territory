@@ -257,7 +257,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 } else {
                     if (characterTransform.getTranslation(
                             auxVector1
-                        ).y <= GameSessionDataMap.DROWNING_HEIGHT / 3
+                        ).y <= -GameSessionDataMap.DROWNING_HEIGHT / 3
                     ) {
                         gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.CHARACTER_DIED.ordinal,

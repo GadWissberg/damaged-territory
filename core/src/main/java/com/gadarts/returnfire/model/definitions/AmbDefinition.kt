@@ -4,6 +4,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.model.ElementType
+import com.gadarts.returnfire.systems.data.GameSessionDataMap.Companion.DROWNING_HEIGHT
 
 enum class AmbDefinition(
     private val modelDefinition: ModelDefinition,
@@ -28,6 +29,7 @@ enum class AmbDefinition(
     val destroyedByExplosiveOnly: Boolean = true,
     val marksNodeAsBlocked: Boolean = true,
     val forceSingleNodeForMarksNodeAsBlocked: Boolean = false,
+    val drowningHeight: Float = DROWNING_HEIGHT
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -100,7 +102,8 @@ enum class AmbDefinition(
         maxFlyingParts = 5,
         destructionSound = SoundDefinition.METAL_BEND,
         corpseCollisionSound = SoundDefinition.METAL_CRASH,
-        forceSingleNodeForMarksNodeAsBlocked = true
+        forceSingleNodeForMarksNodeAsBlocked = true,
+        drowningHeight = 2F
     ),
     STREET_LIGHT(
         modelDefinition = ModelDefinition.STREET_LIGHT,

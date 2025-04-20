@@ -19,6 +19,6 @@ class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
     }
 
     companion object {
-        const val DROWNING_HEIGHT = -1F
+        const val DROWNING_HEIGHT = 1F
     }
 }

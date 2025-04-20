@@ -23,7 +23,6 @@ import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLL
 
 class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
-    private lateinit var ghostObject: btPairCachingGhostObject
     private lateinit var contactListener: GameContactListener
 
     private val limitedVelocityEntities by lazy {
@@ -76,13 +75,14 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             )
         )
         val water = gamePlayManagers.ecs.entityBuilder.begin().addGroundComponent().finishAndAddToEngine()
-        ghostObject = btPairCachingGhostObject()
-        ghostObject.collisionShape = seaShape
-        ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
-        ghostObject.worldTransform = Matrix4().translate(halfMapWidth, GameSessionDataMap.DROWNING_HEIGHT, halfMapDepth)
-        ghostObject.userData = water
+        gameSessionData.physicsData.ghostObject = btPairCachingGhostObject()
+        gameSessionData.physicsData.ghostObject.collisionShape = seaShape
+        gameSessionData.physicsData.ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
+        gameSessionData.physicsData.ghostObject.worldTransform =
+            Matrix4().translate(halfMapWidth, -GameSessionDataMap.DROWNING_HEIGHT, halfMapDepth)
+        gameSessionData.physicsData.ghostObject.userData = water
         gameSessionData.physicsData.collisionWorld.addCollisionObject(
-            ghostObject,
+            gameSessionData.physicsData.ghostObject,
             COLLISION_GROUP_GROUND,
             -1
         )
@@ -95,7 +95,7 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun update(deltaTime: Float) {
         bulletEngineHandler.update(deltaTime)
-        val overlappingPairs = ghostObject.overlappingPairs
+        val overlappingPairs = gameSessionData.physicsData.ghostObject.overlappingPairs
         val size = overlappingPairs.size()
         for (i in 4 until size) {
             gamePlayManagers.dispatcher.dispatchMessage(
@@ -120,7 +120,6 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     override fun dispose() {
         bulletEngineHandler.dispose()
         contactListener.dispose()
-        ghostObject.dispose()
         engine.getEntitiesFor(Family.all(PhysicsComponent::class.java).get()).forEach {
             ComponentsMapper.physics.get(it).dispose()
         }
