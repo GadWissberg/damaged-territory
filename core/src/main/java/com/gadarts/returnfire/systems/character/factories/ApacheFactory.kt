@@ -132,7 +132,7 @@ class ApacheFactory(
         entityBuilder.addSecondaryArmComponent(
             secondarySpark,
             ArmProperties(
-                2F,
+                25F,
                 assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
                 SEC_RELOAD_DUR,
                 SEC_BULLET_SPEED,

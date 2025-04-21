@@ -16,7 +16,7 @@ enum class SimpleCharacterDefinition(
     private val corpseModelDefinitions: List<ModelDefinition>,
 ) : CharacterDefinition {
     APACHE(
-        75F,
+        125F,
         ModelDefinition.APACHE,
         Vector3.Zero,
         Vector3(1F, 0F, 1F),

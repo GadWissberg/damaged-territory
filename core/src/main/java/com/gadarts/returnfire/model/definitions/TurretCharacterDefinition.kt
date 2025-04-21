@@ -31,7 +31,7 @@ enum class TurretCharacterDefinition(
         isNonMoving = true
     ),
     TANK(
-        hp = 125F,
+        hp = 175F,
         baseModelDefinition = ModelDefinition.TANK_BODY,
         smokeEmissionRelativePosition = Vector3.Zero,
         gravity = Vector3(0F, -10F, 0F),
