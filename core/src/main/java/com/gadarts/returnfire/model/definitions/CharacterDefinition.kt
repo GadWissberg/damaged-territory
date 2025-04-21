@@ -20,7 +20,7 @@ interface CharacterDefinition : ElementDefinition {
     fun getMovementHeight(): Float
     fun isFlyer(): Boolean
     fun isGibable(): Boolean
-    fun getCorpseModelDefinition(): ModelDefinition
+    fun getCorpseModelDefinitions(): List<ModelDefinition>
 
     companion object {
         const val FLYER_HEIGHT = 3.9F

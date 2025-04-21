@@ -109,13 +109,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 )
             )
         }
-        if (isApache || characterComponent.definition == TurretCharacterDefinition.TANK) {
-            if (!ComponentsMapper.player.has(character)) {
-                if (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F) {
-                    turnCharacterToCorpse(character, planeCrashSoundId)
-                } else {
-                    gibCharacter(character, planeCrashSoundId)
-                }
+        if (!ComponentsMapper.player.has(character)) {
+            if (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F) {
+                turnCharacterToCorpse(character, planeCrashSoundId)
+            } else {
+                gibCharacter(character, planeCrashSoundId)
             }
         }
         gamePlayManagers.dispatcher.dispatchMessage(
@@ -166,6 +164,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
 
+    @Suppress("SimplifyBooleanWithConstants")
     override fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
         if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
@@ -374,23 +373,27 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             character
         )
         val characterDefinition = characterComponent.definition
-        val deadGameModelInstance =
-            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
-                characterDefinition.getCorpseModelDefinition()
-            )
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
+        val isTurretCannon = characterDefinition == TurretCharacterDefinition.TURRET_CANNON
+        val deadGameModelInstance = if (!isTurretCannon)
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+                characterDefinition.getCorpseModelDefinitions().random()
+            ) else modelInstanceComponent.gameModelInstance
         val position = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
             auxVector1
         )
         val color = characterComponent.color.name.lowercase()
-        modelInstanceComponent.init(
-            deadGameModelInstance,
-            position,
-            assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
-            0F,
-            false,
-            assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$color")
-        )
+        if (!isTurretCannon) {
+            modelInstanceComponent.gameModelInstance.modelInstance.transform.setTranslation(position)
+            modelInstanceComponent.init(
+                deadGameModelInstance,
+                position,
+                assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
+                0F,
+                false,
+                assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$color")
+            )
+        }
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         val motionState = rigidBody.motionState as MotionState
         val deadGameModelInstanceTransform = deadGameModelInstance.modelInstance.transform
@@ -435,10 +438,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 randomDeadModel,
             )
             val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
-            val turretDeadTextureName =
-                "${characterDefinition.name.lowercase()}_turret_texture_destroyed_${color}"
-            val turretDeadTexture = assetsManager.getTexture(turretDeadTextureName)
-            modelInstance.materials[0].set(TextureAttribute.createDiffuse(turretDeadTexture))
+            if (!isTurretCannon) {
+                val turretDeadTextureName =
+                    "${characterDefinition.name.lowercase()}_turret_texture_destroyed_${color}"
+                val turretDeadTexture = assetsManager.getTexture(turretDeadTextureName)
+                modelInstance.materials[0].set(TextureAttribute.createDiffuse(turretDeadTexture))
+            }
             modelInstance.transform.set(auxMatrix)
             turretModelInstanceComponent.gameModelInstance.setBoundingBox(
                 gamePlayManagers.assetsManager.getCachedBoundingBox(randomDeadModel)

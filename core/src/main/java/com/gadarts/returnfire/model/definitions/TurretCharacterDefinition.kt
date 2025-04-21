@@ -10,7 +10,7 @@ enum class TurretCharacterDefinition(
     private val smokeEmissionRelativePosition: Vector3,
     private val gravity: Vector3,
     private val linearFactor: Vector3,
-    private val corpseModelDefinition: ModelDefinition,
+    private val corpseModelDefinitions: List<ModelDefinition>,
     val turretCorpseModelDefinitions: List<ModelDefinition>,
     private val isNonMoving: Boolean,
 ) : CharacterDefinition {
@@ -20,7 +20,10 @@ enum class TurretCharacterDefinition(
         smokeEmissionRelativePosition = Vector3(0F, 2F, 0F),
         gravity = Vector3.Zero,
         linearFactor = Vector3.Zero,
-        corpseModelDefinition = ModelDefinition.TURRET_CANNON_DEAD_0,
+        corpseModelDefinitions = listOf(
+            ModelDefinition.TURRET_CANNON_DEAD_0,
+            ModelDefinition.TURRET_CANNON_DEAD_1,
+        ),
         turretCorpseModelDefinitions = listOf(
             ModelDefinition.TURRET_CANNON_DEAD_0,
             ModelDefinition.TURRET_CANNON_DEAD_1,
@@ -33,7 +36,7 @@ enum class TurretCharacterDefinition(
         smokeEmissionRelativePosition = Vector3.Zero,
         gravity = Vector3(0F, -10F, 0F),
         linearFactor = Vector3(1F, 1F, 1F),
-        ModelDefinition.TANK_BODY_DESTROYED,
+        listOf(ModelDefinition.TANK_BODY_DESTROYED),
         listOf(
             ModelDefinition.TANK_TURRET_DESTROYED,
         ),
@@ -92,8 +95,8 @@ enum class TurretCharacterDefinition(
         return false
     }
 
-    override fun getCorpseModelDefinition(): ModelDefinition {
-        return corpseModelDefinition
+    override fun getCorpseModelDefinitions(): List<ModelDefinition> {
+        return corpseModelDefinitions
     }
 
     override fun isMarksNodeAsBlocked(): Boolean {

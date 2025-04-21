@@ -13,7 +13,7 @@ enum class SimpleCharacterDefinition(
     private val startHeight: Float,
     private val flyer: Boolean,
     private val gibable: Boolean,
-    private val corpseModelDefinition: ModelDefinition,
+    private val corpseModelDefinitions: List<ModelDefinition>,
 ) : CharacterDefinition {
     APACHE(
         75F,
@@ -24,7 +24,7 @@ enum class SimpleCharacterDefinition(
         CharacterDefinition.FLYER_HEIGHT,
         true,
         true,
-        ModelDefinition.APACHE_DEAD
+        listOf(ModelDefinition.APACHE_DEAD)
     );
 
     override fun isFlyer(): Boolean {
@@ -79,8 +79,8 @@ enum class SimpleCharacterDefinition(
         return gibable
     }
 
-    override fun getCorpseModelDefinition(): ModelDefinition {
-        return corpseModelDefinition
+    override fun getCorpseModelDefinitions(): List<ModelDefinition> {
+        return corpseModelDefinitions
     }
 
     override fun isMarksNodeAsBlocked(): Boolean {

@@ -149,6 +149,13 @@
       "col": 7
     },
     {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "direction": 0,
+      "row": 4,
+      "col": 9
+    },
+    {
       "definition": "ANTENNA",
       "type": "AMB",
       "direction": 0,
