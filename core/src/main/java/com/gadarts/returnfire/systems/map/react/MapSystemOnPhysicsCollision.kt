@@ -34,7 +34,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
         val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
         roadWithBullets(entity0, entity1, gamePlayManagers)
-            || handleCollisionGroundWithHeavyStuffOnHighSpeed(
+                || handleCollisionGroundWithHeavyStuffOnHighSpeed(
             entity0,
             entity1,
             gamePlayManagers
@@ -43,12 +43,12 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             entity0,
             gamePlayManagers
         ) ||
-            handleCollisionDestroyableAmbWithFastAndHeavyStuff(
-            entity0,
-            entity1,
-            gameSessionData,
-            gamePlayManagers
-        ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
+                handleCollisionDestroyableAmbWithFastAndHeavyStuff(
+                    entity0,
+                    entity1,
+                    gameSessionData,
+                    gamePlayManagers
+                ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
             entity1,
             entity0,
             gameSessionData,
@@ -100,18 +100,17 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val ambComponent = ComponentsMapper.amb.get(entity0) ?: return false
         if (!ComponentsMapper.physics.has(entity1)) return false
 
-        val otherRigidBody = ComponentsMapper.physics.get(entity1).rigidBody
         val ambDefinition = ambComponent.def
         if (isAliveAmb(ambComponent)) {
             val bulletComponent = ComponentsMapper.bullet.get(entity1)
             if (!ambDefinition.destroyedByExplosiveOnly) {
                 destroyLightweightAmb(
-                    otherRigidBody,
                     bulletComponent,
                     entity0,
                     ambComponent,
                     gameSessionData,
-                    gamePlayManagers
+                    gamePlayManagers,
+                    entity1,
                 )
             } else if (bulletComponent != null && bulletComponent.explosive) {
                 handleCollisionHealthyAmbWithFastAndHeavyStuff(entity0, entity1, gameSessionData, gamePlayManagers)
@@ -147,7 +146,8 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
     private fun createFlyingPartsForAmb(
         entity: Entity,
         relativeOffset: Vector3,
-        gamePlayManagers: GamePlayManagers
+        gamePlayManagers: GamePlayManagers,
+        addSmoke: Boolean
     ) {
         val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
         val ambComponent = ComponentsMapper.amb.get(entity)
@@ -159,7 +159,8 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 max = ambComponent.def.maxFlyingParts,
                 minForce = ambComponent.def.flyingPartMinImpulse,
                 maxForce = ambComponent.def.flyingPartMaxImpulse,
-                relativeOffset = relativeOffset
+                relativeOffset = relativeOffset,
+                addSmokeParticleEffect = addSmoke
             )
         } else {
             specialEffectsFactory.generateFlyingParts(entity)
@@ -494,18 +495,19 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
     }
 
     private fun destroyLightweightAmb(
-        otherRigidBody: RigidBody,
         bulletComponent: BulletComponent?,
         affectedEntity: Entity,
         ambComponent: AmbComponent,
         gameSessionData: GameSessionData,
-        gamePlayManagers: GamePlayManagers
+        gamePlayManagers: GamePlayManagers,
+        otherEntity: Entity
     ) {
         val isExplosive = bulletComponent != null && bulletComponent.explosive
         val position =
             ComponentsMapper.modelInstance.get(affectedEntity).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
+        val otherRigidBody = ComponentsMapper.physics.get(otherEntity).rigidBody
         if (isFastOrHeavy(otherRigidBody)) {
             ambComponent.hp = 0
             if (bulletComponent != null) {
@@ -535,7 +537,12 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 }
             } else {
                 mapSystem.destroyAmbObject(affectedEntity)
-                createFlyingPartsForAmb(affectedEntity, auxVector3.set(0F, 0.5F, 0F), gamePlayManagers)
+                createFlyingPartsForAmb(
+                    affectedEntity,
+                    auxVector3.set(0F, 0.5F, 0F),
+                    gamePlayManagers,
+                    ComponentsMapper.bullet.has(otherEntity)
+                )
             }
         }
     }
@@ -561,7 +568,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val beforeHp = ambComponent.hp
         applyDamageToAmb(ambComponent)
         val newHp = ambComponent.hp
-        createFlyingPartsForAmb(otherCollider, Vector3.Zero, gamePlayManagers)
+        createFlyingPartsForAmb(otherCollider, Vector3.Zero, gamePlayManagers, true)
         if (newHp <= 0) {
             initiateAmbDestruction(amb, position, gameSessionData, gamePlayManagers)
         } else {

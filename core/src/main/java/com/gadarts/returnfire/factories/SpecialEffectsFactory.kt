@@ -100,7 +100,8 @@ class SpecialEffectsFactory(
         mass: Float = 1F,
         minForce: Float = 4F,
         maxForce: Float = 7F,
-        relativeOffset: Vector3 = Vector3.Zero
+        relativeOffset: Vector3 = Vector3.Zero,
+        addSmokeParticleEffect: Boolean = true,
     ) {
         val transform = if (ComponentsMapper.turretBase.has(character)) {
             val turretModelInstanceComponent =
@@ -111,7 +112,17 @@ class SpecialEffectsFactory(
         }
         transform.getTranslation(auxVector2)
         auxVector2.add(relativeOffset)
-        generateFlyingParts(auxVector2, modelDefinition, 1F, min, max, mass, minForce, maxForce)
+        generateFlyingParts(
+            position = auxVector2,
+            modelDefinition = modelDefinition,
+            shapeScale = 1F,
+            min = min,
+            max = max,
+            mass = mass,
+            minForce = minForce,
+            maxForce = maxForce,
+            addSmokeParticleEffect = addSmokeParticleEffect
+        )
     }
 
     fun generateSmallFlyingParts(position: Vector3) {
@@ -176,11 +187,12 @@ class SpecialEffectsFactory(
         max: Int = 4,
         mass: Float = 1F,
         minForce: Float = 4F,
-        maxForce: Float = 7F
+        maxForce: Float = 7F,
+        addSmokeParticleEffect: Boolean = true
     ) {
         val numberOfFlyingParts = MathUtils.random(min, max)
         for (i in 0 until numberOfFlyingParts) {
-            addFlyingPart(position, modelDefinition, shapeScale, mass, minForce, maxForce)
+            addFlyingPart(position, modelDefinition, shapeScale, mass, minForce, maxForce, addSmokeParticleEffect)
         }
     }
 
@@ -190,10 +202,11 @@ class SpecialEffectsFactory(
         shapeScale: Float,
         mass: Float = 1F,
         minForce: Float,
-        maxForce: Float
+        maxForce: Float,
+        addSmokeParticleEffect: Boolean = true
     ) {
         val modelInstance = gameModelInstanceFactory.createGameModelInstance(modelDefinition)
-        val flyingPart = createFlyingPartEntity(modelInstance, position, shapeScale, mass)
+        val flyingPart = createFlyingPartEntity(modelInstance, position, shapeScale, mass, addSmokeParticleEffect)
         ComponentsMapper.physics.get(flyingPart).rigidBody.setDamping(0.1F, 0.2F)
         makeFlyingPartFlyAway(flyingPart, minForce, maxForce)
     }
@@ -202,13 +215,14 @@ class SpecialEffectsFactory(
         gameModelInstance: GameModelInstance,
         position: Vector3,
         shapeScale: Float,
-        mass: Float = 1F
+        mass: Float = 1F,
+        addSmokeParticleEffect: Boolean
     ): Entity {
         val randomParticleEffect =
             if (MathUtils.random() >= 0.15) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP_SMALL
         val transform = gameModelInstance.modelInstance.transform
         val physicalShapeCreator = gameModelInstance.definition?.physicalShapeCreator
-        return ecs.entityBuilder
+        val entityBuilder = ecs.entityBuilder
             .begin()
             .addModelInstanceComponent(
                 gameModelInstance,
@@ -231,11 +245,15 @@ class SpecialEffectsFactory(
                 1F,
                 mass
             )
-            .addParticleEffectComponent(
-                transform.getTranslation(auxVector1),
-                gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(randomParticleEffect),
-                ttlInSeconds = MathUtils.random(20, 25)
-            )
+        if (addSmokeParticleEffect) {
+            entityBuilder
+                .addParticleEffectComponent(
+                    transform.getTranslation(auxVector1),
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(randomParticleEffect),
+                    ttlInSeconds = MathUtils.random(20, 25)
+                )
+        }
+        return entityBuilder
             .addFlyingPartComponent()
             .finishAndAddToEngine()
     }
