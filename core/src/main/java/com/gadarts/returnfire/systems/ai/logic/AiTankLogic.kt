@@ -386,8 +386,10 @@ class AiTankLogic(
                     if (aiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
             }
         } else {
+            val centerOrCornerOfNode = if (pathNodes.size != 1 || !returningToBase) 0.5F else 0F
             rotateAndEngage(
-                auxVector2.set(nextNode.x.toFloat() + 0.5F, nextNode.y.toFloat() + 0.5F),
+                auxVector2.set(nextNode.x.toFloat(), nextNode.y.toFloat())
+                    .add(centerOrCornerOfNode, centerOrCornerOfNode),
                 character,
                 deltaTime,
                 BaseRotationAnglesMatch,

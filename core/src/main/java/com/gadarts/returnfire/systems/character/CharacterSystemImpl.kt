@@ -203,7 +203,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     } else {
                         val animationDone = updateBoardingAnimation(deltaTime, character)
                         if (animationDone && boardingComponent.isDeploying()) {
-                            boardingDone(character)
+                            deployingDone(character)
                         }
                     }
                 } else {
@@ -527,7 +527,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         )
     }
 
-    private fun boardingDone(character: Entity) {
+    private fun deployingDone(character: Entity) {
         ComponentsMapper.boarding.get(character).boardingDone()
         characterPhysicsInitializer.initialize(
             gamePlayManagers.ecs.entityBuilder,

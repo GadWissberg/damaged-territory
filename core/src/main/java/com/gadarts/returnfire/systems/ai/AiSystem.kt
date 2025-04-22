@@ -41,6 +41,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
 
         SystemEvents.OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
+            @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val entity = msg.extraInfo as Entity
                 val characterComponent = ComponentsMapper.character.get(entity)
@@ -49,6 +50,9 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                         entity,
                         characterComponent.definition.getHP()
                     )
+                    if (GameDebugSettings.FORCE_ENEMY_HP >= 0) {
+                        ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_ENEMY_HP
+                    }
                     val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
                     if (turretBaseComponent != null) {
                         gamePlayManagers.ecs.entityBuilder.addAiTurretComponentToEntity(

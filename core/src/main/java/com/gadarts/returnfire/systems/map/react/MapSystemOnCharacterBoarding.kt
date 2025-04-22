@@ -10,9 +10,10 @@ import com.gadarts.returnfire.systems.map.MapSystem
 
 class MapSystemOnCharacterBoarding(private val mapSystem: MapSystem) : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        val boardingComponent = ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
+        val character = msg.extraInfo as Entity
+        val boardingComponent = ComponentsMapper.boarding.get(character)
         if (boardingComponent.boardingAnimation == null && boardingComponent.isOnboarding()) {
-            val base = mapSystem.findBase(msg.extraInfo as Entity)
+            val base = mapSystem.findBase(character)
             mapSystem.closeDoors(base)
         }
     }

@@ -80,6 +80,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
         BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
+            @Suppress("SimplifyBooleanWithConstants")
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val entity = msg.extraInfo as Entity
                 if (ComponentsMapper.character.get(entity).color == CharacterColor.BROWN) {
