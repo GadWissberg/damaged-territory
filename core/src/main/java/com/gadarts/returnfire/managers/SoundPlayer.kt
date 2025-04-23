@@ -47,11 +47,12 @@ class SoundPlayer(private val assetsManager: GameAssetManager) {
         sound.stop(id)
     }
 
+    @Suppress("SimplifyBooleanWithConstants")
     fun play(music: Music) {
         if (!GameDebugSettings.SFX || GameDebugSettings.DISABLE_MUSIC) return
 
         music.play()
-        music.volume = 0.05F
+        music.volume = 0.2F
         music.isLooping = true
     }
 

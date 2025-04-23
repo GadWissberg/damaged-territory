@@ -99,7 +99,7 @@ class TankFactory(
         entityBuilder.addPrimaryArmComponent(
             primarySpark,
             ArmProperties(
-                15F,
+                30F,
                 assetsManager.getAssetByDefinition(SoundDefinition.CANNON_A),
                 TANK_PRI_RELOAD_DUR,
                 TANK_PRI_BULLET_SPEED,
@@ -129,7 +129,7 @@ class TankFactory(
         entityBuilder.addSecondaryArmComponent(
             spark,
             ArmProperties(
-                10F,
+                20F,
                 assetsManager.getAssetByDefinition(SoundDefinition.MISSILE),
                 TANK_SEC_RELOAD_DUR,
                 TANK_SEC_BULLET_SPEED,

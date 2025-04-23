@@ -99,7 +99,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
     ): Boolean {
         val isSecondCharacter = ComponentsMapper.character.has(second)
         val isSecondTurret = if (!isSecondCharacter) ComponentsMapper.turret.has(second) else false
-        if (ComponentsMapper.bullet.has(first) && (isSecondCharacter || isSecondTurret)) {
+        if (ComponentsMapper.bullet.has(first) && !ComponentsMapper.bullet.get(first).destroyed && (isSecondCharacter || isSecondTurret)) {
             val damage = max(ComponentsMapper.bullet.get(first).damage + MathUtils.random(-2F, 2F), 1F)
             if (damage >= 8F) {
                 gamePlayManagers.soundPlayer.play(

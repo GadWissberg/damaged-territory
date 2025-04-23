@@ -31,9 +31,8 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val customDesktopLib: String =
         "C:\\Users\\gadw1\\StudioProjects\\libgdx\\extensions\\gdx-bullet\\jni\\vs\\gdxBullet\\x64\\Debug\\gdxBullet.dll"
-    private val debugBullet: Boolean = true
 
-    @Suppress("KotlinConstantConditions")
+    @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
         val screenHeight = Gdx.graphics.displayMode.height
@@ -44,8 +43,11 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         assetsManager.loadAssets()
         soundPlayer.play(assetsManager.getAssetByDefinition(MusicDefinition.TEST))
         Gdx.input.inputProcessor = InputMultiplexer()
-        Bullet.init()
-//        System.load(customDesktopLib);
+        if (GameDebugSettings.USE_DEBUG_DLL) {
+            System.load(customDesktopLib)
+        } else {
+            Bullet.init()
+        }
         if (GameDebugSettings.SELECTED_VEHICLE != null) {
             goToWarScreen(
                 GameDebugSettings.SELECTED_VEHICLE,

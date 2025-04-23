@@ -6,6 +6,8 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 
 class BulletComponent : Component, Poolable {
+    var destroyed: Boolean = false
+        private set
     var damage: Float = 0F
         private set
     var friendly: Boolean = false
@@ -36,6 +38,11 @@ class BulletComponent : Component, Poolable {
         this.explosive = explosive
         this.friendly = friendly
         this.damage = damage
+        this.destroyed = false
+    }
+
+    fun markAsDestroyed() {
+        destroyed = true
     }
 
 }

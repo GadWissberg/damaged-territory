@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.character.CharacterColor
@@ -52,7 +53,8 @@ class CharacterSystemOnMapLoaded(engine: Engine) : HandlerOnEvent {
         gameSessionData: GameSessionData
     ): CharacterDefinition {
         return if (characterColor == CharacterColor.GREEN) {
-            GameDebugSettings.SELECTED_VEHICLE_AI ?: DeployableCharacters.list.random()
+            GameDebugSettings.SELECTED_VEHICLE_AI
+                ?: DeployableCharacters.list[MathUtils.random(DeployableCharacters.list.size - 1)]
         } else gameSessionData.selected
     }
 

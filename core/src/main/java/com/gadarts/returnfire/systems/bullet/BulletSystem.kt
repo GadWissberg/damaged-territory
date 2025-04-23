@@ -256,7 +256,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun handleBulletCollision(entity0: Entity, entity1: Entity): Boolean {
-        if (ComponentsMapper.bullet.has(entity0)) {
+        if (ComponentsMapper.bullet.has(entity0) && !ComponentsMapper.bullet.get(entity0).destroyed) {
             val position =
                 ComponentsMapper.modelInstance.get(entity0).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
@@ -368,6 +368,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun destroyBullet(entity: Entity) {
+        ComponentsMapper.bullet.get(entity).markAsDestroyed()
         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, entity)
     }
 
