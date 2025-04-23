@@ -18,7 +18,7 @@ import com.gadarts.returnfire.screens.hangar.HangarScreenImpl
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
     private val dispatcher = MessageDispatcher()
-    private val soundPlayer: SoundPlayer by lazy { SoundPlayer(assetsManager) }
+    private val soundPlayer: SoundPlayer by lazy { SoundPlayer(assetsManager, runsOnMobile) }
     private val hangarScreenImpl by lazy {
         HangarScreenImpl(
             dispatcher,
@@ -32,7 +32,10 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val customDesktopLib: String =
         "C:\\Users\\gadw1\\StudioProjects\\libgdx\\extensions\\gdx-bullet\\jni\\vs\\gdxBullet\\x64\\Debug\\gdxBullet.dll"
 
-    @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
+    @Suppress(
+        "KotlinConstantConditions", "SimplifyBooleanWithConstants",
+        "UnsafeDynamicallyLoadedCode"
+    )
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
         val screenHeight = Gdx.graphics.displayMode.height

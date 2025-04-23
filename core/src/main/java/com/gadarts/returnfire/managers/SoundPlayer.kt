@@ -10,7 +10,8 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class SoundPlayer(private val assetsManager: GameAssetManager) {
+@Suppress("KotlinConstantConditions")
+class SoundPlayer(private val assetsManager: GameAssetManager, private val runsOnMobile: Boolean) {
 
     private var camera: Camera? = null
 
@@ -26,7 +27,8 @@ class SoundPlayer(private val assetsManager: GameAssetManager) {
     fun play(sound: Sound, sourcePosition: Vector3? = null): Long {
         if (!GameDebugSettings.SFX) return -1
 
-        val affectedByPosition = if (sourcePosition != null) calculateVolumeBasedOnPosition(sourcePosition) else 1F
+        val affectedByPosition =
+            if (sourcePosition != null) calculateVolumeBasedOnPosition(sourcePosition) else 1F
         val volume = MathUtils.random(RANDOM_VOLUME_MIN, 1F) * affectedByPosition
         return sound.play(
             volume,
@@ -47,12 +49,12 @@ class SoundPlayer(private val assetsManager: GameAssetManager) {
         sound.stop(id)
     }
 
-    @Suppress("SimplifyBooleanWithConstants")
+    @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
     fun play(music: Music) {
         if (!GameDebugSettings.SFX || GameDebugSettings.DISABLE_MUSIC) return
 
         music.play()
-        music.volume = 0.2F
+        music.volume = if (runsOnMobile) 0.05F else 0.2F
         music.isLooping = true
     }
 
