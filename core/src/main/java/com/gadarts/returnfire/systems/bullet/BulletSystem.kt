@@ -121,7 +121,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val parentModelInstanceComponent = ComponentsMapper.modelInstance.get(ComponentsMapper.spark.get(spark).parent)
         val parentTransform = parentModelInstanceComponent.gameModelInstance.modelInstance.transform
         val position = parentTransform.getTranslation(auxVector1)
-        gamePlayManagers.soundPlayer.play(
+        gamePlayManagers.soundManager.play(
             BulletCreationRequestEventData.armComponent.armProperties.shootingSound,
             position
         )
@@ -324,7 +324,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
         if (bulletComponent.explosion != null) {
             if (explosive) {
-                gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.soundManager.play(
                     gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL),
                     position
                 )

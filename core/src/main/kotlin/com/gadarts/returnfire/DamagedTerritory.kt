@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.bullet.Bullet
 import com.gadarts.returnfire.assets.definitions.MusicDefinition
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GeneralManagers
-import com.gadarts.returnfire.managers.SoundPlayer
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.screens.ScreensManager
@@ -18,14 +18,14 @@ import com.gadarts.returnfire.screens.hangar.HangarScreenImpl
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
     private val dispatcher = MessageDispatcher()
-    private val soundPlayer: SoundPlayer by lazy { SoundPlayer(assetsManager, runsOnMobile) }
+    private val soundManager: SoundManager by lazy { SoundManager(assetsManager, runsOnMobile) }
     private val hangarScreenImpl by lazy {
         HangarScreenImpl(
             dispatcher,
             runsOnMobile,
             assetsManager,
             this,
-            soundPlayer
+            soundManager
         )
     }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
@@ -44,7 +44,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         Gdx.graphics.setWindowedMode(targetWidth, targetHeight)
         Gdx.input.setCatchKey(Input.Keys.BACK, true)
         assetsManager.loadAssets()
-        soundPlayer.play(assetsManager.getAssetByDefinition(MusicDefinition.TEST))
+        soundManager.play(assetsManager.getAssetByDefinition(MusicDefinition.TEST))
         Gdx.input.inputProcessor = InputMultiplexer()
         if (GameDebugSettings.USE_DEBUG_DLL) {
             System.load(customDesktopLib)
@@ -66,7 +66,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             GamePlayScreen(
                 runsOnMobile,
                 fpsTarget,
-                GeneralManagers(assetsManager, soundPlayer, dispatcher, this),
+                GeneralManagers(assetsManager, soundManager, dispatcher, this),
                 characterDefinition,
                 autoAim
             )
@@ -75,7 +75,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
 
     override fun goToHangarScreen() {
         dispatcher.clearListeners()
-        soundPlayer.stopAll(assetsManager)
+        soundManager.stopAll(assetsManager)
         screen.dispose()
         setScreen(hangarScreenImpl)
     }

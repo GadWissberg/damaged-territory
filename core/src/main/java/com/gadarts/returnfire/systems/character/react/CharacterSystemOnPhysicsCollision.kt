@@ -9,7 +9,7 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.managers.SoundPlayer
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -59,7 +59,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
                         auxVector
                     )
                 val assetsManager = gamePlayManagers.assetsManager
-                gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.soundManager.play(
                     assetsManager.getAssetByDefinition(SoundDefinition.CRASH_BIG),
                     position
                 )
@@ -102,7 +102,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         if (ComponentsMapper.bullet.has(first) && !ComponentsMapper.bullet.get(first).destroyed && (isSecondCharacter || isSecondTurret)) {
             val damage = max(ComponentsMapper.bullet.get(first).damage + MathUtils.random(-2F, 2F), 1F)
             if (damage >= 8F) {
-                gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.soundManager.play(
                     gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.MAJOR_IMPACT),
                     ComponentsMapper.modelInstance.get(first).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector
@@ -159,7 +159,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         val initialHp = damagedCharacter.definition.getHP()
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
         val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
-        val soundPlayer = gamePlayManagers.soundPlayer
+        val soundPlayer = gamePlayManagers.soundManager
         val assetsManager = gamePlayManagers.assetsManager
         if (damagedCharacter.creationTime / 2 == 0L) {
             val half = initialHp / 2F
@@ -193,7 +193,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         character: Entity,
         gameSessionData: GameSessionData,
         specialEffectsFactory: SpecialEffectsFactory,
-        soundPlayer: SoundPlayer,
+        soundManager: SoundManager,
         assetsManager: GameAssetManager
     ) {
         val turretBaseComponent = ComponentsMapper.turretBase.get(character)
@@ -211,7 +211,7 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
             ),
             gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.EXPLOSION)
         ).finishAndAddToEngine()
-        soundPlayer.play(
+        soundManager.play(
             assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
             position
         )

@@ -10,8 +10,7 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 
-@Suppress("KotlinConstantConditions")
-class SoundPlayer(private val assetsManager: GameAssetManager, private val runsOnMobile: Boolean) {
+class SoundManager(private val assetsManager: GameAssetManager, private val runsOnMobile: Boolean) {
 
     private var camera: Camera? = null
 
@@ -49,7 +48,7 @@ class SoundPlayer(private val assetsManager: GameAssetManager, private val runsO
         sound.stop(id)
     }
 
-    @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
+    @Suppress("SimplifyBooleanWithConstants")
     fun play(music: Music) {
         if (!GameDebugSettings.SFX || GameDebugSettings.DISABLE_MUSIC) return
 

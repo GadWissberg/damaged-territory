@@ -7,7 +7,7 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.managers.SoundPlayer
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.ScreensManager
 
 
@@ -16,10 +16,10 @@ class HangarScreenImpl(
     runsOnMobile: Boolean,
     assetsManager: GameAssetManager,
     screenManager: ScreensManager,
-    soundPlayer: SoundPlayer,
+    soundManager: SoundManager,
 ) : HangarScreen {
     private val stage = Stage()
-    private val hangarSceneHandler = HangarSceneHandler(soundPlayer, assetsManager, screenManager)
+    private val hangarSceneHandler = HangarSceneHandler(soundManager, assetsManager, screenManager)
     private val hangarScreenMenu = HangarScreenMenu(runsOnMobile, assetsManager, stage, hangarSceneHandler)
     private var initialized: Boolean = false
 

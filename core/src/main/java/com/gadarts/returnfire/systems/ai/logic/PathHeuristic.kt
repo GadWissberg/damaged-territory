@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.managers
+package com.gadarts.returnfire.systems.ai.logic
 
 import com.badlogic.gdx.ai.pfa.Heuristic
 import com.badlogic.gdx.math.Vector2

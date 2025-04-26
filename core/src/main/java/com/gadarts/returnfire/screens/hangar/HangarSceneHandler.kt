@@ -14,14 +14,14 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.managers.SoundPlayer
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.screens.ScreensManager
 
 class HangarSceneHandler(
-    private val soundPlayer: SoundPlayer,
+    private val soundManager: SoundManager,
     private val assetsManager: GameAssetManager,
     private val screenManager: ScreensManager
 ) :
@@ -83,7 +83,7 @@ class HangarSceneHandler(
     }
 
     fun returnFromCombat() {
-        soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
+        soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
         deployingState = -1
     }
 
@@ -152,8 +152,8 @@ class HangarSceneHandler(
                 deployingState = 1
             }
         }
-        soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY))
-        soundPlayer.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
+        soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY))
+        soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
 
     }
 

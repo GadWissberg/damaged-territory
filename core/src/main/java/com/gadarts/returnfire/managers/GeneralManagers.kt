@@ -5,7 +5,7 @@ import com.gadarts.returnfire.screens.ScreensManager
 
 class GeneralManagers(
     val assetsManager: GameAssetManager,
-    val soundPlayer: SoundPlayer,
+    val soundManager: SoundManager,
     val dispatcher: MessageDispatcher,
     val screensManagers: ScreensManager
 )

@@ -10,7 +10,7 @@ import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
 import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.managers.SoundPlayer
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
 
 class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : BoardingAnimation {
@@ -23,18 +23,18 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
     override fun update(
         deltaTime: Float,
         character: Entity,
-        soundPlayer: SoundPlayer,
+        soundManager: SoundManager,
         assetsManager: GameAssetManager
     ): Boolean {
         val boardingComponent = ComponentsMapper.boarding.get(character)
         if (boardingComponent.isDeploying()) {
-            val done = takeOff(deltaTime, soundPlayer, assetsManager, character)
+            val done = takeOff(deltaTime, soundManager, assetsManager, character)
             if (done) {
                 this.done = true
                 return true
             }
         } else {
-            val landed = land(deltaTime, soundPlayer, assetsManager, character)
+            val landed = land(deltaTime, soundManager, assetsManager, character)
             if (landed) {
                 this.done = true
                 return true
@@ -49,14 +49,14 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
 
     private fun land(
         deltaTime: Float,
-        soundPlayer: SoundPlayer,
+        soundManager: SoundManager,
         assetsManager: GameAssetManager,
         character: Entity
     ): Boolean {
         val childModelInstanceComponent = ComponentsMapper.childModelInstance.get(character)
         val blending = childModelInstanceComponent.gameModelInstance.modelInstance.materials.get(0)
             .get(BlendingAttribute.Type) as BlendingAttribute
-        handleFirstUpdateForLand(character, soundPlayer, assetsManager)
+        handleFirstUpdateForLand(character, soundManager, assetsManager)
         updateRotation(childModelInstanceComponent.gameModelInstance.modelInstance, deltaTime * -1F * 0.5F)
         if (propellerRotationSpeed < ROTATION_THRESHOLD) {
             childModelInstanceComponent.visible = true
@@ -87,13 +87,13 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
 
     private fun handleFirstUpdateForLand(
         character: Entity,
-        soundPlayer: SoundPlayer,
+        soundManager: SoundManager,
         assetsManager: GameAssetManager
     ) {
         if (firstUpdate) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(character)
-            soundPlayer.stop(ambSoundComponent.sound, ambSoundComponent.soundId)
-            soundPlayer.play(
+            soundManager.stop(ambSoundComponent.sound, ambSoundComponent.soundId)
+            soundManager.play(
                 assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_STOP),
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
@@ -106,7 +106,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
 
     private fun takeOff(
         deltaTime: Float,
-        soundPlayer: SoundPlayer,
+        soundManager: SoundManager,
         assetsManager: GameAssetManager,
         character: Entity
     ): Boolean {
@@ -116,7 +116,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
         if (firstUpdate) {
             init(null)
             ComponentsMapper.boarding.get(character).offBoardSoundId =
-                soundPlayer.play(
+                soundManager.play(
                     assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START),
                     ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
@@ -134,7 +134,7 @@ class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : Boardi
             if (transform.getTranslation(auxVector1).y >= startHeight) {
                 transform.setTranslation(auxVector1.x, startHeight, auxVector1.z)
                 ComponentsMapper.childModelInstance.get(character).visible = false
-                soundPlayer.stop(
+                soundManager.stop(
                     assetsManager.getAssetByDefinition(SoundDefinition.PROPELLER_START),
                     ComponentsMapper.boarding.get(character).offBoardSoundId
                 )

@@ -8,9 +8,9 @@ import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.amb.AmbSoundComponent
-import com.gadarts.returnfire.managers.SoundPlayer
+import com.gadarts.returnfire.managers.SoundManager
 
-class CharacterAmbSoundHandler(private val soundPlayer: SoundPlayer, engine: PooledEngine) {
+class CharacterAmbSoundHandler(private val soundManager: SoundManager, engine: PooledEngine) {
     private val ambSoundEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(AmbSoundComponent::class.java, CharacterComponent::class.java).get()
@@ -29,7 +29,7 @@ class CharacterAmbSoundHandler(private val soundPlayer: SoundPlayer, engine: Poo
                 sound.setPitch(ambSoundComponent.soundId, calculatePitchStep)
             }
             if (ambSoundComponent.soundId >= 0) {
-                val volume = soundPlayer.calculateVolumeBasedOnPosition(
+                val volume = soundManager.calculateVolumeBasedOnPosition(
                     ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
                         auxVector1
                     )

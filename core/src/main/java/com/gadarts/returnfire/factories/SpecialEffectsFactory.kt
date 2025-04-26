@@ -16,14 +16,14 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.managers.SoundPlayer
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.bullet.BulletSystem.Companion.auxBoundingBox
 import com.gadarts.returnfire.systems.data.GameSessionData
 
 class SpecialEffectsFactory(
     private val gameSessionData: GameSessionData,
-    private val soundPlayer: SoundPlayer,
+    private val soundManager: SoundManager,
     private val assetsManager: GameAssetManager,
     private val entityBuilder: EntityBuilder,
     private val ecs: EcsManager,
@@ -37,7 +37,7 @@ class SpecialEffectsFactory(
                     ParticleEffectDefinition.WATER_SPLASH
                 )
             ).finishAndAddToEngine()
-        soundPlayer.play(
+        soundManager.play(
             waterSplashSounds.random(),
             position
         )
@@ -85,7 +85,7 @@ class SpecialEffectsFactory(
             position, explosionMedGameParticleEffectPool
         ).finishAndAddToEngine()
         if (playSound) {
-            soundPlayer.play(
+            soundManager.play(
                 assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
                 position
             )

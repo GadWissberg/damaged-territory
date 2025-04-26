@@ -137,7 +137,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             AMB_PART_CREATION_POSITION_BIAS
         )
         destroyAmbObject(tree)
-        gamePlayManagers.soundPlayer.play(
+        gamePlayManagers.soundManager.play(
             gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.TREE_FALL),
             position
         )
@@ -276,7 +276,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         val baseComponent = ComponentsMapper.hangar.get(base)
         baseComponent.close()
         baseComponent.baseDoorSoundId =
-            gamePlayManagers.soundPlayer.play(
+            gamePlayManagers.soundManager.play(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
                 ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
@@ -338,7 +338,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             )
 
         baseComponent.baseDoorSoundId =
-            gamePlayManagers.soundPlayer.play(
+            gamePlayManagers.soundManager.play(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
                 sourcePosition
             )
@@ -469,11 +469,11 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             eastDoorTransform.setTranslation(auxVector1)
         } else {
             baseComponent.setIdle()
-            gamePlayManagers.soundPlayer.stop(
+            gamePlayManagers.soundManager.stop(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
                 baseComponent.baseDoorSoundId
             )
-            gamePlayManagers.soundPlayer.play(
+            gamePlayManagers.soundManager.play(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE),
                 auxVector2
             )

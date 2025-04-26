@@ -72,7 +72,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val deadAmb = !isAliveAmb(ambComponent)
         if (deadAmb && corpseCollisionSound != null && (rigidBody.linearVelocity.len2() > 8F || rigidBody.angularVelocity.len2() > 16F)
         ) {
-            gamePlayManagers.soundPlayer.play(corpseCollisionSound, entity)
+            gamePlayManagers.soundManager.play(corpseCollisionSound, entity)
         }
     }
 
@@ -186,7 +186,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             )
         }
         createIndependentParticleEffect(position, SMOKE, gameSessionData, gamePlayManagers)
-        gamePlayManagers.soundPlayer.play(
+        gamePlayManagers.soundManager.play(
             gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION),
             position
         )
@@ -226,7 +226,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         position: Vector3
     ) {
         if (def.destructionSound != null) {
-            gamePlayManagers.soundPlayer.play(
+            gamePlayManagers.soundManager.play(
                 gamePlayManagers.assetsManager.getAssetByDefinition(def.destructionSound),
                 position
             )
@@ -329,7 +329,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                         auxVector1
                     )
                 val assetsManager = gamePlayManagers.assetsManager
-                gamePlayManagers.soundPlayer.play(
+                gamePlayManagers.soundManager.play(
                     assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_SMALL),
                     position
                 )
@@ -475,7 +475,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             val rigidBody = physicsComponent.rigidBody
             if (rigidBody.linearVelocity.len2() > 4 && rigidBody.mass > 5 || ambCorpsePart.destroyOnGroundImpact) {
                 if (ambCorpsePart.collisionSound != null) {
-                    gamePlayManagers.soundPlayer.play(
+                    gamePlayManagers.soundManager.play(
                         gamePlayManagers.assetsManager.getAssetByDefinition(ambCorpsePart.collisionSound),
                         rigidBody.worldTransform.getTranslation(auxVector1)
                     )

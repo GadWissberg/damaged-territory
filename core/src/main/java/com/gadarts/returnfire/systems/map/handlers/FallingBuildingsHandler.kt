@@ -36,7 +36,7 @@ class FallingBuildingsHandler(private val mapSystem: MapSystem, private val game
         rigidBody.gravity = auxVector1.set(0F, -0.5F, 0F)
         rigidBody.activationState = Collision.DISABLE_DEACTIVATION
         fallingBuildings.add(entity)
-        gamePlayManagers.soundPlayer.play(
+        gamePlayManagers.soundManager.play(
             gamePlayManagers.assetsManager.getAssetByDefinition(
                 SoundDefinition.FALLING_BUILDING
             )
@@ -118,7 +118,7 @@ class FallingBuildingsHandler(private val mapSystem: MapSystem, private val game
             true,
             playSound = false
         )
-        gamePlayManagers.soundPlayer.play(
+        gamePlayManagers.soundManager.play(
             gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.EXPLOSION_HUGE),
             position
         )

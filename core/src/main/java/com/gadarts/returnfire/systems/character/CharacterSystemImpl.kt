@@ -50,7 +50,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     private val turretsHandler = TurretsHandler(gamePlayManagers.ecs.engine)
     private val characterPhysicsInitializer = CharacterPhysicsInitializer()
     private val characterAmbSoundHandler =
-        CharacterAmbSoundHandler(gamePlayManagers.soundPlayer, gamePlayManagers.ecs.engine)
+        CharacterAmbSoundHandler(gamePlayManagers.soundManager, gamePlayManagers.ecs.engine)
     private val charactersEntities: ImmutableArray<Entity> = gamePlayManagers.ecs.engine.getEntitiesFor(
         Family.all(CharacterComponent::class.java).get()
     )
@@ -102,7 +102,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val isApache = characterComponent.definition == SimpleCharacterDefinition.APACHE
         var planeCrashSoundId = -1L
         if (isApache) {
-            planeCrashSoundId = gamePlayManagers.soundPlayer.play(
+            planeCrashSoundId = gamePlayManagers.soundManager.play(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
@@ -169,7 +169,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
             if (ambSoundComponent.soundId == -1L) {
-                val id = gamePlayManagers.soundPlayer.loopSound(ambSoundComponent.sound)
+                val id = gamePlayManagers.soundManager.loopSound(ambSoundComponent.sound)
                 ambSoundComponent.soundId = id
             }
         }
@@ -522,7 +522,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         return boardingAnimation.update(
             deltaTime,
             character,
-            gamePlayManagers.soundPlayer,
+            gamePlayManagers.soundManager,
             gamePlayManagers.assetsManager
         )
     }

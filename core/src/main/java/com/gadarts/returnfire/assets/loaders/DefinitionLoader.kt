@@ -12,7 +12,7 @@ import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 
-class DefinitionsLoader(resolver: FileHandleResolver) :
+class DefinitionLoader(resolver: FileHandleResolver) :
     AsynchronousAssetLoader<ExternalDefinitions<*>, AssetLoaderParameters<ExternalDefinitions<*>>>(
         resolver
     ) {

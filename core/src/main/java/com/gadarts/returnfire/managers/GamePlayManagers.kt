@@ -7,7 +7,7 @@ import com.gadarts.returnfire.systems.ai.MapPathFinder
 import com.gadarts.returnfire.systems.data.StainsHandler
 
 data class GamePlayManagers(
-    val soundPlayer: SoundPlayer,
+    val soundManager: SoundManager,
     val assetsManager: GameAssetManager,
     val dispatcher: MessageDispatcher,
     val factories: Factories,

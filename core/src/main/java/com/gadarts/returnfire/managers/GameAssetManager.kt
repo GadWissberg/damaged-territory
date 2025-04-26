@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader
 import com.badlogic.gdx.graphics.g3d.Model
+import com.badlogic.gdx.graphics.g3d.model.Node
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
@@ -24,8 +25,10 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.ExternalDefinitions
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.assets.loaders.DefinitionsLoader
+import com.gadarts.returnfire.assets.loaders.DefinitionLoader
 import com.gadarts.returnfire.assets.loaders.MapLoader
+import com.gadarts.returnfire.assets.utils.CollisionShapeInfo
+import com.gadarts.returnfire.assets.utils.ModelCollisionShapeInfo
 import com.gadarts.returnfire.model.GameMap
 import java.io.File
 import java.util.*
@@ -36,6 +39,61 @@ open class GameAssetManager : AssetManager() {
         initializeCustomLoaders()
         loadAllAssets()
         finishLoading()
+        loadTextures()
+        finishLoading()
+        generateModelsBoundingBoxes()
+        inflateCollisionShapesInfo()
+    }
+
+    private fun inflateCollisionShapesInfo() {
+        Arrays.stream(ModelDefinition.entries.toTypedArray())
+            .forEach { def ->
+                val model: Model = getAssetByDefinition(def)
+                val collisionShapes = inflateCollisionShapesInfo(model)
+                if (collisionShapes.isNotEmpty()) {
+                    val modelCollisionShapeInfo = ModelCollisionShapeInfo(collisionShapes)
+                    addAsset(
+                        "$PREFIX_COLLISION_SHAPE${def.getDefinitionName()}",
+                        ModelCollisionShapeInfo::class.java,
+                        modelCollisionShapeInfo
+                    )
+                }
+                removeCollisionNodes(model.nodes)
+            }
+    }
+
+    private fun inflateCollisionShapesInfo(model: Model): MutableList<CollisionShapeInfo> {
+        val collisionShapes = mutableListOf<CollisionShapeInfo>()
+        for (node in model.nodes) {
+            if (node.id.startsWith(PREFIX_COLLISION_SHAPE)) {
+                val boundingBox = BoundingBox()
+                node.calculateTransforms(true)
+                node.calculateBoundingBox(boundingBox, true)
+                val dimensions = Vector3()
+                boundingBox.getDimensions(dimensions)
+                val center = Vector3()
+                boundingBox.getCenter(center)
+                val collisionShapeInfo = CollisionShapeInfo(
+                    dimensions,
+                    center,
+                )
+                collisionShapes.add(collisionShapeInfo)
+            }
+        }
+        return collisionShapes
+    }
+
+    private fun removeCollisionNodes(nodes: Array<Node>) {
+        val iterator = nodes.iterator()
+        while (iterator.hasNext()) {
+            val node = iterator.next()
+            if (node.id.startsWith(PREFIX_COLLISION_SHAPE, true)) {
+                iterator.remove()
+            }
+        }
+    }
+
+    private fun loadTextures() {
         getTexturesDefinitions().definitions.forEach {
             val textureDefinition = it.value
             val fileName =
@@ -54,8 +112,6 @@ open class GameAssetManager : AssetManager() {
                 }
             }
         }
-        finishLoading()
-        generateModelsBoundingBoxes()
     }
 
     private fun loadAllAssets() {
@@ -121,16 +177,23 @@ open class GameAssetManager : AssetManager() {
         setLoader(BitmapFont::class.java, "ttf", loader)
         val mapLoader = MapLoader(resolver)
         setLoader(GameMap::class.java, "json", mapLoader)
-        val definitionsLoader = DefinitionsLoader(resolver)
-        setLoader(ExternalDefinitions::class.java, "json", definitionsLoader)
+        val definitionLoader = DefinitionLoader(resolver)
+        setLoader(ExternalDefinitions::class.java, "json", definitionLoader)
     }
 
     fun getCachedBoundingBox(definition: ModelDefinition): BoundingBox {
         return auxBoundingBox.set(
             get(
-                BOUNDING_BOX_PREFIX + definition.getDefinitionName(),
+                PREFIX_ASSET_BOUNDING_BOX + definition.getDefinitionName(),
                 BoundingBox::class.java
             )
+        )
+    }
+
+    fun getCachedModelCollisionShapeInfo(definition: ModelDefinition): ModelCollisionShapeInfo {
+        return get(
+            "$PREFIX_COLLISION_SHAPE${definition.getDefinitionName()}",
+            ModelCollisionShapeInfo::class.java
         )
     }
 
@@ -172,7 +235,7 @@ open class GameAssetManager : AssetManager() {
                     boundingBox.mul(auxMatrix.idt().scl(def.boundingBoxScale))
                 }
                 addAsset(
-                    BOUNDING_BOX_PREFIX + definitionName,
+                    PREFIX_ASSET_BOUNDING_BOX + definitionName,
                     BoundingBox::class.java,
                     boundingBox
                 )
@@ -210,6 +273,7 @@ open class GameAssetManager : AssetManager() {
     companion object {
         private val auxBoundingBox = BoundingBox()
         private val auxMatrix = Matrix4()
-        private const val BOUNDING_BOX_PREFIX = "box_"
+        private const val PREFIX_ASSET_BOUNDING_BOX = "box_"
+        private const val PREFIX_COLLISION_SHAPE = "collision_shape_"
     }
 }

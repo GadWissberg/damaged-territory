@@ -14,7 +14,7 @@ class AmbSoundsHandler {
         val now = TimeUtils.millis()
         if (nextAmbSound < now) {
             nextAmbSound = now + MathUtils.random(AMB_SND_INTERVAL_MIN, AMB_SND_INTERVAL_MAX)
-            gamePlayManagers.soundPlayer.play(gamePlayManagers.assetsManager.getAssetByDefinition(ambSounds.random()))
+            gamePlayManagers.soundManager.play(gamePlayManagers.assetsManager.getAssetByDefinition(ambSounds.random()))
         }
     }
 
