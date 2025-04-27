@@ -35,7 +35,7 @@ enum class ModelDefinition(
     ),
     PALM_TREE_LEAF(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_LEAF),
     PALM_TREE_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_PART),
-    WATCH_TOWER(physicalShapeCreator = WatchTowerPhysicalShapeCreator),
+    WATCH_TOWER,
     WATCH_TOWER_DESTROYED(physicalShapeCreator = WatchTowerDestroyedPhysicalShapeCreator),
     WATCH_TOWER_DESTROYED_PART(fileNames = 2, physicalShapeCreator = WatchTowerDestroyedPartPhysicalShapeCreator),
     BUILDING_FLAG,
@@ -219,18 +219,6 @@ object AntennaDestroyedBodyShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
         val btBoxShape = btBoxShape(Vector3(0.125F, 2.25F, 0.125F))
         return btBoxShape
-    }
-
-}
-
-object WatchTowerPhysicalShapeCreator : PhysicalShapeCreator {
-    override fun create(): btCollisionShape {
-        val shape = btCompoundShape()
-        val btBoxShape = btBoxShape(Vector3(0.25F, 0.9F, 0.25F))
-        shape.addChildShape(
-            Matrix4().idt().translate(0F, 0.9F, 0F), btBoxShape
-        )
-        return shape
     }
 
 }
