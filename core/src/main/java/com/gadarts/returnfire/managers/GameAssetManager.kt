@@ -190,10 +190,11 @@ open class GameAssetManager : AssetManager() {
         )
     }
 
-    fun getCachedModelCollisionShapeInfo(definition: ModelDefinition): ModelCollisionShapeInfo {
+    fun getCachedModelCollisionShapeInfo(definition: ModelDefinition): ModelCollisionShapeInfo? {
         return get(
             "$PREFIX_COLLISION_SHAPE${definition.getDefinitionName()}",
-            ModelCollisionShapeInfo::class.java
+            ModelCollisionShapeInfo::class.java,
+            false
         )
     }
 

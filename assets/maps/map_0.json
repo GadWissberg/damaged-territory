@@ -20,13 +20,6 @@
       "type": "AMB",
       "direction": 0,
       "row": 1,
-      "col": 9
-    },
-    {
-      "definition": "FENCE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 1,
       "col": 10
     },
     {
@@ -100,13 +93,6 @@
       "col": 5
     },
     {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 3,
-      "col": 7
-    },
-    {
       "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
@@ -142,25 +128,11 @@
       "col": 6
     },
     {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 4,
-      "col": 7
-    },
-    {
       "definition": "ANTENNA",
       "type": "AMB",
       "direction": 0,
       "row": 4,
       "col": 13
-    },
-    {
-      "definition": "BASE_GREEN",
-      "type": "AMB",
-      "direction": 0,
-      "row": 6,
-      "col": 9
     },
     {
       "definition": "FENCE",

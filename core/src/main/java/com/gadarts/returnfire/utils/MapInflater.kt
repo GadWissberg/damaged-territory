@@ -28,6 +28,7 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
+import com.gadarts.returnfire.assets.utils.ModelCollisionShapeInfo
 import com.gadarts.returnfire.components.AnimatedTextureComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.amb.AmbComponent
@@ -351,9 +352,16 @@ class MapInflater(
         friction: Float = 1.5F,
         activationState: Int = ISLAND_SLEEPING
     ): PhysicsComponent {
+        val definition = gameModelInstance.definition
+        val modelCollisionShapeInfo = gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(definition!!)
+        val shape = if (modelCollisionShapeInfo != null) {
+            buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo)
+        } else {
+            createShapeForStaticObject(definition, entity)
+        }
         return gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
             entity = entity,
-            shape = createShapeForStaticObject(gameModelInstance.definition!!, entity),
+            shape = shape,
             mass = mass,
             collisionFlag = collisionFlags,
             transform = gameModelInstance.modelInstance.transform,
@@ -361,6 +369,19 @@ class MapInflater(
             friction = friction,
             activationState = activationState
         )
+    }
+
+    private fun buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo: ModelCollisionShapeInfo): btCollisionShape {
+        val compoundShape = btCompoundShape()
+
+        modelCollisionShapeInfo.collisionShapes.forEach { info ->
+            val halfExtents = Vector3(info.dimensions).scl(0.5f)
+            val boxShape = btBoxShape(halfExtents)
+            val transform = Matrix4().setToTranslation(info.center)
+            compoundShape.addChildShape(transform, boxShape)
+        }
+
+        return compoundShape
     }
 
     private fun createShapeForStaticObject(modelDefinition: ModelDefinition, entity: Entity): btCollisionShape {
