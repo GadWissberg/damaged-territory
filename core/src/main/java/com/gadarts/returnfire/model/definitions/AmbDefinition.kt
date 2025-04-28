@@ -125,7 +125,7 @@ enum class AmbDefinition(
         minFlyingParts = 2,
         maxFlyingParts = 3,
         flyingPart = ModelDefinition.FENCE_PART,
-        destructionSound = SoundDefinition.METAL_CRASH,
+        destructionSound = SoundDefinition.FENCE_BREAK,
         destroyedByExplosiveOnly = false,
         flyingPartMinImpulse = 1F,
         flyingPartMaxImpulse = 4F,
