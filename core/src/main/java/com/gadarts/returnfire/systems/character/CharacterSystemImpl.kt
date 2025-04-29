@@ -195,11 +195,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 character
             )
             if (boardingComponent != null && boardingComponent.isBoarding()) {
-                val stageTransform =
+                val elevatorTransform =
                     ComponentsMapper.modelInstance.get(gameSessionData.mapData.stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isDeploying()) {
-                    if (stageTransform.getTranslation(auxVector1).y < MAX_Y) {
-                        takeStepForElevatorWithCharacter(stageTransform, character, MAX_Y)
+                    if (elevatorTransform.getTranslation(auxVector1).y < MAX_Y) {
+                        takeStepForElevatorWithCharacter(elevatorTransform, character, MAX_Y, deltaTime)
                     } else {
                         val animationDone = updateBoardingAnimation(deltaTime, character)
                         if (animationDone && boardingComponent.isDeploying()) {
@@ -225,16 +225,17 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         character.remove(PhysicsComponent::class.java)
                     }
                     if (animationDone) {
-                        if (stageTransform.getTranslation(auxVector1).y <= StageComponent.BOTTOM_EDGE_Y) {
+                        if (elevatorTransform.getTranslation(auxVector1).y <= StageComponent.BOTTOM_EDGE_Y) {
                             gamePlayManagers.dispatcher.dispatchMessage(
                                 SystemEvents.CHARACTER_ONBOARDING_FINISHED.ordinal,
                                 character
                             )
                         } else {
                             takeStepForElevatorWithCharacter(
-                                stageTransform,
+                                elevatorTransform,
                                 character,
-                                StageComponent.BOTTOM_EDGE_Y
+                                StageComponent.BOTTOM_EDGE_Y,
+                                deltaTime
                             )
                         }
                         if (!isAlreadyDone) {
@@ -491,18 +492,25 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     private fun takeStepForElevatorWithCharacter(
         elevatorTransform: Matrix4,
         character: Entity,
-        targetY: Float
+        targetY: Float,
+        deltaTime: Float
     ) {
         val elevatorBeforePosition = elevatorTransform.getTranslation(auxVector3)
         val isOnboarding = targetY < elevatorBeforePosition.y
+
+        val speed = if (isOnboarding) 0.6F else 1.5F
+        val alpha = speed * deltaTime
+
         elevatorTransform.lerp(
             auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z),
-            if (isOnboarding) 0.006F else 0.06F
+            alpha.coerceAtMost(1.0f)
         )
+
         val newPosition = elevatorTransform.getTranslation(auxVector1)
         newPosition.y =
-            if (abs(newPosition.y - targetY) < (if (isOnboarding) 0.3F else 0.03F)) targetY else newPosition.y
+            if (abs(newPosition.y - targetY) < (if (isOnboarding) 0.6F else 0.12F)) targetY else newPosition.y
         elevatorTransform.setTranslation(newPosition)
+
         ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
             0F,
             newPosition.y - elevatorBeforePosition.y,

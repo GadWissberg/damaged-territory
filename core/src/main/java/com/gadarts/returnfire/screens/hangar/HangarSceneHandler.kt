@@ -26,6 +26,7 @@ class HangarSceneHandler(
     private val screenManager: ScreensManager
 ) :
     Disposable {
+    private var elevatorSoundMoveSoundId: Long = -1
     private lateinit var hangarScreenMenu: HangarScreenMenu
     private val sceneModels = HangarSceneModelsData(assetsManager)
     private val hangarSceneLightingData = HangarSceneLightingData()
@@ -37,6 +38,16 @@ class HangarSceneHandler(
         if (selected != null) {
             val reachedDestination = selected!!.updateLocation(delta, deployingState)
             if (reachedDestination) {
+                if (elevatorSoundMoveSoundId > -1) {
+                    soundManager.stop(
+                        assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE),
+                        elevatorSoundMoveSoundId
+                    )
+                    elevatorSoundMoveSoundId = -1
+                    soundManager.play(
+                        assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY)
+                    )
+                }
                 if (deployingState > 0) {
                     screenManager.goToWarScreen(
                         if (selected == sceneModels.stagesModels.stageTank) TurretCharacterDefinition.TANK else SimpleCharacterDefinition.APACHE,
@@ -83,7 +94,7 @@ class HangarSceneHandler(
     }
 
     fun returnFromCombat() {
-        soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
+        elevatorSoundMoveSoundId = soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
         deployingState = -1
     }
 
@@ -154,7 +165,6 @@ class HangarSceneHandler(
         }
         soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY))
         soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
-
     }
 
     override fun dispose() {
