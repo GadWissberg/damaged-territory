@@ -34,7 +34,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
         val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
         roadWithBullets(entity0, entity1, gamePlayManagers)
-                || handleCollisionGroundWithHeavyStuffOnHighSpeed(
+            || handleCollisionGroundWithHeavyStuffOnHighSpeed(
             entity0,
             entity1,
             gamePlayManagers
@@ -43,12 +43,12 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             entity0,
             gamePlayManagers
         ) ||
-                handleCollisionDestroyableAmbWithFastAndHeavyStuff(
-                    entity0,
-                    entity1,
-                    gameSessionData,
-                    gamePlayManagers
-                ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
+            handleCollisionDestroyableAmbWithFastAndHeavyStuff(
+                entity0,
+                entity1,
+                gameSessionData,
+                gamePlayManagers
+            ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
             entity1,
             entity0,
             gameSessionData,
@@ -310,7 +310,8 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             max = 3,
             mass = 3F,
             minForce = 8F,
-            maxForce = 14F
+            maxForce = 14F,
+            solid = true
         )
     }
 
@@ -352,7 +353,8 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             max = 3,
             mass = 3F,
             minForce = 8F,
-            maxForce = 14F
+            maxForce = 14F,
+            solid = true
         )
         createAmbCorpsePart(
             ModelDefinition.WATCH_TOWER_DESTROYED,
@@ -376,7 +378,8 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             max = 3,
             mass = 3F,
             minForce = 10F,
-            maxForce = 16F
+            maxForce = 16F,
+            solid = true
         )
     }
 
@@ -444,7 +447,9 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 bodyGameModelInstance,
                 Vector3.Zero,
                 cachedBoundingBox
-            ).addAmbCorpsePart(def.corpsePartDestroyOnGroundImpact, def.corpseCollisionSound)
+            )
+            .addDrowningEffectComponent()
+            .addAmbCorpsePart(def.corpsePartDestroyOnGroundImpact, def.corpseCollisionSound)
             .addPhysicsComponent(
                 modelDefinition.physicalShapeCreator!!.create(),
                 CollisionFlags.CF_CHARACTER_OBJECT,

@@ -135,39 +135,18 @@
       "col": 13
     },
     {
-      "definition": "STREET_LIGHT",
+      "definition": "RUINS",
       "type": "AMB",
-      "direction": 0,
+      "direction": 90,
       "row": 5,
       "col": 9
     },
     {
-      "definition": "FENCE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 9,
-      "col": 9
-    },
-    {
-      "definition": "FENCE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 9,
-      "col": 10
-    },
-    {
-      "definition": "FENCE",
+      "definition": "RUINS",
       "type": "AMB",
       "direction": 0,
       "row": 9,
       "col": 11
-    },
-    {
-      "definition": "FENCE",
-      "type": "AMB",
-      "direction": 0,
-      "row": 9,
-      "col": 12
     }
   ],
   "size": 48

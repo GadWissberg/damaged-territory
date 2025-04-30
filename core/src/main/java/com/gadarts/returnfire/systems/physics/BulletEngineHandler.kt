@@ -91,6 +91,12 @@ class BulletEngineHandler(
                     COLLISION_GROUP_GROUND,
                     AllFilter
                 )
+            } else if (ComponentsMapper.flyingPart.has(entity)) {
+                collisionWorld.addRigidBody(
+                    btRigidBody,
+                    COLLISION_GROUP_FLYING_PART,
+                    COLLISION_GROUP_GROUND
+                )
             } else {
                 btRigidBody.contactCallbackFilter = AllFilter
                 collisionWorld.addRigidBody(
@@ -180,6 +186,7 @@ class BulletEngineHandler(
         const val COLLISION_GROUP_AI_BULLET = 0x00001000
         const val COLLISION_GROUP_GENERAL = 0x00010000
         const val COLLISION_GROUP_GROUND = 0x00100000
+        const val COLLISION_GROUP_FLYING_PART = 0x01000000
     }
 
 }

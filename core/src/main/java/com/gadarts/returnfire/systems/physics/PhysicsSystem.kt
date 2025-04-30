@@ -4,9 +4,10 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.physics.bullet.collision.*
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
+import com.badlogic.gdx.physics.bullet.collision.btStaticPlaneShape
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -16,7 +17,6 @@ import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.data.GameSessionDataMap
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GROUND
 
@@ -24,7 +24,6 @@ import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLL
 class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
     private lateinit var contactListener: GameContactListener
-
     private val limitedVelocityEntities by lazy {
         engine.getEntitiesFor(Family.all(LimitedVelocityComponent::class.java, PhysicsComponent::class.java).get())
     }
@@ -65,27 +64,6 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun onSystemReady() {
         super.onSystemReady()
-        val halfMapDepth = gameSessionData.mapData.currentMap.tilesMapping.size.toFloat() / 2F
-        val halfMapWidth = gameSessionData.mapData.currentMap.tilesMapping[0].size.toFloat() / 2F
-        val seaShape = btBoxShape(
-            Vector3(
-                halfMapWidth,
-                0.02F,
-                halfMapDepth,
-            )
-        )
-        val water = gamePlayManagers.ecs.entityBuilder.begin().addGroundComponent().finishAndAddToEngine()
-        gameSessionData.physicsData.ghostObject = btPairCachingGhostObject()
-        gameSessionData.physicsData.ghostObject.collisionShape = seaShape
-        gameSessionData.physicsData.ghostObject.collisionFlags = btCollisionObject.CollisionFlags.CF_NO_CONTACT_RESPONSE
-        gameSessionData.physicsData.ghostObject.worldTransform =
-            Matrix4().translate(halfMapWidth, -GameSessionDataMap.DROWNING_HEIGHT, halfMapDepth)
-        gameSessionData.physicsData.ghostObject.userData = water
-        gameSessionData.physicsData.collisionWorld.addCollisionObject(
-            gameSessionData.physicsData.ghostObject,
-            COLLISION_GROUP_GROUND,
-            -1
-        )
         addBoundary(auxVector.set(1F, 0F, 0F))
         addBoundary(auxVector.set(0F, 0F, 1F))
         addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.mapData.currentMap.tilesMapping.size)
@@ -95,14 +73,6 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun update(deltaTime: Float) {
         bulletEngineHandler.update(deltaTime)
-        val overlappingPairs = gameSessionData.physicsData.ghostObject.overlappingPairs
-        val size = overlappingPairs.size()
-        for (i in 4 until size) {
-            gamePlayManagers.dispatcher.dispatchMessage(
-                SystemEvents.PHYSICS_DROWNING.ordinal,
-                overlappingPairs.atConst(i).userData
-            )
-        }
         for (i in 0 until limitedVelocityEntities.size()) {
             val rigidBody = ComponentsMapper.physics.get(limitedVelocityEntities[i]).rigidBody
             val limitedVelocityComponent = ComponentsMapper.limitedVelocity.get(limitedVelocityEntities[i])

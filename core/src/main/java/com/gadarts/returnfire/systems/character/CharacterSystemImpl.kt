@@ -39,7 +39,6 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.react.*
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.data.GameSessionDataMap
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.render.RenderSystem
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
@@ -56,6 +55,17 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     )
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
+        SystemEvents.PHYSICS_DROWNED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                val entity = msg.extraInfo as Entity
+                if (ComponentsMapper.character.has(entity)) {
+                    gamePlayManagers.dispatcher.dispatchMessage(
+                        SystemEvents.CHARACTER_DIED.ordinal,
+                        entity
+                    )
+                }
+            }
+        },
         SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
         SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(this),
         SystemEvents.PHYSICS_COLLISION to CharacterSystemOnPhysicsCollision(),
@@ -255,15 +265,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         maxExplosions = 4
                     )
                 } else {
-                    if (characterTransform.getTranslation(
-                            auxVector1
-                        ).y <= -GameSessionDataMap.DROWNING_HEIGHT / 3
-                    ) {
-                        gamePlayManagers.dispatcher.dispatchMessage(
-                            SystemEvents.CHARACTER_DIED.ordinal,
-                            character
-                        )
-                    }
                     val smokeEmission = characterComponent.smokeEmission
                     if (hp <= definition.getHP() / 2F && smokeEmission == null) {
                         val position =
@@ -333,24 +334,27 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         planeCrashSoundId: Long
     ) {
         val assetsManager = gamePlayManagers.assetsManager
-        val part = gamePlayManagers.ecs.entityBuilder.begin().addModelInstanceComponent(
-            model = gameModelInstanceBack,
-            position = position,
-            boundingBox = boundingBox,
-            texture = assetsManager.getTexture("apache_texture_dead_green")
-        ).addParticleEffectComponent(
-            position = position,
-            pool = gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
-        ).addPhysicsComponent(
-            btBoxShape,
-            CollisionFlags.CF_CHARACTER_OBJECT,
-            gameModelInstanceBack.modelInstance.transform,
-            0.4F,
-            8F
-        ).addCrashSoundEmitterComponent(
-            assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
-            planeCrashSoundId
-        ).finishAndAddToEngine()
+        val part = gamePlayManagers.ecs.entityBuilder.begin()
+            .addModelInstanceComponent(
+                model = gameModelInstanceBack,
+                position = position,
+                boundingBox = boundingBox,
+                texture = assetsManager.getTexture("apache_texture_dead_green")
+            )
+            .addDrowningEffectComponent()
+            .addParticleEffectComponent(
+                position = position,
+                pool = gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
+            ).addPhysicsComponent(
+                btBoxShape,
+                CollisionFlags.CF_CHARACTER_OBJECT,
+                gameModelInstanceBack.modelInstance.transform,
+                0.4F,
+                8F
+            ).addCrashSoundEmitterComponent(
+                assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
+                planeCrashSoundId
+            ).finishAndAddToEngine()
         addFire(position, part)
         val rigidBody = ComponentsMapper.physics.get(part).rigidBody
         pushRigidBodyRandomly(rigidBody, MathUtils.random(17F, 22F))

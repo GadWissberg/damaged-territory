@@ -505,6 +505,12 @@ class EntityBuilderImpl : EntityBuilder {
         return aiTurretComponent
     }
 
+    override fun addDrowningEffectComponent(): EntityBuilder {
+        val drowningEffectComponent = DrowningEffectComponent()
+        entity!!.add(drowningEffectComponent)
+        return this
+    }
+
     private fun createParticleEffectComponent(
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,

@@ -6,6 +6,8 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.gadarts.returnfire.components.TreeComponent
 import com.gadarts.returnfire.components.effects.FlyingPartComponent
+import com.gadarts.returnfire.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.components.physics.PhysicsComponent
 
 class MapSystemRelatedEntities(engine: PooledEngine) {
     val flyingPartEntities: ImmutableArray<Entity> by lazy {
@@ -19,6 +21,13 @@ class MapSystemRelatedEntities(engine: PooledEngine) {
         engine.getEntitiesFor(
             Family.all(
                 TreeComponent::class.java,
+            ).get()
+        )
+    }
+    val drownableEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(
+                ModelInstanceComponent::class.java, PhysicsComponent::class.java
             ).get()
         )
     }

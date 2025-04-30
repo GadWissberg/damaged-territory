@@ -11,10 +11,7 @@ import com.gadarts.returnfire.components.arm.PrimaryArmComponent
 import com.gadarts.returnfire.components.arm.SecondaryArmComponent
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
-import com.gadarts.returnfire.components.effects.CrashingAircraftEmitter
-import com.gadarts.returnfire.components.effects.GroundBlastComponent
-import com.gadarts.returnfire.components.effects.ParticleEffectComponent
-import com.gadarts.returnfire.components.effects.SparkComponent
+import com.gadarts.returnfire.components.effects.*
 import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.components.onboarding.BoardingComponent
 import com.gadarts.returnfire.components.physics.GhostPhysicsComponent
@@ -93,4 +90,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(AmbCorpsePart::class.java)
     val fence: ComponentMapper<FenceComponent> =
         ComponentMapper.getFor(FenceComponent::class.java)
+    val drowningEffect: ComponentMapper<DrowningEffectComponent> =
+        ComponentMapper.getFor(DrowningEffectComponent::class.java)
+    val flyingPart: ComponentMapper<FlyingPartComponent> =
+        ComponentMapper.getFor(FlyingPartComponent::class.java)
 }

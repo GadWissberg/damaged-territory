@@ -30,14 +30,19 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.pit.BaseComponent
 import com.gadarts.returnfire.components.pit.BaseDoorComponent
+import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.data.GameSessionDataMap.Companion.DROWNING_HEIGHT
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.handlers.amb.AmbEffectsHandlers
-import com.gadarts.returnfire.systems.map.react.*
+import com.gadarts.returnfire.systems.map.react.MapSystemOnCharacterBoarding
+import com.gadarts.returnfire.systems.map.react.MapSystemOnCharacterOnboardingAnimationDone
+import com.gadarts.returnfire.systems.map.react.MapSystemOnExplosionPushBack
+import com.gadarts.returnfire.systems.map.react.MapSystemOnPhysicsCollision
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.MapInflater
 import kotlin.math.max
@@ -61,7 +66,21 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(
             SystemEvents.PHYSICS_COLLISION to MapSystemOnPhysicsCollision(this),
-            SystemEvents.PHYSICS_DROWNING to MapSystemOnPhysicsDrowning(),
+            SystemEvents.PHYSICS_DROWNED to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    val entity = msg.extraInfo as Entity
+                    if (ComponentsMapper.amb.has(entity)) {
+                        gamePlayManagers.dispatcher.dispatchMessage(
+                            SystemEvents.REMOVE_ENTITY.ordinal,
+                            entity
+                        )
+                    }
+                }
+            },
             SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE to MapSystemOnCharacterOnboardingAnimationDone(this),
             SystemEvents.CHARACTER_BOARDING to MapSystemOnCharacterBoarding(this),
             SystemEvents.EXPLOSION_PUSH_BACK to MapSystemOnExplosionPushBack(mapSystemRelatedEntities),
@@ -217,6 +236,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             modelDefinition,
         )
         val entity = gamePlayManagers.ecs.entityBuilder.begin()
+            .addDrowningEffectComponent()
             .addModelInstanceComponent(
                 model = gameModelInstance,
                 position = auxVector1.set(position).add(
@@ -326,7 +346,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
     private fun initializeBase(base: Entity) {
-        addStage(base)
+        addElevator(base)
         val baseComponent = ComponentsMapper.hangar.get(base)
         baseComponent.init(
             addBaseDoor(base, 0F, -1F),
@@ -373,7 +393,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         return door
     }
 
-    private fun addStage(base: Entity): Entity {
+    private fun addElevator(base: Entity): Entity {
         val color =
             if (ComponentsMapper.hangar.get(base).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
         val texture =
@@ -431,6 +451,28 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         ambEffectsHandlers.fadingAwayHandler.update(deltaTime)
         ambEffectsHandlers.treeEffectsHandler.update()
         ambEffectsHandlers.fallingBuildingsHandler.updateFallingBuildings()
+        for (entity in mapSystemRelatedEntities.drownableEntities) {
+            val position = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
+                .getTranslation(auxVector1)
+            val drowningHeight =
+                if (ComponentsMapper.amb.has(entity)) ComponentsMapper.amb.get(entity).def.drowningHeight else DROWNING_HEIGHT
+            if (position.y < -drowningHeight) {
+                gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_DROWNED.ordinal, entity)
+            } else if (position.y < -0.1F) {
+                val drowningComponent = ComponentsMapper.drowningEffect.get(entity)
+                if (drowningComponent != null && TimeUtils.timeSinceMillis(drowningComponent.lastSplashTime) > 500) {
+                    drowningComponent.refreshLastSplashTime()
+                    position.set(
+                        position.x,
+                        SpecialEffectsFactory.WATER_SPLASH_Y,
+                        position.z
+                    )
+                    gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
+                        position, ComponentsMapper.character.has(entity)
+                    )
+                }
+            }
+        }
     }
 
 

@@ -64,6 +64,7 @@ abstract class CharacterFactory(
             ),
             null,
         )
+        entityBuilder.addDrowningEffectComponent()
         entityBuilder.addCharacterComponent(characterDefinition, color)
         entityBuilder.addBoardingCharacterComponent(
             color,

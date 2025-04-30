@@ -182,4 +182,5 @@ interface EntityBuilder {
     fun addAmbCorpsePart(destroyOnGroundImpact: Boolean, collisionSound: SoundDefinition?): EntityBuilder
     fun addFenceComponentToEntity(entity: Entity): FenceComponent
     fun addAiTurretComponentToEntity(turret: Entity): AiTurretComponent
+    fun addDrowningEffectComponent(): EntityBuilder
 }
