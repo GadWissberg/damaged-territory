@@ -38,6 +38,7 @@ class ModelsRenderer(
         )
     }
 
+    @Suppress("SimplifyBooleanWithConstants")
     fun renderModels(
         batch: ModelBatch,
         camera: Camera,

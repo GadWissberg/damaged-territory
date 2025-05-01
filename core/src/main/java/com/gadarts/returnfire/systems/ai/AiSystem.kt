@@ -6,26 +6,46 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.ai.AiComponent
+import com.gadarts.returnfire.components.ai.BaseAiComponent
 import com.gadarts.returnfire.components.character.CharacterColor
-import com.gadarts.returnfire.components.turret.TurretComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
+import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.ai.logic.AiLogicHandler
-import com.gadarts.returnfire.systems.ai.logic.TurretLogic
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 
 
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+    private val aiComponentInitializers = mapOf(
+        SimpleCharacterDefinition.APACHE to { entity: Entity ->
+            gamePlayManagers.ecs.entityBuilder.addApacheAiComponentToEntity(
+                entity,
+                ComponentsMapper.character.get(entity).definition.getHP()
+            )
+        },
+        TurretCharacterDefinition.TANK to { entity: Entity ->
+            val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
+            if (turretBaseComponent != null) {
+                gamePlayManagers.ecs.entityBuilder.addAiTurretComponentToEntity(
+                    turretBaseComponent.turret,
+                )
+            }
+            gamePlayManagers.ecs.entityBuilder.addTankAiComponentToEntity(
+                entity,
+            )
+        }
+    )
     private val aiLogicHandler: AiLogicHandler by lazy {
         AiLogicHandler(
             gameSessionData, gamePlayManagers, autoAim, engine.getEntitiesFor(
-                Family.all(AiComponent::class.java)
+                Family.all(BaseAiComponent::class.java)
                     .get()
-            )
+            ),
+            engine
         )
     }
     private val autoAim by lazy {
@@ -36,28 +56,21 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     }
 
 
-    private val turretLogic by lazy { TurretLogic(gameSessionData, this.gamePlayManagers) }
-
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-
         SystemEvents.OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
             @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val entity = msg.extraInfo as Entity
                 val characterComponent = ComponentsMapper.character.get(entity)
                 if (characterComponent.color == CharacterColor.GREEN) {
-                    gamePlayManagers.ecs.entityBuilder.addAiComponentToEntity(
+                    val definition = characterComponent.definition
+                    gamePlayManagers.ecs.entityBuilder.addBaseAiComponentToEntity(
                         entity,
-                        characterComponent.definition.getHP()
+                        definition.getHP()
                     )
+                    aiComponentInitializers[definition]?.invoke(entity)
                     if (GameDebugSettings.FORCE_ENEMY_HP >= 0) {
                         ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_ENEMY_HP
-                    }
-                    val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
-                    if (turretBaseComponent != null) {
-                        gamePlayManagers.ecs.entityBuilder.addAiTurretComponentToEntity(
-                            turretBaseComponent.turret,
-                        )
                     }
                     if (gameSessionData.gamePlayData.player != null) {
                         setTargetForAi(entity, gameSessionData.gamePlayData.player!!)
@@ -79,15 +92,12 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     }
 
 
-    private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(Family.all(TurretComponent::class.java, AiComponent::class.java).get())
-    }
-
     private val aiEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(Family.all(AiComponent::class.java).get())
+        engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get())
     }
 
 
+    @Suppress("SimplifyBooleanWithConstants")
     override fun update(deltaTime: Float) {
         if (GameDebugSettings.AI_DISABLED
             || gameSessionData.hudData.console.isActive
@@ -95,12 +105,6 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
             || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()
         ) return
 
-        for (turret in enemyTurretEntities) {
-            val characterComponent = ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base)
-            if (characterComponent == null || characterComponent.dead || ComponentsMapper.deathSequence.has(turret)) continue
-
-            turretLogic.attack(deltaTime, turret)
-        }
         aiLogicHandler.update(deltaTime)
     }
 

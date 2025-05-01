@@ -1,8 +1,7 @@
 package com.gadarts.returnfire.components
 
 import com.badlogic.ashley.core.ComponentMapper
-import com.gadarts.returnfire.components.ai.AiComponent
-import com.gadarts.returnfire.components.ai.AiTurretComponent
+import com.gadarts.returnfire.components.ai.*
 import com.gadarts.returnfire.components.amb.AmbAnimationComponent
 import com.gadarts.returnfire.components.amb.AmbComponent
 import com.gadarts.returnfire.components.amb.AmbCorpsePart
@@ -46,8 +45,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(AnimatedTextureComponent::class.java)
     val physics: ComponentMapper<PhysicsComponent> =
         ComponentMapper.getFor(PhysicsComponent::class.java)
-    val ai: ComponentMapper<AiComponent> =
-        ComponentMapper.getFor(AiComponent::class.java)
+    val ai: ComponentMapper<BaseAiComponent> =
+        ComponentMapper.getFor(BaseAiComponent::class.java)
     val aiTurret: ComponentMapper<AiTurretComponent> =
         ComponentMapper.getFor(AiTurretComponent::class.java)
     val character: ComponentMapper<CharacterComponent> =
@@ -94,4 +93,10 @@ object ComponentsMapper {
         ComponentMapper.getFor(DrowningEffectComponent::class.java)
     val flyingPart: ComponentMapper<FlyingPartComponent> =
         ComponentMapper.getFor(FlyingPartComponent::class.java)
+    val apacheAiComponent: ComponentMapper<ApacheAiComponent> =
+        ComponentMapper.getFor(ApacheAiComponent::class.java)
+    val tankAiComponent: ComponentMapper<TankAiComponent> =
+        ComponentMapper.getFor(TankAiComponent::class.java)
+    val turretEnemyAiComponent: ComponentMapper<TurretEnemyAiComponent> =
+        ComponentMapper.getFor(TurretEnemyAiComponent::class.java)
 }

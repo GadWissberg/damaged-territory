@@ -16,15 +16,15 @@ import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
 
-class TurretLogic(private val gameSessionData: GameSessionData, private val gamePlayManagers: GamePlayManagers) {
+class AiEnemyTurretLogic(private val gameSessionData: GameSessionData, private val gamePlayManagers: GamePlayManagers) {
 
     fun attack(
         deltaTime: Float,
-        enemy: Entity
+        turret: Entity
     ) {
         if (AI_ATTACK_DISABLED) return
 
-        val modelInstanceComponent = ComponentsMapper.modelInstance.get(enemy)
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(turret)
         val transform =
             modelInstanceComponent.gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector3_2)
@@ -70,21 +70,21 @@ class TurretLogic(private val gameSessionData: GameSessionData, private val game
                     6F
                 )
             ) {
-                val enemyComponent = ComponentsMapper.ai.get(enemy)
+                val turretEnemyAiComponent = ComponentsMapper.turretEnemyAiComponent.get(turret)
                 val now = TimeUtils.millis()
-                if (enemyComponent.attackReady) {
-                    enemyComponent.attackReady = false
-                    val armProperties = ComponentsMapper.primaryArm.get(enemy).armProperties
-                    enemyComponent.attackReadyTime =
+                if (turretEnemyAiComponent.attackReady) {
+                    turretEnemyAiComponent.attackReady = false
+                    val armProperties = ComponentsMapper.primaryArm.get(turret).armProperties
+                    turretEnemyAiComponent.attackReadyTime =
                         now + armProperties.reloadDuration
                     gamePlayManagers.soundManager.play(armProperties.shootingSound, position)
                     CharacterWeaponShotEventData.setWithTarget(
-                        enemy,
+                        turret,
                         player!!,
                     )
                     gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY.ordinal)
-                } else if (enemyComponent.attackReadyTime <= now) {
-                    enemyComponent.attackReady = true
+                } else if (turretEnemyAiComponent.attackReadyTime <= now) {
+                    turretEnemyAiComponent.attackReady = true
                 }
             } else {
                 currentRotation.slerp(auxQuat2, 1F * deltaTime)

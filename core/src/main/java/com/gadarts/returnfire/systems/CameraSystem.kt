@@ -1,6 +1,5 @@
 package com.gadarts.returnfire.systems
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Matrix4
@@ -39,10 +38,6 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     override fun dispose() {
     }
 
-
-    override fun addedToEngine(engine: Engine?) {
-        super.addedToEngine(engine)
-    }
 
     private fun followPlayer(deltaTime: Float) {
         val player = gameSessionData.gamePlayData.player

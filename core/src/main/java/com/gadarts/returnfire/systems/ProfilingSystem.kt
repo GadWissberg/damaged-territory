@@ -24,12 +24,6 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = emptyMap()
-    override fun resume(delta: Long) {
-
-    }
-
-    override fun dispose() {
-    }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
@@ -37,6 +31,7 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
         addLabel()
     }
 
+    @Suppress("SimplifyBooleanWithConstants")
     override fun update(delta: Float) {
         if (GameDebugSettings.ENABLE_PROFILER && glProfiler.isEnabled) {
             stringBuilder.setLength(0)
@@ -60,6 +55,13 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
             displayLine("Total rendered bullet holes: ", gameSessionData.profilingData.holesRendered)
             label.setText(stringBuilder)
         }
+    }
+
+    override fun resume(delta: Long) {
+
+    }
+
+    override fun dispose() {
     }
 
     private fun addLabel() {

@@ -11,7 +11,7 @@ import com.gadarts.returnfire.components.bullet.BulletBehavior
 class BulletLogic {
     fun update(bullet: Entity, deltaTime: Float): Boolean {
         val bulletComponent = ComponentsMapper.bullet.get(bullet)
-        if (bulletComponent.createdTime + 3000L > TimeUtils.millis()) {
+        if (bulletComponent.createdTime + BULLET_BEHAVIOR_DURATION > TimeUtils.millis()) {
             if (bulletComponent.behavior == BulletBehavior.CURVE) {
                 val physicsComponent = ComponentsMapper.physics.get(bullet)
                 val curveRotationStepSize = CURVE_ROTATION_STEP * deltaTime
@@ -37,6 +37,7 @@ class BulletLogic {
     }
 
     companion object {
+        private const val BULLET_BEHAVIOR_DURATION = 3000L
         private const val CURVE_ROTATION_STEP = -90F
         private val auxQuat = Quaternion()
         private val auxMatrix = Matrix4()

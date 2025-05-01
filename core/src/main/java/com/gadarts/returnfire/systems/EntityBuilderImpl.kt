@@ -16,8 +16,7 @@ import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.*
-import com.gadarts.returnfire.components.ai.AiComponent
-import com.gadarts.returnfire.components.ai.AiTurretComponent
+import com.gadarts.returnfire.components.ai.*
 import com.gadarts.returnfire.components.amb.AmbAnimationComponent
 import com.gadarts.returnfire.components.amb.AmbComponent
 import com.gadarts.returnfire.components.amb.AmbCorpsePart
@@ -271,16 +270,15 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addAiComponent(initialHp: Float, target: Entity?): EntityBuilder {
-        addAiComponentToEntity(entity!!, initialHp, target)
+    override fun addBaseAiComponent(initialHp: Float, target: Entity?): EntityBuilder {
+        addBaseAiComponentToEntity(entity!!, initialHp, target)
         return this
     }
 
-    override fun addAiComponentToEntity(entity: Entity, initialHp: Float, target: Entity?): AiComponent {
-        val aiComponent = engine.createComponent(AiComponent::class.java)
-        aiComponent.init(target, initialHp)
-        entity.add(aiComponent)
-        return aiComponent
+    override fun addBaseAiComponentToEntity(entity: Entity, initialHp: Float, target: Entity?): BaseAiComponent {
+        val baseAiComponent = BaseAiComponent(target)
+        entity.add(baseAiComponent)
+        return baseAiComponent
     }
 
     override fun addStageComponent(base: Entity): EntityBuilder {
@@ -508,6 +506,24 @@ class EntityBuilderImpl : EntityBuilder {
     override fun addDrowningEffectComponent(): EntityBuilder {
         val drowningEffectComponent = DrowningEffectComponent()
         entity!!.add(drowningEffectComponent)
+        return this
+    }
+
+    override fun addTankAiComponentToEntity(entity: Entity): TankAiComponent {
+        val tankAiComponent = TankAiComponent()
+        entity.add(tankAiComponent)
+        return tankAiComponent
+    }
+
+    override fun addApacheAiComponentToEntity(entity: Entity, initialHp: Float): ApacheAiComponent {
+        val apacheAiComponent = ApacheAiComponent(initialHp)
+        entity.add(apacheAiComponent)
+        return apacheAiComponent
+    }
+
+    override fun addTurretEnemyAiComponent(): EntityBuilder {
+        val turretEnemyAiComponent = TurretEnemyAiComponent()
+        entity!!.add(turretEnemyAiComponent)
         return this
     }
 

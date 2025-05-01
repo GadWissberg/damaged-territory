@@ -238,7 +238,6 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     companion object {
         val auxVector3_1 = Vector3()
         val auxVector3_2 = Vector3()
-        val auxVector3_3 = Vector3()
         val auxBox = BoundingBox()
         const val DECALS_POOL_SIZE = 200
     }

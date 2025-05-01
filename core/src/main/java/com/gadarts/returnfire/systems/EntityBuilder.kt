@@ -16,8 +16,10 @@ import com.gadarts.returnfire.components.ChildModelInstanceComponent
 import com.gadarts.returnfire.components.DeathSequenceComponent
 import com.gadarts.returnfire.components.FenceComponent
 import com.gadarts.returnfire.components.TreeComponent
-import com.gadarts.returnfire.components.ai.AiComponent
 import com.gadarts.returnfire.components.ai.AiTurretComponent
+import com.gadarts.returnfire.components.ai.ApacheAiComponent
+import com.gadarts.returnfire.components.ai.BaseAiComponent
+import com.gadarts.returnfire.components.ai.TankAiComponent
 import com.gadarts.returnfire.components.amb.AmbAnimationComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -123,8 +125,8 @@ interface EntityBuilder {
     ): EntityBuilder
 
     fun addAmbComponent(rotation: Float, def: AmbDefinition, scale: Vector3): EntityBuilder
-    fun addAiComponent(initialHp: Float, target: Entity? = null): EntityBuilder
-    fun addAiComponentToEntity(entity: Entity, initialHp: Float, target: Entity? = null): AiComponent
+    fun addBaseAiComponent(initialHp: Float, target: Entity? = null): EntityBuilder
+    fun addBaseAiComponentToEntity(entity: Entity, initialHp: Float, target: Entity? = null): BaseAiComponent
     fun addPhysicsComponentToEntity(
         entity: Entity,
         shape: btCollisionShape,
@@ -183,4 +185,7 @@ interface EntityBuilder {
     fun addFenceComponentToEntity(entity: Entity): FenceComponent
     fun addAiTurretComponentToEntity(turret: Entity): AiTurretComponent
     fun addDrowningEffectComponent(): EntityBuilder
+    fun addTankAiComponentToEntity(entity: Entity): TankAiComponent
+    fun addApacheAiComponentToEntity(entity: Entity, initialHp: Float): ApacheAiComponent
+    fun addTurretEnemyAiComponent(): EntityBuilder
 }
