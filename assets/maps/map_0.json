@@ -142,18 +142,11 @@
       "col": 8
     },
     {
-      "definition": "ROCK_MED",
+      "definition": "BASE_GREEN",
       "type": "AMB",
       "direction": 0,
       "row": 5,
       "col": 10
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "direction": 0,
-      "row": 5,
-      "col": 12
     },
     {
       "definition": "ROCK_SMALL",
@@ -161,20 +154,6 @@
       "direction": 0,
       "row": 6,
       "col": 8
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "direction": 0,
-      "row": 6,
-      "col": 10
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "direction": 0,
-      "row": 6,
-      "col": 12
     },
     {
       "definition": "RUINS",

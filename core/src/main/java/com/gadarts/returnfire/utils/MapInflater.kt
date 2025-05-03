@@ -28,7 +28,6 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.assets.utils.ModelCollisionShapeInfo
 import com.gadarts.returnfire.components.AnimatedTextureComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.amb.AmbComponent
@@ -357,7 +356,7 @@ class MapInflater(
         val definition = gameModelInstance.definition
         val modelCollisionShapeInfo = gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(definition!!)
         val shape = if (modelCollisionShapeInfo != null) {
-            buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo)
+            ModelUtils.buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo)
         } else {
             createShapeForStaticObject(definition, entity)
         }
@@ -373,18 +372,6 @@ class MapInflater(
         )
     }
 
-    private fun buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo: ModelCollisionShapeInfo): btCollisionShape {
-        val compoundShape = btCompoundShape()
-
-        modelCollisionShapeInfo.collisionShapes.forEach { info ->
-            val halfExtents = Vector3(info.dimensions).scl(0.5f)
-            val boxShape = btBoxShape(halfExtents)
-            val transform = Matrix4().setToTranslation(info.center)
-            compoundShape.addChildShape(transform, boxShape)
-        }
-
-        return compoundShape
-    }
 
     private fun createShapeForStaticObject(modelDefinition: ModelDefinition, entity: Entity): btCollisionShape {
         val shape: btCollisionShape
@@ -538,8 +525,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                    && definition != SimpleCharacterDefinition.APACHE
-                    && definition != TurretCharacterDefinition.TANK
+                && definition != SimpleCharacterDefinition.APACHE
+                && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -804,9 +791,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.currentMap.tilesMapping.size
-            && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
+        && col >= 0
+        && row < gameSessionData.mapData.currentMap.tilesMapping.size
+        && col < gameSessionData.mapData.currentMap.tilesMapping[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

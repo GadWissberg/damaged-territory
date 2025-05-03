@@ -7,17 +7,23 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 
 class CharacterPhysicsInitializer {
-    fun initialize(entityBuilder: EntityBuilder, character: Entity) {
+    fun initialize(entityBuilder: EntityBuilder, character: Entity, assetsManager: GameAssetManager) {
         val characterDefinition = ComponentsMapper.character.get(character).definition
         val isApache = characterDefinition == SimpleCharacterDefinition.APACHE
-        val shape =
-            if (isApache) createApacheCollisionShape() else btBoxShape(
-                Vector3(0.5F, 0.15F, 0.35F)
+        val modelCollisionShapeInfo =
+            assetsManager.getCachedModelCollisionShapeInfo(characterDefinition.getModelDefinition())
+        val shape = if (modelCollisionShapeInfo != null) {
+            ModelUtils.buildShapeFromModelCollisionShapeInfo(
+                modelCollisionShapeInfo
             )
+        } else btBoxShape(
+            Vector3(0.5F, 0.15F, 0.35F)
+        )
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
         val modelInstanceTransform =
             modelInstanceComponent.gameModelInstance.modelInstance.transform

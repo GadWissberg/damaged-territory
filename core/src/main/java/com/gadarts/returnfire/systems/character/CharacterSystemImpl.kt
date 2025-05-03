@@ -42,6 +42,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.render.RenderSystem
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
+import com.gadarts.returnfire.utils.ModelUtils
 import kotlin.math.abs
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
@@ -310,11 +311,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         backShape.addChildShape(Matrix4().translate(-0.43F, 0F, 0.12F), btBackShapeHorTail)
         backShape.addChildShape(Matrix4().translate(-0.47F, 0F, 0.08F), btBackShapeHorTail)
         backShape.addChildShape(Matrix4().translate(-0.43F, 0.1F, 0.12F), btBackShapeVertTail)
-        val frontShape = btCompoundShape()
-        val btFrontShapeMain = btBoxShape(Vector3(0.295F, 0.1F, 0.125F))
-        val btFrontShapeWings = btBoxShape(Vector3(0.08F, 0.25F, 0.025F))
-        frontShape.addChildShape(Matrix4(), btFrontShapeMain)
-        frontShape.addChildShape(Matrix4().translate(-0.14F, 0F, 0.2F), btFrontShapeWings)
         addCharacterGiblet(
             gameModelInstanceBack,
             auxVector2.set(position).add(0.6F, 0F, 0F),
@@ -322,7 +318,15 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             backShape,
             planeCrashSoundId
         )
-        addCharacterGiblet(gameModelInstanceFront, position, frontBoundingBox, frontShape, planeCrashSoundId)
+        addCharacterGiblet(
+            gameModelInstanceFront,
+            position,
+            frontBoundingBox,
+            ModelUtils.buildShapeFromModelCollisionShapeInfo(
+                gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(ModelDefinition.APACHE_DEAD_FRONT)!!
+            ),
+            planeCrashSoundId
+        )
         engine.removeEntity(character)
     }
 
@@ -543,7 +547,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         ComponentsMapper.boarding.get(character).boardingDone()
         characterPhysicsInitializer.initialize(
             gamePlayManagers.ecs.entityBuilder,
-            character
+            character,
+            gamePlayManagers.assetsManager
         )
         gamePlayManagers.dispatcher.dispatchMessage(
             SystemEvents.CHARACTER_DEPLOYED.ordinal,

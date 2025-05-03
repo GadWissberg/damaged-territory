@@ -45,6 +45,7 @@ import com.gadarts.returnfire.systems.map.react.MapSystemOnExplosionPushBack
 import com.gadarts.returnfire.systems.map.react.MapSystemOnPhysicsCollision
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.MapInflater
+import com.gadarts.returnfire.utils.ModelUtils
 import kotlin.math.max
 import kotlin.math.min
 
@@ -554,7 +555,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         builder.begin()
         val texture =
             gamePlayManagers.assetsManager.getTexture("tile_water")
-        GeneralUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
+        ModelUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
         return builder.end()
     }
 

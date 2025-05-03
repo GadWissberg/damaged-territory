@@ -9,7 +9,7 @@ import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.systems.player.GameModelInstancePool
-import com.gadarts.returnfire.utils.GeneralUtils
+import com.gadarts.returnfire.utils.ModelUtils
 
 class GameSessionDataPools(
     private val assetsManager: GameAssetManager,
@@ -31,7 +31,7 @@ class GameSessionDataPools(
     private fun createFloorModel(): Model {
         val builder = ModelBuilder()
         builder.begin()
-        GeneralUtils.createFlatMesh(builder, "floor", 0.5F, null, 0F)
+        ModelUtils.createFlatMesh(builder, "floor", 0.5F, null, 0F)
         return builder.end()
     }
 

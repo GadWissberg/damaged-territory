@@ -15,7 +15,7 @@ import com.gadarts.returnfire.systems.ai.AiStatus
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
-import com.gadarts.returnfire.utils.GeneralUtils
+import com.gadarts.returnfire.utils.ModelUtils
 
 class AiApacheLogic(
     private val gameSessionData: GameSessionData,
@@ -76,11 +76,10 @@ class AiApacheLogic(
         } else if (!apacheAiComponent.runAway.isZero) {
             auxVector4.set(apacheAiComponent.runAway)
         } else {
-            GeneralUtils.getPositionOfModel(aiComponent.target!!)
+            ModelUtils.getPositionOfModel(aiComponent.target!!)
         }
     }
 
-    @Suppress("SimplifyBooleanWithConstants")
     private fun applyMainLogic(
         characterTransform: Matrix4,
         targetPosition: Vector3,

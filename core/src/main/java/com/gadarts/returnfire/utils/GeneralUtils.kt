@@ -2,11 +2,9 @@ package com.gadarts.returnfire.utils
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.*
-import com.badlogic.gdx.graphics.g3d.Material
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -20,35 +18,6 @@ object GeneralUtils {
     val auxVector1 = Vector3()
     val auxVector2 = Vector3()
     private val auxBoundingBox = BoundingBox()
-    fun createFlatMesh(
-        builder: ModelBuilder,
-        meshName: String,
-        size: Float,
-        texture: Texture?,
-        offset: Float = 0F
-    ) {
-        val material =
-            if (texture != null) Material(TextureAttribute.createDiffuse(texture)) else Material(
-                TextureAttribute(
-                    TextureAttribute.Diffuse
-                )
-            )
-        material.set(BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA))
-        val mbp = builder.part(
-            meshName,
-            GL20.GL_TRIANGLES,
-            (VertexAttributes.Usage.Position or VertexAttributes.Usage.Normal or VertexAttributes.Usage.TextureCoordinates).toLong(),
-            material
-        )
-        mbp.setUVRange(0F, 0F, 1F, 1F)
-        mbp.rect(
-            offset + -size, 0F, offset + size,
-            offset + size, 0F, offset + size,
-            offset + size, 0F, offset + -size,
-            offset + -size, 0F, offset + -size,
-            0F, size, 0F,
-        )
-    }
 
     fun createCamera(fov: Float): PerspectiveCamera {
         val perspectiveCamera = PerspectiveCamera(
@@ -148,11 +117,6 @@ object GeneralUtils {
             || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
     }
 
-    fun getPositionOfModel(entity: Entity): Vector3 {
-        return ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
-            auxVector1
-        )
-    }
 
     fun isBodyDisposed(entity: Entity): Boolean {
         return !ComponentsMapper.physics.has(entity) || ComponentsMapper.physics.get(entity).disposed

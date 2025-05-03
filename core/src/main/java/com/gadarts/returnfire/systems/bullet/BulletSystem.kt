@@ -32,6 +32,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.utils.GeneralUtils
+import com.gadarts.returnfire.utils.ModelUtils
 
 
 class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
@@ -288,7 +289,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         if (GeneralUtils.isBodyDisposed(bullet) || GeneralUtils.isBodyDisposed(other)) return
 
         val rigidBody = ComponentsMapper.physics.get(other).rigidBody
-        val position = GeneralUtils.getPositionOfModel(bullet)
+        val position = ModelUtils.getPositionOfModel(bullet)
         val otherIsGround = ComponentsMapper.ground.has(other)
         val collisionFlags = rigidBody.collisionFlags
         if (collisionFlags == CollisionFlags.CF_STATIC_OBJECT || collisionFlags == CollisionFlags.CF_KINEMATIC_OBJECT || rigidBody.mass > 0.75F) {
