@@ -23,7 +23,7 @@ object GameDebugSettings {
     const val FORCE_PLAYER_HP: Float = -1F
     const val FORCE_ENEMY_HP: Float = 1F
     const val FORCE_AMMO: Int = -1
-    const val FORCE_INITIAL_FUEL: Float = 10F
+    const val FORCE_INITIAL_FUEL: Float = -1F
     const val AVOID_PARTICLE_EFFECTS_DRAWING = false
     const val ENABLE_PROFILER = true
     const val DISABLE_HUD = false
