@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class ApacheMovementHandlerMobile : ApacheMovementHandler() {
+class ApacheMovementHandlerMobile(fpsTarget: Int) : ApacheMovementHandler(fpsTarget) {
     private val desiredDirection = Vector2()
     private var desiredDirectionChanged: Boolean = false
 
@@ -28,7 +28,7 @@ class ApacheMovementHandlerMobile : ApacheMovementHandler() {
         if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
                 .transform(auxVector3.set(1F, 0F, 0F))
-            pushForward(rigidBody, 1, character)
+            pushForward(rigidBody, 1, character, deltaTime)
             if (!MathUtils.isEqual(
                     auxQuaternion.yaw + (if (auxQuaternion.yaw >= 0) 0F else 360F),
                     desiredDirection.angleDeg(),

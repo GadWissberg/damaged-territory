@@ -6,10 +6,12 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
 
-class PlayerSystemOnButtonWeaponSecondaryPressed(private val playerShootingHandler: PlayerShootingHandler) :
+class PlayerSystemOnButtonWeaponSecondaryPressed(
+    private val playerShootingHandler: PlayerShootingHandler,
+) :
     HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        playerShootingHandler.startSecondaryShooting()
+        playerShootingHandler.startSecondaryShooting(gameSessionData.gamePlayData.player)
     }
 
 }

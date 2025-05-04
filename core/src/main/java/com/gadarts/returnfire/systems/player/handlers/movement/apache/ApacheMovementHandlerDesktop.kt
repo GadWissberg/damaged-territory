@@ -4,9 +4,8 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.physics.RigidBody
 
-class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
+class ApacheMovementHandlerDesktop(fpsTarget: Int) : ApacheMovementHandler(fpsTarget) {
     private var strafeActivated: Boolean = false
     private var movement: Int = 0
     private var strafe: Int = 0
@@ -124,19 +123,19 @@ class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
 
         val rigidBody = physicsComponent.rigidBody
         if (movement != 0) {
-            pushForward(rigidBody, movement, character)
+            pushForward(rigidBody, movement, character, deltaTime)
         }
         if (rotation != ROTATION_IDLE) {
             rotate(rigidBody, rotation)
         }
         if (strafe != 0) {
-            pushSideWay(rigidBody)
+            pushSideWay(character, deltaTime)
         }
     }
 
-    private fun pushSideWay(rigidBody: RigidBody) {
+    private fun pushSideWay(character: Entity, deltaTime: Float) {
         val direction = auxVector.set(0F, 0F, strafe * 1F)
-        push(rigidBody, direction, 25F)
+        push(character, direction, 25F, deltaTime)
         tiltAnimationHandler.lateralTilt(strafe * -1)
     }
 

@@ -21,6 +21,8 @@ interface CharacterDefinition : ElementDefinition {
     fun isFlyer(): Boolean
     fun isGibable(): Boolean
     fun getCorpseModelDefinitions(): List<ModelDefinition>
+    fun isConsumingFuelOnIdle(): Boolean
+    fun getFuelConsumptionPace(): Float
 
     companion object {
         const val FLYER_HEIGHT = 3.9F

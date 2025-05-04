@@ -31,6 +31,8 @@ class AiLogicHandler(
             gameSessionData,
             gamePlayManagers.dispatcher,
             gamePlayManagers.ecs.entityBuilder,
+            gamePlayManagers.soundManager,
+            gamePlayManagers.assetsManager,
             autoAim
         )
     }

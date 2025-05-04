@@ -72,7 +72,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val deadAmb = !isAliveAmb(ambComponent)
         if (deadAmb && corpseCollisionSound != null && (rigidBody.linearVelocity.len2() > 8F || rigidBody.angularVelocity.len2() > 16F)
         ) {
-            gamePlayManagers.soundManager.play(corpseCollisionSound, entity)
+            gamePlayManagers.soundManager.playWithSource(corpseCollisionSound, entity)
         }
     }
 

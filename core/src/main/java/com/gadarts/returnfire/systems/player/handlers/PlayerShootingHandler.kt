@@ -1,12 +1,22 @@
 package com.gadarts.returnfire.systems.player.handlers
 
 import com.badlogic.gdx.math.Vector2
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.events.SystemEvents
 import kotlin.math.abs
 
-class PlayerShootingHandler(entityBuilder: EntityBuilder) : CharacterShootingHandler(entityBuilder) {
+class PlayerShootingHandler(entityBuilder: EntityBuilder, soundManager: SoundManager, assetsManager: GameAssetManager) :
+    CharacterShootingHandler(
+        entityBuilder,
+        soundManager,
+        assetsManager.getAssetByDefinition(
+            SoundDefinition.EMPTY
+        )
+    ) {
 
 
     fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float) {

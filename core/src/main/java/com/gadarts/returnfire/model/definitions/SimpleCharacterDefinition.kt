@@ -14,6 +14,7 @@ enum class SimpleCharacterDefinition(
     private val flyer: Boolean,
     private val gibable: Boolean,
     private val corpseModelDefinitions: List<ModelDefinition>,
+    private val fuelConsumptionPace: Float,
 ) : CharacterDefinition {
     APACHE(
         125F,
@@ -24,7 +25,8 @@ enum class SimpleCharacterDefinition(
         CharacterDefinition.FLYER_HEIGHT,
         true,
         true,
-        listOf(ModelDefinition.APACHE_DEAD)
+        listOf(ModelDefinition.APACHE_DEAD),
+        0.05F
     );
 
     override fun isFlyer(): Boolean {
@@ -87,4 +89,11 @@ enum class SimpleCharacterDefinition(
         return false
     }
 
+    override fun getFuelConsumptionPace(): Float {
+        return fuelConsumptionPace
+    }
+
+    override fun isConsumingFuelOnIdle(): Boolean {
+        return true
+    }
 }

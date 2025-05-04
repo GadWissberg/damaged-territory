@@ -6,12 +6,13 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 
-abstract class ApacheMovementHandler : VehicleMovementHandler(
+abstract class ApacheMovementHandler(fpsTarget: Int) : VehicleMovementHandler(
     -15F,
     8.3F,
     50F,
     25F,
-    7F
+    7F,
+    fpsTarget
 ) {
 
     protected var tiltAnimationHandler = TiltAnimationHandler()

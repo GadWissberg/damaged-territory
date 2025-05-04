@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.ai
 import com.gadarts.returnfire.managers.GamePlayManagers
@@ -39,11 +40,17 @@ class AiTankLogic(
     private val gamePlayManagers: GamePlayManagers,
 ) : AiCharacterLogic(gamePlayManagers.dispatcher), Disposable {
     private val movementHandler: TankMovementHandlerDesktop by lazy {
-        val movementHandler = TankMovementHandlerDesktop()
+        val movementHandler = TankMovementHandlerDesktop(gameSessionData.fpsTarget)
         movementHandler
     }
     private val shootingHandler: CharacterShootingHandler by lazy {
-        val handler = CharacterShootingHandler(gamePlayManagers.ecs.entityBuilder)
+        val handler = CharacterShootingHandler(
+            gamePlayManagers.ecs.entityBuilder,
+            gamePlayManagers.soundManager,
+            gamePlayManagers.assetsManager.getAssetByDefinition(
+                SoundDefinition.EMPTY
+            )
+        )
         handler.initialize(gamePlayManagers.dispatcher, gameSessionData, autoAim)
         handler
     }
@@ -290,9 +297,9 @@ class AiTankLogic(
             val target = ComponentsMapper.aiTurret.get(character).target ?: return
 
             if (ComponentsMapper.character.get(target).definition.isFlyer()) {
-                shootingHandler.startSecondaryShooting()
+                shootingHandler.startSecondaryShooting(gameSessionData.gamePlayData.player)
             } else {
-                shootingHandler.startPrimaryShooting()
+                shootingHandler.startPrimaryShooting(null)
             }
         }
 

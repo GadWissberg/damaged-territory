@@ -9,7 +9,10 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
+import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.ai.AiStatus
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
@@ -21,12 +24,18 @@ class AiApacheLogic(
     private val gameSessionData: GameSessionData,
     dispatcher: MessageDispatcher,
     entityBuilder: EntityBuilder,
+    soundManager: SoundManager,
+    assetsManager: GameAssetManager,
     autoAim: btPairCachingGhostObject
 ) : AiCharacterLogic(dispatcher) {
     private var nextStrafeActivation: Long = 0
-    private val shootingHandler = CharacterShootingHandler(entityBuilder)
+    private val shootingHandler = CharacterShootingHandler(
+        entityBuilder, soundManager, assetsManager.getAssetByDefinition(
+            SoundDefinition.EMPTY
+        )
+    )
     private val movementHandler: ApacheMovementHandlerDesktop by lazy {
-        val movementHandler = ApacheMovementHandlerDesktop()
+        val movementHandler = ApacheMovementHandlerDesktop(gameSessionData.fpsTarget)
         movementHandler
     }
 
@@ -80,6 +89,7 @@ class AiApacheLogic(
         }
     }
 
+    @Suppress("SimplifyBooleanWithConstants")
     private fun applyMainLogic(
         characterTransform: Matrix4,
         targetPosition: Vector3,
@@ -97,8 +107,8 @@ class AiApacheLogic(
                 player
             ).dead
         ) {
-            shootingHandler.startPrimaryShooting()
-            shootingHandler.startSecondaryShooting()
+            shootingHandler.startPrimaryShooting(null)
+            shootingHandler.startSecondaryShooting(gameSessionData.gamePlayData.player)
         } else {
             stopAttack()
         }

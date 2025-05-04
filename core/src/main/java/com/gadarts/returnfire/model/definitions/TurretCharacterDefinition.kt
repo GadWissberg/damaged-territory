@@ -13,6 +13,7 @@ enum class TurretCharacterDefinition(
     private val corpseModelDefinitions: List<ModelDefinition>,
     val turretCorpseModelDefinitions: List<ModelDefinition>,
     private val isNonMoving: Boolean,
+    private val fuelConsumptionPace: Float = 0.0F,
 ) : CharacterDefinition {
     TURRET_CANNON(
         hp = 75F,
@@ -40,7 +41,8 @@ enum class TurretCharacterDefinition(
         listOf(
             ModelDefinition.TANK_TURRET_DESTROYED,
         ),
-        isNonMoving = false
+        isNonMoving = false,
+        fuelConsumptionPace = 0.1F
     );
 
     override fun isFlyer(): Boolean {
@@ -101,5 +103,13 @@ enum class TurretCharacterDefinition(
 
     override fun isMarksNodeAsBlocked(): Boolean {
         return isNonMoving
+    }
+
+    override fun isConsumingFuelOnIdle(): Boolean {
+        return false
+    }
+
+    override fun getFuelConsumptionPace(): Float {
+        return fuelConsumptionPace
     }
 }

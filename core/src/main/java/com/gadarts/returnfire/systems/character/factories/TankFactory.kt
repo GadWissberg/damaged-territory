@@ -115,6 +115,7 @@ class TankFactory(
                 ),
                 true,
                 gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.TANK_CANNON_BULLET),
+                40,
                 AimingRestriction.ONLY_GROUND
             ),
             BulletBehavior.REGULAR
@@ -146,6 +147,7 @@ class TankFactory(
                 ),
                 true,
                 gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
+                20,
                 AimingRestriction.ONLY_SKY,
             ),
             BulletBehavior.REGULAR

@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class TankMovementHandlerMobile :
-    TankMovementHandler() {
+class TankMovementHandlerMobile(fpsTarget: Int) :
+    TankMovementHandler(fpsTarget) {
     private val desiredDirection = Vector2()
     private var desiredDirectionChanged: Boolean = false
     private var reverse = false
@@ -30,7 +30,7 @@ class TankMovementHandlerMobile :
         if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
                 .transform(auxVector3.set(1F, 0F, 0F))
-            pushForward(rigidBody, if (!reverse) 1 else -1, character)
+            pushForward(rigidBody, if (!reverse) 1 else -1, character, deltaTime)
             val yaw = auxQuaternion.yaw
             if (!MathUtils.isEqual(
                     yaw + (if (yaw >= 0) 0F else 360F),

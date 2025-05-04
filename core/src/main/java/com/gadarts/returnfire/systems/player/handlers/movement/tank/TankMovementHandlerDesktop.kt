@@ -5,8 +5,8 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class TankMovementHandlerDesktop :
-    TankMovementHandler() {
+class TankMovementHandlerDesktop(fpsTarget: Int) :
+    TankMovementHandler(fpsTarget) {
     private var turretRotationEnabled: Boolean = false
     private var movement: Int = 0
     private var rotation: Int = 0
@@ -68,7 +68,7 @@ class TankMovementHandlerDesktop :
         super.update(character, deltaTime)
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody
         if (movement != 0) {
-            pushForward(rigidBody, movement, character)
+            pushForward(rigidBody, movement, character, deltaTime)
         }
         if (rotation != ROTATION_IDLE) {
             rotate(rigidBody, rotation)

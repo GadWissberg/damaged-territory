@@ -92,6 +92,7 @@ class ApacheFactory(
                 ),
                 false,
                 gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(modelDefinition),
+                300,
             ),
             BulletBehavior.REGULAR
         )
@@ -149,6 +150,7 @@ class ApacheFactory(
                 ),
                 true,
                 gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.MISSILE),
+                40
             ),
             BulletBehavior.CURVE
         )

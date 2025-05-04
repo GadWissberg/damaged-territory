@@ -65,7 +65,7 @@ class SoundManager(private val assetsManager: GameAssetManager, private val runs
         return 0F
     }
 
-    fun play(sound: SoundDefinition, source: Entity): Long {
+    fun playWithSource(sound: SoundDefinition, source: Entity): Long {
         return play(
             assetsManager.getAssetByDefinition(sound),
             ComponentsMapper.modelInstance.get(source).gameModelInstance.modelInstance.transform.getTranslation(

@@ -6,13 +6,14 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 
-abstract class TankMovementHandler :
+abstract class TankMovementHandler(fpsTarget: Int) :
     VehicleMovementHandler(
         -30F,
         4F,
         45F,
         25F,
-        6F
+        6F,
+        fpsTarget
     ) {
 
     protected open fun idleEngineSound(character: Entity) {
@@ -24,8 +25,8 @@ abstract class TankMovementHandler :
         rigidBody.angularFactor = Vector3.Y
     }
 
-    override fun pushForward(rigidBody: btRigidBody, forwardDirection: Int, character: Entity) {
-        super.pushForward(rigidBody, forwardDirection, character)
+    override fun pushForward(rigidBody: btRigidBody, forwardDirection: Int, character: Entity, deltaTime: Float) {
+        super.pushForward(rigidBody, forwardDirection, character, deltaTime)
 
         if (ComponentsMapper.ambSound.has(character)) {
             ComponentsMapper.ambSound.get(character).pitchTarget = 2F

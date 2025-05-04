@@ -2,6 +2,7 @@ package com.gadarts.returnfire.systems.character
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
@@ -11,6 +12,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.character.factories.AimingRestriction
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -19,7 +21,11 @@ import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 import com.gadarts.returnfire.systems.player.PlayerSystem
 import kotlin.math.min
 
-open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
+open class CharacterShootingHandler(
+    private val entityBuilder: EntityBuilder,
+    private val soundManager: SoundManager,
+    private val depletedSound: Sound
+) {
     protected var priShooting: Boolean = false
     private var secShooting: Boolean = false
     protected lateinit var gameSessionData: GameSessionData
@@ -27,8 +33,18 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
     protected var autoAim: btPairCachingGhostObject? = null
     protected var aimSky: Boolean = false
 
-    fun startPrimaryShooting() {
+    fun startPrimaryShooting(character: Entity?) {
         priShooting = true
+        playDepletedSoundIfNeeded(character)
+    }
+
+    private fun playDepletedSoundIfNeeded(character: Entity?) {
+        if (character != null && ComponentsMapper.player.has(character) && ComponentsMapper.primaryArm.get(character).ammo <= 0) {
+            soundManager.play(
+                depletedSound,
+                null
+            )
+        }
     }
 
     private fun handleShooting(
@@ -37,7 +53,7 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
         event: SystemEvents,
         character: Entity
     ) {
-        if (!shooting) return
+        if (!shooting || armComp.ammo <= 0) return
 
         val now = TimeUtils.millis()
         if (armComp.loaded <= now) {
@@ -90,6 +106,7 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
             } else {
                 CharacterWeaponShotEventData.setWithTarget(character, target)
             }
+            armComp.consumeAmmo()
             dispatcher.dispatchMessage(event.ordinal)
         }
     }
@@ -190,8 +207,9 @@ open class CharacterShootingHandler(private val entityBuilder: EntityBuilder) {
         priShooting = false
     }
 
-    fun startSecondaryShooting() {
+    fun startSecondaryShooting(player: Entity?) {
         secShooting = true
+        playDepletedSoundIfNeeded(player)
     }
 
     fun stopSecondaryShooting() {

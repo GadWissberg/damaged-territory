@@ -13,5 +13,6 @@ class ArmProperties(
     val renderData: ArmRenderData,
     val explosive: Boolean,
     val rigidBodyPool: RigidBodyPool,
+    val ammo: Int,
     val aimingRestriction: AimingRestriction? = null,
 )

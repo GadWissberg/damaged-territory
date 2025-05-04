@@ -259,7 +259,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 }
             } else {
                 val hp = characterComponent.hp
-                if (!characterComponent.dead && hp <= 0 && !ComponentsMapper.deathSequence.has(character)) {
+                if (!ComponentsMapper.deathSequence.has(character)
+                    && ((!characterComponent.dead && hp <= 0) || characterComponent.fuel <= 0)
+                ) {
                     gamePlayManagers.ecs.entityBuilder.addDeathSequenceComponentToEntity(
                         character,
                         minExplosions = 2,
