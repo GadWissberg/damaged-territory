@@ -40,7 +40,7 @@ class AiTankLogic(
     private val gamePlayManagers: GamePlayManagers,
 ) : AiCharacterLogic(gamePlayManagers.dispatcher), Disposable {
     private val movementHandler: TankMovementHandlerDesktop by lazy {
-        val movementHandler = TankMovementHandlerDesktop(gameSessionData.fpsTarget)
+        val movementHandler = TankMovementHandlerDesktop()
         movementHandler
     }
     private val shootingHandler: CharacterShootingHandler by lazy {

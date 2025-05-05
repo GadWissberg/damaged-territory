@@ -35,7 +35,7 @@ class AiApacheLogic(
         )
     )
     private val movementHandler: ApacheMovementHandlerDesktop by lazy {
-        val movementHandler = ApacheMovementHandlerDesktop(gameSessionData.fpsTarget)
+        val movementHandler = ApacheMovementHandlerDesktop()
         movementHandler
     }
 
@@ -89,7 +89,7 @@ class AiApacheLogic(
         }
     }
 
-    @Suppress("SimplifyBooleanWithConstants")
+    @Suppress("SimplifyBooleanWithConstants", "RedundantSuppression")
     private fun applyMainLogic(
         characterTransform: Matrix4,
         targetPosition: Vector3,

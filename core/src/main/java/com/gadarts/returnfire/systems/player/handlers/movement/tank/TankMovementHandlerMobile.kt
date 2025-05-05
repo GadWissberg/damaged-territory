@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class TankMovementHandlerMobile(fpsTarget: Int) :
-    TankMovementHandler(fpsTarget) {
+class TankMovementHandlerMobile :
+    TankMovementHandler() {
     private val desiredDirection = Vector2()
     private var desiredDirectionChanged: Boolean = false
     private var reverse = false

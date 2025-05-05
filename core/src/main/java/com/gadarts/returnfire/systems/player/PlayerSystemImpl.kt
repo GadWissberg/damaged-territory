@@ -89,7 +89,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         CHARACTER_DIED to PlayerSystemOnCharacterDied(),
         BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
-            @Suppress("SimplifyBooleanWithConstants")
+            @Suppress("SimplifyBooleanWithConstants", "RedundantSuppression")
             override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
                 val entity = msg.extraInfo as Entity
                 if (ComponentsMapper.character.get(entity).color == CharacterColor.BROWN) {
@@ -156,8 +156,8 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (player == null
-                || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player).isBoarding())
-                || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
+            || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player).isBoarding())
+            || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -300,16 +300,15 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         return if (characterDefinition == SimpleCharacterDefinition.APACHE) {
             if (runsOnMobile) {
                 ApacheMovementHandlerMobile(
-                    gameSessionData.fpsTarget
                 )
             } else {
-                ApacheMovementHandlerDesktop(gameSessionData.fpsTarget)
+                ApacheMovementHandlerDesktop()
             }
         } else {
             if (runsOnMobile) {
-                TankMovementHandlerMobile(gameSessionData.fpsTarget)
+                TankMovementHandlerMobile()
             } else {
-                TankMovementHandlerDesktop(gameSessionData.fpsTarget)
+                TankMovementHandlerDesktop()
             }
         }
     }
@@ -330,9 +329,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-                && position.x >= stagePosition.x - LANDING_OK_OFFSET
-                && position.z <= stagePosition.z + LANDING_OK_OFFSET
-                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(

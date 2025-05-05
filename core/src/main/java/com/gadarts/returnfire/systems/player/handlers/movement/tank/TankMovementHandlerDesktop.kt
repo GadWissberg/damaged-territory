@@ -5,8 +5,8 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class TankMovementHandlerDesktop(fpsTarget: Int) :
-    TankMovementHandler(fpsTarget) {
+class TankMovementHandlerDesktop :
+    TankMovementHandler() {
     private var turretRotationEnabled: Boolean = false
     private var movement: Int = 0
     private var rotation: Int = 0

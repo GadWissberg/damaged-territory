@@ -6,14 +6,13 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 
-abstract class TankMovementHandler(fpsTarget: Int) :
+abstract class TankMovementHandler :
     VehicleMovementHandler(
         -30F,
         4F,
         45F,
         25F,
         6F,
-        fpsTarget
     ) {
 
     protected open fun idleEngineSound(character: Entity) {

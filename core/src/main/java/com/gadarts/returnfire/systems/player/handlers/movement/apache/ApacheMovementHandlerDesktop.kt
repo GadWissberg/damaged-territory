@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class ApacheMovementHandlerDesktop(fpsTarget: Int) : ApacheMovementHandler(fpsTarget) {
+class ApacheMovementHandlerDesktop : ApacheMovementHandler() {
     private var strafeActivated: Boolean = false
     private var movement: Int = 0
     private var strafe: Int = 0
