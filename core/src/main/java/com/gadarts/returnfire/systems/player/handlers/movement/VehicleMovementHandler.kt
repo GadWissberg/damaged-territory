@@ -16,7 +16,6 @@ abstract class VehicleMovementHandler(
     private val forwardForceSize: Float,
     private val reverseForceSize: Float,
     private val maxVelocity: Float,
-    private val fpsTarget: Int
 ) {
 
     protected open fun pushForward(rigidBody: btRigidBody, forwardDirection: Int, character: Entity, deltaTime: Float) {
@@ -43,7 +42,7 @@ abstract class VehicleMovementHandler(
                     .scl(scale)
             )
         }
-        consumeFuel(ComponentsMapper.character.get(character), deltaTime)
+        consumeFuelByPace(ComponentsMapper.character.get(character), deltaTime)
     }
 
     open fun update(
@@ -53,9 +52,7 @@ abstract class VehicleMovementHandler(
         applyLateralDamping(character)
         val characterComponent = ComponentsMapper.character.get(character)
         val definition = characterComponent.definition
-        if (definition.isConsumingFuelOnIdle()) {
-            consumeFuel(characterComponent, deltaTime)
-        }
+        consumeFuelInIdle(ComponentsMapper.character.get(character), deltaTime)
         if (definition == TurretCharacterDefinition.TANK) {
             val rigidBody = ComponentsMapper.physics.get(character).rigidBody
             if (!rigidBody.linearVelocity.epsilonEquals(Vector3.Zero)) {
@@ -71,13 +68,27 @@ abstract class VehicleMovementHandler(
         }
     }
 
-    private fun consumeFuel(
+    private fun consumeFuelInIdle(
+        characterComponent: CharacterComponent,
+        deltaTime: Float
+    ) {
+        if (!characterComponent.definition.isConsumingFuelOnIdle() || characterComponent.fuel <= 0) return
+
+        characterComponent.idleFuelConsumptionTimer += deltaTime
+
+        if (characterComponent.idleFuelConsumptionTimer >= IDLE_FUEL_CONSUMPTION_DURATION_IN_SECONDS) {
+            characterComponent.fuel -= 1
+            characterComponent.idleFuelConsumptionTimer -= IDLE_FUEL_CONSUMPTION_DURATION_IN_SECONDS
+        }
+    }
+
+    private fun consumeFuelByPace(
         characterComponent: CharacterComponent,
         deltaTime: Float
     ) {
         val definition = characterComponent.definition
         if (definition.getFuelConsumptionPace() > 0 && characterComponent.fuel > 0) {
-            characterComponent.fuel -= (deltaTime * definition.getFuelConsumptionPace() * fpsTarget)
+            characterComponent.fuel -= (deltaTime * definition.getFuelConsumptionPace())
         }
     }
 
@@ -138,6 +149,6 @@ abstract class VehicleMovementHandler(
         private val auxVector3_2 = Vector3()
         private const val MAX_ROTATION = 3F
         private val auxQuaternion1 = Quaternion()
-
+        private const val IDLE_FUEL_CONSUMPTION_DURATION_IN_SECONDS = 5F
     }
 }

@@ -8,6 +8,7 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 
 class CharacterComponent(val definition: CharacterDefinition, val color: CharacterColor) : Component {
+    var idleFuelConsumptionTimer: Float = 0.0f
     val creationTime = TimeUtils.millis()
     var smokeEmission: Entity? = null
     var hp: Float = 0F
