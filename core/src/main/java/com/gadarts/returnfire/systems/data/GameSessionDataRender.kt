@@ -6,9 +6,12 @@ import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.returnfire.systems.render.CameraState
 import com.gadarts.returnfire.utils.GeneralUtils
 
 class GameSessionDataRender : Disposable {
+    var lastCameraStateChange: Long = 0
+    var cameraState: CameraState = CameraState.FOCUS_DEPLOYMENT
     val cameraRelativePosition = Vector3()
     val cameraRelativeLookAtPosition = Vector3()
     val cameraRelativeTargetPosition = Vector3()
