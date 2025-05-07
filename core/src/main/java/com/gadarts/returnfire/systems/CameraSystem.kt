@@ -19,15 +19,16 @@ import kotlin.math.max
 class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
-        mapOf(SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
-                initializeCamera()
-            }
-        },
+        mapOf(
+            SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    initializeCamera()
+                }
+            },
             SystemEvents.CHARACTER_DEPLOYED to object : HandlerOnEvent {
                 override fun react(
                     msg: Telegram,
@@ -55,8 +56,8 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     override fun update(deltaTime: Float) {
-        gameSessionData.renderData.camera.update()
         followPlayer(deltaTime)
+        gameSessionData.renderData.camera.update()
     }
 
     override fun resume(delta: Long) {
@@ -67,9 +68,9 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
 
     private fun followPlayer(deltaTime: Float) {
+        val renderData = gameSessionData.renderData
         val player = gameSessionData.gamePlayData.player ?: return
 
-        val renderData = gameSessionData.renderData
         moveCameraToTargetPosition(deltaTime)
         if (renderData.cameraState != CameraState.FOCUS_DEPLOYMENT) {
             val thrusting = gameSessionData.gamePlayData.playerMovementHandler.isThrusting(player)
@@ -122,10 +123,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             finalCameraRelativeLookAtTargetPosition,
             1f - exp((-deltaTime * 0.5F))
         )
-        camera.position.set(
-            auxVector3_1.set(playerPosition.x, max(playerPosition.y, 0F), playerPosition.z)
-                .add(renderData.cameraRelativePosition)
-        )
+        positionCamera()
         val cameraPos = camera.position
         val targetPos = auxVector3_1.set(playerPosition).add(renderData.cameraRelativeLookAtPosition)
         val toTarget = auxVector3_2.set(targetPos).sub(cameraPos)
@@ -135,6 +133,18 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val constrainedDirection = auxVector3_2.set(Vector3.Z).scl(-1f).rotate(Vector3.X, pitchDeg).nor()
         camera.direction.set(constrainedDirection)
         camera.up.set(Vector3.Y)
+    }
+
+    private fun positionCamera(
+    ) {
+        val player = gameSessionData.gamePlayData.player ?: return
+
+        val playerPosition = ModelUtils.getPositionOfModel(player)
+        val renderData = gameSessionData.renderData
+        renderData.camera.position.set(
+            auxVector3_1.set(playerPosition.x, max(playerPosition.y, 0F), playerPosition.z)
+                .add(renderData.cameraRelativePosition)
+        )
     }
 
     private fun handleCameraPushWhenThrusting(
@@ -170,24 +180,13 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun initializeCamera() {
-        val camera = gameSessionData.renderData.camera
-        camera.update()
-        val get = ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player)
-        val playerPosition = get.gameModelInstance.modelInstance.transform.getTranslation(
-            auxVector3_1
-        )
-        camera.position.set(
-            playerPosition.x,
-            CAMERA_RELATIVE_SKY_Y,
-            playerPosition.z
-        )
-        camera.rotate(Vector3.X, -45F)
-        gameSessionData.renderData.cameraRelativePosition.set(0F, CAMERA_RELATIVE_SKY_Y, 0F)
+        gameSessionData.renderData.cameraRelativePosition.set(0F, CAMERA_RELATIVE_SKY_Y, CAMERA_RELATIVE_SKY_Z)
         gameSessionData.renderData.cameraRelativeTargetPosition.set(
             0F,
             CAMERA_RELATIVE_FOCUS_Y,
             CAMERA_RELATIVE_FOCUS_Z
         )
+        positionCamera()
     }
 
     companion object {
