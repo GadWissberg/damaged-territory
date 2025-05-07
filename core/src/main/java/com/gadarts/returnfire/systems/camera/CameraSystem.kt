@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.systems.camera
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.Telegram
@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.render.CameraState
@@ -17,6 +19,10 @@ import kotlin.math.exp
 import kotlin.math.max
 
 class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+
+    private val cameraRelativeValuesMapper by lazy {
+        CameraRelativeValuesMapper()
+    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
         mapOf(
@@ -43,10 +49,13 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             })
 
     private fun applyRegularCameraPosition() {
+        val player = gameSessionData.gamePlayData.player ?: return
+        val mapping = cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition] ?: return
+
         gameSessionData.renderData.cameraRelativeTargetPosition.set(
             0F,
-            CAMERA_RELATIVE_REGULAR_Y,
-            CAMERA_RELATIVE_REGULAR_Z
+            mapping.cameraRelativeRegularY,
+            mapping.cameraRelativeRegularZ,
         )
         gameSessionData.renderData.cameraRelativeTargetLookAtPosition.set(
             0F,
@@ -70,6 +79,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun followPlayer(deltaTime: Float) {
         val renderData = gameSessionData.renderData
         val player = gameSessionData.gamePlayData.player ?: return
+        val mapping = cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition] ?: return
 
         moveCameraToTargetPosition(deltaTime)
         if (renderData.cameraState != CameraState.FOCUS_DEPLOYMENT) {
@@ -81,8 +91,8 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                     renderData.cameraRelativeTargetLookAtPosition.setZero()
                     renderData.cameraRelativeTargetPosition.set(
                         0F,
-                        CAMERA_RELATIVE_SKY_Y,
-                        CAMERA_RELATIVE_SKY_Z
+                        mapping.cameraRelativeSkyY,
+                        mapping.cameraRelativeSkyZ
                     )
                 }
             } else if (renderData.cameraState != CameraState.REGULAR) {
@@ -180,22 +190,23 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun initializeCamera() {
-        gameSessionData.renderData.cameraRelativePosition.set(0F, CAMERA_RELATIVE_SKY_Y, CAMERA_RELATIVE_SKY_Z)
+        val player = gameSessionData.gamePlayData.player ?: return
+        val mapping = cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition] ?: return
+
+        gameSessionData.renderData.cameraRelativePosition.set(
+            0F,
+            mapping.cameraRelativeSkyY,
+            mapping.cameraRelativeSkyZ
+        )
         gameSessionData.renderData.cameraRelativeTargetPosition.set(
             0F,
-            CAMERA_RELATIVE_FOCUS_Y,
-            CAMERA_RELATIVE_FOCUS_Z
+            mapping.cameraRelativeFocusY,
+            mapping.cameraRelativeFocusZ
         )
         positionCamera()
     }
 
     companion object {
-        private const val CAMERA_RELATIVE_FOCUS_Y = 4F
-        private const val CAMERA_RELATIVE_FOCUS_Z = 3F
-        private const val CAMERA_RELATIVE_SKY_Y = 8F
-        private const val CAMERA_RELATIVE_SKY_Z = 3F
-        private const val CAMERA_RELATIVE_REGULAR_Y = 6F
-        private const val CAMERA_RELATIVE_REGULAR_Z = 4F
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
         private val auxVector2_1 = Vector2()

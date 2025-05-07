@@ -16,11 +16,15 @@ import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
-import com.gadarts.returnfire.systems.*
+import com.gadarts.returnfire.systems.EffectsSystem
+import com.gadarts.returnfire.systems.EntityBuilderImpl
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.ProfilingSystem
 import com.gadarts.returnfire.systems.ai.AiSystem
 import com.gadarts.returnfire.systems.ai.MapPathFinder
 import com.gadarts.returnfire.systems.ai.logic.PathHeuristic
 import com.gadarts.returnfire.systems.bullet.BulletSystem
+import com.gadarts.returnfire.systems.camera.CameraSystem
 import com.gadarts.returnfire.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
 import com.gadarts.returnfire.systems.data.GameSessionData
