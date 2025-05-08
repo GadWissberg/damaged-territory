@@ -44,6 +44,7 @@ import com.gadarts.returnfire.systems.render.RenderSystem
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
 import com.gadarts.returnfire.utils.ModelUtils
 import kotlin.math.abs
+import kotlin.math.sign
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     GameEntitySystem(gamePlayManagers) {
@@ -505,27 +506,37 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         targetY: Float,
         deltaTime: Float
     ) {
-        val elevatorBeforePosition = elevatorTransform.getTranslation(auxVector3)
-        val isOnboarding = targetY < elevatorBeforePosition.y
+        val currentPosition = elevatorTransform.getTranslation(auxVector3)
+        val distance = targetY - currentPosition.y
+        val direction = distance.sign
+        val absDistance = abs(distance)
 
-        val speed = if (isOnboarding) 0.6F else 1.5F
-        val alpha = speed * deltaTime
+        val isOnboarding = distance < 0f
 
-        elevatorTransform.lerp(
-            auxMatrix.idt().trn(elevatorBeforePosition.x, targetY, elevatorBeforePosition.z),
-            alpha.coerceAtMost(1.0f)
-        )
+        val maxSpeed = if (isOnboarding) 0.6f else 1.5f
+        val minSpeed = if (isOnboarding) 0.2f else 0.3f  // Define your desired minimal constant speed
+        val slowDownDistance = if (isOnboarding) 1.0f else 0.5f  // Distance at which slowing starts
 
-        val newPosition = elevatorTransform.getTranslation(auxVector1)
-        newPosition.y =
-            if (abs(newPosition.y - targetY) < (if (isOnboarding) 0.6F else 0.12F)) targetY else newPosition.y
-        elevatorTransform.setTranslation(newPosition)
+        // Calculate speed with smooth deceleration
+        val targetSpeed = if (absDistance < slowDownDistance) {
+            val t = absDistance / slowDownDistance
+            val easedT = t * t * (3f - 2f * t)  // Smoothstep easing
+            minSpeed + (maxSpeed - minSpeed) * easedT
+        } else {
+            maxSpeed
+        }
 
-        ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.trn(
-            0F,
-            newPosition.y - elevatorBeforePosition.y,
-            0F
-        )
+        // Calculate actual movement this frame, ensuring we don't overshoot
+        val movementThisFrame = (targetSpeed * deltaTime).coerceAtMost(absDistance)
+
+        // Update elevator position
+        val deltaMovement = movementThisFrame * direction
+        currentPosition.y += deltaMovement
+        elevatorTransform.setTranslation(currentPosition)
+
+        // Move character along with elevator
+        ComponentsMapper.modelInstance.get(character)
+            .gameModelInstance.modelInstance.transform.trn(0f, deltaMovement, 0f)
     }
 
     private fun updateBoardingAnimation(

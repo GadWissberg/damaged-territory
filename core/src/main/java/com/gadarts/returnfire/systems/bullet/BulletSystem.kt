@@ -97,6 +97,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     override fun update(deltaTime: Float) {
+        val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
         for (bullet in bulletEntities) {
             val rigidBody = ComponentsMapper.physics.get(bullet).rigidBody
             val position = rigidBody.worldTransform.getTranslation(auxVector1)
@@ -104,7 +105,9 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             if (velocity.y > 0F && position.y > CharacterDefinition.FLYER_HEIGHT) {
                 rigidBody.linearVelocity = auxVector2.set(velocity.x, 0f, velocity.z)
             }
-            val destroyBullet = bulletLogic.update(bullet, deltaTime)
+            var destroyBullet = bulletLogic.update(bullet, deltaTime)
+            destroyBullet = if (!destroyBullet) position.x <= 0F || position.x >= tilesMapping.size
+                    || position.z <= 0F || position.z >= tilesMapping[0].size || position.y < 0F else true
             if (destroyBullet) {
                 destroyBullet(bullet)
             }
@@ -156,6 +159,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 position,
                 BulletCreationRequestEventData.armComponent.armProperties.renderData.boundingBox
             )
+            .addDrowningEffectComponent()
             .addBulletComponent(
                 bulletBehavior,
                 BulletCreationRequestEventData.armComponent.armProperties.effectsData.explosion,
@@ -266,13 +270,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             val x = position.x.toInt()
             val tilesEntities = gameSessionData.mapData.tilesEntities
             if (z >= 0 && z < tilesEntities.size && x >= 0 && x < tilesEntities[0].size) {
-                val tileEntity = tilesEntities[z][x]
-                val otherIsGround = ComponentsMapper.ground.has(entity1)
-                if (otherIsGround && tileEntity != null && ComponentsMapper.ground.get(tileEntity).isWater) {
-                    bulletCollidesWithWater(position, entity0)
-                } else {
-                    bulletCollidesWithOtherBody(entity0, entity1)
-                }
+                bulletCollidesWithOtherBody(entity0, entity1)
             }
             if (ComponentsMapper.bullet.has(entity1)) {
                 destroyBullet(entity1)

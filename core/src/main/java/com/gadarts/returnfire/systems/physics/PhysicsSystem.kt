@@ -112,7 +112,7 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     private fun addBoundary(vector: Vector3, planeConstant: Int = 0) {
         val btRigidBody = createBoundaryPhysicsBody(vector, planeConstant)
         gameSessionData.physicsData.collisionWorld.addRigidBody(btRigidBody, COLLISION_GROUP_GROUND, -1)
-        btRigidBody.userData = gamePlayManagers.ecs.entityBuilder.begin().finishAndAddToEngine()
+        btRigidBody.userData = gamePlayManagers.ecs.entityBuilder.begin().addGroundComponent().finishAndAddToEngine()
     }
 
     companion object {
