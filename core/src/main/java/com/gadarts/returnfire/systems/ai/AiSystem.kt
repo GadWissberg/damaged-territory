@@ -1,3 +1,5 @@
+@file:Suppress("RedundantSuppression")
+
 package com.gadarts.returnfire.systems.ai
 
 import com.badlogic.ashley.core.Entity
@@ -84,23 +86,10 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         },
     )
 
-    private fun setTargetForAi(character: Entity, target: Entity) {
-        ComponentsMapper.ai.get(character).target = target
-        if (ComponentsMapper.aiTurret.has(character)) {
-            ComponentsMapper.aiTurret.get(character).target = target
-        }
-    }
-
-
-    private val aiEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get())
-    }
-
-
     @Suppress("SimplifyBooleanWithConstants")
     override fun update(deltaTime: Float) {
         if (GameDebugSettings.AI_DISABLED
-            || gameSessionData.hudData.console.isActive
+            || gameSessionData.hudData.console.isActive()
             || gameSessionData.gamePlayData.player == null
             || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()
         ) return
@@ -115,6 +104,19 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     override fun dispose() {
         autoAim.dispose()
         aiLogicHandler.dispose()
+    }
+
+
+    private fun setTargetForAi(character: Entity, target: Entity) {
+        ComponentsMapper.ai.get(character).target = target
+        if (ComponentsMapper.aiTurret.has(character)) {
+            ComponentsMapper.aiTurret.get(character).target = target
+        }
+    }
+
+
+    private val aiEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get())
     }
 
 }

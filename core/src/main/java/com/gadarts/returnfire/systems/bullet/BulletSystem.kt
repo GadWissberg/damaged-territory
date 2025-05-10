@@ -22,7 +22,6 @@ import com.gadarts.returnfire.components.arm.ArmProperties
 import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -297,14 +296,6 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             }
             destroyBullet(bullet)
         }
-    }
-
-
-    private fun bulletCollidesWithWater(position: Vector3, entity0: Entity) {
-        gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
-            position.set(position.x, SpecialEffectsFactory.WATER_SPLASH_Y, position.z)
-        )
-        destroyBullet(entity0)
     }
 
     private fun addBulletHole(position: Vector3, bullet: Entity) {

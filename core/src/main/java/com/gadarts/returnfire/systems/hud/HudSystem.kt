@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -21,6 +22,33 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+    private val onScreenInputInitializers: Map<CharacterDefinition, (Table, Cell<Touchpad>) -> Unit> =
+        mapOf(
+            SimpleCharacterDefinition.APACHE to
+                { ui: Table, movementPad: Cell<Touchpad> ->
+                    movementPad.expandX().left()
+                    addApacheButtons(ui)
+                },
+            TurretCharacterDefinition.TANK to
+                { ui: Table, _: Cell<Touchpad> ->
+                    val touchpad = this.gameSessionData.hudData.turretTouchpad
+                    val imageButtonCell = addButton(
+                        ui,
+                        "icon_reverse",
+                        hudButtons.reverseButtonClickListener
+                    )
+                    imageButtonCell.grow().left().bottom().padBottom(32F)
+                    val attackButtonsTable = Table()
+                    attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+                    addButton(
+                        attackButtonsTable,
+                        "icon_missiles",
+                        hudButtons.secWeaponButtonClickListener,
+                    ).center().row()
+                    ui.add(attackButtonsTable).right()
+                    addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
+                }
+        )
     private val hudButtons = HudButtons(gamePlayManagers)
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
@@ -42,27 +70,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 .pad(0F, JOYSTICK_PADDING, 32F, 0F).bottom()
         val definition =
             ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition
-        if (definition == SimpleCharacterDefinition.APACHE) {
-            movementPad.expandX().left()
-            addApacheButtons(ui)
-        } else if (definition == TurretCharacterDefinition.TANK) {
-            val touchpad = this.gameSessionData.hudData.turretTouchpad
-            val imageButtonCell = addButton(
-                ui,
-                "icon_reverse",
-                hudButtons.reverseButtonClickListener
-            )
-            imageButtonCell.grow().left().bottom().padBottom(32F)
-            val attackButtonsTable = Table()
-            attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
-            addButton(
-                attackButtonsTable,
-                "icon_missiles",
-                hudButtons.secWeaponButtonClickListener,
-            ).center().row()
-            ui.add(attackButtonsTable).right()
-            addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
-        }
+        onScreenInputInitializers[definition]?.invoke(ui, movementPad)
     }
 
     private fun addManualAimButton(ui: Table) {
@@ -72,7 +80,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             ui,
             "icon_manual_aim_sky",
             hudButtons.manualAimButtonClickListener,
-        ).size(150F)
+        ).size(MANUAL_AIM_BUTTON_SIZE)
         hudButtons.manualAimButton = cell.actor
         cell.right().top()
     }
@@ -240,5 +248,6 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         private const val JOYSTICK_PADDING = 64F
         private const val BOARDING_BUTTON_PADDING = 25F
         private const val BUTTON_SIZE = 150F
+        private const val MANUAL_AIM_BUTTON_SIZE = 150F
     }
 }

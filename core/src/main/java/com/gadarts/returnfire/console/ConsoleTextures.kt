@@ -4,13 +4,16 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
 
 class ConsoleTextures(private val height: Int) : Disposable {
     val backgroundTexture: Texture by lazy { generateBackgroundTexture() }
-    val textBackgroundTexture: Texture by lazy { generateTextBackgroundTexture() }
+    private val textBackgroundTexture: Texture by lazy { generateTextBackgroundTexture() }
     val cursorTexture: Texture by lazy { generateCursorTexture() }
     val arrowTexture: Texture by lazy { generateArrowTexture() }
+    val textBackgroundTextureRegionDrawable: TextureRegionDrawable =
+        TextureRegionDrawable(textBackgroundTexture)
 
     private fun generateTextBackgroundTexture(): Texture {
         val textBackground = Pixmap(1, 1, Pixmap.Format.RGBA8888)
