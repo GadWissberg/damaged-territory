@@ -7,8 +7,8 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
+import com.badlogic.gdx.graphics.g3d.particles.ParticleShader
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
-import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
@@ -55,11 +55,11 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         )
     }
 
-    private val billboardParticleBatch: BillboardParticleBatch by lazy { BillboardParticleBatch() }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
         this.gameSessionData.renderData.particleSystem = ParticleSystem()
+        val billboardParticleBatch = gameSessionData.renderData.billboardParticleBatch
         billboardParticleBatch.blendingAttribute.sourceFunction = GL20.GL_SRC_ALPHA
         billboardParticleBatch.blendingAttribute.destFunction = GL20.GL_ONE_MINUS_SRC_ALPHA
         gamePlayManagers.assetsManager.loadParticleEffects(billboardParticleBatch)
@@ -67,7 +67,9 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
     override fun onSystemReady() {
+        val billboardParticleBatch = gameSessionData.renderData.billboardParticleBatch
         billboardParticleBatch.setCamera(gameSessionData.renderData.camera)
+        billboardParticleBatch.alignMode = ParticleShader.AlignMode.ViewPoint
         gameSessionData.renderData.particleSystem.add(billboardParticleBatch)
     }
 
@@ -79,7 +81,7 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         updateParticleEffectsComponents()
         removeParticleEffectsMarkedToBeRemoved()
         updateDeathSequences()
-        updateSystem(deltaTime)
+        gameSessionData.renderData.particleSystem.update(deltaTime)
     }
 
     private fun updateDeathSequences() {
@@ -208,10 +210,6 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         gameSessionData.renderData.particleSystem.remove(particleEffect)
         gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(particleEffectComponent.definition)
             .free(particleEffect)
-    }
-
-    private fun updateSystem(deltaTime: Float) {
-        gameSessionData.renderData.particleSystem.update(deltaTime)
     }
 
     companion object {
