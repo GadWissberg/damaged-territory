@@ -318,7 +318,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gameModelInstanceBack,
             auxVector2.set(position).add(0.6F, 0F, 0F),
             backBoundingBox,
-            backShape,
+            ModelUtils.buildShapeFromModelCollisionShapeInfo(
+                gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(ModelDefinition.APACHE_DEAD_BACK)!!
+            ),
             planeCrashSoundId
         )
         addCharacterGiblet(
