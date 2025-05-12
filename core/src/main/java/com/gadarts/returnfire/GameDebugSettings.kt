@@ -10,7 +10,7 @@ object GameDebugSettings {
     val MAP = MapDefinition.MAP_0
     const val SHOW_OBJECT_POOL_PROFILING = false
     const val SHOW_COLLISION_SHAPES = false
-    const val SHOW_GL_PROFILING = false
+    const val SHOW_GL_PROFILING = true
     const val SHOW_HEAP_SIZE = false
     const val DEBUG_INPUT = false
     const val UI_DEBUG = false
@@ -30,7 +30,7 @@ object GameDebugSettings {
     val SELECTED_VEHICLE: CharacterDefinition? = TurretCharacterDefinition.TANK
     val SELECTED_VEHICLE_AI: CharacterDefinition? = TurretCharacterDefinition.TANK
     const val FORCE_AIM = 1
-    const val AI_DISABLED = false
+    const val AI_DISABLED = true
     const val AI_ATTACK_DISABLED = false
     const val USE_DEBUG_DLL = false
 }

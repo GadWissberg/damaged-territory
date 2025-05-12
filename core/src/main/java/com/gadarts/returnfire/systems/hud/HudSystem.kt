@@ -3,6 +3,9 @@ package com.gadarts.returnfire.systems.hud
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
@@ -22,6 +25,9 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+    private val radar: Image by lazy {
+        Image(createRectangleOutlineTexture(RADAR_SIZE.toInt(), RADAR_SIZE.toInt(), 4))
+    }
     private val onScreenInputInitializers: Map<CharacterDefinition, (Table, Cell<Touchpad>) -> Unit> =
         mapOf(
             SimpleCharacterDefinition.APACHE to
@@ -176,21 +182,43 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                if (!gameSessionData.runsOnMobile) return
                 val ui = addUiTable()
-                val hudTable = Table()
-                val topRowTable = Table()
-                hudTable.setDebug(GameDebugSettings.UI_DEBUG, true)
-                topRowTable.setDebug(GameDebugSettings.UI_DEBUG, true)
-                addBoardingButton(topRowTable)
-                ui.add(topRowTable).expandX().growX()
-                ui.row()
-                ui.add(hudTable).bottom().growX().expandY()
-                addOnScreenInput(gameSessionData, hudTable)
+                ui.add(radar).expand().right().bottom().pad(40F)
+                val radarContent = RadarContentActor(
+                    gameSessionData.mapData.currentMap.tilesMapping,
+                    gameSessionData.gamePlayData.player!!,
+                )
+                radarContent.setSize(RADAR_SIZE, RADAR_SIZE)
+                radarContent.setPosition(600f, 50f)
+                gameSessionData.hudData.stage.addActor(radarContent)
+                if (gameSessionData.runsOnMobile) {
+                    val hudTable = Table()
+                    val topRowTable = Table()
+                    hudTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+                    topRowTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+                    addBoardingButton(topRowTable)
+                    ui.add(topRowTable).expandX().growX()
+                    ui.row()
+                    ui.add(hudTable).bottom().growX().expandY()
+                    addOnScreenInput(gameSessionData, hudTable)
+                }
             }
 
         }
     )
+
+    @Suppress("SameParameterValue")
+    private fun createRectangleOutlineTexture(width: Int, height: Int, lineThickness: Int): Texture {
+        val pixmap = Pixmap(width, height, Pixmap.Format.RGBA8888)
+        pixmap.setColor(Color.BLACK)
+        pixmap.fillRectangle(0, 0, width, lineThickness)
+        pixmap.fillRectangle(0, height - lineThickness, width, lineThickness)
+        pixmap.fillRectangle(0, 0, lineThickness, height)
+        pixmap.fillRectangle(width - lineThickness, 0, lineThickness, height)
+        val texture = Texture(pixmap)
+        pixmap.dispose()
+        return texture
+    }
 
     private fun addBoardingButton(ui: Table) {
         val cell = addButton(
@@ -232,22 +260,27 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         return uiTable
     }
 
+
     override fun update(deltaTime: Float) {
         if (gameSessionData.gamePlayData.sessionFinished) return
 
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.update()
         }
+
+        gameSessionData.gamePlayData.player
         if (!GameDebugSettings.DISABLE_HUD) {
             gameSessionData.hudData.stage.act(deltaTime)
             gameSessionData.hudData.stage.draw()
         }
     }
 
+
     companion object {
         private const val JOYSTICK_PADDING = 64F
         private const val BOARDING_BUTTON_PADDING = 25F
         private const val BUTTON_SIZE = 150F
         private const val MANUAL_AIM_BUTTON_SIZE = 150F
+        const val RADAR_SIZE = 192F
     }
 }
