@@ -1,11 +1,9 @@
 package com.gadarts.returnfire.systems.hud
 
+import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
@@ -15,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.ai.BaseAiComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
@@ -25,35 +24,32 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
-    private val radar: Image by lazy {
-        Image(createRectangleOutlineTexture(RADAR_SIZE.toInt(), RADAR_SIZE.toInt(), 4))
-    }
     private val onScreenInputInitializers: Map<CharacterDefinition, (Table, Cell<Touchpad>) -> Unit> =
         mapOf(
             SimpleCharacterDefinition.APACHE to
-                { ui: Table, movementPad: Cell<Touchpad> ->
-                    movementPad.expandX().left()
-                    addApacheButtons(ui)
-                },
+                    { ui: Table, movementPad: Cell<Touchpad> ->
+                        movementPad.expandX().left()
+                        addApacheButtons(ui)
+                    },
             TurretCharacterDefinition.TANK to
-                { ui: Table, _: Cell<Touchpad> ->
-                    val touchpad = this.gameSessionData.hudData.turretTouchpad
-                    val imageButtonCell = addButton(
-                        ui,
-                        "icon_reverse",
-                        hudButtons.reverseButtonClickListener
-                    )
-                    imageButtonCell.grow().left().bottom().padBottom(32F)
-                    val attackButtonsTable = Table()
-                    attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
-                    addButton(
-                        attackButtonsTable,
-                        "icon_missiles",
-                        hudButtons.secWeaponButtonClickListener,
-                    ).center().row()
-                    ui.add(attackButtonsTable).right()
-                    addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
-                }
+                    { ui: Table, _: Cell<Touchpad> ->
+                        val touchpad = this.gameSessionData.hudData.turretTouchpad
+                        val imageButtonCell = addButton(
+                            ui,
+                            "icon_reverse",
+                            hudButtons.reverseButtonClickListener
+                        )
+                        imageButtonCell.grow().left().bottom().padBottom(32F)
+                        val attackButtonsTable = Table()
+                        attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+                        addButton(
+                            attackButtonsTable,
+                            "icon_missiles",
+                            hudButtons.secWeaponButtonClickListener,
+                        ).center().row()
+                        ui.add(attackButtonsTable).right()
+                        addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
+                    }
         )
     private val hudButtons = HudButtons(gamePlayManagers)
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
@@ -183,14 +179,12 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 gamePlayManagers: GamePlayManagers
             ) {
                 val ui = addUiTable()
-                ui.add(radar).expand().right().bottom().pad(40F)
-                val radarContent = RadarContentActor(
+                val radarContent = RadarContent(
                     gameSessionData.mapData.currentMap.tilesMapping,
                     gameSessionData.gamePlayData.player!!,
+                    engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get())
                 )
-                radarContent.setSize(RADAR_SIZE, RADAR_SIZE)
-                radarContent.setPosition(600f, 50f)
-                gameSessionData.hudData.stage.addActor(radarContent)
+                ui.add(radarContent).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
                 if (gameSessionData.runsOnMobile) {
                     val hudTable = Table()
                     val topRowTable = Table()
@@ -206,19 +200,6 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
         }
     )
-
-    @Suppress("SameParameterValue")
-    private fun createRectangleOutlineTexture(width: Int, height: Int, lineThickness: Int): Texture {
-        val pixmap = Pixmap(width, height, Pixmap.Format.RGBA8888)
-        pixmap.setColor(Color.BLACK)
-        pixmap.fillRectangle(0, 0, width, lineThickness)
-        pixmap.fillRectangle(0, height - lineThickness, width, lineThickness)
-        pixmap.fillRectangle(0, 0, lineThickness, height)
-        pixmap.fillRectangle(width - lineThickness, 0, lineThickness, height)
-        val texture = Texture(pixmap)
-        pixmap.dispose()
-        return texture
-    }
 
     private fun addBoardingButton(ui: Table) {
         val cell = addButton(

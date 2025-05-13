@@ -32,8 +32,12 @@ object ModelUtils {
     }
 
     fun getPositionOfModel(entity: Entity): Vector3 {
+        return getPositionOfModel(entity, auxVector1)
+    }
+
+    fun getPositionOfModel(entity: Entity, output: Vector3): Vector3 {
         return ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform.getTranslation(
-            auxVector1
+            output
         )
     }
 
