@@ -551,6 +551,14 @@
     },
     {
       "file_name": "fence"
+    },
+    {
+      "file_name": "radar_tile_water",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_beach_bottom",
+      "folder": "hud/radar"
     }
   ]
 }

@@ -8,14 +8,17 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.utils.ModelUtils
 
 class RadarContent(
     private val tilesMapping: Array<CharArray>,
     private val player: Entity,
     private val enemies: ImmutableArray<Entity>,
+    private val assetsManager: GameAssetManager,
 ) : Actor() {
-    private val waterDot = createDotTexture(Color.BLUE)
+    private val tileWater: Texture by lazy { assetsManager.getTexture("radar_tile_water") }
+    private val tileBeachBottom: Texture by lazy { assetsManager.getTexture("radar_tile_beach_bottom") }
     private val groundDot = createDotTexture(Color.YELLOW)
     private val playerDot = createDotTexture(Color.BROWN, DOT_SIZE_CHARACTER)
     private val enemyDot = createDotTexture(Color.GREEN, DOT_SIZE_CHARACTER)
@@ -46,7 +49,7 @@ class RadarContent(
                     '0'
                 }
                 val texture = when (tile) {
-                    '0' -> waterDot
+                    '0' -> tileWater
                     else -> groundDot
                 }
                 val dotX = topLeftX + (dx + RADIUS) * cellSize

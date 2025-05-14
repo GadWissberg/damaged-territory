@@ -182,7 +182,8 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 val radarContent = RadarContent(
                     gameSessionData.mapData.currentMap.tilesMapping,
                     gameSessionData.gamePlayData.player!!,
-                    engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get())
+                    engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
+                    gamePlayManagers.assetsManager
                 )
                 ui.add(radarContent).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
                 if (gameSessionData.runsOnMobile) {

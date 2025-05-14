@@ -8,6 +8,7 @@ import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.model.MapGraph
 
 class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
+    lateinit var bitMap: String
     lateinit var mapGraph: MapGraph
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
