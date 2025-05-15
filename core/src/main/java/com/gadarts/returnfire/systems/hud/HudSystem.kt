@@ -27,29 +27,29 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     private val onScreenInputInitializers: Map<CharacterDefinition, (Table, Cell<Touchpad>) -> Unit> =
         mapOf(
             SimpleCharacterDefinition.APACHE to
-                    { ui: Table, movementPad: Cell<Touchpad> ->
-                        movementPad.expandX().left()
-                        addApacheButtons(ui)
-                    },
+                { ui: Table, movementPad: Cell<Touchpad> ->
+                    movementPad.expandX().left()
+                    addApacheButtons(ui)
+                },
             TurretCharacterDefinition.TANK to
-                    { ui: Table, _: Cell<Touchpad> ->
-                        val touchpad = this.gameSessionData.hudData.turretTouchpad
-                        val imageButtonCell = addButton(
-                            ui,
-                            "icon_reverse",
-                            hudButtons.reverseButtonClickListener
-                        )
-                        imageButtonCell.grow().left().bottom().padBottom(32F)
-                        val attackButtonsTable = Table()
-                        attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
-                        addButton(
-                            attackButtonsTable,
-                            "icon_missiles",
-                            hudButtons.secWeaponButtonClickListener,
-                        ).center().row()
-                        ui.add(attackButtonsTable).right()
-                        addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
-                    }
+                { ui: Table, _: Cell<Touchpad> ->
+                    val touchpad = this.gameSessionData.hudData.turretTouchpad
+                    val imageButtonCell = addButton(
+                        ui,
+                        "icon_reverse",
+                        hudButtons.reverseButtonClickListener
+                    )
+                    imageButtonCell.grow().left().bottom().padBottom(32F)
+                    val attackButtonsTable = Table()
+                    attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+                    addButton(
+                        attackButtonsTable,
+                        "icon_missiles",
+                        hudButtons.secWeaponButtonClickListener,
+                    ).center().row()
+                    ui.add(attackButtonsTable).right()
+                    addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
+                }
         )
     private val hudButtons = HudButtons(gamePlayManagers)
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
@@ -183,7 +183,8 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                     gameSessionData.mapData.currentMap.tilesMapping,
                     gameSessionData.gamePlayData.player!!,
                     engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
-                    gamePlayManagers.assetsManager
+                    gamePlayManagers.assetsManager,
+                    gameSessionData.mapData.bitMap
                 )
                 ui.add(radarContent).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
                 if (gameSessionData.runsOnMobile) {

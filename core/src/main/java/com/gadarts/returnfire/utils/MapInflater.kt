@@ -606,18 +606,14 @@ class MapInflater(
     }
 
     private fun addFloor(exculdedTiles: ArrayList<Pair<Int, Int>>) {
-        val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
-        val depth = tilesMapping.size
-        val width = tilesMapping[0].size
+        val depth = gameSessionData.mapData.currentMap.tilesMapping.size
+        val width = gameSessionData.mapData.currentMap.tilesMapping[0].size
         val bitMap = StringBuilder()
         for (row in 0 until depth) {
             for (col in 0 until width) {
                 val textureDefinition = determineTextureOfMapPosition(row, col)
                 if (textureDefinition != null && textureDefinition.fileName.contains("road")) {
-                    val modelInstance = GameModelInstance(
-                        ModelInstance(gameSessionData.renderData.floorModel),
-                        null,
-                    )
+                    val modelInstance = GameModelInstance(ModelInstance(gameSessionData.renderData.floorModel), null)
                     val position = auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
                     val entityBuilder = gamePlayManagers.ecs.entityBuilder
                     val tileEntity = createAndAddGroundTileEntity(modelInstance, position)
@@ -631,7 +627,12 @@ class MapInflater(
                     tileBit = 1
                 }
                 bitMap.append(tileBit.toString())
-                gameSessionData.mapData.bitMap = bitMap.toString()
+            }
+        }
+        gameSessionData.mapData.bitMap = Array(depth) { y ->
+            Array(width) { x ->
+                val index = y * width + x
+                bitMap[index].digitToInt()
             }
         }
         gameSessionData.renderData.modelCache.begin()
@@ -827,20 +828,5 @@ class MapInflater(
         private const val EXT_SIZE = 48
         private val TILES_CHARS = CharArray(80) { (it + 48).toChar() }.joinToString("")
         private const val WATER_TILE_INDEX = '0'
-        private val signatures = mapOf(
-            0b11010000 to "radar_tile_bottom_right",
-            0b01101000 to "radar_tile_bottom_left",
-            0b00010110 to "radar_tile_top_right",
-            0b00001011 to "radar_tile_top_left",
-            0b11111000 to "radar_tile_bottom",
-            0b11010110 to "radar_tile_right",
-            0b01101011 to "radar_tile_left",
-            0b00011111 to "radar_tile_top",
-            0b11111110 to "radar_tile_gulf_bottom_right",
-            0b11111011 to "radar_tile_gulf_bottom_left",
-            0b11011111 to "radar_tile_gulf_top_right",
-            0b01111111 to "radar_tile_gulf_top_left",
-            0b11111111 to "radar_tile_ground"
-        )
     }
 }

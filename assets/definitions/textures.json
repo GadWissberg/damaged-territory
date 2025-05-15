@@ -557,7 +557,55 @@
       "folder": "hud/radar"
     },
     {
-      "file_name": "radar_tile_beach_bottom",
+      "file_name": "radar_tile_bottom",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_top",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_right",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_left",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_bottom_left",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_bottom_right",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_top_left",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_top_right",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_gulf_top_left",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_gulf_top_right",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_gulf_bottom_left",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_gulf_bottom_right",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_tile_ground",
       "folder": "hud/radar"
     }
   ]
