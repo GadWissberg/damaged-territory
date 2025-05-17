@@ -607,6 +607,18 @@
     {
       "file_name": "radar_tile_ground",
       "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_character_brown",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_character_green",
+      "folder": "hud/radar"
+    },
+    {
+      "file_name": "radar_dash_line",
+      "folder": "hud/radar"
     }
   ]
 }

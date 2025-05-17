@@ -3,9 +3,8 @@ package com.gadarts.returnfire.systems.hud
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.gadarts.returnfire.managers.GameAssetManager
@@ -18,8 +17,9 @@ class RadarContent(
     private val assetsManager: GameAssetManager,
     private val bitMap: Array<Array<Int>>,
 ) : Actor() {
-    private val playerDot = createDotTexture(Color.BROWN, DOT_SIZE_CHARACTER)
-    private val enemyDot = createDotTexture(Color.GREEN, DOT_SIZE_CHARACTER)
+    private val playerDot by lazy { assetsManager.getTexture("radar_character_brown") }
+    private val enemyDot by lazy { assetsManager.getTexture("radar_character_green") }
+    private val dashLine by lazy { TextureRegion(assetsManager.getTexture("radar_dash_line")) }
     private val signatures by lazy {
         mapOf(
             0b11010000 to assetsManager.getTexture("radar_tile_bottom_right"),
@@ -37,15 +37,6 @@ class RadarContent(
             0b11111111 to assetsManager.getTexture("radar_tile_ground"),
             0 to assetsManager.getTexture("radar_tile_water")
         )
-    }
-
-    private fun createDotTexture(color: Color, size: Int = DOT_SIZE): Texture {
-        val pixmap = Pixmap(size, size, Pixmap.Format.RGBA8888)
-        pixmap.setColor(color)
-        pixmap.fillRectangle(0, 0, size, size)
-        val texture = Texture(pixmap)
-        pixmap.dispose()
-        return texture
     }
 
     private val cellSize = RADAR_SIZE / (RADIUS * 2 + 1)
@@ -66,6 +57,31 @@ class RadarContent(
             }
         }
         drawCharacters(batch)
+        drawDashLines(batch)
+    }
+
+    private fun drawDashLines(batch: Batch) {
+        batch.draw(dashLine, x + width / 2F, y)
+        batch.draw(dashLine, x + width / 4F, y)
+        batch.draw(dashLine, x + 3 * width / 4F, y)
+        drawVerticalDashLine(batch, y)
+        drawVerticalDashLine(batch, y - height / 4F)
+        drawVerticalDashLine(batch, y + height / 4F)
+    }
+
+    private fun drawVerticalDashLine(batch: Batch, y: Float) {
+        batch.draw(
+            dashLine,
+            x + width / 2F,
+            y,
+            dashLine.regionWidth / 2F,
+            dashLine.regionHeight / 2F,
+            dashLine.regionWidth.toFloat(),
+            dashLine.regionHeight.toFloat(),
+            1F,
+            1F,
+            90F
+        )
     }
 
     private fun calculateSignature(tileX: Int, tileZ: Int): Int {
