@@ -3,10 +3,14 @@ package com.gadarts.returnfire.systems.hud
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.utils.ModelUtils
 
@@ -16,7 +20,7 @@ class RadarContent(
     private val enemies: ImmutableArray<Entity>,
     private val assetsManager: GameAssetManager,
     private val bitMap: Array<Array<Int>>,
-) : Actor() {
+) : Actor(), Disposable {
     private val playerDot by lazy { assetsManager.getTexture("radar_character_brown") }
     private val enemyDot by lazy { assetsManager.getTexture("radar_character_green") }
     private val dashLine by lazy { TextureRegion(assetsManager.getTexture("radar_dash_line")) }
@@ -38,8 +42,59 @@ class RadarContent(
             0 to assetsManager.getTexture("radar_tile_water")
         )
     }
+    private val scanlines = createScanlineTexture()
+    private var sweepTime = 0f
 
     private val cellSize = RADAR_SIZE / (RADIUS * 2 + 1)
+    private var scanlineOffset = 0f
+    private var scanlineTime = 0f
+    private val sweepTexture = createSweepTexture()
+
+    private fun createSweepTexture(): Texture {
+        val width = RADAR_SIZE.toInt()
+        val height = 20
+        val pixmap = Pixmap(width, height, Pixmap.Format.RGBA8888)
+
+        for (y in 0 until height) {
+            val alpha = y / height.toFloat()
+            pixmap.setColor(0f, 1f, 0f, alpha * 0.3f)
+            pixmap.drawLine(0, y, width, y)
+        }
+
+        val texture = Texture(pixmap)
+        pixmap.dispose()
+        return texture
+    }
+
+    private fun createScanlineTexture(): Texture {
+        val width = RADAR_SIZE.toInt()
+        val height = 8
+
+        val pixmap = Pixmap(width, height, Pixmap.Format.RGBA8888)
+        pixmap.setColor(0f, 0f, 0f, 0f)
+        pixmap.fill()
+
+        pixmap.setColor(0f, 0f, 0f, 0.3f)
+        for (y in 0 until height step 4) {
+            pixmap.drawLine(0, y, width, y)
+        }
+
+        val texture = Texture(pixmap)
+        texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat)
+        pixmap.dispose()
+
+        return texture
+    }
+
+    override fun act(delta: Float) {
+        super.act(delta)
+        scanlineOffset = (scanlineOffset + 15 * delta) % scanlines.height
+        scanlineTime += delta
+        sweepTime += delta
+        if (sweepTime > SWEEP_TOTAL_DURATION) {
+            sweepTime = 0f
+        }
+    }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         batch.color = auxColor.set(color).also { it.a *= parentAlpha }
@@ -58,6 +113,31 @@ class RadarContent(
         }
         drawCharacters(batch)
         drawDashLines(batch)
+        drawScanlines(batch, topLeftX, topLeftY)
+    }
+
+    private fun drawScanlines(batch: Batch, topLeftX: Float, topLeftY: Float) {
+        val progress = MathUtils.sin(scanlineTime * MathUtils.PI) * 0.5f + 0.5f
+        val flickerAlpha = MathUtils.lerp(0.1f, 0.5f, progress)
+        batch.setColor(1f, 1f, 1f, flickerAlpha)
+        batch.draw(
+            scanlines,
+            topLeftX, topLeftY,
+            RADAR_SIZE, RADAR_SIZE,
+            0f, scanlineOffset / scanlines.height,
+            RADAR_SIZE / scanlines.width, (scanlineOffset + RADAR_SIZE) / scanlines.height
+        )
+        val sweepProgress = sweepTime / SWEEP_DURATION
+        val sweepY = topLeftY + RADAR_SIZE * (1f - sweepProgress)
+        if (sweepY + sweepTexture.height > topLeftY) {
+            batch.draw(
+                sweepTexture,
+                topLeftX,
+                sweepY,
+                RADAR_SIZE,
+                sweepTexture.height.toFloat()
+            )
+        }
     }
 
     private fun drawDashLines(batch: Batch) {
@@ -109,13 +189,13 @@ class RadarContent(
         if (tileX < width - 1) {
             signature = signature or ((bitMap[tileZ][right]) shl 3)
         }
-        if (tileX > 0 && tileZ < depth) {
+        if (tileX > 0 && tileZ < depth - 1) {
             signature = signature or ((bitMap[down][left]) shl 2)
         }
-        if (tileZ < depth) {
+        if (tileZ < depth - 1) {
             signature = signature or ((bitMap[down][tileX]) shl 1)
         }
-        if (tileX < width && tileZ < depth) {
+        if (tileX < width - 1 && tileZ < depth - 1) {
             signature = signature or ((bitMap[down][right]) shl 0)
         }
         return signature
@@ -154,5 +234,13 @@ class RadarContent(
         private const val DOT_SIZE_CHARACTER = 6
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
+        private const val SWEEP_DURATION = 4f
+        private const val SWEEP_TAIL_PIXELS = 20f
+        private const val SWEEP_TOTAL_DURATION = SWEEP_DURATION + (SWEEP_TAIL_PIXELS / RADAR_SIZE) * SWEEP_DURATION
+    }
+
+    override fun dispose() {
+        sweepTexture.dispose()
+        scanlines.dispose()
     }
 }

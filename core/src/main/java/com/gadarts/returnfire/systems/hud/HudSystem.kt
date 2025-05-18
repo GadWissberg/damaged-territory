@@ -24,32 +24,43 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
 class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+    private val ui: Table by lazy { addUiTable() }
+    private val radarContent: RadarContent by lazy {
+        RadarContent(
+            gameSessionData.mapData.currentMap.tilesMapping,
+            gameSessionData.gamePlayData.player!!,
+            engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
+            gamePlayManagers.assetsManager,
+            gameSessionData.mapData.bitMap
+        )
+    }
+
     private val onScreenInputInitializers: Map<CharacterDefinition, (Table, Cell<Touchpad>) -> Unit> =
         mapOf(
             SimpleCharacterDefinition.APACHE to
-                { ui: Table, movementPad: Cell<Touchpad> ->
-                    movementPad.expandX().left()
-                    addApacheButtons(ui)
-                },
+                    { ui: Table, movementPad: Cell<Touchpad> ->
+                        movementPad.expandX().left()
+                        addApacheButtons(ui)
+                    },
             TurretCharacterDefinition.TANK to
-                { ui: Table, _: Cell<Touchpad> ->
-                    val touchpad = this.gameSessionData.hudData.turretTouchpad
-                    val imageButtonCell = addButton(
-                        ui,
-                        "icon_reverse",
-                        hudButtons.reverseButtonClickListener
-                    )
-                    imageButtonCell.grow().left().bottom().padBottom(32F)
-                    val attackButtonsTable = Table()
-                    attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
-                    addButton(
-                        attackButtonsTable,
-                        "icon_missiles",
-                        hudButtons.secWeaponButtonClickListener,
-                    ).center().row()
-                    ui.add(attackButtonsTable).right()
-                    addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
-                }
+                    { ui: Table, _: Cell<Touchpad> ->
+                        val touchpad = this.gameSessionData.hudData.turretTouchpad
+                        val imageButtonCell = addButton(
+                            ui,
+                            "icon_reverse",
+                            hudButtons.reverseButtonClickListener
+                        )
+                        imageButtonCell.grow().left().bottom().padBottom(32F)
+                        val attackButtonsTable = Table()
+                        attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+                        addButton(
+                            attackButtonsTable,
+                            "icon_missiles",
+                            hudButtons.secWeaponButtonClickListener,
+                        ).center().row()
+                        ui.add(attackButtonsTable).right()
+                        addTouchpad(ui, touchpad).pad(0F, 0F, 0F, JOYSTICK_PADDING).top()
+                    }
         )
     private val hudButtons = HudButtons(gamePlayManagers)
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
@@ -178,14 +189,6 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                val ui = addUiTable()
-                val radarContent = RadarContent(
-                    gameSessionData.mapData.currentMap.tilesMapping,
-                    gameSessionData.gamePlayData.player!!,
-                    engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
-                    gamePlayManagers.assetsManager,
-                    gameSessionData.mapData.bitMap
-                )
                 ui.add(radarContent).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
                 if (gameSessionData.runsOnMobile) {
                     val hudTable = Table()
@@ -220,6 +223,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     override fun dispose() {
+        radarContent.dispose()
     }
 
 
