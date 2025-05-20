@@ -21,27 +21,42 @@ class RadarContent(
     private val assetsManager: GameAssetManager,
     private val bitMap: Array<Array<Int>>,
 ) : Actor(), Disposable {
+    private var radarTileMap: Array<Array<Int>>
     private val playerDot by lazy { assetsManager.getTexture("radar_character_brown") }
     private val enemyDot by lazy { assetsManager.getTexture("radar_character_green") }
     private val dashLine by lazy { TextureRegion(assetsManager.getTexture("radar_dash_line")) }
     private val signatures by lazy {
         mapOf(
+            0 to assetsManager.getTexture("radar_tile_water"),
+            0b00000010 to assetsManager.getTexture("radar_tile_top"),
+            0b01000000 to assetsManager.getTexture("radar_tile_bottom"),
+            0b00001000 to assetsManager.getTexture("radar_tile_left"),
+            0b00010000 to assetsManager.getTexture("radar_tile_right"),
+            0b00010110 to assetsManager.getTexture("radar_tile_gulf_top_right"),
+            0b00001011 to assetsManager.getTexture("radar_tile_gulf_top_left"),
+            0b11010000 to assetsManager.getTexture("radar_tile_gulf_bottom_right"),
+            0b01101000 to assetsManager.getTexture("radar_tile_gulf_bottom_left"),
             0b10000000 to assetsManager.getTexture("radar_tile_bottom_right"),
             0b00100000 to assetsManager.getTexture("radar_tile_bottom_left"),
             0b00000100 to assetsManager.getTexture("radar_tile_top_right"),
             0b00000001 to assetsManager.getTexture("radar_tile_top_left"),
-            0b00000111 to assetsManager.getTexture("radar_tile_bottom"),
-            0b00101001 to assetsManager.getTexture("radar_tile_right"),
-            0b10010100 to assetsManager.getTexture("radar_tile_left"),
-            0b11100000 to assetsManager.getTexture("radar_tile_top"),
-            0b11010100 to assetsManager.getTexture("radar_tile_gulf_bottom_right"),
-            0b01101001 to assetsManager.getTexture("radar_tile_gulf_bottom_left"),
-            0b10010110 to assetsManager.getTexture("radar_tile_gulf_top_right"),
-            0b00101011 to assetsManager.getTexture("radar_tile_gulf_top_left"),
             0b11111111 to assetsManager.getTexture("radar_tile_ground"),
-            0 to assetsManager.getTexture("radar_tile_water")
         )
     }
+
+    init {
+        val width = bitMap[0].size
+        radarTileMap = Array(bitMap.size) { y ->
+            Array(width) { x ->
+                val signature = calculateSignature(x, y)
+                val textureSignature = signatures.keys
+                    .sortedByDescending { it.countOneBits() }
+                    .find { (it and signature) == it }
+                textureSignature ?: 0
+            }
+        }
+    }
+
     private val scanlines = createScanlineTexture()
     private var sweepTime = 0f
 
@@ -105,10 +120,12 @@ class RadarContent(
             for (dx in -RADIUS..RADIUS) {
                 val tileX = positionOfModel.x.toInt() + dx
                 val tileZ = positionOfModel.z.toInt() + dz
-                val signature = calculateSignature(tileX, tileZ)
                 val dotX = topLeftX + (dx + RADIUS) * cellSize
                 val dotY = topLeftY + (RADIUS - dz) * cellSize
-                batch.draw(signatures[signature] ?: signatures[0], dotX, dotY, cellSize, cellSize)
+                val clampedZ = MathUtils.clamp(tileZ, 0, bitMap.size)
+                val clampedX = MathUtils.clamp(tileX, 0, bitMap[0].size)
+                val signature = radarTileMap[clampedZ][clampedX]
+                batch.draw(signatures[signature], dotX, dotY, cellSize, cellSize)
             }
         }
         drawCharacters(batch)
@@ -169,7 +186,7 @@ class RadarContent(
 
         val width = tilesMapping.size
         val depth = tilesMapping[0].size - 1
-        var signature = 0
+        var signature = if (bitMap[tileZ][tileX] == 1) 0b11111111 else 0
         val up = tileZ - 1
         val left = tileX - 1
         val right = tileX + 1
