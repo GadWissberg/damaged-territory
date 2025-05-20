@@ -635,6 +635,14 @@ class MapInflater(
                 bitMap[index].digitToInt()
             }
         }
+        if (GameDebugSettings.PRINT_BIT_MAP) {
+            for (y in 0 until depth) {
+                for (x in 0 until width) {
+                    print("${gameSessionData.mapData.bitMap[y][x]} ")
+                }
+                println()
+            }
+        }
         gameSessionData.renderData.modelCache.begin()
         addFloorRegionForModelCache(depth, width, exculdedTiles)
         addAllExternalSea(width, depth)

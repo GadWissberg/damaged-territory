@@ -8,6 +8,7 @@ enum class MapDefinition :
 
     MAP_0,
     TO_OPTIMIZE,
+    SMALL,
     STRANDED;
 
 

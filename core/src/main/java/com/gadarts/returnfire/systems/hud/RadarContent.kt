@@ -26,18 +26,18 @@ class RadarContent(
     private val dashLine by lazy { TextureRegion(assetsManager.getTexture("radar_dash_line")) }
     private val signatures by lazy {
         mapOf(
-            0b11010000 to assetsManager.getTexture("radar_tile_bottom_right"),
-            0b01101000 to assetsManager.getTexture("radar_tile_bottom_left"),
-            0b00010110 to assetsManager.getTexture("radar_tile_top_right"),
-            0b00001011 to assetsManager.getTexture("radar_tile_top_left"),
-            0b11111000 to assetsManager.getTexture("radar_tile_bottom"),
-            0b11010110 to assetsManager.getTexture("radar_tile_right"),
-            0b01101011 to assetsManager.getTexture("radar_tile_left"),
-            0b00011111 to assetsManager.getTexture("radar_tile_top"),
-            0b11111110 to assetsManager.getTexture("radar_tile_gulf_bottom_right"),
-            0b11111011 to assetsManager.getTexture("radar_tile_gulf_bottom_left"),
-            0b11011111 to assetsManager.getTexture("radar_tile_gulf_top_right"),
-            0b01111111 to assetsManager.getTexture("radar_tile_gulf_top_left"),
+            0b10000000 to assetsManager.getTexture("radar_tile_bottom_right"),
+            0b00100000 to assetsManager.getTexture("radar_tile_bottom_left"),
+            0b00000100 to assetsManager.getTexture("radar_tile_top_right"),
+            0b00000001 to assetsManager.getTexture("radar_tile_top_left"),
+            0b00000111 to assetsManager.getTexture("radar_tile_bottom"),
+            0b00101001 to assetsManager.getTexture("radar_tile_right"),
+            0b10010100 to assetsManager.getTexture("radar_tile_left"),
+            0b11100000 to assetsManager.getTexture("radar_tile_top"),
+            0b11010100 to assetsManager.getTexture("radar_tile_gulf_bottom_right"),
+            0b01101001 to assetsManager.getTexture("radar_tile_gulf_bottom_left"),
+            0b10010110 to assetsManager.getTexture("radar_tile_gulf_top_right"),
+            0b00101011 to assetsManager.getTexture("radar_tile_gulf_top_left"),
             0b11111111 to assetsManager.getTexture("radar_tile_ground"),
             0 to assetsManager.getTexture("radar_tile_water")
         )
