@@ -96,6 +96,8 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     override fun update(deltaTime: Float) {
+        if (isGamePaused()) return
+
         val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
         for (bullet in bulletEntities) {
             val rigidBody = ComponentsMapper.physics.get(bullet).rigidBody

@@ -89,7 +89,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     @Suppress("SimplifyBooleanWithConstants")
     override fun update(deltaTime: Float) {
         if (GameDebugSettings.AI_DISABLED
-            || gameSessionData.hudData.console.isActive()
+            || isGamePaused()
             || gameSessionData.gamePlayData.player == null
             || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()
         ) return

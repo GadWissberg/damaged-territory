@@ -36,7 +36,7 @@ import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.data.GameSessionDataMap.Companion.DROWNING_HEIGHT
+import com.gadarts.returnfire.systems.data.map.GameSessionDataMap.Companion.DROWNING_HEIGHT
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.handlers.amb.AmbEffectsHandlers
 import com.gadarts.returnfire.systems.map.react.MapSystemOnCharacterBoarding
@@ -442,7 +442,8 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
     override fun update(deltaTime: Float) {
-        super.update(deltaTime)
+        if (isGamePaused()) return
+
         for (base in bases) {
             updateBaseDoors(base, deltaTime)
         }

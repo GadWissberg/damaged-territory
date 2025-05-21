@@ -72,6 +72,8 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
     override fun update(deltaTime: Float) {
+        if (isGamePaused()) return
+
         bulletEngineHandler.update(deltaTime)
         for (i in 0 until limitedVelocityEntities.size()) {
             val rigidBody = ComponentsMapper.physics.get(limitedVelocityEntities[i]).rigidBody

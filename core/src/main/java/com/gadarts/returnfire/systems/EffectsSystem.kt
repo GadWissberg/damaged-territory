@@ -77,6 +77,8 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
     override fun update(deltaTime: Float) {
+        if (isGamePaused()) return
+
         particleEntitiesToRemove.clear()
         updateParticleEffectsComponents()
         removeParticleEffectsMarkedToBeRemoved()

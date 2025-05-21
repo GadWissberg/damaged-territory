@@ -155,6 +155,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     override fun update(deltaTime: Float) {
+        if (isGamePaused()) return
+
         updateCharacters(deltaTime)
         turretsHandler.update()
         characterAmbSoundHandler.update(deltaTime)

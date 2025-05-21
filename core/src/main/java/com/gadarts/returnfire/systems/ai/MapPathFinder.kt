@@ -6,7 +6,7 @@ import com.gadarts.returnfire.model.MapGraphPath
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.systems.ai.logic.PathHeuristic
-import com.gadarts.returnfire.systems.data.GameSessionDataMap
+import com.gadarts.returnfire.systems.data.map.GameSessionDataMap
 
 class MapPathFinder(private val mapData: GameSessionDataMap, private val pathHeuristic: PathHeuristic) {
     private val pathFinder: IndexedAStarPathFinder<MapGraphNode> by lazy {

@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.utils.ModelUtils
 
-class RadarContent(
+class Radar(
     private val tilesMapping: Array<CharArray>,
     private val player: Entity,
     private val enemies: ImmutableArray<Entity>,
@@ -122,8 +122,8 @@ class RadarContent(
                 val tileZ = positionOfModel.z.toInt() + dz
                 val dotX = topLeftX + (dx + RADIUS) * cellSize
                 val dotY = topLeftY + (RADIUS - dz) * cellSize
-                val clampedZ = MathUtils.clamp(tileZ, 0, bitMap.size)
-                val clampedX = MathUtils.clamp(tileX, 0, bitMap[0].size)
+                val clampedZ = MathUtils.clamp(tileZ, 0, bitMap.size - 1)
+                val clampedX = MathUtils.clamp(tileX, 0, bitMap[0].size - 1)
                 val signature = radarTileMap[clampedZ][clampedX]
                 batch.draw(signatures[signature], dotX, dotY, cellSize, cellSize)
             }
@@ -131,6 +131,7 @@ class RadarContent(
         drawCharacters(batch)
         drawDashLines(batch)
         drawScanlines(batch, topLeftX, topLeftY)
+        batch.setColor(1f, 1f, 1f, 1F)
     }
 
     private fun drawScanlines(batch: Batch, topLeftX: Float, topLeftY: Float) {

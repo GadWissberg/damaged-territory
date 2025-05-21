@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.data
+package com.gadarts.returnfire.systems.data.map
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Disposable

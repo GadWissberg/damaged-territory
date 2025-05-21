@@ -39,4 +39,10 @@ abstract class GameEntitySystem(protected val gamePlayManagers: GamePlayManagers
     open fun onSystemReady() {}
 
     abstract fun resume(delta: Long)
+    fun isGamePaused(): Boolean {
+        val hudData = gameSessionData.hudData
+        return hudData.console.isActive()
+                || hudData.minimap.isVisible
+                || gameSessionData.gamePlayData.sessionFinished
+    }
 }

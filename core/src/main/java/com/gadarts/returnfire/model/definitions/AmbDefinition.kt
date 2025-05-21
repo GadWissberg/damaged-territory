@@ -4,7 +4,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.model.ElementType
-import com.gadarts.returnfire.systems.data.GameSessionDataMap.Companion.DROWNING_HEIGHT
+import com.gadarts.returnfire.systems.data.map.GameSessionDataMap.Companion.DROWNING_HEIGHT
 
 enum class AmbDefinition(
     private val modelDefinition: ModelDefinition,

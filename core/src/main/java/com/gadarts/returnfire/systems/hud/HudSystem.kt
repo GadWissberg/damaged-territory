@@ -2,7 +2,9 @@ package com.gadarts.returnfire.systems.hud
 
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.Interpolation
@@ -23,10 +25,10 @@ import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), InputProcessor {
     private val ui: Table by lazy { addUiTable() }
-    private val radarContent: RadarContent by lazy {
-        RadarContent(
+    private val radar: Radar by lazy {
+        Radar(
             gameSessionData.mapData.currentMap.tilesMapping,
             gameSessionData.gamePlayData.player!!,
             engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
@@ -65,12 +67,22 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     private val hudButtons = HudButtons(gamePlayManagers)
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
-
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
         initializeInput()
         val console = gameSessionData.hudData.console
-        gameSessionData.hudData.stage.addActor(console)
+        val stage = gameSessionData.hudData.stage
+        stage.addActor(console)
+        val minimap = gameSessionData.hudData.minimap
+        minimap.isVisible = false
+        stage.addActor(minimap)
+        val minimapSize = Gdx.graphics.width / 2F
+        minimap.setSize(minimapSize, minimapSize)
+        val halfSize = minimapSize / 2F
+        minimap.setPosition(
+            Gdx.graphics.width / 2F - halfSize,
+            Gdx.graphics.height / 2F - halfSize
+        )
         console.toFront()
     }
 
@@ -189,7 +201,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                ui.add(radarContent).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
+                ui.add(radar).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
                 if (gameSessionData.runsOnMobile) {
                     val hudTable = Table()
                     val topRowTable = Table()
@@ -223,7 +235,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     }
 
     override fun dispose() {
-        radarContent.dispose()
+        radar.dispose()
     }
 
 
@@ -232,7 +244,9 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
             debugInput.autoUpdate = true
             Gdx.input.inputProcessor = debugInput
         } else {
-            (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(gameSessionData.hudData.stage)
+            val inputMultiplexer = Gdx.input.inputProcessor as InputMultiplexer
+            inputMultiplexer.addProcessor(gameSessionData.hudData.stage)
+            inputMultiplexer.addProcessor(this)
         }
     }
 
@@ -249,8 +263,6 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
 
 
     override fun update(deltaTime: Float) {
-        if (gameSessionData.gamePlayData.sessionFinished) return
-
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.update()
         }
@@ -269,5 +281,46 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
         private const val BUTTON_SIZE = 150F
         private const val MANUAL_AIM_BUTTON_SIZE = 150F
         const val RADAR_SIZE = 192F
+    }
+
+    override fun keyDown(keycode: Int): Boolean {
+        if (keycode == Input.Keys.TAB) {
+            val minimap = gameSessionData.hudData.minimap
+            minimap.isVisible = !minimap.isVisible
+            return true
+        }
+        return false
+    }
+
+    override fun keyUp(keycode: Int): Boolean {
+        return false
+    }
+
+    override fun keyTyped(character: Char): Boolean {
+        return false
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return false
+    }
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        return false
+    }
+
+    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        return false
+    }
+
+    override fun scrolled(amountX: Float, amountY: Float): Boolean {
+        return false
     }
 }
