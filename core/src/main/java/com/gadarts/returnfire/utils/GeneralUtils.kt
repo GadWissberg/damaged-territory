@@ -10,14 +10,11 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.model.MapGraph
-import kotlin.math.floor
 
 object GeneralUtils {
 
     val auxVector1 = Vector3()
     val auxVector2 = Vector3()
-    private val auxBoundingBox = BoundingBox()
 
     fun createCamera(fov: Float): PerspectiveCamera {
         val perspectiveCamera = PerspectiveCamera(
@@ -43,30 +40,6 @@ object GeneralUtils {
                 or GL20.GL_DEPTH_BUFFER_BIT
                 or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
-    }
-
-    fun getTilesCoveredByBoundingBox(
-        entity: Entity,
-        mapGraph: MapGraph,
-        resultFiller: (Int, Int, MapGraph) -> Unit,
-    ) {
-        val gameModelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
-        val boundingBox = gameModelInstance.getBoundingBox(auxBoundingBox)
-        val min = Vector3(boundingBox.min)
-        val max = Vector3(boundingBox.max)
-        val minX = floor(min.x).toInt()
-        val minZ = floor(min.z).toInt()
-        val maxX = floor(max.x).toInt()
-        val maxZ = floor(max.z).toInt()
-        for (x in minX..maxX) {
-            for (z in minZ..maxZ) {
-                val centerX = x + 0.5f
-                val centerZ = z + 0.5f
-                if (centerX in min.x..max.x && centerZ in min.z..max.z) {
-                    resultFiller(x, z, mapGraph)
-                }
-            }
-        }
     }
 
     fun getRandomPositionOnBoundingBox(bb: BoundingBox, bias: Float): Vector3 {
@@ -110,11 +83,6 @@ object GeneralUtils {
         }
 
         return position
-    }
-
-    fun isEntityMarksNodeAsBlocked(entity: Entity): Boolean {
-        return (ComponentsMapper.amb.has(entity) && ComponentsMapper.amb.get(entity).def.isMarksNodeAsBlocked())
-            || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
     }
 
 

@@ -29,7 +29,7 @@ class HudSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayM
     private val ui: Table by lazy { addUiTable() }
     private val radar: Radar by lazy {
         Radar(
-            gameSessionData.mapData.currentMap.tilesMapping,
+            gameSessionData.mapData.currentMap.tilesTexturesMap,
             gameSessionData.gamePlayData.player!!,
             engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
             gamePlayManagers.assetsManager,

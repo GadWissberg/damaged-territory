@@ -29,7 +29,7 @@ import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLL
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GENERAL
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_PLAYER
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
-import com.gadarts.returnfire.utils.GeneralUtils
+import com.gadarts.returnfire.utils.MapUtils
 import kotlin.math.abs
 import kotlin.math.atan2
 
@@ -538,7 +538,7 @@ class AiTankLogic(
             character: Entity
         ) {
             result.clear()
-            GeneralUtils.getTilesCoveredByBoundingBox(
+            MapUtils.getTilesCoveredByBoundingBox(
                 obstacle,
                 gameSessionData.mapData.mapGraph,
                 tileCollector
@@ -670,14 +670,14 @@ class AiTankLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                    rayTest(
-                        position,
-                        direction,
-                        collisionWorld,
-                        callback,
-                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                        MAX_LOOKING_AHEAD
-                    ) || rayTest(
+                rayTest(
+                    position,
+                    direction,
+                    collisionWorld,
+                    callback,
+                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                    MAX_LOOKING_AHEAD
+                ) || rayTest(
                 position,
                 direction,
                 collisionWorld,

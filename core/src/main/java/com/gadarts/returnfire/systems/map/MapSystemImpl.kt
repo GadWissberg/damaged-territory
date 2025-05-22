@@ -43,8 +43,8 @@ import com.gadarts.returnfire.systems.map.react.MapSystemOnCharacterBoarding
 import com.gadarts.returnfire.systems.map.react.MapSystemOnCharacterOnboardingAnimationDone
 import com.gadarts.returnfire.systems.map.react.MapSystemOnExplosionPushBack
 import com.gadarts.returnfire.systems.map.react.MapSystemOnPhysicsCollision
-import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.MapInflater
+import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.returnfire.utils.ModelUtils
 import kotlin.math.max
 import kotlin.math.min
@@ -311,7 +311,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
-        val tilesMapping = gameSessionData.mapData.currentMap.tilesMapping
+        val tilesMapping = gameSessionData.mapData.currentMap.tilesTexturesMap
         ambEffectsHandlers.waterSplashHandler.init(gameSessionData)
         gameSessionData.mapData.tilesEntities =
             Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
@@ -323,7 +323,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             }
 
             override fun entityRemoved(entity: Entity) {
-                if (GeneralUtils.isEntityMarksNodeAsBlocked(entity)) {
+                if (MapUtils.isEntityMarksNodeAsBlocked(entity)) {
                     val position = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
                         .getTranslation(auxVector1)
                     gameSessionData.mapData.mapGraph.getNode(position.x.toInt(), position.z.toInt())
