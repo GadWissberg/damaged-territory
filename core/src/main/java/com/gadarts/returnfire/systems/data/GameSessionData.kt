@@ -20,7 +20,7 @@ class GameSessionData(
     val physicsData = GameSessionDataPhysics()
     val gamePlayData = GameSessionDataGameplay(assetsManager)
     val mapData = GameSessionDataMap(assetsManager)
-    val hudData = GameSessionDataHud(console, assetsManager, mapData.currentMap.tilesTexturesMap)
+    val hudData = GameSessionDataHud(console, assetsManager, mapData.currentMap.tilesTexturesMap, gamePlayData)
     val renderData = GameSessionDataRender()
 
 

@@ -619,6 +619,10 @@
     {
       "file_name": "radar_dash_line",
       "folder": "hud/radar"
+    },
+    {
+      "file_name": "minimap_location",
+      "folder": "hud/radar"
     }
   ]
 }

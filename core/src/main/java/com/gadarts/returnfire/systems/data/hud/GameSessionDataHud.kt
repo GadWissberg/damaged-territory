@@ -6,10 +6,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.returnfire.systems.data.GameSessionDataGameplay
 
-class GameSessionDataHud(val console: ConsoleImpl, assetsManager: GameAssetManager, tilesMapping: Array<CharArray>) :
+class GameSessionDataHud(
+    val console: ConsoleImpl,
+    assetsManager: GameAssetManager,
+    tilesMapping: Array<CharArray>,
+    gamePlayData: GameSessionDataGameplay
+) :
     Disposable {
-    val minimap = Minimap(tilesMapping, assetsManager)
+    val minimap = Minimap(tilesMapping, assetsManager, gamePlayData)
     val stage: Stage = Stage()
     val movementTouchpad: Touchpad = createTouchpad(assetsManager)
     val turretTouchpad: Touchpad = createTouchpad(assetsManager)
