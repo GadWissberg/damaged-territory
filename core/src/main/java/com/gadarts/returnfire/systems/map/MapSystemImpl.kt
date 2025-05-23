@@ -563,7 +563,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     companion object {
         private const val AMB_PART_CREATION_POSITION_BIAS = 0.05F
         private const val AMB_PART_IMPULSE_COMPONENT = 0.1F
-        const val DOORS_DELAY = 1000F
+        const val DOORS_DELAY = 2000F
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()

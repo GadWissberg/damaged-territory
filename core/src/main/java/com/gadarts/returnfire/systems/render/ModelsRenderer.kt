@@ -198,7 +198,7 @@ class ModelsRenderer(
     fun initializeDirectionalLightAndShadows() {
         extracted()
         val dirValue = 0.4f
-        shadowLight.set(dirValue, dirValue, dirValue, 0.4F, -0.6f, -0.35f)
+        shadowLight.set(dirValue, dirValue, dirValue, 0.3F, -0.7f, -0.3f)
         enableShadow()
     }
 
