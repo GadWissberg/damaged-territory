@@ -453,25 +453,39 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         ambEffectsHandlers.fadingAwayHandler.update(deltaTime)
         ambEffectsHandlers.treeEffectsHandler.update()
         ambEffectsHandlers.fallingBuildingsHandler.updateFallingBuildings()
+        updateDrowns()
+    }
+
+    private fun updateDrowns() {
         for (entity in mapSystemRelatedEntities.drownableEntities) {
             val position = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
                 .getTranslation(auxVector1)
             val drowningHeight =
                 if (ComponentsMapper.amb.has(entity)) ComponentsMapper.amb.get(entity).def.drowningHeight else DROWNING_HEIGHT
-            if (position.y < -drowningHeight) {
+            if (position.y < drowningHeight) {
                 gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_DROWNED.ordinal, entity)
             } else if (position.y < -0.1F) {
                 val drowningComponent = ComponentsMapper.drowningEffect.get(entity)
-                if (drowningComponent != null && TimeUtils.timeSinceMillis(drowningComponent.lastSplashTime) > 500) {
-                    drowningComponent.refreshLastSplashTime()
-                    position.set(
-                        position.x,
-                        SpecialEffectsFactory.WATER_SPLASH_Y,
-                        position.z
-                    )
-                    gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
-                        position, ComponentsMapper.character.has(entity)
-                    )
+                val x = position.x.toInt()
+                val z = position.z.toInt()
+                val tilesTexturesMap = gameSessionData.mapData.currentMap.tilesTexturesMap
+                if (x >= 0 && z >= 0
+                    && x < tilesTexturesMap.size && z < tilesTexturesMap[0].size
+                    && drowningComponent != null
+                    && TimeUtils.timeSinceMillis(drowningComponent.lastSplashTime) > 500
+                ) {
+                    val isWater = tilesTexturesMap[x][z] == MapInflater.WATER_TILE_INDEX
+                    if (isWater) {
+                        drowningComponent.refreshLastSplashTime()
+                        position.set(
+                            position.x,
+                            SpecialEffectsFactory.WATER_SPLASH_Y,
+                            position.z
+                        )
+                        gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
+                            position, ComponentsMapper.character.has(entity)
+                        )
+                    }
                 }
             }
         }

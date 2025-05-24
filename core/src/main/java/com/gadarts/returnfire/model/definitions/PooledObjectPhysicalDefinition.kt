@@ -23,7 +23,7 @@ enum class PooledObjectPhysicalDefinition(
         },
     ),
     TANK_CANNON_BULLET(
-        20F,
+        5F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
                 val auxVector = GeneralUtils.auxVector1
@@ -35,7 +35,7 @@ enum class PooledObjectPhysicalDefinition(
         },
     ),
     MISSILE(
-        8F,
+        4F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): btCollisionShape {
                 val auxVector = GeneralUtils.auxVector1

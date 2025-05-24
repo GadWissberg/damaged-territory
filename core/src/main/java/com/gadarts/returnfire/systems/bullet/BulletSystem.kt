@@ -67,6 +67,14 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 createBullet()
             }
 
+        },
+        SystemEvents.PHYSICS_DROWNED to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                val entity = msg.extraInfo as Entity
+                if (ComponentsMapper.bullet.has(entity)) {
+                    destroyBullet(entity)
+                }
+            }
         }
     )
 
@@ -108,7 +116,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             }
             var destroyBullet = bulletLogic.update(bullet, deltaTime)
             destroyBullet = if (!destroyBullet) position.x <= 0F || position.x >= tilesMapping.size
-                    || position.z <= 0F || position.z >= tilesMapping[0].size || position.y < 0F else true
+                || position.z <= 0F || position.z >= tilesMapping[0].size else true
             if (destroyBullet) {
                 destroyBullet(bullet)
             }

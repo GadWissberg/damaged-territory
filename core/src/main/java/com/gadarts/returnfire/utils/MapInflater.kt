@@ -837,6 +837,6 @@ class MapInflater(
         private val auxBoundingBox = BoundingBox()
         private val auxQuat = Quaternion()
         private const val EXT_SIZE = 48
-        private const val WATER_TILE_INDEX = '0'
+        const val WATER_TILE_INDEX = '0'
     }
 }
