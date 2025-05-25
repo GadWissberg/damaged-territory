@@ -3,7 +3,7 @@ package com.gadarts.returnfire.systems.player
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.utils.Pool
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.model.GameModelInstance
 
 class GameModelInstancePool(

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.Pool
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.systems.player.GameModelInstancePool
@@ -17,7 +17,7 @@ class GameSessionDataPools(
     private val floorModel = createFloorModel()
 
     val gameModelInstancePools = ModelDefinition.entries
-        .filter { it.pooledObjectPhysicalDefinition != null }
+        .filter { it.physicsData.pooledObjectPhysicalDefinition != null }
         .associateWith { createPool(it) }
 
     val particleEffectsPools = ParticleEffectsPools(assetsManager)

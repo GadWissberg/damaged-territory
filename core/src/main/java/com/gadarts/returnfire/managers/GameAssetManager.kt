@@ -21,10 +21,10 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Array
 import com.gadarts.returnfire.assets.AssetsTypes
 import com.gadarts.returnfire.assets.definitions.AssetDefinition
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.external.ExternalDefinitions
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.assets.loaders.DefinitionLoader
 import com.gadarts.returnfire.assets.loaders.MapLoader
 import com.gadarts.returnfire.assets.utils.CollisionShapeInfo
@@ -232,8 +232,8 @@ open class GameAssetManager : AssetManager() {
                 val definitionName = def.getDefinitionName()
                 val model: Model = getAssetByDefinition(def)
                 val boundingBox = model.calculateBoundingBox(BoundingBox())
-                if (!def.boundingBoxScale.epsilonEquals(Vector3(1F, 1F, 1F))) {
-                    boundingBox.mul(auxMatrix.idt().scl(def.boundingBoxScale))
+                if (!def.boundingBoxData.boundingBoxScale.epsilonEquals(Vector3(1F, 1F, 1F))) {
+                    boundingBox.mul(auxMatrix.idt().scl(def.boundingBoxData.boundingBoxScale))
                 }
                 addAsset(
                     PREFIX_ASSET_BOUNDING_BOX + definitionName,

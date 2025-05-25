@@ -2,7 +2,7 @@ package com.gadarts.returnfire.screens.hangar
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.managers.GameAssetManager
 
 class HangarCharacterModels(assetsManager: GameAssetManager, private val stagesModels: HangarStagesModels) {

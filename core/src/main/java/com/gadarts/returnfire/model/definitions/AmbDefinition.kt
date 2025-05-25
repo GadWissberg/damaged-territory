@@ -1,8 +1,8 @@
 package com.gadarts.returnfire.model.definitions
 
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.model.ElementType
 import com.gadarts.returnfire.systems.data.map.GameSessionDataMap.Companion.DROWNING_HEIGHT
 

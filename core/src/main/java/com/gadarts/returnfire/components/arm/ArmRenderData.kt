@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.components.arm
 
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 
 class ArmRenderData(
     val modelDefinition: ModelDefinition,

@@ -23,11 +23,11 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.definitions.AutomaticShapeCreator
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
+import com.gadarts.returnfire.assets.definitions.model.AutomaticShapeCreator
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.AnimatedTextureComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.amb.AmbComponent
@@ -373,7 +373,7 @@ class MapInflater(
 
     private fun createShapeForStaticObject(modelDefinition: ModelDefinition, entity: Entity): btCollisionShape {
         val shape: btCollisionShape
-        when (modelDefinition.physicalShapeCreator) {
+        when (modelDefinition.physicsData.physicalShapeCreator) {
             null -> {
                 shape = btCompoundShape()
                 val dimensions =
@@ -397,7 +397,7 @@ class MapInflater(
             }
 
             else -> {
-                shape = modelDefinition.physicalShapeCreator.create()
+                shape = modelDefinition.physicsData.physicalShapeCreator.create()
             }
         }
         return shape
@@ -437,7 +437,7 @@ class MapInflater(
         val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
         val shape = btCompoundShape()
         shape.addChildShape(
-            auxMatrix.idt().translate(ModelDefinition.TURRET_CANNON.boundingBoxBias), btBoxShape(
+            auxMatrix.idt().translate(ModelDefinition.TURRET_CANNON.boundingBoxData.boundingBoxBias), btBoxShape(
                 auxVector1.set(
                     cachedBoundingBox.width / 2F,
                     cachedBoundingBox.height / 2F,
@@ -525,8 +525,8 @@ class MapInflater(
         gameSessionData.mapData.currentMap.placedElements.filter {
             val definition = it.definition
             definition.getType() == ElementType.CHARACTER
-                && definition != SimpleCharacterDefinition.APACHE
-                && definition != TurretCharacterDefinition.TANK
+                    && definition != SimpleCharacterDefinition.APACHE
+                    && definition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 addCharacter(
@@ -811,9 +811,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-        && col >= 0
-        && row < gameSessionData.mapData.currentMap.tilesTexturesMap.size
-        && col < gameSessionData.mapData.currentMap.tilesTexturesMap[0].size)
+            && col >= 0
+            && row < gameSessionData.mapData.currentMap.tilesTexturesMap.size
+            && col < gameSessionData.mapData.currentMap.tilesTexturesMap[0].size)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

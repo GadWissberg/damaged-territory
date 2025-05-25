@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.model.definitions
 
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.model.CharacterType
 
 enum class TurretCharacterDefinition(
@@ -44,6 +44,10 @@ enum class TurretCharacterDefinition(
         isNonMoving = false,
         fuelConsumptionPace = 0.1F
     );
+
+    override fun isUseSeparateTransformObjectForPhysics(): Boolean {
+        return false
+    }
 
     override fun isFlyer(): Boolean {
         return false

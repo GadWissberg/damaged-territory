@@ -2,7 +2,7 @@ package com.gadarts.returnfire.systems.map
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 
 interface MapSystem {
     fun destroyAmbObject(amb: Entity)

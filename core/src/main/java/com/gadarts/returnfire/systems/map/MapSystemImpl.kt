@@ -18,10 +18,10 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.FIRE_LOOP_SMALL
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.SMOKE_UP_LOOP
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecal

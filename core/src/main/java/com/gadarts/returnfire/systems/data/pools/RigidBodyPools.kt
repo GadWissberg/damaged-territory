@@ -1,6 +1,6 @@
 package com.gadarts.returnfire.systems.data.pools
 
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.managers.GameAssetManager
 
 class RigidBodyPools(private val assetsManager: GameAssetManager, private val rigidBodyFactory: RigidBodyFactory) {

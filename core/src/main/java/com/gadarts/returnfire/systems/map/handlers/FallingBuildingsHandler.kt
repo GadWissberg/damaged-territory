@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -78,7 +78,7 @@ class FallingBuildingsHandler(private val mapSystem: MapSystem, private val game
         val transform = gameModelInstance.modelInstance.transform.set(auxMatrix)
         entityBuilder.addPhysicsComponentToEntity(
             destroyedBuilding,
-            ModelDefinition.BUILDING_0_DESTROYED.physicalShapeCreator!!.create(),
+            ModelDefinition.BUILDING_0_DESTROYED.physicsData.physicalShapeCreator!!.create(),
             0F,
             btCollisionObject.CollisionFlags.CF_STATIC_OBJECT,
             transform

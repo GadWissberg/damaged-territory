@@ -9,9 +9,9 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.EcsManager
@@ -236,7 +236,7 @@ class SpecialEffectsFactory(
         val randomParticleEffect =
             if (MathUtils.random() >= 0.15) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP_SMALL
         val transform = gameModelInstance.modelInstance.transform
-        val physicalShapeCreator = gameModelInstance.definition?.physicalShapeCreator
+        val physicalShapeCreator = gameModelInstance.definition?.physicsData?.physicalShapeCreator
         val entityBuilder = ecs.entityBuilder
             .begin()
             .addDrowningEffectComponent()

@@ -17,9 +17,9 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.ChildModelInstanceComponent
 import com.gadarts.returnfire.components.ComponentsMapper

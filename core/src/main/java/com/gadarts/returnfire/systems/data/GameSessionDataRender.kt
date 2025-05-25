@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.systems.render.CameraState
+import com.gadarts.returnfire.systems.camera.CameraState
 import com.gadarts.returnfire.utils.GeneralUtils
 
 class GameSessionDataRender : Disposable {

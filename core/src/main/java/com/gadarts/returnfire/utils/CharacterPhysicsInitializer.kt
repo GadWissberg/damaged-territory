@@ -27,7 +27,7 @@ class CharacterPhysicsInitializer {
         val modelInstanceTransform =
             modelInstanceComponent.gameModelInstance.modelInstance.transform
         val physicsTransform =
-            if (isApache) Matrix4(modelInstanceTransform) else modelInstanceTransform
+            if (characterDefinition.isUseSeparateTransformObjectForPhysics()) Matrix4(modelInstanceTransform) else modelInstanceTransform
         val physicsComponent = entityBuilder.addPhysicsComponentToEntity(
             character,
             shape,

@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.model.definitions
 
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.model.CharacterType
 
 enum class SimpleCharacterDefinition(
@@ -49,6 +49,9 @@ enum class SimpleCharacterDefinition(
         return output.set(gravity)
     }
 
+    override fun isUseSeparateTransformObjectForPhysics(): Boolean {
+        return true
+    }
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition
     }

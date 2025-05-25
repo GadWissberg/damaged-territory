@@ -15,7 +15,7 @@ class BulletLogic {
             if (bulletComponent.behavior == BulletBehavior.CURVE) {
                 val physicsComponent = ComponentsMapper.physics.get(bullet)
                 val curveRotationStepSize = CURVE_ROTATION_STEP * deltaTime
-                if (physicsComponent.rigidBody.worldTransform.getRotation(auxQuat).roll > -90F) {
+                if (physicsComponent.rigidBody.worldTransform.getRotation(auxQuat).roll > BULLET_BEHAVIOR_CURVE_MIN_ROLL) {
                     val worldTransform = physicsComponent.rigidBody.worldTransform
                     physicsComponent.rigidBody.worldTransform =
                         auxMatrix.set(worldTransform).rotate(Vector3.Z, curveRotationStepSize)
@@ -39,6 +39,7 @@ class BulletLogic {
     companion object {
         private const val BULLET_BEHAVIOR_DURATION = 3000L
         private const val CURVE_ROTATION_STEP = -90F
+        private const val BULLET_BEHAVIOR_CURVE_MIN_ROLL = -90F
         private val auxQuat = Quaternion()
         private val auxMatrix = Matrix4()
         private val auxVector1 = Vector3()

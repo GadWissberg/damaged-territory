@@ -1,63 +1,100 @@
-package com.gadarts.returnfire.assets.definitions
+package com.gadarts.returnfire.assets.definitions.model
 
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.*
+import com.gadarts.returnfire.assets.definitions.AssetDefinition
+import com.gadarts.returnfire.assets.definitions.PhysicalShapeCreator
 import com.gadarts.returnfire.model.definitions.PooledObjectPhysicalDefinition
+import com.gadarts.returnfire.model.definitions.PooledObjectPhysicalDefinition.BULLET_FLAT
 
 
 enum class ModelDefinition(
-    fileNames: Int = 1,
-    val boundingBoxScale: Vector3 = Vector3(1F, 1F, 1F),
-    val boundingBoxBias: Vector3 = Vector3.Zero,
-    val pooledObjectPhysicalDefinition: PooledObjectPhysicalDefinition? = null,
-    val physicalShapeCreator: PhysicalShapeCreator? = null,
-    val centerOfMass: Vector3 = Vector3.Zero,
+    val boundingBoxData: ModelDefinitionBoundingBoxData = ModelDefinitionBoundingBoxData(
+        Vector3(1F, 1F, 1F),
+        Vector3.Zero
+    ),
+    val fileNames: Int = 1,
+    val physicsData: ModelDefinitionPhysicsData = ModelDefinitionPhysicsData(
+        pooledObjectPhysicalDefinition = null,
+        physicalShapeCreator = null,
+        centerOfMass = Vector3.Zero
+    ),
     val separateModelForShadow: Boolean = false,
     val origin: Vector3 = Vector3.Zero,
     val decal: String? = null
 ) :
     AssetDefinition<Model> {
 
-    APACHE(centerOfMass = Vector3(0F, -0.2F, 0F), separateModelForShadow = true),
+    APACHE(
+        physicsData = ModelDefinitionPhysicsData(centerOfMass = Vector3(0F, -0.2F, 0F)),
+        separateModelForShadow = true
+    ),
     APACHE_DEAD,
     APACHE_DEAD_FRONT,
     APACHE_DEAD_BACK,
-    BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT),
-    CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT),
-    MISSILE(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.MISSILE),
+    BULLET(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = BULLET_FLAT)),
+    CANNON_BULLET(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = BULLET_FLAT)),
+    MISSILE(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.MISSILE)),
     PALM_TREE(
         fileNames = 2,
-        boundingBoxScale = Vector3(0.25F, 1F, 0.25F),
-        physicalShapeCreator = PalmTreePhysicalShapeCreator
+        boundingBoxData = ModelDefinitionBoundingBoxData(Vector3(0.25F, 1F, 0.25F)),
+        physicsData = ModelDefinitionPhysicsData(
+            physicalShapeCreator = PalmTreePhysicalShapeCreator,
+        ),
     ),
-    PALM_TREE_LEAF(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_LEAF),
-    PALM_TREE_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_PART),
+    PALM_TREE_LEAF(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_LEAF)),
+    PALM_TREE_PART(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_PART)),
     WATCH_TOWER,
-    WATCH_TOWER_DESTROYED(physicalShapeCreator = WatchTowerDestroyedPhysicalShapeCreator),
-    WATCH_TOWER_DESTROYED_PART(fileNames = 2, physicalShapeCreator = WatchTowerDestroyedPartPhysicalShapeCreator),
+    WATCH_TOWER_DESTROYED(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = WatchTowerDestroyedPhysicalShapeCreator)),
+    WATCH_TOWER_DESTROYED_PART(
+        fileNames = 2,
+        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = WatchTowerDestroyedPartPhysicalShapeCreator)
+    ),
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,
     FLAG,
     TURRET_CANNON(
-        boundingBoxScale = Vector3(0.4F, 1F, 1F),
-        boundingBoxBias = Vector3(0.2F, 0F, 0F),
+        boundingBoxData = ModelDefinitionBoundingBoxData(Vector3(0.4F, 1F, 1F), Vector3(0.2F, 0F, 0F)),
         separateModelForShadow = true
     ),
-    TURRET_CANNON_DEAD_0(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
-    TURRET_CANNON_DEAD_1(boundingBoxScale = Vector3(0.4F, 1F, 1F), boundingBoxBias = Vector3(0.2F, 0F, 0F)),
-    TURRET_BASE(centerOfMass = Vector3(0F, 0.5F, -0F), physicalShapeCreator = TurretBasePhysicalShapeCreator),
+    TURRET_CANNON_DEAD_0(
+        boundingBoxData = ModelDefinitionBoundingBoxData(
+            Vector3(0.4F, 1F, 1F),
+            Vector3(0.2F, 0F, 0F)
+        )
+    ),
+    TURRET_CANNON_DEAD_1(
+        boundingBoxData = ModelDefinitionBoundingBoxData(
+            Vector3(0.4F, 1F, 1F),
+            Vector3(0.2F, 0F, 0F)
+        )
+    ),
+    TURRET_BASE(
+        physicsData = ModelDefinitionPhysicsData(
+            centerOfMass = Vector3(0F, 0.5F, -0F),
+            physicalShapeCreator = TurretBasePhysicalShapeCreator
+        )
+    ),
     MACHINE_GUN_SPARK,
     CANNON_SPARK,
-    FLYING_PART(boundingBoxScale = Vector3(0.5F, 0.5F, 0.5F), fileNames = 3),
-    FLYING_PART_SMALL(boundingBoxScale = Vector3(0.25F, 0.25F, 0.25F)),
+    FLYING_PART(
+        boundingBoxData = ModelDefinitionBoundingBoxData(
+            Vector3(0.5F, 0.5F, 0.5F),
+        ), fileNames = 3
+    ),
+    FLYING_PART_SMALL(
+        boundingBoxData = ModelDefinitionBoundingBoxData(
+            Vector3(0.25F, 0.25F, 0.25F),
+        )
+    ),
     TANK_BODY,
     TANK_TURRET,
     TANK_CANNON,
     TANK_MISSILE_LAUNCHER,
-    TANK_CANNON_BULLET(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.TANK_CANNON_BULLET),
+    TANK_CANNON_BULLET(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.TANK_CANNON_BULLET)),
     TANK_BODY_DESTROYED,
     TANK_TURRET_DESTROYED,
     TANK_CANNON_DESTROYED,
@@ -69,30 +106,48 @@ enum class ModelDefinition(
     PROPELLER,
     PIT,
     PIT_DOOR,
-    ROCK_BIG(physicalShapeCreator = AutomaticShapeCreator),
-    ROCK_MED(physicalShapeCreator = AutomaticShapeCreator),
-    ROCK_SMALL(physicalShapeCreator = AutomaticShapeCreator),
+    ROCK_BIG(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AutomaticShapeCreator)),
+    ROCK_MED(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AutomaticShapeCreator)),
+    ROCK_SMALL(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AutomaticShapeCreator)),
     ROCK_PART,
     ROCK_PART_BIG,
-    BUILDING_0(physicalShapeCreator = Building0ShapeCreator),
-    BUILDING_0_DESTROYED(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator),
-    BUILDING_0_PART(fileNames = 2, pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BUILDING_0_PART),
-    ANTENNA(physicalShapeCreator = AntennaShapeCreator),
-    ANTENNA_DESTROYED_BASE(physicalShapeCreator = AntennaDestroyedBaseShapeCreator),
-    ANTENNA_DESTROYED_BODY(
-        physicalShapeCreator = AntennaDestroyedBodyShapeCreator,
+    BUILDING_0(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = Building0ShapeCreator)),
+    BUILDING_0_DESTROYED(
+        fileNames = 2,
+        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = Building0DestroyedShapeCreator)
     ),
-    ANTENNA_PART(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART),
-    STREET_LIGHT(physicalShapeCreator = StreetLightPhysicalShapeCreator, origin = Vector3(0F, -0.7F, 0F)),
-    FENCE(physicalShapeCreator = FencePhysicalShapeCreator, decal = "fence"),
-    FENCE_PART(physicalShapeCreator = FencePartPhysicalShapeCreator),
+    BUILDING_0_PART(
+        fileNames = 2,
+        physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BUILDING_0_PART)
+    ),
+    ANTENNA(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AntennaShapeCreator)),
+    ANTENNA_DESTROYED_BASE(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AntennaDestroyedBaseShapeCreator)),
+    ANTENNA_DESTROYED_BODY(
+        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AntennaDestroyedBodyShapeCreator),
+    ),
+    ANTENNA_PART(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.ANTENNA_PART)),
+    STREET_LIGHT(
+        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = StreetLightPhysicalShapeCreator),
+        origin = Vector3(0F, -0.7F, 0F)
+    ),
+    FENCE(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = FencePhysicalShapeCreator), decal = "fence"),
+    FENCE_PART(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = FencePartPhysicalShapeCreator)),
     FENCE_DESTROYED_RIGHT,
     FENCE_DESTROYED_LEFT,
-    DESTROYED_BUILDING(fileNames = 2, physicalShapeCreator = Building0DestroyedShapeCreator),
-    HANGAR(physicalShapeCreator = HangarPhysicalShapeCreator),
-    HANGAR_DESTROYED(physicalShapeCreator = HangarDestroyedPhysicalShapeCreator),
-    SIGN(physicalShapeCreator = SignPhysicalShapeCreator, origin = Vector3(0F, -0.2F, 0F)),
-    SIGN_BIG(physicalShapeCreator = AutomaticShapeCreator, origin = Vector3(0F, -0.63F, 0F));
+    DESTROYED_BUILDING(
+        fileNames = 2,
+        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = Building0DestroyedShapeCreator)
+    ),
+    HANGAR(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = HangarPhysicalShapeCreator)),
+    HANGAR_DESTROYED(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = HangarDestroyedPhysicalShapeCreator)),
+    SIGN(
+        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = SignPhysicalShapeCreator),
+        origin = Vector3(0F, -0.2F, 0F)
+    ),
+    SIGN_BIG(
+        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = SignPhysicalShapeCreator),
+        origin = Vector3(0F, -0.63F, 0F)
+    );
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()

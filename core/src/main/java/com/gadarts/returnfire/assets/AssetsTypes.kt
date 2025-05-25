@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.assets
 
 import com.gadarts.returnfire.assets.definitions.*
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 
 enum class AssetsTypes(
     val format: String,

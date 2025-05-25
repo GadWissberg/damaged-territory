@@ -8,10 +8,10 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.gadarts.returnfire.assets.definitions.ModelDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.*
 import com.gadarts.returnfire.assets.definitions.SoundDefinition
+import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.amb.AmbComponent
 import com.gadarts.returnfire.components.amb.AmbCorpsePart
@@ -405,7 +405,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 Vector3.Zero,
                 gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.ANTENNA_DESTROYED_BASE)
             ).addPhysicsComponent(
-                ModelDefinition.ANTENNA_DESTROYED_BASE.physicalShapeCreator!!.create(),
+                ModelDefinition.ANTENNA_DESTROYED_BASE.physicsData.physicalShapeCreator!!.create(),
                 CollisionFlags.CF_STATIC_OBJECT,
                 baseGameModelInstance.modelInstance.transform.set(auxMatrix),
                 1F,
@@ -451,7 +451,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             .addDrowningEffectComponent()
             .addAmbCorpsePart(def.corpsePartDestroyOnGroundImpact, def.corpseCollisionSound)
             .addPhysicsComponent(
-                modelDefinition.physicalShapeCreator!!.create(),
+                modelDefinition.physicsData.physicalShapeCreator!!.create(),
                 CollisionFlags.CF_CHARACTER_OBJECT,
                 bodyGameModelInstance.modelInstance.transform.set(auxMatrix).trn(
                     0F,
