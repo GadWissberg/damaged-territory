@@ -7,6 +7,6 @@ class StageComponent(val base: Entity) : Component {
 
     companion object {
         const val BOTTOM_EDGE_Y: Float = -4F
-        const val MAX_Y = -0.8F
+        const val MAX_Y = -0.9F
     }
 }

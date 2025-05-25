@@ -113,7 +113,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                     entity1,
                 )
             } else if (bulletComponent != null && bulletComponent.explosive) {
-                handleCollisionHealthyAmbWithFastAndHeavyStuff(entity0, entity1, gameSessionData, gamePlayManagers)
+                handleCollisionHealthyAmbWithFastAndHeavyStuff(entity0, gameSessionData, gamePlayManagers)
             }
             return true
         }
@@ -377,8 +377,8 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             min = 2,
             max = 3,
             mass = 3F,
-            minForce = 10F,
-            maxForce = 16F,
+            minForce = 12F,
+            maxForce = 20F,
             solid = true
         )
     }
@@ -560,7 +560,6 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
 
     private fun handleCollisionHealthyAmbWithFastAndHeavyStuff(
         amb: Entity,
-        otherCollider: Entity,
         gameSessionData: GameSessionData,
         gamePlayManagers: GamePlayManagers
     ) {
@@ -573,7 +572,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val beforeHp = ambComponent.hp
         applyDamageToAmb(ambComponent)
         val newHp = ambComponent.hp
-        createFlyingPartsForAmb(otherCollider, Vector3.Zero, gamePlayManagers, true)
+        createFlyingPartsForAmb(amb, Vector3.Zero, gamePlayManagers, true)
         if (newHp <= 0) {
             initiateAmbDestruction(amb, position, gameSessionData, gamePlayManagers)
         } else {

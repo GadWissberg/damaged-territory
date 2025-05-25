@@ -16,6 +16,20 @@
       "col": 5
     },
     {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 1,
+      "col": 7
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 1,
+      "col": 8
+    },
+    {
       "definition": "FENCE",
       "type": "AMB",
       "direction": 0,
@@ -30,7 +44,7 @@
       "col": 11
     },
     {
-      "definition": "FENCE",
+      "definition": "ROCK_BIG",
       "type": "AMB",
       "direction": 0,
       "row": 1,
@@ -51,6 +65,13 @@
       "col": 5
     },
     {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 2,
+      "col": 7
+    },
+    {
       "definition": "WATCH_TOWER",
       "type": "AMB",
       "direction": 0,
@@ -65,7 +86,7 @@
       "col": 10
     },
     {
-      "definition": "FENCE",
+      "definition": "ROCK_BIG",
       "type": "AMB",
       "direction": 0,
       "row": 2,
@@ -93,7 +114,21 @@
       "col": 5
     },
     {
-      "definition": "FENCE",
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 3,
+      "col": 7
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 3,
+      "col": 8
+    },
+    {
+      "definition": "ROCK_BIG",
       "type": "AMB",
       "direction": 0,
       "row": 3,
@@ -161,6 +196,13 @@
       "direction": 0,
       "row": 6,
       "col": 8
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "direction": 0,
+      "row": 8,
+      "col": 11
     },
     {
       "definition": "RUINS",

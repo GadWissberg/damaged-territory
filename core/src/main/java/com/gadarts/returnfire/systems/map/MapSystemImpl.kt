@@ -139,10 +139,10 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             ModelDefinition.PALM_TREE_LEAF,
             1,
             5,
-            0.5F,
+            0.9F,
             decorateWithSmokeAndFire,
             0.125F,
-            0.25F,
+            0.21F,
             AMB_PART_CREATION_POSITION_BIAS
         )
         blowAmbToParts(
