@@ -41,9 +41,6 @@ enum class ModelDefinition(
     PALM_TREE(
         fileNames = 2,
         boundingBoxData = ModelDefinitionBoundingBoxData(Vector3(0.25F, 1F, 0.25F)),
-        physicsData = ModelDefinitionPhysicsData(
-            physicalShapeCreator = PalmTreePhysicalShapeCreator,
-        ),
     ),
     PALM_TREE_LEAF(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_LEAF)),
     PALM_TREE_PART(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_PART)),
@@ -181,19 +178,6 @@ enum class ModelDefinition(
 object AutomaticShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
         return btConvexHullShape()
-    }
-
-}
-
-object PalmTreePhysicalShapeCreator : PhysicalShapeCreator {
-    private val auxMatrix = Matrix4()
-    override fun create(): btCollisionShape {
-        val shape = btCompoundShape()
-        val btBoxShape = btBoxShape(Vector3(0.06F, 0.5F, 0.06F))
-        shape.addChildShape(
-            auxMatrix.idt().translate(0F, 0.4F, 0F), btBoxShape
-        )
-        return shape
     }
 
 }
