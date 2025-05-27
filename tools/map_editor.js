@@ -3,7 +3,32 @@ class CellData {
     (this.object = null), (this.value = 0);
   }
 }
-
+    document.querySelectorAll('#itemList li').forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('selected');
+      });
+    });
+      let layerCount = 1;
+        function attachClickHandlers() {
+          document.querySelectorAll('#itemList li').forEach(item => {
+            item.onclick = () => item.classList.toggle('selected');
+          });
+        }
+       document.getElementById('addLayerButton').addEventListener('click', () => {
+            const userInput = prompt("Layer name:");
+            if (userInput && userInput.trim() !== "") {
+              const newItem = document.createElement('li');
+              newItem.textContent = userInput;
+              newItem.onclick = () => newItem.classList.toggle('selected');
+              document.getElementById('layerList').appendChild(newItem);
+            }
+          });
+          document.querySelectorAll('#itemList li').forEach(item => {
+            item.addEventListener('click', () => {
+              item.classList.toggle('selected');
+            });
+          });
+        attachClickHandlers();
 const ID_MAP = "map";
 const Modes = Object.freeze({
   TILES: Symbol("tiles"),
