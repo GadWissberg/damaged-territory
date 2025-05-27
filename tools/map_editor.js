@@ -3,32 +3,64 @@ class CellData {
     (this.object = null), (this.value = 0);
   }
 }
-    document.querySelectorAll('#itemList li').forEach(item => {
-      item.addEventListener('click', () => {
-        item.classList.toggle('selected');
-      });
+document.querySelectorAll("#itemList li").forEach((item) => {
+  item.addEventListener("click", () => {
+    item.classList.toggle("selected");
+  });
+});
+let layerCount = 1;
+function attachClickHandlers() {
+  document.querySelectorAll("#itemList li").forEach((item) => {
+    item.onclick = () => item.classList.toggle("selected");
+  });
+}
+const layers = []; // Array to store overlay tables
+
+document.getElementById("addLayerButton").addEventListener("click", () => {
+  const userInput = prompt("Layer name:");
+  if (userInput && userInput.trim() !== "") {
+    const newItem = document.createElement("li");
+    newItem.textContent = userInput;
+    newItem.onclick = () => newItem.classList.toggle("selected");
+    document.getElementById("layerList").appendChild(newItem);
+    const overlay = document.createElement("table");
+    mapContainer.appendChild(overlay);
+
+    Object.assign(overlay.style, {
+      width: MAP_SIZE * TILE_SIZE + "px",
+      height: MAP_SIZE * TILE_SIZE + "px",
+      position: "absolute",
+      top: "0",
+      left: "0",
+      zIndex: (layers.length + 2).toString(), // Stack above existing layers
+      pointerEvents: "none", // Optional: allow clicks to pass through
+      borderCollapse: "collapse",
     });
-      let layerCount = 1;
-        function attachClickHandlers() {
-          document.querySelectorAll('#itemList li').forEach(item => {
-            item.onclick = () => item.classList.toggle('selected');
-          });
-        }
-       document.getElementById('addLayerButton').addEventListener('click', () => {
-            const userInput = prompt("Layer name:");
-            if (userInput && userInput.trim() !== "") {
-              const newItem = document.createElement('li');
-              newItem.textContent = userInput;
-              newItem.onclick = () => newItem.classList.toggle('selected');
-              document.getElementById('layerList').appendChild(newItem);
-            }
-          });
-          document.querySelectorAll('#itemList li').forEach(item => {
-            item.addEventListener('click', () => {
-              item.classList.toggle('selected');
-            });
-          });
-        attachClickHandlers();
+
+    // Fill the new layer with transparent/colored cells
+    for (let y = 0; y < MAP_SIZE; y++) {
+      const row = overlay.insertRow();
+      for (let x = 0; x < MAP_SIZE; x++) {
+        const cell = row.insertCell();
+        Object.assign(cell.style, {
+          width: TILE_SIZE + "px",
+          height: TILE_SIZE + "px",
+          backgroundColor: "rgba(0, 255, 0, 0.1)", // green overlay
+          border: "1px solid transparent",
+        });
+      }
+    }
+
+    // Save the overlay in the layers array
+    layers.push(overlay);
+  }
+});
+document.querySelectorAll("#itemList li").forEach((item) => {
+  item.addEventListener("click", () => {
+    item.classList.toggle("selected");
+  });
+});
+attachClickHandlers();
 const ID_MAP = "map";
 const Modes = Object.freeze({
   TILES: Symbol("tiles"),
@@ -49,7 +81,7 @@ const elementsDefinitions = Object.freeze([
   { name: "ANTENNA", type: "AMB" },
   { name: "STREET_LIGHT", type: "AMB" },
   { name: "FENCE", type: "AMB" },
-      {name: "RUINS", type: "AMB"},
+  { name: "RUINS", type: "AMB" },
   { name: "HANGAR", type: "AMB" },
   { name: "SIGN", type: "AMB" },
   { name: "SIGN_BIG", type: "AMB" },
