@@ -9,66 +9,7 @@ document.querySelectorAll("#itemList li").forEach((item) => {
   });
 });
 let layerCount = 1;
-let selectedLayer = null;
-function attachClickHandlers() {
-  document.querySelectorAll("#layerList li").forEach((item) => {
-    item.onclick = () => {
-const allItems = Array.from(layerList.children); // convert NodeList to array
-    const index = allItems.indexOf(item);
-
-    item.classList.toggle("selected");
-     selectedLayer = index != 0 ? index : null};
-  });
-}
 const layers = []; // Array to store overlay tables
-
-document.getElementById("addLayerButton").addEventListener("click", () => {
-  const userInput = prompt("Layer name:");
-  if (userInput && userInput.trim() !== "") {
-    // Get reference to the #map div
-    const mapContainer = document.getElementById("map");
-
-    // Add item to the list
-    const newItem = document.createElement("li");
-    newItem.textContent = userInput;
-    newItem.onclick = () => newItem.classList.toggle("selected");
-    document.getElementById("layerList").appendChild(newItem);
-    attachClickHandlers();
-
-    // Create overlay table
-    const overlay = document.createElement("table");
-    Object.assign(overlay.style, {
-      width: this.map_size * 64 + "px",
-      height: this.map_size * 64 + "px",
-      position: "absolute",
-      top: "0",
-      left: "0",
-      zIndex: (layers.length + 2).toString(), // Ensure it's on top
-      pointerEvents: "none",
-      borderCollapse: "collapse"
-    });
-
-    // Fill overlay with cells
-    for (let y = 0; y < this.map_size; y++) {
-      const row = overlay.insertRow();
-      for (let x = 0; x < this.map_size; x++) {
-        const cell = row.insertCell();
-        Object.assign(cell.style, {
-          width: 64 + "px",
-          height: 64 + "px",
-          backgroundColor: "rgba(0, 255, 0, 0.1)",
-          border: "1px solid transparent"
-        });
-      }
-    }
-
-    // Append overlay to map container
-    mapContainer.appendChild(overlay);
-
-    // Save in layers array
-    layers.push(overlay);
-  }
-});
 
 document.querySelectorAll("#itemList li").forEach((item) => {
   item.addEventListener("click", () => {
@@ -108,6 +49,8 @@ const body = document.body;
 const table = document
   .getElementById(ID_MAP)
   .appendChild(document.createElement("table"));
+layers.push(table)
+
 const RADIO_GROUP_NAME_MODES = "modes";
 const OPTION_MODE_OBJECTS = "option_mode_objects";
 const DIV_ID_LEFT_MENU = "left_menu_div";
@@ -291,7 +234,60 @@ const tiles = [
   { name: "tile_beach_dark_gulf_bottom_left", animate: false, bit: BIT_GROUND },
 ];
 class MapEditor {
+
   constructor() {
+ this.selectedLayer = null;
+
+  document.getElementById("addLayerButton").addEventListener("click", () => {
+    const userInput = prompt("Layer name:");
+    if (userInput && userInput.trim() !== "") {
+      // Get reference to the #map div
+      const mapContainer = document.getElementById("map");
+
+      // Add item to the list
+      const newItem = document.createElement("li");
+      newItem.textContent = userInput;
+      newItem.onclick = () => newItem.classList.toggle("selected");
+      document.getElementById("layerList").appendChild(newItem);
+      this.attachClickHandlers();
+
+      // Create overlay table
+      const overlay = document.createElement("table");
+      const mapSize = layers[0].rows.length;
+      Object.assign(overlay.style, {
+        width: mapSize * 64 + "px",
+        height: mapSize * 64 + "px",
+        position: "absolute",
+  top: "0",
+  left: "0",
+        zIndex: (layers.length + 2).toString(), // Ensure it's on top
+        borderCollapse: "collapse"
+      });
+      // Fill overlay with cells
+      for (let y = 0; y < mapSize; y++) {
+        const row = overlay.insertRow();
+        for (let x = 0; x < mapSize; x++) {
+          const cell = row.insertCell();
+  Object.assign(cell.style, {
+    width: "64px",
+    height: "64px",
+    padding: "0",
+    margin: "0",
+    border: "2px solid transparent", // transparent border to maintain layout
+    backgroundColor: "transparent", // explicitly remove background
+  });
+          cell.addEventListener("click", (e) => {
+            this.onCellLeftClicked(y, x);
+          });
+        }
+      }
+      // Append overlay to map container
+      mapContainer.appendChild(overlay);
+      // Save in layers array
+      layers.push(overlay);
+    }
+  });
+
     this.resetMap();
     this.initializeModesRadioButtons();
     this.inflateElementsLeftMenu();
@@ -331,6 +327,7 @@ tileTypes.map((tileObject) => tileObject)
     var self = this;
     defineSaveProcess();
     defineLoadProcess();
+
 
     function fillDropdownOptions(id, options) {
       var dropDown = document.getElementById(id);
@@ -469,7 +466,18 @@ tileTypes.map((tileObject) => tileObject)
         });
     }
   }
+  attachClickHandlers() {
+    const layerList = document.getElementById("layerList");
+    const allItems = Array.from(layerList.children);
 
+    allItems.forEach((item) => {
+      item.onclick = () => {
+        const index = allItems.indexOf(item);
+        item.classList.toggle("selected");
+        this.selectedLayer = index !== 0 ? index : null;
+      };
+    });
+  }
   inflateElementsLeftMenu() {
     var leftMenu = document.getElementById(DIV_ID_LEFT_MENU);
     elementsDefinitions.forEach((element) => {
@@ -531,7 +539,7 @@ tileTypes.map((tileObject) => tileObject)
           false
         );
       } else {
-if (selectedLayer){
+if (this.selectedLayer){
 var typesDropDown = document.getElementById(SELECT_ID_DROPDOWN_TILE_TYPES);
         this.applyTileChangeInCell(
           cellData,
@@ -580,10 +588,9 @@ var typesDropDown = document.getElementById(SELECT_ID_DROPDOWN_TILE_TYPES);
 
   applyTileChangeInCell(cellData, cell, row, col, tileName, surround) {
     cellData.value = BIT_GROUND;
-    applyTileOnCell(cell, tileName);
+    applyTileOnCell(layers[this.selectedLayer].rows[row].cells[col], tileName);
     if (surround) {
       this.applySurroundTiles(row, col, tileName);
-//      this.applyShallowWaterTiles(row, col);
     }
   }
 
@@ -679,7 +686,6 @@ var typesDropDown = document.getElementById(SELECT_ID_DROPDOWN_TILE_TYPES);
               }
             }
           }
-debugger
           if (tile) {
             tile = tile.replace("?", tileName.replace(/_\d+$/, ""));
             applyTileOnCell(
@@ -785,7 +791,7 @@ debugger
   }
 
   onCellLeftClicked(row, col) {
-    var cell = table.rows[row].cells[col];
+    var cell = layers[this.selectedLayer].rows[row].cells[col];
     this.initializeCellData(cell);
     var cellData = cell.cellData;
     this.placeElementInCell(cell, cellData, "click", row, col);
@@ -891,8 +897,14 @@ function applyTileOnCell(td, selectedTile, bit = -1) {
   if (typeof selectedTile !== "string") {
     finalName = selectedTile.name + (selectedTile.animated ? "_0" : "");
   }
+
   td.style.backgroundImage = `url(../assets/textures/ground/beach/new_tiles/${finalName}.png)`;
   td.style.backgroundSize = "cover";
+  td.style.backgroundRepeat = "no-repeat";
+  td.style.backgroundPosition = "center center";
+  td.style.width = "64px";   // Enforce fixed size
+  td.style.height = "64px";  // Same here
+
   if (td.cellData) {
     td.cellData.selectedTile = selectedTile;
     if (bit >= 0) {

@@ -1,8 +1,7 @@
 table {
   empty-cells: show;
   table-layout: fixed;
-  width: 100%;
-  table-layout: fixed;
+  width: auto;
 }
 
 th,
@@ -10,10 +9,17 @@ td {
   border: 1px solid black;
   width: 64px;
   height: 64px;
+  box-sizing: border-box;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover; /* or use 64px 64px if you want exact fit */
 }
 
-tr {
-  background-color: #0000FF;
+td {
+  box-sizing: border-box;               /* ensures borders are included in the 64x64 size */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
 }
 
 .fixedElement {
@@ -35,8 +41,9 @@ tr {
 }
 
 #map {
-  margin: 40px;
-  padding: 40px;
+  position: relative;
+  top: 40px;
+  left: 40px;
 }
 
 #menu {
