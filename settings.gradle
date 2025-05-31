@@ -1,1 +1,8 @@
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
 include 'core', 'android', 'lwjgl3'
+include ':damaged-territory-editor'
+include ':damaged-territory-editor:core'
+include ':damaged-territory-editor:lwjgl3'
+include ':shared'

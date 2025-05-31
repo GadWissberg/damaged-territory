@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -15,17 +14,6 @@ object GeneralUtils {
 
     val auxVector1 = Vector3()
     val auxVector2 = Vector3()
-
-    fun createCamera(fov: Float): PerspectiveCamera {
-        val perspectiveCamera = PerspectiveCamera(
-            fov,
-            Gdx.graphics.width.toFloat(),
-            Gdx.graphics.height.toFloat()
-        )
-        perspectiveCamera.near = 0.1F
-        perspectiveCamera.far = 300F
-        return perspectiveCamera
-    }
 
     fun clearScreen() {
         Gdx.gl.glViewport(

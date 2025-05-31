@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.systems.camera.CameraState
-import com.gadarts.returnfire.utils.GeneralUtils
+import com.gadarts.shared.SharedUtils
 
 class GameSessionDataRender : Disposable {
     var lastCameraStateChange: Long = 0
@@ -18,7 +18,7 @@ class GameSessionDataRender : Disposable {
     val cameraRelativeLookAtPosition = Vector3()
     val cameraRelativeTargetPosition = Vector3()
     val cameraRelativeTargetLookAtPosition = Vector3()
-    val camera: PerspectiveCamera = GeneralUtils.createCamera(60F)
+    val camera: PerspectiveCamera = SharedUtils.createCamera(SharedUtils.GAME_VIEW_FOV)
     lateinit var particleSystem: ParticleSystem
     lateinit var modelCache: ModelCache
     lateinit var floorModel: Model

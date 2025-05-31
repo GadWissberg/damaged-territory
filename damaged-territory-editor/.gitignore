@@ -152,6 +152,7 @@ Thumbs.db
 *~
 *.*#
 *#*#
+/.kotlin/
 /assets/assets.txt
 
 ## Special cases:
@@ -161,32 +162,3 @@ Thumbs.db
 ## You could also add that configuration to the text in nativeimage.gradle .
 ## You should delete or comment out the next line if you have configuration in a different resource-config.json .
 **/resource-config.json
-/.editorconfig
-/gradle/wrapper/
-/gradlew
-/gradlew.bat
-*.blend1
-*.fbx
-/materials/releases
-/android/release
-*.salive
-/materials/models/hangar/baked.blend
-/materials/models/hangar/scene.g3dj
-/materials/models/hangar/scene_texture.png
-/materials/models/hangar/*.g3dj
-/materials/models/hangar/hook_texture.png
-/materials/models/*.g3dj
-*.log
-/materials/video_assets/
-*.osp
-*.mp4
-/materials/video_temp_assets
-*.mov
-/tools/damaged-territory-editor/.editorconfig
-/tools/damaged-territory-editor/.gitattributes
-gradle-wrapper.jar
-gradlew
-nativeimage.gradle
-gradlew.bat
-.editorconfig
-.gitattributes

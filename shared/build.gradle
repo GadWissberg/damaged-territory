@@ -1,0 +1,22 @@
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+  kotlinOptions {
+    jvmTarget = "11"
+  }
+}
+
+dependencies {
+  api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+  api "com.badlogicgames.gdx:gdx:$gdxVersion"
+}
+
+repositories {
+  mavenCentral()
+}

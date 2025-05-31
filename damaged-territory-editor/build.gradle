@@ -1,6 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.9.24'
-    repositories {
+  repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
     gradlePluginPortal()
@@ -11,8 +10,6 @@ buildscript {
   }
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-      classpath 'com.android.tools.build:gradle:8.9.2'
-      classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
   }
 }
@@ -29,40 +26,33 @@ allprojects {
     }
   }
 }
-
-task writeAllAssetsToFile {
-  doLast {
-    // projectfolder/assets
-    def assetsFolder = new File("${project.rootDir}/assets/")
-    // projectfolder/assets/assets.txt
-    def assetsFile = new File(assetsFolder, "assets.txt")
-    // delete that file in case we've already created it
-    assetsFile.delete()
-
-    // iterate through all files inside that folder
-    // convert it to a relative path
-    // and append it to assets.txt the file
-    fileTree(assetsFolder).collect { assetsFolder.relativePath(it) }.each {
-      assetsFile.append(it + "\n")
-    }
-  }
-}
-
-configure(subprojects - project(':android')) {
+configure(subprojects) {
   apply plugin: 'java-library'
   apply plugin: 'kotlin'
-    compileJava {
+
+  java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+  }
+
+  tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+      jvmTarget = "11"
+    }
+  }
+
+  compileJava {
     options.incremental = true
   }
 
-  kotlin {
-    jvmToolchain(11)
+  compileTestJava {
+    options.incremental = true
   }
 }
 
 subprojects {
-  version = '0.10.0'
-  ext.appName = 'Damaged Territory'
+  version = "$projectVersion"
+  ext.appName = 'damaged-territory-editor'
   repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
@@ -74,4 +64,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'open-fire' + '-parent'
+eclipse.project.name = 'damaged-territory-editor' + '-parent'
