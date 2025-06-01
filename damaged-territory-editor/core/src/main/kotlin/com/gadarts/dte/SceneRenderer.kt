@@ -1,7 +1,5 @@
 package com.gadarts.dte
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Disposable
@@ -16,10 +14,6 @@ class SceneRenderer : Table(), InputProcessor, Disposable {
         handlers.renderingHandler.render(screenPosition)
     }
 
-
-    fun init() {
-        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
-    }
 
     override fun keyDown(keycode: Int): Boolean {
         return false
@@ -67,6 +61,5 @@ class SceneRenderer : Table(), InputProcessor, Disposable {
 
     companion object {
         private val auxVector2 = com.badlogic.gdx.math.Vector2()
-        private const val TEMP_FILE = "blocks.json"
     }
 }

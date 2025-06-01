@@ -31,7 +31,6 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         stack.setFillParent(true)
         root.add(menuBar.table).fill().expandX()
         root.pack()
-        sceneRenderer.init()
     }
 
     private fun addMenu(): MenuBar {
