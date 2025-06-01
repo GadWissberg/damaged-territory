@@ -2,8 +2,8 @@ package com.gadarts.returnfire.systems.map.handlers.amb
 
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.shared.assets.definitions.SoundDefinition
 
 class AmbSoundsHandler {
     fun resume(delta: Long) {

@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.shared.GameAssetManager
 
 class StainsHandler(assetsManager: GameAssetManager) {
     val holes: MutableList<Decal> = ArrayDeque()

@@ -9,17 +9,17 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.EcsManager
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.bullet.BulletSystem.Companion.auxBoundingBox
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
 
 class SpecialEffectsFactory(
     private val gameSessionData: GameSessionData,

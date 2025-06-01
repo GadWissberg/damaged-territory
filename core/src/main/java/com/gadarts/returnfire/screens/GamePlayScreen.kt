@@ -14,8 +14,6 @@ import com.gadarts.returnfire.factories.*
 import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
-import com.gadarts.returnfire.model.GameMap
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.EffectsSystem
 import com.gadarts.returnfire.systems.EntityBuilderImpl
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -36,6 +34,8 @@ import com.gadarts.returnfire.systems.map.MapSystemImpl
 import com.gadarts.returnfire.systems.physics.PhysicsSystem
 import com.gadarts.returnfire.systems.player.PlayerSystemImpl
 import com.gadarts.returnfire.systems.render.RenderSystem
+import com.gadarts.shared.model.GameMap
+import com.gadarts.shared.model.definitions.CharacterDefinition
 
 class GamePlayScreen(
     runsOnMobile: Boolean,

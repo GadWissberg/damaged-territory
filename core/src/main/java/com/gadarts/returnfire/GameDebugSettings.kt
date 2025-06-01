@@ -1,8 +1,8 @@
 package com.gadarts.returnfire
 
-import com.gadarts.returnfire.assets.definitions.MapDefinition
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
+import com.gadarts.shared.assets.definitions.MapDefinition
+import com.gadarts.shared.model.definitions.CharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 @Suppress("RedundantNullableReturnType", "RedundantSuppression")
 object GameDebugSettings {

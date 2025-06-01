@@ -2,8 +2,8 @@ package com.gadarts.returnfire.systems.data.pools
 
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.utils.Pool
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 
 class GameParticleEffectPool(
     val definition: ParticleEffectDefinition,

@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObjectArray
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.managers.SoundManager
@@ -19,6 +18,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 import com.gadarts.returnfire.systems.player.PlayerSystem
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import kotlin.math.min
 
 open class CharacterShootingHandler(

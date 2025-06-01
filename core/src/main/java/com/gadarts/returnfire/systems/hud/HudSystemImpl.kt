@@ -17,9 +17,6 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ai.BaseAiComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -27,6 +24,9 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.hud.HudSystem.Companion.JOYSTICK_PADDING
 import com.gadarts.returnfire.systems.hud.osii.OnScreenInputInitializerApache
 import com.gadarts.returnfire.systems.hud.osii.OnScreenInputInitializerTank
+import com.gadarts.shared.model.definitions.CharacterDefinition
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem, GameEntitySystem(gamePlayManagers),
     InputProcessor {

@@ -3,17 +3,17 @@ package com.gadarts.returnfire.systems.character.react
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
 import kotlin.math.max
 
 class CharacterSystemOnPhysicsCollision : HandlerOnEvent {

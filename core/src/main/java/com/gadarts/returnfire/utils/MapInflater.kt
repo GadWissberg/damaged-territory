@@ -23,11 +23,6 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.assets.definitions.model.AutomaticShapeCreator
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.AnimatedTextureComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.amb.AmbComponent
@@ -42,17 +37,24 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.pit.BaseComponent
 import com.gadarts.returnfire.components.turret.TurretBaseComponent
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.*
-import com.gadarts.returnfire.model.definitions.AmbDefinition
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.external.TextureDefinition
+import com.gadarts.shared.assets.definitions.model.AutomaticShapeCreator
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.model.CharacterType
+import com.gadarts.shared.model.ElementType
+import com.gadarts.shared.model.definitions.AmbDefinition
+import com.gadarts.shared.model.definitions.CharacterDefinition
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class MapInflater(
     private val gameSessionData: GameSessionData,
@@ -373,7 +375,7 @@ class MapInflater(
 
     private fun createShapeForStaticObject(modelDefinition: ModelDefinition, entity: Entity): btCollisionShape {
         val shape: btCollisionShape
-        when (modelDefinition.physicsData.physicalShapeCreator) {
+        when (val physicalShapeCreator = modelDefinition.physicsData.physicalShapeCreator) {
             null -> {
                 shape = btCompoundShape()
                 val dimensions =
@@ -397,7 +399,7 @@ class MapInflater(
             }
 
             else -> {
-                shape = modelDefinition.physicsData.physicalShapeCreator.create()
+                shape = physicalShapeCreator.create()
             }
         }
         return shape

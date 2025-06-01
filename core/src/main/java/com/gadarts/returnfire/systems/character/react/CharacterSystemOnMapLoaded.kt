@@ -11,11 +11,11 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.pit.BaseComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.model.definitions.DeployableCharacters
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.shared.model.definitions.CharacterDefinition
 
 class CharacterSystemOnMapLoaded(engine: Engine) : HandlerOnEvent {
     private val baseEntities: ImmutableArray<Entity> = engine.getEntitiesFor(

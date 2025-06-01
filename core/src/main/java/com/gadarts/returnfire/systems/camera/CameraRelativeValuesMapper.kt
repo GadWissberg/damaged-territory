@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.systems.camera
 
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class CameraRelativeValuesMapper {
     val mapping = mapOf(

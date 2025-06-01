@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.utils.Disposable
 
-class AuxiliaryModels : Disposable {
+class AuxiliaryModels(private val mapSize: Int) : Disposable {
     private var gridModelInstance: ModelInstance
     private var axisModelInstance: ModelInstance
     private lateinit var gridModel: Model
@@ -28,8 +28,8 @@ class AuxiliaryModels : Disposable {
 
     private fun addGrid(modelBuilder: ModelBuilder): ModelInstance {
         gridModel = modelBuilder.createLineGrid(
-            32,
-            32,
+            mapSize,
+            mapSize,
             1F,
             1F,
             Material(ColorAttribute.createDiffuse(Color.GRAY)),
@@ -37,9 +37,9 @@ class AuxiliaryModels : Disposable {
         )
         val gridModelInstance = ModelInstance(gridModel)
         gridModelInstance.transform.translate(
-            32F / 2F,
-            0F,
-            32F / 2F
+            mapSize / 2F,
+            0.01F,
+            mapSize / 2F
         )
         return gridModelInstance
     }

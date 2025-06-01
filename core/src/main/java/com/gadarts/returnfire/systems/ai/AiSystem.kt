@@ -11,14 +11,14 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ai.BaseAiComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.ai.logic.AiLogicHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {

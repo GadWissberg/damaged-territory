@@ -1,19 +1,17 @@
 package com.gadarts.dte
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Disposable
 
 class RenderingHandler(
     private val auxiliaryModels: AuxiliaryModels,
-    private val cameraHandler: CameraHandler
+    private val cameraHandler: CameraHandler,
 ) : Disposable {
+    private lateinit var tiles: Array<Array<ModelInstance>>
     private val modelsBatch = ModelBatch()
     private val shapeRenderer = ShapeRenderer()
     fun render(screenPosition: Vector2) {
@@ -25,21 +23,20 @@ class RenderingHandler(
         )
         modelsBatch.begin(cameraHandler.camera)
         auxiliaryModels.render(modelsBatch)
+        for (row in tiles) {
+            for (tile in row) {
+                modelsBatch.render(tile)
+            }
+        }
         modelsBatch.end()
-    }
-
-
-    private fun createEnvironment(): Environment {
-        val environment = Environment()
-        environment.set(ColorAttribute.createAmbientLight(0.5f, 0.5f, 0.5f, 1f))
-        val directionalLight = DirectionalLight()
-        directionalLight.set(Color.WHITE, 0.5f, -0.8f, -0.2f)
-        environment.add(directionalLight)
-        return environment
     }
 
     override fun dispose() {
         shapeRenderer.dispose()
+    }
+
+    fun initialize(tiles: Array<Array<ModelInstance>>) {
+        this.tiles = tiles
     }
 
 }

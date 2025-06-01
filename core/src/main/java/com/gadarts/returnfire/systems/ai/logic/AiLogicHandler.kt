@@ -10,9 +10,9 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ai.BaseAiComponent
 import com.gadarts.returnfire.components.turret.TurretComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class AiLogicHandler(
     gameSessionData: GameSessionData,

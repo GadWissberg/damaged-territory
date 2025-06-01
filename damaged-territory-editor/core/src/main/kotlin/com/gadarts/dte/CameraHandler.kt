@@ -5,7 +5,9 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.dte.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.shared.SharedUtils
 
 class CameraHandler : InputProcessor {
@@ -66,7 +68,13 @@ class CameraHandler : InputProcessor {
         if (pan) {
             val deltaX = Gdx.input.deltaX.toFloat()
             val deltaY = Gdx.input.deltaY.toFloat()
-            camera.position.add(-deltaX * PAN_FACTOR, 0F, -deltaY * PAN_FACTOR)
+            val position = camera.position
+            position.add(-deltaX * PAN_FACTOR, 0F, -deltaY * PAN_FACTOR)
+            position.set(
+                MathUtils.clamp(position.x, -MAP_EDGE_OFFSET_X, MAP_SIZE.toFloat() + MAP_EDGE_OFFSET_X),
+                position.y,
+                MathUtils.clamp(position.z, MAP_EDGE_OFFSET_Z, MAP_SIZE.toFloat() + MAP_EDGE_OFFSET_Z)
+            )
             camera.update()
             return true
         }
@@ -79,5 +87,7 @@ class CameraHandler : InputProcessor {
 
     companion object {
         private const val PAN_FACTOR = 0.025F
+        private const val MAP_EDGE_OFFSET_X = 4F
+        private const val MAP_EDGE_OFFSET_Z = 12F
     }
 }

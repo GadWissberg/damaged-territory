@@ -2,7 +2,7 @@ package com.gadarts.returnfire.components.amb
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.model.definitions.AmbDefinition
+import com.gadarts.shared.model.definitions.AmbDefinition
 
 class AmbComponent(val rotation: Float, val def: AmbDefinition, scale: Vector3) : Component {
     var hp: Int = def.hp

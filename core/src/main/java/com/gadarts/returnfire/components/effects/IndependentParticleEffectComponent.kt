@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Pool.Poolable
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 
 class ParticleEffectComponent : Component, Poolable {
 

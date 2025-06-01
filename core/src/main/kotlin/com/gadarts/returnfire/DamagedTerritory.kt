@@ -6,14 +6,14 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.physics.bullet.Bullet
-import com.gadarts.returnfire.assets.definitions.MusicDefinition
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.screens.GamePlayScreen
 import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.screens.hangar.HangarScreenImpl
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.MusicDefinition
+import com.gadarts.shared.model.definitions.CharacterDefinition
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
@@ -43,7 +43,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         val targetHeight = (screenHeight * 0.85).toInt().coerceAtMost(MAX_RESOLUTION_HEIGHT)
         Gdx.graphics.setWindowedMode(targetWidth, targetHeight)
         Gdx.input.setCatchKey(Input.Keys.BACK, true)
-        assetsManager.loadAssets()
+        assetsManager.loadAssets("")
         soundManager.play(assetsManager.getAssetByDefinition(MusicDefinition.TEST))
         Gdx.input.inputProcessor = InputMultiplexer()
         if (GameDebugSettings.USE_DEBUG_DLL) {

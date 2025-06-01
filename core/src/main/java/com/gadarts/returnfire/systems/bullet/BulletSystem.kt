@@ -14,8 +14,6 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -23,7 +21,6 @@ import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.bullet.BulletComponent
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -32,6 +29,9 @@ import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.model.definitions.CharacterDefinition
 
 
 class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {

@@ -6,9 +6,9 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 
 class CharacterPhysicsInitializer {
     fun initialize(entityBuilder: EntityBuilder, character: Entity, assetsManager: GameAssetManager) {

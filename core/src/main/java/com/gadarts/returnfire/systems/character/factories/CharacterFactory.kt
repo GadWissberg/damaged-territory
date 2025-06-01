@@ -6,18 +6,18 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.PlacedElement
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.EntityBuilderImpl
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.model.PlacedElement
+import com.gadarts.shared.model.definitions.CharacterDefinition
 
 abstract class CharacterFactory(
     protected val gameModelInstanceFactory: GameModelInstanceFactory,

@@ -5,8 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.systems.data.GameSessionDataGameplay
+import com.gadarts.shared.GameAssetManager
 
 class GameSessionDataHud(
     val console: ConsoleImpl,

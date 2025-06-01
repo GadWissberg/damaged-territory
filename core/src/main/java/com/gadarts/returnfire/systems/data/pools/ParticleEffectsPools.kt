@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.systems.data.pools
 
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 
 class ParticleEffectsPools(private val assetsManager: GameAssetManager) {
     val pools = mutableMapOf<ParticleEffectDefinition, GameParticleEffectPool>()

@@ -17,9 +17,6 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.ChildModelInstanceComponent
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -32,9 +29,6 @@ import com.gadarts.returnfire.components.physics.MotionState
 import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.CharacterType
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.react.*
@@ -43,6 +37,12 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.render.RenderSystem
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
 import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.model.CharacterType
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 import kotlin.math.abs
 import kotlin.math.sign
 

@@ -6,9 +6,9 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.gadarts.returnfire.console.ConsoleImpl
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.ScreensManager
+import com.gadarts.shared.GameAssetManager
 
 
 class HangarScreenImpl(

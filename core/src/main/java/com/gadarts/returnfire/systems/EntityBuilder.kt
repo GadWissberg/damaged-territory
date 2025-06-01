@@ -9,9 +9,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.ChildModelInstanceComponent
 import com.gadarts.returnfire.components.DeathSequenceComponent
 import com.gadarts.returnfire.components.FenceComponent
@@ -30,10 +27,13 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.components.physics.PhysicsComponent
-import com.gadarts.returnfire.model.definitions.AmbDefinition
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.external.TextureDefinition
+import com.gadarts.shared.model.definitions.AmbDefinition
+import com.gadarts.shared.model.definitions.CharacterDefinition
 
 interface EntityBuilder {
     fun begin(): EntityBuilder

@@ -30,12 +30,6 @@
       "folder": "ground/beach"
     },
     {
-      "file_name": "tile_beach_bottom_special",
-      "frames": 2,
-      "animated": true,
-      "folder": "ground/beach"
-    },
-    {
       "file_name": "tile_beach_bottom_right",
       "frames": 2,
       "animated": true,

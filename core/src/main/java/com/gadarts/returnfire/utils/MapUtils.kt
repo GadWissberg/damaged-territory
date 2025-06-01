@@ -3,11 +3,11 @@ package com.gadarts.returnfire.utils
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.gadarts.returnfire.assets.definitions.external.ExternalDefinitions
-import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.returnfire.systems.map.TilesMapping
+import com.gadarts.shared.assets.definitions.external.ExternalDefinitions
+import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import kotlin.math.floor
 
 object MapUtils {

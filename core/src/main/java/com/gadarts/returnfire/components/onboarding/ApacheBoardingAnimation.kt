@@ -6,12 +6,12 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.SoundDefinition
 
 class ApacheBoardingAnimation(private val entityBuilder: EntityBuilder) : BoardingAnimation {
     private var stage: Entity? = null

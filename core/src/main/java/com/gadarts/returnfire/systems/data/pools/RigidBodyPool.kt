@@ -1,10 +1,10 @@
 package com.gadarts.returnfire.systems.data.pools
 
 import com.badlogic.gdx.utils.Pool
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.physics.RigidBody
-import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.definitions.PooledObjectPhysicalDefinition
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.model.definitions.PooledObjectPhysicalDefinition
 
 class RigidBodyPool(
     val definition: ModelDefinition,

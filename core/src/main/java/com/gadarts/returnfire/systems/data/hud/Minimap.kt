@@ -5,11 +5,11 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.gadarts.returnfire.assets.definitions.external.TextureDefinition
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.systems.data.GameSessionDataGameplay
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.external.TextureDefinition
 
 class Minimap(
     private val tilesMapping: Array<CharArray>,

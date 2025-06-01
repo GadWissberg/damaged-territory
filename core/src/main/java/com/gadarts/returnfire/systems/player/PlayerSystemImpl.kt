@@ -14,7 +14,6 @@ import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -30,6 +29,7 @@ import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovement
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.MovementTouchPadListener
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
 import com.gadarts.returnfire.systems.player.react.*
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 
 @Suppress("KotlinConstantConditions")
 class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), PlayerSystem,

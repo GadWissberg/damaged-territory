@@ -18,10 +18,6 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.FIRE_LOOP_SMALL
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.SMOKE_UP_LOOP
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.StageComponent
 import com.gadarts.returnfire.components.cd.ChildDecal
@@ -36,7 +32,6 @@ import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.data.map.GameSessionDataMap.Companion.DROWNING_HEIGHT
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.map.handlers.amb.AmbEffectsHandlers
 import com.gadarts.returnfire.systems.map.react.MapSystemOnCharacterBoarding
@@ -46,6 +41,11 @@ import com.gadarts.returnfire.systems.map.react.MapSystemOnPhysicsCollision
 import com.gadarts.returnfire.utils.MapInflater
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.SharedUtils.DROWNING_HEIGHT
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.FIRE_LOOP_SMALL
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.SMOKE_UP_LOOP
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import kotlin.math.max
 import kotlin.math.min
 

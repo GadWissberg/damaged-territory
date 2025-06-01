@@ -5,11 +5,11 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.Pool
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.systems.player.GameModelInstancePool
-import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.SharedUtils
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
 
 class GameSessionDataPools(
     private val assetsManager: GameAssetManager,
@@ -31,7 +31,7 @@ class GameSessionDataPools(
     private fun createFloorModel(): Model {
         val builder = ModelBuilder()
         builder.begin()
-        ModelUtils.createFlatMesh(builder, "floor", 0.5F, null, 0F)
+        SharedUtils.createFlatMesh(builder, "floor", 0.5F, null, 0F)
         return builder.end()
     }
 

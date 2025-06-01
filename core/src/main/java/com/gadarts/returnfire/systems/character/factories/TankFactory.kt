@@ -3,9 +3,6 @@ package com.gadarts.returnfire.systems.character.factories
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmEffectsData
@@ -15,11 +12,14 @@ import com.gadarts.returnfire.components.bullet.BulletBehavior
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.PlacedElement
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.model.PlacedElement
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class TankFactory(
     private val assetsManager: GameAssetManager,

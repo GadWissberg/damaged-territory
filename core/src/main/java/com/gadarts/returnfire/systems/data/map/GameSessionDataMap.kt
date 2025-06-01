@@ -3,9 +3,9 @@ package com.gadarts.returnfire.systems.data.map
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.character.CharacterColor
-import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.GameMap
 import com.gadarts.returnfire.model.MapGraph
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.model.GameMap
 
 class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
     lateinit var bitMap: Array<Array<Int>>
@@ -19,7 +19,4 @@ class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
 
     }
 
-    companion object {
-        const val DROWNING_HEIGHT = -1F
-    }
 }

@@ -2,10 +2,10 @@ package com.gadarts.returnfire.systems.data
 
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
-import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
 import com.gadarts.returnfire.systems.data.hud.GameSessionDataHud
 import com.gadarts.returnfire.systems.data.map.GameSessionDataMap
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.model.definitions.CharacterDefinition
 
 class GameSessionData(
     assetsManager: GameAssetManager,

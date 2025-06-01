@@ -2,8 +2,8 @@ package com.gadarts.returnfire.screens.hangar
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
-import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
 
 class HangarAmbModels(assetsManager: GameAssetManager) {
     val ceilingModelInstance by lazy {

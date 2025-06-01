@@ -11,8 +11,8 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.GameAssetManager
 
 class Radar(
     private val tilesMapping: Array<CharArray>,

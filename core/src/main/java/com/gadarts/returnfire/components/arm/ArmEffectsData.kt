@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.components.arm
 
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 
 class ArmEffectsData(
     val explosion: ParticleEffectDefinition?,

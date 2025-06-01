@@ -7,8 +7,9 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.SoundDefinition
 
 class SoundManager(private val assetsManager: GameAssetManager, private val runsOnMobile: Boolean) {
 

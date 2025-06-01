@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.screens.hangar
 
 import com.badlogic.gdx.graphics.g3d.ModelBatch
-import com.gadarts.returnfire.managers.GameAssetManager
+import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
 class HangarSceneModelsData(assetsManager: GameAssetManager) {

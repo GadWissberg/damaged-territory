@@ -12,13 +12,13 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.managers.GameAssetManager
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.model.definitions.CharacterDefinition
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
 import com.gadarts.returnfire.screens.ScreensManager
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.model.definitions.CharacterDefinition
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class HangarSceneHandler(
     private val soundManager: SoundManager,

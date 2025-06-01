@@ -5,13 +5,13 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.map.MapSystem
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
 
 class FallingBuildingsHandler(private val mapSystem: MapSystem, private val gamePlayManagers: GamePlayManagers) {
     private val fallingBuildingsToRemove = ArrayList<Entity>()

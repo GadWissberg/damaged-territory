@@ -5,9 +5,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmEffectsData
@@ -18,11 +15,14 @@ import com.gadarts.returnfire.components.cd.ChildDecal
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.onboarding.ApacheBoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.PlacedElement
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.model.PlacedElement
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 
 class ApacheFactory(
     private val assetsManager: GameAssetManager,

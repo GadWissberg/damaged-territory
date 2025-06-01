@@ -8,10 +8,6 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition
-import com.gadarts.returnfire.assets.definitions.ParticleEffectDefinition.*
-import com.gadarts.returnfire.assets.definitions.SoundDefinition
-import com.gadarts.returnfire.assets.definitions.model.ModelDefinition
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.amb.AmbComponent
 import com.gadarts.returnfire.components.amb.AmbCorpsePart
@@ -20,7 +16,6 @@ import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.definitions.AmbDefinition
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.bullet.BulletSystem.Companion.auxBoundingBox
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -28,13 +23,18 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.systems.map.MapSystem
 import com.gadarts.returnfire.utils.GeneralUtils
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.*
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.model.definitions.AmbDefinition
 
 class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val entity0 = PhysicsCollisionEventData.colObj0.userData as Entity
         val entity1 = PhysicsCollisionEventData.colObj1.userData as Entity
         roadWithBullets(entity0, entity1, gamePlayManagers)
-            || handleCollisionGroundWithHeavyStuffOnHighSpeed(
+                || handleCollisionGroundWithHeavyStuffOnHighSpeed(
             entity0,
             entity1,
             gamePlayManagers
@@ -43,12 +43,12 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
             entity0,
             gamePlayManagers
         ) ||
-            handleCollisionDestroyableAmbWithFastAndHeavyStuff(
-                entity0,
-                entity1,
-                gameSessionData,
-                gamePlayManagers
-            ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
+                handleCollisionDestroyableAmbWithFastAndHeavyStuff(
+                    entity0,
+                    entity1,
+                    gameSessionData,
+                    gamePlayManagers
+                ) || handleCollisionDestroyableAmbWithFastAndHeavyStuff(
             entity1,
             entity0,
             gameSessionData,
@@ -151,10 +151,11 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
     ) {
         val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
         val ambComponent = ComponentsMapper.amb.get(entity)
-        if (ambComponent?.def?.flyingPart != null) {
+        val flyingPart = ambComponent?.def?.flyingPart
+        if (flyingPart != null) {
             specialEffectsFactory.generateFlyingParts(
                 entity,
-                ambComponent.def.flyingPart,
+                flyingPart,
                 min = ambComponent.def.minFlyingParts,
                 max = ambComponent.def.maxFlyingParts,
                 minForce = ambComponent.def.flyingPartMinImpulse,
@@ -176,10 +177,11 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val ambComponent = ComponentsMapper.amb.get(amb)
         val def = ambComponent.def
         val factories = gamePlayManagers.factories
-        if (def.flyingPart != null) {
+        val flyingPart = def.flyingPart
+        if (flyingPart != null) {
             factories.specialEffectsFactory.generateFlyingParts(
                 character = amb,
-                modelDefinition = def.flyingPart,
+                modelDefinition = flyingPart,
                 min = def.minFlyingParts,
                 max = def.minFlyingParts,
                 mass = 0.5F
@@ -225,9 +227,10 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         gamePlayManagers: GamePlayManagers,
         position: Vector3
     ) {
-        if (def.destructionSound != null) {
+        val definition = def.destructionSound
+        if (definition != null) {
             gamePlayManagers.soundManager.play(
-                gamePlayManagers.assetsManager.getAssetByDefinition(def.destructionSound),
+                gamePlayManagers.assetsManager.getAssetByDefinition(definition),
                 position
             )
         }

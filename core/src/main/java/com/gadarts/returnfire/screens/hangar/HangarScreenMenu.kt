@@ -8,10 +8,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.assets.definitions.FontDefinition
-import com.gadarts.returnfire.managers.GameAssetManager
-import com.gadarts.returnfire.model.definitions.SimpleCharacterDefinition
-import com.gadarts.returnfire.model.definitions.TurretCharacterDefinition
+import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.FontDefinition
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class HangarScreenMenu(
     private val runsOnMobile: Boolean,
