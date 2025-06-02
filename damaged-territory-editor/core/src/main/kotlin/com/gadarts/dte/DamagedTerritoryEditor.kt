@@ -6,11 +6,12 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup
 import com.badlogic.gdx.scenes.scene2d.ui.Stack
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.ScreenUtils
@@ -19,6 +20,10 @@ import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
 
 class DamagedTerritoryEditor : ApplicationAdapter() {
+    private var selectedMode: Modes = Modes.TILES
+    private val modesButtonGroup: ButtonGroup<VisImageButton> by lazy {
+        createButtonGroup()
+    }
     private val stage: Stage by lazy { Stage(ScreenViewport()) }
     private lateinit var menuBar: MenuBar
     private val sceneRenderer: SceneRenderer by lazy { SceneRenderer() }
@@ -27,15 +32,11 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
     override fun create() {
         Gdx.input.inputProcessor = InputMultiplexer(stage)
         VisUI.load()
-        menuBar = addMenu()
         loadEditorAssets()
+        menuBar = addMenu()
         val buttonBar = MenuBar()
-        addButtonToButtonsBar(buttonBar, IconsTextures.ICON_MODE_FLOOR)
-        addButtonToButtonsBar(buttonBar, IconsTextures.ICON_MODE_ENV_OBJECTS)
-        buttonBar.table.add(Separator("vertical")).width(10F).fillY().expandY()
-        val buttonGroup = createButtonGroup()
         Modes.entries.forEach {
-            addModeButton(buttonGroup, buttonBar, it.icon.getFileName())
+            addModeButton(modesButtonGroup, buttonBar, it)
         }
         buttonBar.table.pack()
         val root = VisTable()
@@ -44,7 +45,7 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         stage.addActor(root)
         val stack = Stack()
         stack.setFillParent(true)
-        root.add(menuBar.table).fill().expandX()
+        root.add(menuBar.table).fill().expandX().row()
         root.add(buttonBar.table).fillX().expandX().row()
         root.pack()
     }
@@ -52,16 +53,13 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
     private fun addModeButton(
         buttonGroup: ButtonGroup<VisImageButton>,
         buttonBar: MenuBar,
-        icon: String
+        mode: Modes
     ) {
         addBarRadioButton(
             buttonGroup,
             object : ClickListener() {
-                override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                    super.clicked(event, x, y)
-                }
             },
-            editorAssetManager.get(icon, Texture::class.java), buttonBar.table
+            editorAssetManager.get(mode.icon.getFileName().lowercase(), Texture::class.java), buttonBar.table, mode.name
         )
     }
 
@@ -70,8 +68,10 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         clickListener: ClickListener,
         icon: Texture,
         table: Table,
+        name: String,
     ) {
         val imageButton = addButton(icon, clickListener, table)
+        imageButton.name = name
         buttonGroup.add(imageButton)
     }
 
@@ -83,29 +83,29 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         return buttonGroup
     }
 
-    private fun addButtonToButtonsBar(buttonBar: MenuBar, icon: IconsTextures) {
-        addButton(
-            editorAssetManager.get(icon.getFileName(), Texture::class.java),
-            object : ClickListener() {
-                override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                }
-            }, buttonBar.table
-        )
-    }
-
     private fun addButton(
         icon: Texture,
         clickListener: ClickListener,
         table: Table
     ): VisImageButton {
         val up =
-            TextureRegionDrawable(editorAssetManager.get(IconsTextures.BUTTON_UP.getFileName(), Texture::class.java))
-        val style = VisImageButton.VisImageButtonStyle(
-            up,
-            TextureRegionDrawable(editorAssetManager.get(IconsTextures.BUTTON_DOWN.getFileName(), Texture::class.java)),
             TextureRegionDrawable(
                 editorAssetManager.get(
-                    IconsTextures.BUTTON_CHECKED.getFileName(),
+                    IconsTextures.BUTTON_UP.getFileName().lowercase(),
+                    Texture::class.java
+                )
+            )
+        val style = VisImageButton.VisImageButtonStyle(
+            up,
+            TextureRegionDrawable(
+                editorAssetManager.get(
+                    IconsTextures.BUTTON_DOWN.getFileName().lowercase(),
+                    Texture::class.java
+                )
+            ),
+            TextureRegionDrawable(
+                editorAssetManager.get(
+                    IconsTextures.BUTTON_CHECKED.getFileName().lowercase(),
                     Texture::class.java
                 )
             ),
@@ -113,7 +113,12 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
             null, null
         )
         style.over =
-            TextureRegionDrawable(editorAssetManager.get(IconsTextures.BUTTON_OVER.getFileName(), Texture::class.java))
+            TextureRegionDrawable(
+                editorAssetManager.get(
+                    IconsTextures.BUTTON_OVER.getFileName().lowercase(),
+                    Texture::class.java
+                )
+            )
         val imageButton = VisImageButton(style)
         imageButton.addListener(clickListener)
         table.add(imageButton).pad(5F)
@@ -143,9 +148,49 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         fileMenu.addItem(openItem)
         fileMenu.addSeparator()
         fileMenu.addItem(exitItem)
+        val editMenu = createEditMenu()
         menuBar.addMenu(fileMenu)
+        menuBar.addMenu(editMenu)
         return menuBar
     }
+
+    private fun createEditMenu(): Menu {
+        val editMenu = Menu("Edit")
+        val tilesMenuItem = MenuItem("Tiles Mode", getIconAsDrawable(IconsTextures.ICON_MODE_FLOOR))
+        val objectsMenuItem = MenuItem("Objects Mode", getIconAsDrawable(IconsTextures.ICON_MODE_ENV_OBJECTS))
+        tilesMenuItem.isChecked = true
+        tilesMenuItem.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (tilesMenuItem.isChecked) {
+                    objectsMenuItem.isChecked = false
+                    modeChanged(Modes.TILES)
+                }
+            }
+        })
+        objectsMenuItem.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (objectsMenuItem.isChecked) {
+                    tilesMenuItem.isChecked = false
+                    modeChanged(Modes.OBJECTS)
+                }
+            }
+        })
+        editMenu.addItem(tilesMenuItem)
+        editMenu.addItem(objectsMenuItem)
+        return editMenu
+    }
+
+    private fun modeChanged(mode: Modes) {
+        modesButtonGroup.buttons.first { it.name.equals(mode.name) }.isChecked = true
+        selectedMode = mode
+    }
+
+    private fun getIconAsDrawable(icon: IconsTextures) = TextureRegionDrawable(
+        editorAssetManager.get(
+            icon.getFileName().lowercase(),
+            Texture::class.java
+        )
+    )
 
     override fun render() {
         super.render()
