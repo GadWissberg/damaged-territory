@@ -8,12 +8,12 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup
-import com.badlogic.gdx.scenes.scene2d.ui.Stack
-import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.List
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.kotcrab.vis.ui.VisUI
@@ -47,7 +47,45 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         stack.setFillParent(true)
         root.add(menuBar.table).fill().expandX().row()
         root.add(buttonBar.table).fillX().expandX().row()
+        addLeftSidePanel(root)
         root.pack()
+    }
+
+    private fun addLeftSidePanel(root: VisTable) {
+        val leftSidePanel = VisTable()
+        addLayersList(leftSidePanel)
+        leftSidePanel.pad(10F)
+        leftSidePanel.align(Align.top)
+        root.add(leftSidePanel).left().expandY().fillY().width(200F).row()
+    }
+
+    private fun addLayersList(leftSidePanel: VisTable) {
+        val layersHeader = VisLabel("Layers")
+        layersHeader.setAlignment(Align.center)
+        leftSidePanel.background = VisUI.getSkin().getDrawable("window-bg")
+        val items = arrayOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5")
+        val list = List<String>(VisUI.getSkin()).apply {
+            setItems(*items)
+            val style = style
+            style.background = VisUI.getSkin().getDrawable("window-bg")
+        }
+        val scrollPane = ScrollPane(list, VisUI.getSkin())
+        scrollPane.setFadeScrollBars(false)
+        scrollPane.setScrollingDisabled(true, false)
+        val addLayer = addLayerButton("+")
+        val removeLayer = addLayerButton("-")
+        leftSidePanel.add(layersHeader).colspan(2).center().expandX().fillX().row()
+        leftSidePanel.add(scrollPane).colspan(2).top().expandX().fillX().row()
+        leftSidePanel.add(addLayer).expandX().fillX().pad(10f)
+        leftSidePanel.add(removeLayer).expandX().fillX().pad(10f).row()
+    }
+
+    private fun addLayerButton(label: String): TextButton {
+        val addLayer = TextButton(label, VisUI.getSkin())
+        addLayer.addListener {
+            false
+        }
+        return addLayer
     }
 
     private fun addModeButton(
