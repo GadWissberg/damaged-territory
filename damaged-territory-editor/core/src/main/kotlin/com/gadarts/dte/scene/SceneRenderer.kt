@@ -1,4 +1,4 @@
-package com.gadarts.dte
+package com.gadarts.dte.scene
 
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -8,12 +8,12 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.dte.scene.handlers.SceneRendererHandlers
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
-class SceneRenderer : Table(), Disposable {
+class SceneRenderer(assetsManager: GameAssetManager) : Table(), Disposable {
     private val auxiliaryModels = AuxiliaryModels(MAP_SIZE)
-    private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val floorModel = createFloorModel()
     private val tiles by lazy {
         Array(MAP_SIZE) {
@@ -39,7 +39,6 @@ class SceneRenderer : Table(), Disposable {
     }
 
     init {
-        assetsManager.loadAssets()
         handlers.initialize(tiles)
         for (z in 0 until MAP_SIZE) {
             for (x in 0 until MAP_SIZE) {

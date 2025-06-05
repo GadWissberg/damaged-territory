@@ -1,7 +1,8 @@
-package com.gadarts.dte
+package com.gadarts.dte.scene.handlers
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.dte.scene.AuxiliaryModels
 import com.gadarts.shared.GameAssetManager
 
 data class SceneRendererHandlers(

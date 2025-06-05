@@ -1,4 +1,4 @@
-package com.gadarts.dte
+package com.gadarts.dte.scene.handlers
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
@@ -7,7 +7,6 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.dte.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.shared.SharedUtils
 
 class CameraHandler : InputProcessor {

@@ -1,4 +1,4 @@
-package com.gadarts.dte
+package com.gadarts.dte.scene.handlers
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g3d.ModelBatch
@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.dte.scene.AuxiliaryModels
 
 class RenderingHandler(
     private val auxiliaryModels: AuxiliaryModels,

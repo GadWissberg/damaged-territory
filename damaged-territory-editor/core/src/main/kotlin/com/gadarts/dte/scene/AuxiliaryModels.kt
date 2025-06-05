@@ -1,4 +1,4 @@
-package com.gadarts.dte
+package com.gadarts.dte.scene
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.VertexAttributes
@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.dte.GeneralUtils
 
 class AuxiliaryModels(private val mapSize: Int) : Disposable {
     private var gridModelInstance: ModelInstance
