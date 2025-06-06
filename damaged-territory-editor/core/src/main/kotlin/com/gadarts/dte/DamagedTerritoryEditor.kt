@@ -33,7 +33,7 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
     private lateinit var menuBar: MenuBar
     private val sceneRenderer: SceneRenderer by lazy { SceneRenderer(gameAssetsManager) }
     private val editorAssetManager = AssetManager()
-    val layers = mutableListOf("Deep Water")
+    val layers = mutableListOf(TileLayer("Deep Water", true), TileLayer("Layer 2"))
     private val gameAssetsManager: GameAssetManager by lazy { GameAssetManager() }
 
     override fun create() {
@@ -62,7 +62,7 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
     private fun addLeftSidePanel(root: VisTable) {
         val leftSidePanel = VisTable()
         leftSidePanel.background = VisUI.getSkin().getDrawable("window-bg")
-        addLayersList(leftSidePanel)
+        addLayersListDisplay(leftSidePanel)
         addTilesCatalog(leftSidePanel)
         leftSidePanel.pad(10F)
         leftSidePanel.align(Align.top)
@@ -80,7 +80,7 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         tilesTypes.forEachIndexed { i, texture ->
             val drawable = TextureRegionDrawable(TextureRegion(texture))
             val borderDrawable = TextureRegionDrawable(
-                createBorderedTexture(texture, Color.RED, 6)
+                createBorderedTexture(texture)
             )
 
             val style = ImageButton.ImageButtonStyle().apply {
@@ -91,14 +91,14 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
             val button = ImageButton(style)
             buttonGroup.add(button)
 
-            catalogTable.add(button).size(texture.width.toFloat() , texture.height.toFloat()).pad(5f)
+            catalogTable.add(button).size(texture.width.toFloat(), texture.height.toFloat()).pad(5f)
 
             if ((i + 1) % 2 == 0) catalogTable.row()
         }
         leftSidePanel.add(scrollPane).size(250F)
     }
 
-    private fun createBorderedTexture(baseTexture: Texture, borderColor: Color, borderThickness: Int = 3): Texture {
+    private fun createBorderedTexture(baseTexture: Texture): Texture {
         val textureData = baseTexture.textureData
         if (!textureData.isPrepared) {
             textureData.prepare()
@@ -109,10 +109,10 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         if (textureData.disposePixmap()) {
             originalPixmap.dispose()
         }
-        pixmap.setColor(borderColor)
+        pixmap.setColor(Color.RED)
         val w = pixmap.width
         val h = pixmap.height
-        repeat(borderThickness) { i ->
+        repeat(6) { i ->
             pixmap.drawRectangle(i, i, w - 2 * i, h - 2 * i)
         }
         val newTexture = Texture(pixmap)
@@ -121,34 +121,32 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         return newTexture
     }
 
-    private fun addLayersList(leftSidePanel: VisTable) {
+    private fun addLayersListDisplay(leftSidePanel: VisTable) {
         val layersTable = VisTable()
-        val layersHeader = VisLabel("Layers")
-        layersHeader.setAlignment(Align.center)
         layersTable.background = VisUI.getSkin().getDrawable("window-bg")
-        val list = List<String>(VisUI.getSkin()).apply {
+        val list = TileLayerList(VisUI.getSkin()).apply {
             setItems(*layers.toTypedArray())
-            val style = style
             style.background = VisUI.getSkin().getDrawable("window-bg")
         }
+        list.selectedIndex = 1
         val scrollPane = ScrollPane(list, VisUI.getSkin())
         scrollPane.setFadeScrollBars(false)
         scrollPane.setScrollingDisabled(true, false)
-        val addLayer = addLayerButton("+", list)
-        val removeLayer = addLayerButton("-", list)
+        val layersHeader = VisLabel("Layers")
+        layersHeader.setAlignment(Align.center)
         layersTable.add(layersHeader).colspan(2).center().expandX().fillX().row()
         layersTable.add(scrollPane).colspan(2).height(100F).top().expandX().fillX().row()
-        layersTable.add(addLayer).expandX().fillX().pad(10f)
-        layersTable.add(removeLayer).expandX().fillX().pad(10f).row()
+        layersTable.add(addLayerButton("+", list)).expandX().fillX().pad(10f)
+        layersTable.add(addLayerButton("-", list)).expandX().fillX().pad(10f).row()
         leftSidePanel.add(layersTable).row()
     }
 
-    private fun addLayerButton(label: String, list: List<String>): TextButton {
+    private fun addLayerButton(label: String, list: List<TileLayer>): TextButton {
         val addLayer = TextButton(label, VisUI.getSkin())
         addLayer.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 val newLayerName = "Layer ${layers.size + 1}"
-                layers.add(newLayerName)
+                layers.add(TileLayer(newLayerName))
                 list.setItems(*layers.toTypedArray())
             }
         })

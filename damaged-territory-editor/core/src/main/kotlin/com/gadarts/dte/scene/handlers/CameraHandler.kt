@@ -7,16 +7,22 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.shared.SharedUtils
 
-class CameraHandler : InputProcessor {
-    fun update() {
-        camera.update()
+class CameraHandler(private val sharedData: SceneRendererHandlersSharedData) : InputProcessor, SceneHandler {
+    override fun update(parent: Table, deltaTime: Float) {
+        sharedData.camera.update()
+    }
+
+    override fun dispose() {
+
     }
 
     init {
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
+        sharedData.camera = createCamera()
     }
 
     private fun createCamera(): PerspectiveCamera {
@@ -27,7 +33,6 @@ class CameraHandler : InputProcessor {
     }
 
     private var pan: Boolean = false
-    val camera: PerspectiveCamera = createCamera()
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Input.Keys.CONTROL_LEFT) {
             pan = true
@@ -68,14 +73,14 @@ class CameraHandler : InputProcessor {
         if (pan) {
             val deltaX = Gdx.input.deltaX.toFloat()
             val deltaY = Gdx.input.deltaY.toFloat()
-            val position = camera.position
+            val position = sharedData.camera.position
             position.add(-deltaX * PAN_FACTOR, 0F, -deltaY * PAN_FACTOR)
             position.set(
                 MathUtils.clamp(position.x, -MAP_EDGE_OFFSET_X, MAP_SIZE.toFloat() + MAP_EDGE_OFFSET_X),
                 position.y,
                 MathUtils.clamp(position.z, MAP_EDGE_OFFSET_Z, MAP_SIZE.toFloat() + MAP_EDGE_OFFSET_Z)
             )
-            camera.update()
+            sharedData.camera.update()
             return true
         }
         return false

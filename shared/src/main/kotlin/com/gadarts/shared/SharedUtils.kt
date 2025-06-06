@@ -31,15 +31,16 @@ object SharedUtils {
         meshName: String,
         size: Float,
         texture: Texture?,
-        offset: Float = 0F
+        offset: Float = 0F,
+        customMaterial: Material? = null
     ) {
-        val material =
-            if (texture != null) Material(TextureAttribute.createDiffuse(texture)) else Material(
+        val material = customMaterial
+            ?: if (texture != null) Material(TextureAttribute.createDiffuse(texture)) else Material(
                 TextureAttribute(
                     TextureAttribute.Diffuse
                 )
             )
-        material.set(BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA))
+        material.set(BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, 1F))
         val mbp = builder.part(
             meshName,
             GL20.GL_TRIANGLES,

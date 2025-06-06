@@ -48,9 +48,7 @@ class SceneRenderer(assetsManager: GameAssetManager) : Table(), Disposable {
     }
 
     fun render() {
-        handlers.cameraHandler.update()
-        val screenPosition = localToScreenCoordinates(auxVector2.set(0F, 0F))
-        handlers.renderingHandler.render(screenPosition)
+        handlers.update(this)
     }
 
 
@@ -62,7 +60,6 @@ class SceneRenderer(assetsManager: GameAssetManager) : Table(), Disposable {
 
 
     companion object {
-        private val auxVector2 = com.badlogic.gdx.math.Vector2()
         const val MAP_SIZE = 32
     }
 }
