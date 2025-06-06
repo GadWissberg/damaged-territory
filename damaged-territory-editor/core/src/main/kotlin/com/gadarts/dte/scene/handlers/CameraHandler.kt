@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.shared.SharedUtils
 
 class CameraHandler : InputProcessor {
