@@ -40,7 +40,7 @@ import com.gadarts.returnfire.systems.map.react.MapSystemOnExplosionPushBack
 import com.gadarts.returnfire.systems.map.react.MapSystemOnPhysicsCollision
 import com.gadarts.returnfire.utils.MapInflater
 import com.gadarts.returnfire.utils.MapUtils
-import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.SharedUtils.DROWNING_HEIGHT
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.FIRE_LOOP_SMALL
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.SMOKE_UP_LOOP
@@ -570,7 +570,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         builder.begin()
         val texture =
             gamePlayManagers.assetsManager.getTexture("tile_water")
-        ModelUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
+        SharedUtils.createFlatMesh(builder, "floor", 0.5F, texture, 0F)
         return builder.end()
     }
 

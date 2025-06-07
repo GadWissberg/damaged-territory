@@ -1,17 +1,20 @@
 package com.gadarts.dte.scene.handlers
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.dte.SharedData
 import com.gadarts.dte.scene.AuxiliaryModels
 
 class RenderingHandler(
     private val auxiliaryModels: AuxiliaryModels,
-    private val sharedData: SceneRendererHandlersSharedData,
-) : Disposable, SceneHandler {
+    private val sharedData: SharedData,
+    dispatcher: MessageDispatcher,
+) : Disposable, SceneHandler(dispatcher) {
     private val modelsBatch = ModelBatch()
     private val shapeRenderer = ShapeRenderer()
     private fun render(screenPosition: Vector2) {

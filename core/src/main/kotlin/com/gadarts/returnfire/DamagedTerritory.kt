@@ -43,7 +43,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         val targetHeight = (screenHeight * 0.85).toInt().coerceAtMost(MAX_RESOLUTION_HEIGHT)
         Gdx.graphics.setWindowedMode(targetWidth, targetHeight)
         Gdx.input.setCatchKey(Input.Keys.BACK, true)
-        assetsManager.loadAssets("")
+        assetsManager.loadAssets()
         soundManager.play(assetsManager.getAssetByDefinition(MusicDefinition.TEST))
         Gdx.input.inputProcessor = InputMultiplexer()
         if (GameDebugSettings.USE_DEBUG_DLL) {

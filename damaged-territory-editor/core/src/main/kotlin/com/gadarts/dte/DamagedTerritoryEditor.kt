@@ -3,6 +3,7 @@ package com.gadarts.dte
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
@@ -31,14 +32,17 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
     }
     private val stage: Stage by lazy { Stage(ScreenViewport()) }
     private lateinit var menuBar: MenuBar
-    private val sceneRenderer: SceneRenderer by lazy { SceneRenderer(gameAssetsManager) }
+    private val sharedData = SharedData()
+    private val dispatcher = MessageDispatcher()
+    private val sceneRenderer: SceneRenderer by lazy { SceneRenderer(sharedData, gameAssetsManager, dispatcher) }
     private val editorAssetManager = AssetManager()
-    val layers = mutableListOf(TileLayer("Deep Water", true), TileLayer("Layer 2"))
     private val gameAssetsManager: GameAssetManager by lazy { GameAssetManager() }
+    private val tileButtonGroup = ButtonGroup<CatalogTileButton>()
 
     override fun create() {
         gameAssetsManager.loadAssets()
         Gdx.input.inputProcessor = InputMultiplexer(stage)
+        sceneRenderer.initialize()
         VisUI.load()
         loadEditorAssets()
         menuBar = addMenu()
@@ -73,26 +77,21 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         val catalogTable = Table()
         val scrollPane = ScrollPane(catalogTable, VisUI.getSkin())
         scrollPane.setFadeScrollBars(false)
-        val buttonGroup = ButtonGroup<ImageButton>()
-        buttonGroup.setMaxCheckCount(1)
-        buttonGroup.setMinCheckCount(0)
-        val tilesTypes = TilesTypes.entries.map { gameAssetsManager.getTexture("tile_${it.name.lowercase()}") }
-        tilesTypes.forEachIndexed { i, texture ->
+        tileButtonGroup.setMaxCheckCount(1)
+        tileButtonGroup.setMinCheckCount(1)
+        TilesTypes.entries.forEachIndexed { i, tileType ->
+            val texture = gameAssetsManager.getTexture("tile_${tileType.name.lowercase()}")
             val drawable = TextureRegionDrawable(TextureRegion(texture))
             val borderDrawable = TextureRegionDrawable(
                 createBorderedTexture(texture)
             )
-
             val style = ImageButton.ImageButtonStyle().apply {
                 imageUp = drawable
                 imageChecked = borderDrawable
             }
-
-            val button = ImageButton(style)
-            buttonGroup.add(button)
-
+            val button = CatalogTileButton(style)
+            tileButtonGroup.add(button)
             catalogTable.add(button).size(texture.width.toFloat(), texture.height.toFloat()).pad(5f)
-
             if ((i + 1) % 2 == 0) catalogTable.row()
         }
         leftSidePanel.add(scrollPane).size(250F)
@@ -125,9 +124,14 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         val layersTable = VisTable()
         layersTable.background = VisUI.getSkin().getDrawable("window-bg")
         val list = TileLayerList(VisUI.getSkin()).apply {
-            setItems(*layers.toTypedArray())
+            setItems(*sharedData.layers.toTypedArray())
             style.background = VisUI.getSkin().getDrawable("window-bg")
         }
+        list.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                sharedData.selectedLayerIndex = list.selectedIndex
+            }
+        })
         list.selectedIndex = 1
         val scrollPane = ScrollPane(list, VisUI.getSkin())
         scrollPane.setFadeScrollBars(false)
@@ -141,12 +145,21 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         leftSidePanel.add(layersTable).row()
     }
 
+    override fun dispose() {
+        super.dispose()
+        sharedData.dispose()
+    }
+
     private fun addLayerButton(label: String, list: List<TileLayer>): TextButton {
         val addLayer = TextButton(label, VisUI.getSkin())
         addLayer.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                val layers = sharedData.layers
                 val newLayerName = "Layer ${layers.size + 1}"
-                layers.add(TileLayer(newLayerName))
+                dispatcher.dispatchMessage(
+                    EditorEvents.ADD_LAYER.ordinal,
+                    newLayerName
+                )
                 list.setItems(*layers.toTypedArray())
             }
         })

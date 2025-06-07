@@ -4,14 +4,17 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.gadarts.dte.SharedData
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.shared.SharedUtils
 
-class CameraHandler(private val sharedData: SceneRendererHandlersSharedData) : InputProcessor, SceneHandler {
+class CameraHandler(private val sharedData: SharedData, dispatcher: MessageDispatcher) : InputProcessor,
+    SceneHandler(dispatcher) {
     override fun update(parent: Table, deltaTime: Float) {
         sharedData.camera.update()
     }

@@ -10,6 +10,7 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+  api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
   implementation "com.kotcrab.vis:vis-ui:1.5.5"
   implementation project(':shared')
 
