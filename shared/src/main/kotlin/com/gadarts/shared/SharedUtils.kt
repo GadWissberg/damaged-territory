@@ -26,6 +26,44 @@ object SharedUtils {
         return perspectiveCamera
     }
 
+    fun calculateTileSignature(tileX: Int, tileZ: Int, bitMap: Array<Array<Int>>): Int {
+        val mapWidth = bitMap[0].size
+        val mapDepth = bitMap.size
+        if (!(tileX in 0..<mapWidth && tileZ >= 0 && tileZ < mapDepth)) return 0
+
+        val depth = mapDepth - 1
+        var signature = if (bitMap[tileZ][tileX] == 1) 0b11111111 else 0
+        val up = tileZ - 1
+        val left = tileX - 1
+        val right = tileX + 1
+        val down = tileZ + 1
+        if (tileX > 0 && tileZ > 0) {
+            signature = signature or ((bitMap[up][left]) shl 7)
+        }
+        if (tileZ > 0) {
+            signature = signature or ((bitMap[up][tileX]) shl 6)
+        }
+        if (tileX < mapWidth - 1 && tileZ > 0) {
+            signature = signature or ((bitMap[up][right]) shl 5)
+        }
+        if (tileX > 0) {
+            signature = signature or ((bitMap[tileZ][left]) shl 4)
+        }
+        if (tileX < mapWidth - 1) {
+            signature = signature or ((bitMap[tileZ][right]) shl 3)
+        }
+        if (tileX > 0 && tileZ < depth - 1) {
+            signature = signature or ((bitMap[down][left]) shl 2)
+        }
+        if (tileZ < depth - 1) {
+            signature = signature or ((bitMap[down][tileX]) shl 1)
+        }
+        if (tileX < mapWidth - 1 && tileZ < depth - 1) {
+            signature = signature or ((bitMap[down][right]) shl 0)
+        }
+        return signature
+    }
+
     fun createFlatMesh(
         builder: ModelBuilder,
         meshName: String,

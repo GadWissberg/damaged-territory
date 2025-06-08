@@ -2,7 +2,12 @@ package com.gadarts.dte
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 
-data class TileLayer(val name: String, val disabled: Boolean = false, val tiles: Array<Array<ModelInstance?>>) {
+data class TileLayer(
+    val name: String,
+    val disabled: Boolean = false,
+    val tiles: Array<Array<ModelInstance?>>,
+    val bitMap: Array<Array<Int>>
+) {
     override fun toString(): String {
         return name
     }

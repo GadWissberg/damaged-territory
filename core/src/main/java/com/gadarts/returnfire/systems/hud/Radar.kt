@@ -13,9 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.SharedUtils
 
 class Radar(
-    private val tilesMapping: Array<CharArray>,
     private val player: Entity,
     private val enemies: ImmutableArray<Entity>,
     private val assetsManager: GameAssetManager,
@@ -48,7 +48,7 @@ class Radar(
         val width = bitMap[0].size
         radarTileMap = Array(bitMap.size) { y ->
             Array(width) { x ->
-                val signature = calculateSignature(x, y)
+                val signature = SharedUtils.calculateTileSignature(x, y, bitMap)
                 val textureSignature = signatures.keys
                     .sortedByDescending { it.countOneBits() }
                     .find { (it and signature) == it }
@@ -182,42 +182,6 @@ class Radar(
         )
     }
 
-    private fun calculateSignature(tileX: Int, tileZ: Int): Int {
-        if (!isPositionInMap(tileX, tileZ)) return 0
-
-        val width = tilesMapping.size
-        val depth = tilesMapping[0].size - 1
-        var signature = if (bitMap[tileZ][tileX] == 1) 0b11111111 else 0
-        val up = tileZ - 1
-        val left = tileX - 1
-        val right = tileX + 1
-        val down = tileZ + 1
-        if (tileX > 0 && tileZ > 0) {
-            signature = signature or ((bitMap[up][left]) shl 7)
-        }
-        if (tileZ > 0) {
-            signature = signature or ((bitMap[up][tileX]) shl 6)
-        }
-        if (tileX < width - 1 && tileZ > 0) {
-            signature = signature or ((bitMap[up][right]) shl 5)
-        }
-        if (tileX > 0) {
-            signature = signature or ((bitMap[tileZ][left]) shl 4)
-        }
-        if (tileX < width - 1) {
-            signature = signature or ((bitMap[tileZ][right]) shl 3)
-        }
-        if (tileX > 0 && tileZ < depth - 1) {
-            signature = signature or ((bitMap[down][left]) shl 2)
-        }
-        if (tileZ < depth - 1) {
-            signature = signature or ((bitMap[down][tileX]) shl 1)
-        }
-        if (tileX < width - 1 && tileZ < depth - 1) {
-            signature = signature or ((bitMap[down][right]) shl 0)
-        }
-        return signature
-    }
 
     private fun drawCharacters(
         batch: Batch,
@@ -240,9 +204,6 @@ class Radar(
             }
         }
     }
-
-    private fun isPositionInMap(tileX: Int, tileZ: Int) =
-        tileX >= 0 && tileX < tilesMapping[0].size && tileZ >= 0 && tileZ < tilesMapping.size
 
     companion object {
         private val auxColor = Color()

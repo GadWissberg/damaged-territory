@@ -25,73 +25,61 @@
     },
     {
       "file_name": "tile_beach_bottom",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_bottom_right",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_gulf_bottom_right",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_bottom_left",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_gulf_bottom_left",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_top_left",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_gulf_top_left",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_top_right",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_gulf_top_right",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_top",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_right",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },
     {
       "file_name": "tile_beach_left",
-      "frames": 2,
       "animated": true,
       "folder": "ground/beach"
     },

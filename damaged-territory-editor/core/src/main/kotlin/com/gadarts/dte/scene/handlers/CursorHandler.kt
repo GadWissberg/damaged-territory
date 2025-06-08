@@ -18,6 +18,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.Ray
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.gadarts.dte.SharedData
+import com.gadarts.dte.TileLayer
+import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
@@ -59,27 +61,69 @@ class CursorHandler(
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val cursorPosition = cursorModelInstance.transform.getTranslation(auxVector)
-        val tiles = sharedData.layers[sharedData.selectedLayerIndex].tiles
+        val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
+        val tiles = tileLayer.tiles
         val z = cursorPosition.z.toInt()
         val x = cursorPosition.x.toInt()
-        if (tiles[z][x] == null) {
-            val modelInstance = ModelInstance(sharedData.floorModel)
-            (modelInstance.materials[0].get(
-                TextureAttribute.Diffuse
-            ) as TextureAttribute
-
-                    ).textureDescription.texture = assetsManager.getTexture("tile_beach")
-            tiles[z][x] =
-                modelInstance
-            modelInstance.transform.setToTranslation(x.toFloat() + 0.5F, 0F, z.toFloat() + 0.5F)
-            sharedData.modelInstances.add(modelInstance)
-            Gdx.app.log(
-                "CursorHandler",
-                "Added tile at ($x, $z) with model: ${modelInstance.materials[0].get(TextureAttribute.Diffuse)}"
-            )
+        val selectedTile = sharedData.selectedTile
+        if (selectedTile != null) {
+            addTile(tiles, z, x, "tile_${selectedTile.name.lowercase()}")
+            tileLayer.bitMap[z][x] = 1
+            applyTileSurrounding(x - 1, z - 1, tileLayer)
+            applyTileSurrounding(x, z - 1, tileLayer)
+            applyTileSurrounding(x + 1, z - 1, tileLayer)
+            applyTileSurrounding(x - 1, z, tileLayer)
+            applyTileSurrounding(x + 1, z, tileLayer)
+            applyTileSurrounding(x - 1, z + 1, tileLayer)
+            applyTileSurrounding(x, z + 1, tileLayer)
+            applyTileSurrounding(x + 1, z + 1, tileLayer)
             return true
         }
         return false
+    }
+
+    private fun addTile(
+        tiles: Array<Array<ModelInstance?>>,
+        z: Int,
+        x: Int,
+        textureName: String
+    ): ModelInstance {
+        val modelInstance = if (
+            tiles[z][x] != null
+        ) {
+            tiles[z][x]!!
+        } else {
+            ModelInstance(sharedData.floorModel)
+        }
+        (modelInstance.materials[0].get(
+            TextureAttribute.Diffuse
+        ) as TextureAttribute
+            ).textureDescription.texture = assetsManager.getTexture(textureName)
+        tiles[z][x] =
+            modelInstance
+        modelInstance.transform.setToTranslation(x.toFloat() + 0.5F, 0F, z.toFloat() + 0.5F)
+        sharedData.modelInstances.add(modelInstance)
+        return modelInstance
+    }
+
+    private fun applyTileSurrounding(x: Int, z: Int, tileLayer: TileLayer) {
+        if (sharedData.selectedTile == null) return
+
+        val tileSignature = SharedUtils.calculateTileSignature(x, z, tileLayer.bitMap)
+        val textureSignature = signatures.keys
+            .sortedByDescending { it.countOneBits() }
+            .find { (it and tileSignature) == it }
+        if (textureSignature != null) {
+            if (textureSignature > 0) {
+                val textureName = "tile_${sharedData.selectedTile!!.name.lowercase()}${signatures[textureSignature]}"
+                addTile(
+                    tileLayer.tiles,
+                    z,
+                    x,
+                    textureName
+                )
+            }
+        }
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
@@ -107,7 +151,11 @@ class CursorHandler(
             val snappedX = MathUtils.floor(auxVector.x)
             val snappedZ = MathUtils.floor(auxVector.z)
 
-            cursorModelInstance.transform.setToTranslation(snappedX.toFloat() + 0.5F, 0.01f, snappedZ.toFloat() + 0.5F)
+            cursorModelInstance.transform.setToTranslation(
+                MathUtils.clamp(snappedX.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
+                0.01f,
+                MathUtils.clamp(snappedZ.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
+            )
         }
 
         return false
@@ -129,5 +177,21 @@ class CursorHandler(
         private val auxRay = Ray()
         private val auxVector = Vector3()
         private val floorPlane = Plane(Vector3.Y, 0f)
+        private val signatures = mapOf(
+            0b00000010 to "_top",
+            0b01000000 to "_bottom",
+            0b00001000 to "_left",
+            0b00010000 to "_right",
+            0b00010110 to "_gulf_top_right",
+            0b00001011 to "_gulf_top_left",
+            0b11010000 to "_gulf_bottom_right",
+            0b01101000 to "_gulf_bottom_left",
+            0b10000000 to "_bottom_right",
+            0b00100000 to "_bottom_left",
+            0b00000100 to "_top_right",
+            0b00000001 to "_top_left",
+            0b11111111 to "",
+        )
+
     }
 }

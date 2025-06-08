@@ -65,14 +65,14 @@ class MapHandler(
 
     private fun addNewLayer(name: String, texture: Texture? = null, disabled: Boolean = false): MutableList<TileLayer> {
         val layersGrid: Array<Array<ModelInstance?>> = createLayer(texture)
-        val layer0 = TileLayer(name, disabled, layersGrid)
+        val layer0 = TileLayer(name, disabled, layersGrid, Array(MAP_SIZE) { Array(MAP_SIZE) { 0 } })
         val layers = sharedData.layers
         layers.add(layer0)
         return layers
     }
 
     private fun createLayer(texture: Texture?): Array<Array<ModelInstance?>> {
-        val layer0Tiles: Array<Array<ModelInstance?>> = Array(MAP_SIZE) {
+        val layerTiles: Array<Array<ModelInstance?>> = Array(MAP_SIZE) {
             Array(MAP_SIZE) {
                 if (texture != null) {
                     texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
@@ -85,9 +85,9 @@ class MapHandler(
             }
         }
         if (texture != null) {
-            sharedData.modelInstances.addAll(layer0Tiles.flatten().filterNotNull())
+            sharedData.modelInstances.addAll(layerTiles.flatten().filterNotNull())
         }
-        return layer0Tiles
+        return layerTiles
     }
 
 }

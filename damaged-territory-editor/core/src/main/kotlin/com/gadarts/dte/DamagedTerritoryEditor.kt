@@ -79,22 +79,38 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         scrollPane.setFadeScrollBars(false)
         tileButtonGroup.setMaxCheckCount(1)
         tileButtonGroup.setMinCheckCount(1)
-        TilesTypes.entries.forEachIndexed { i, tileType ->
-            val texture = gameAssetsManager.getTexture("tile_${tileType.name.lowercase()}")
-            val drawable = TextureRegionDrawable(TextureRegion(texture))
-            val borderDrawable = TextureRegionDrawable(
-                createBorderedTexture(texture)
-            )
-            val style = ImageButton.ImageButtonStyle().apply {
-                imageUp = drawable
-                imageChecked = borderDrawable
-            }
-            val button = CatalogTileButton(style)
-            tileButtonGroup.add(button)
-            catalogTable.add(button).size(texture.width.toFloat(), texture.height.toFloat()).pad(5f)
-            if ((i + 1) % 2 == 0) catalogTable.row()
+        val entries = TilesTypes.entries
+        entries.forEachIndexed { i, tileType ->
+            addTileCatalogButton(tileType, catalogTable, i)
         }
+        sharedData.selectedTile = entries.first()
         leftSidePanel.add(scrollPane).size(250F)
+    }
+
+    private fun addTileCatalogButton(
+        tileType: TilesTypes,
+        catalogTable: Table,
+        i: Int
+    ) {
+        val texture = gameAssetsManager.getTexture("tile_${tileType.name.lowercase()}")
+        val borderDrawable = TextureRegionDrawable(
+            createBorderedTexture(texture)
+        )
+        val style = ImageButton.ImageButtonStyle().apply {
+            imageUp = TextureRegionDrawable(TextureRegion(texture))
+            imageChecked = borderDrawable
+        }
+        val button = CatalogTileButton(style)
+        button.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                if (button.isChecked) {
+                    sharedData.selectedTile = tileType
+                }
+            }
+        })
+        tileButtonGroup.add(button)
+        catalogTable.add(button).size(texture.width.toFloat(), texture.height.toFloat()).pad(5f)
+        if ((i + 1) % 2 == 0) catalogTable.row()
     }
 
     private fun createBorderedTexture(baseTexture: Texture): Texture {
