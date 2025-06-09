@@ -1,6 +1,7 @@
 package com.gadarts.dte.scene.handlers
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.MessageDispatcher
@@ -11,15 +12,12 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
-import com.badlogic.gdx.math.Intersector
-import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Plane
-import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.*
 import com.badlogic.gdx.math.collision.Ray
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.gadarts.dte.SharedData
 import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
+import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
@@ -29,6 +27,9 @@ class CursorHandler(
     dispatcher: MessageDispatcher
 ) : InputProcessor,
     SceneHandler(dispatcher) {
+    private val prevTileClickPosition = Vector2()
+    private var tiling: Boolean = false
+    private var deleting: Boolean = false
     private var cursorModelInstance: ModelInstance
     private var cursorModel: Model
     private var cursorMaterial: Material
@@ -61,12 +62,48 @@ class CursorHandler(
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val cursorPosition = cursorModelInstance.transform.getTranslation(auxVector)
-        val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
-        val tiles = tileLayer.tiles
         val z = cursorPosition.z.toInt()
         val x = cursorPosition.x.toInt()
+        var appliedAction = false
+        if (button == Input.Buttons.LEFT) {
+            appliedAction = placeTile(x, z)
+            if (appliedAction) {
+                tiling = true
+            }
+        } else if (button == Input.Buttons.RIGHT) {
+            appliedAction = deleteTile(x, z)
+            if (appliedAction) {
+                deleting = true
+            }
+        }
+        if (appliedAction) {
+            prevTileClickPosition.set(x.toFloat(), z.toFloat())
+        }
+        return appliedAction
+    }
+
+    private fun deleteTile(x: Int, z: Int): Boolean {
+        val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
+        if (tileLayer.tiles[z][x] != null) {
+            tileLayer.tiles[z][x]?.let { modelInstance ->
+                sharedData.modelInstances.remove(modelInstance)
+                tileLayer.tiles[z][x] = null
+            }
+            tileLayer.bitMap[z][x] = 0
+            return true
+        }
+        return false
+    }
+
+    private fun placeTile(
+        x: Int,
+        z: Int,
+    ): Boolean {
+        val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
+        val tiles = tileLayer.tiles
         val selectedTile = sharedData.selectedTile
         if (selectedTile != null) {
+            prevTileClickPosition.set(x.toFloat(), z.toFloat())
             addTile(tiles, z, x, "tile_${selectedTile.name.lowercase()}")
             tileLayer.bitMap[z][x] = 1
             applyTileSurrounding(x - 1, z - 1, tileLayer)
@@ -93,7 +130,9 @@ class CursorHandler(
         ) {
             tiles[z][x]!!
         } else {
-            ModelInstance(sharedData.floorModel)
+            val modelInstance = ModelInstance(sharedData.floorModel)
+            sharedData.modelInstances.add(modelInstance)
+            modelInstance
         }
         (modelInstance.materials[0].get(
             TextureAttribute.Diffuse
@@ -102,12 +141,11 @@ class CursorHandler(
         tiles[z][x] =
             modelInstance
         modelInstance.transform.setToTranslation(x.toFloat() + 0.5F, 0F, z.toFloat() + 0.5F)
-        sharedData.modelInstances.add(modelInstance)
         return modelInstance
     }
 
     private fun applyTileSurrounding(x: Int, z: Int, tileLayer: TileLayer) {
-        if (sharedData.selectedTile == null) return
+        if (sharedData.selectedTile == null || x < 0 || x >= MAP_SIZE || z < 0 || z >= MAP_SIZE || tileLayer.disabled) return
 
         val tileSignature = SharedUtils.calculateTileSignature(x, z, tileLayer.bitMap)
         val textureSignature = signatures.keys
@@ -127,7 +165,9 @@ class CursorHandler(
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
+        tiling = false
+        deleting = false
+        return true
     }
 
     override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
@@ -135,27 +175,44 @@ class CursorHandler(
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        updateCursorPosition(screenX, screenY)
+        val cursorPosition = cursorModelInstance.transform.getTranslation(auxVector)
+        val snappedX = MathUtils.floor(cursorPosition.x)
+        val snappedZ = MathUtils.floor(cursorPosition.z)
+        if (!prevTileClickPosition.epsilonEquals(snappedX.toFloat(), snappedZ.toFloat())) {
+            if (tiling) {
+                placeTile(snappedX, snappedZ)
+                prevTileClickPosition.set(snappedX.toFloat(), snappedZ.toFloat())
+                return true
+            } else if (deleting) {
+                deleteTile(snappedX, snappedZ)
+                prevTileClickPosition.set(snappedX.toFloat(), snappedZ.toFloat())
+                return true
+            }
+        }
         return false
     }
 
     override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
+        return updateCursorPosition(screenX, screenY)
+    }
+
+    private fun updateCursorPosition(screenX: Int, screenY: Int): Boolean {
         auxRay.set(sharedData.camera.getPickRay(screenX.toFloat(), screenY.toFloat()))
 
-        val success = Intersector.intersectRayPlane(
-            auxRay,
-            floorPlane,
-            auxVector
-        )
+        val success = Intersector.intersectRayPlane(auxRay, floorPlane, auxVector)
 
         if (success) {
             val snappedX = MathUtils.floor(auxVector.x)
             val snappedZ = MathUtils.floor(auxVector.z)
+
 
             cursorModelInstance.transform.setToTranslation(
                 MathUtils.clamp(snappedX.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
                 0.01f,
                 MathUtils.clamp(snappedZ.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
             )
+            return true
         }
 
         return false

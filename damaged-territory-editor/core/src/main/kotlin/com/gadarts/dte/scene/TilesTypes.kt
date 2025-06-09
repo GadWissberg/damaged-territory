@@ -1,4 +1,4 @@
-package com.gadarts.dte
+package com.gadarts.dte.scene
 
 enum class TilesTypes {
     WATER_SHALLOW,

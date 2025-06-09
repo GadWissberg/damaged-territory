@@ -7,8 +7,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.dte.SharedData
 import com.gadarts.dte.scene.AuxiliaryModels
+import com.gadarts.dte.scene.SharedData
 
 class RenderingHandler(
     private val auxiliaryModels: AuxiliaryModels,

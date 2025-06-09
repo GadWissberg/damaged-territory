@@ -1,4 +1,4 @@
-package com.gadarts.dte
+package com.gadarts.dte.ui
 
 enum class IconsTextures {
     BUTTON_UP,

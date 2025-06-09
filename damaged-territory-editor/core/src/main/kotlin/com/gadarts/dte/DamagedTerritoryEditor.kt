@@ -21,6 +21,12 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.gadarts.dte.scene.SceneRenderer
+import com.gadarts.dte.scene.SharedData
+import com.gadarts.dte.scene.TilesTypes
+import com.gadarts.dte.ui.CatalogTileButton
+import com.gadarts.dte.ui.IconsTextures
+import com.gadarts.dte.ui.Modes
+import com.gadarts.dte.ui.TileLayerList
 import com.gadarts.shared.GameAssetManager
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*

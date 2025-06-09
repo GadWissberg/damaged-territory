@@ -9,8 +9,8 @@ import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.gadarts.dte.SharedData
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
+import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.SharedUtils
 
 class CameraHandler(private val sharedData: SharedData, dispatcher: MessageDispatcher) : InputProcessor,

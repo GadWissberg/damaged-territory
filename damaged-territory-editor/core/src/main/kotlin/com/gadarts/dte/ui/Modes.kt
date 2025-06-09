@@ -1,4 +1,4 @@
-package com.gadarts.dte
+package com.gadarts.dte.ui
 
 enum class Modes(val icon: IconsTextures) {
     TILES(IconsTextures.ICON_MODE_FLOOR),

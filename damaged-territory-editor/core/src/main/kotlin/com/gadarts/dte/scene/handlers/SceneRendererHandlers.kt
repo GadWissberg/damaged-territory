@@ -4,8 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.dte.SharedData
 import com.gadarts.dte.scene.AuxiliaryModels
+import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
 
 data class SceneRendererHandlers(

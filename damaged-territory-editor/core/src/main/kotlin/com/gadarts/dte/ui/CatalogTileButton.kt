@@ -1,4 +1,4 @@
-package com.gadarts.dte
+package com.gadarts.dte.ui
 
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 

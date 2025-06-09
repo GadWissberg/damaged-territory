@@ -3,7 +3,6 @@ package com.gadarts.dte.scene
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.dte.SharedData
 import com.gadarts.dte.scene.handlers.SceneRendererHandlers
 import com.gadarts.shared.GameAssetManager
 
