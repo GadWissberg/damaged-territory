@@ -100,11 +100,10 @@ class CursorHandler(
         z: Int,
     ): Boolean {
         val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
-        val tiles = tileLayer.tiles
         val selectedTile = sharedData.selectedTile
         if (selectedTile != null) {
             prevTileClickPosition.set(x.toFloat(), z.toFloat())
-            addTile(tiles, z, x, "tile_${selectedTile.name.lowercase()}")
+            addTile(tileLayer, z, x, "tile_${selectedTile.name.lowercase()}")
             tileLayer.bitMap[z][x] = 1
             applyTileSurrounding(x - 1, z - 1, tileLayer)
             applyTileSurrounding(x, z - 1, tileLayer)
@@ -120,11 +119,12 @@ class CursorHandler(
     }
 
     private fun addTile(
-        tiles: Array<Array<ModelInstance?>>,
+        tileLayer: TileLayer,
         z: Int,
         x: Int,
         textureName: String
     ): ModelInstance {
+        val tiles = tileLayer.tiles
         val modelInstance = if (
             tiles[z][x] != null
         ) {
@@ -138,9 +138,13 @@ class CursorHandler(
             TextureAttribute.Diffuse
         ) as TextureAttribute
             ).textureDescription.texture = assetsManager.getTexture(textureName)
-        tiles[z][x] =
+        tileLayer.tiles[z][x] =
             modelInstance
-        modelInstance.transform.setToTranslation(x.toFloat() + 0.5F, 0F, z.toFloat() + 0.5F)
+        modelInstance.transform.setToTranslation(
+            x.toFloat() + 0.5F,
+            sharedData.layers.indexOf(tileLayer).toFloat() * 0.01F,
+            z.toFloat() + 0.5F
+        )
         return modelInstance
     }
 
@@ -155,7 +159,7 @@ class CursorHandler(
             if (textureSignature > 0) {
                 val textureName = "tile_${sharedData.selectedTile!!.name.lowercase()}${signatures[textureSignature]}"
                 addTile(
-                    tileLayer.tiles,
+                    tileLayer,
                     z,
                     x,
                     textureName
@@ -209,7 +213,7 @@ class CursorHandler(
 
             cursorModelInstance.transform.setToTranslation(
                 MathUtils.clamp(snappedX.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
-                0.01f,
+                0.07f,
                 MathUtils.clamp(snappedZ.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
             )
             return true

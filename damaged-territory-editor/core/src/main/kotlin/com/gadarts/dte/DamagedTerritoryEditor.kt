@@ -183,6 +183,10 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
                     newLayerName
                 )
                 list.setItems(*layers.toTypedArray())
+                list.items.last().let { lastLayer ->
+                    list.selectedIndex = layers.indexOf(lastLayer)
+                    sharedData.selectedLayerIndex = list.selectedIndex
+                }
             }
         })
         return addLayer
