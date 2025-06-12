@@ -48,7 +48,8 @@ class DefinitionLoader(resolver: FileHandleResolver) :
                     asJsonObject.get(KEY_FILE_NAME).asString,
                     if (asJsonObject.has(KEY_FRAMES)) asJsonObject.get(KEY_FRAMES).asInt else 1,
                     if (asJsonObject.has(KEY_ANIMATED)) asJsonObject.get(KEY_ANIMATED).asBoolean else false,
-                    if (asJsonObject.has(KEY_FOLDER)) asJsonObject.get(KEY_FOLDER).asString else ""
+                    if (asJsonObject.has(KEY_FOLDER)) asJsonObject.get(KEY_FOLDER).asString else "",
+                    if (asJsonObject.has(KEY_SURROUNDED_TILE)) asJsonObject.get(KEY_SURROUNDED_TILE).asBoolean else false,
                 )
             })
         return ExternalDefinitions(definitions)
@@ -62,6 +63,7 @@ class DefinitionLoader(resolver: FileHandleResolver) :
         private const val KEY_FOLDER = "folder"
         private const val KEY_FRAMES = "frames"
         private const val KEY_ANIMATED = "animated"
+        private const val KEY_SURROUNDED_TILE = "surrounded_tile"
     }
 
 }

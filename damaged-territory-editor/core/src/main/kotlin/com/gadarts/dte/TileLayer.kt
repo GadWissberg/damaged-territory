@@ -1,11 +1,11 @@
 package com.gadarts.dte
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.gadarts.dte.scene.handlers.render.EditorModelInstance
 
 data class TileLayer(
     val name: String,
     val disabled: Boolean = false,
-    val tiles: Array<Array<ModelInstance?>>,
+    val tiles: Array<Array<EditorModelInstance?>>,
     val bitMap: Array<Array<Int>>
 ) {
     override fun toString(): String {

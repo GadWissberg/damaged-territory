@@ -13,7 +13,7 @@ import com.gadarts.dte.GeneralUtils
 
 class AuxiliaryModels(private val mapSize: Int) : Disposable {
     private var gridModelInstance: ModelInstance
-    private var axisModelInstance: ModelInstance
+    var axisModelInstance: ModelInstance
     private lateinit var gridModel: Model
     private val axisModel: Model
 

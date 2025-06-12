@@ -22,12 +22,12 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.gadarts.dte.scene.SceneRenderer
 import com.gadarts.dte.scene.SharedData
-import com.gadarts.dte.scene.TilesTypes
 import com.gadarts.dte.ui.CatalogTileButton
 import com.gadarts.dte.ui.IconsTextures
 import com.gadarts.dte.ui.Modes
 import com.gadarts.dte.ui.TileLayerList
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
 
@@ -85,20 +85,24 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         scrollPane.setFadeScrollBars(false)
         tileButtonGroup.setMaxCheckCount(1)
         tileButtonGroup.setMinCheckCount(1)
-        val entries = TilesTypes.entries
-        entries.forEachIndexed { i, tileType ->
+        val textureDefinitions = gameAssetsManager.getTexturesDefinitions().definitions.filter {
+            it.value.folder.split(
+                "/"
+            ).first() == "ground"
+        }.values
+        textureDefinitions.forEachIndexed { i, tileType ->
             addTileCatalogButton(tileType, catalogTable, i)
         }
-        sharedData.selectedTile = entries.first()
+        sharedData.selectedTile = textureDefinitions.first()
         leftSidePanel.add(scrollPane).size(250F)
     }
 
     private fun addTileCatalogButton(
-        tileType: TilesTypes,
+        textureDefinition: TextureDefinition,
         catalogTable: Table,
         i: Int
     ) {
-        val texture = gameAssetsManager.getTexture("tile_${tileType.name.lowercase()}")
+        val texture = gameAssetsManager.getTexture(textureDefinition.fileName.lowercase())
         val borderDrawable = TextureRegionDrawable(
             createBorderedTexture(texture)
         )
@@ -110,7 +114,7 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 if (button.isChecked) {
-                    sharedData.selectedTile = tileType
+                    sharedData.selectedTile = textureDefinition
                 }
             }
         })
@@ -152,6 +156,7 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         list.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 sharedData.selectedLayerIndex = list.selectedIndex
+                dispatcher.dispatchMessage(EditorEvents.LAYER_SELECTED.ordinal)
             }
         })
         list.selectedIndex = 1
@@ -179,7 +184,7 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
                 val layers = sharedData.layers
                 val newLayerName = "Layer ${layers.size + 1}"
                 dispatcher.dispatchMessage(
-                    EditorEvents.ADD_LAYER.ordinal,
+                    EditorEvents.LAYER_ADDED.ordinal,
                     newLayerName
                 )
                 list.setItems(*layers.toTypedArray())

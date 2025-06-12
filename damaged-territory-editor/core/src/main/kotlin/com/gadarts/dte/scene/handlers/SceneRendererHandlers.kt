@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.dte.scene.AuxiliaryModels
 import com.gadarts.dte.scene.SharedData
+import com.gadarts.dte.scene.handlers.render.RenderingHandler
 import com.gadarts.shared.GameAssetManager
 
 data class SceneRendererHandlers(

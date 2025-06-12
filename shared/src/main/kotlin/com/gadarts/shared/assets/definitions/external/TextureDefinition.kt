@@ -7,7 +7,8 @@ class TextureDefinition(
     override val fileName: String,
     val frames: Int,
     val animated: Boolean,
-    val folder: String
+    val folder: String,
+    val surroundedTile: Boolean,
 ) :
     ExternalDefinition<Texture> {
     companion object {

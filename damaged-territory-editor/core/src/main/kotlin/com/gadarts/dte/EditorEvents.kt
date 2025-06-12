@@ -1,5 +1,6 @@
 package com.gadarts.dte
 
 enum class EditorEvents {
-    ADD_LAYER;
+    LAYER_ADDED,
+    LAYER_SELECTED,
 }

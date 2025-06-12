@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.dte.scene.SharedData
+import com.gadarts.dte.scene.handlers.render.EditorModelInstance
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
@@ -30,7 +31,7 @@ class CursorHandler(
     private val prevTileClickPosition = Vector2()
     private var tiling: Boolean = false
     private var deleting: Boolean = false
-    private var cursorModelInstance: ModelInstance
+    private var cursorModelInstance: EditorModelInstance
     private var cursorModel: Model
     private var cursorMaterial: Material
 
@@ -42,7 +43,7 @@ class CursorHandler(
         )
         SharedUtils.createFlatMesh(modelBuilder, "cursor", 0.5F, null, 0F, cursorMaterial)
         cursorModel = modelBuilder.end()
-        cursorModelInstance = ModelInstance(cursorModel)
+        cursorModelInstance = EditorModelInstance(cursorModel)
         sharedData.modelInstances.add(cursorModelInstance)
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
     }
@@ -103,16 +104,18 @@ class CursorHandler(
         val selectedTile = sharedData.selectedTile
         if (selectedTile != null) {
             prevTileClickPosition.set(x.toFloat(), z.toFloat())
-            addTile(tileLayer, z, x, "tile_${selectedTile.name.lowercase()}")
+            addTile(tileLayer, z, x, selectedTile.fileName.lowercase())
             tileLayer.bitMap[z][x] = 1
-            applyTileSurrounding(x - 1, z - 1, tileLayer)
-            applyTileSurrounding(x, z - 1, tileLayer)
-            applyTileSurrounding(x + 1, z - 1, tileLayer)
-            applyTileSurrounding(x - 1, z, tileLayer)
-            applyTileSurrounding(x + 1, z, tileLayer)
-            applyTileSurrounding(x - 1, z + 1, tileLayer)
-            applyTileSurrounding(x, z + 1, tileLayer)
-            applyTileSurrounding(x + 1, z + 1, tileLayer)
+            if (selectedTile.surroundedTile) {
+                applyTileSurrounding(x - 1, z - 1, tileLayer)
+                applyTileSurrounding(x, z - 1, tileLayer)
+                applyTileSurrounding(x + 1, z - 1, tileLayer)
+                applyTileSurrounding(x - 1, z, tileLayer)
+                applyTileSurrounding(x + 1, z, tileLayer)
+                applyTileSurrounding(x - 1, z + 1, tileLayer)
+                applyTileSurrounding(x, z + 1, tileLayer)
+                applyTileSurrounding(x + 1, z + 1, tileLayer)
+            }
             return true
         }
         return false
@@ -130,14 +133,14 @@ class CursorHandler(
         ) {
             tiles[z][x]!!
         } else {
-            val modelInstance = ModelInstance(sharedData.floorModel)
+            val modelInstance = EditorModelInstance(sharedData.floorModel)
             sharedData.modelInstances.add(modelInstance)
             modelInstance
         }
         (modelInstance.materials[0].get(
             TextureAttribute.Diffuse
         ) as TextureAttribute
-            ).textureDescription.texture = assetsManager.getTexture(textureName)
+                ).textureDescription.texture = assetsManager.getTexture(textureName)
         tileLayer.tiles[z][x] =
             modelInstance
         modelInstance.transform.setToTranslation(
@@ -157,7 +160,8 @@ class CursorHandler(
             .find { (it and tileSignature) == it }
         if (textureSignature != null) {
             if (textureSignature > 0) {
-                val textureName = "tile_${sharedData.selectedTile!!.name.lowercase()}${signatures[textureSignature]}"
+                val textureName =
+                    "${sharedData.selectedTile!!.fileName.lowercase()}${signatures[textureSignature]}"
                 addTile(
                     tileLayer,
                     z,
