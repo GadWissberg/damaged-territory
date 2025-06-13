@@ -22,16 +22,17 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.gadarts.dte.scene.SceneRenderer
 import com.gadarts.dte.scene.SharedData
-import com.gadarts.dte.ui.CatalogTileButton
-import com.gadarts.dte.ui.IconsTextures
-import com.gadarts.dte.ui.Modes
-import com.gadarts.dte.ui.TileLayerList
+import com.gadarts.dte.ui.*
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
+import com.gadarts.shared.model.definitions.AmbDefinition
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
 
 class DamagedTerritoryEditor : ApplicationAdapter() {
+    private val leftSidePanel by lazy { VisTable() }
+    private val tilesModePanel by lazy { VisTable() }
+    private val objectsModePanel by lazy { VisTable() }
     private var selectedMode: Modes = Modes.TILES
     private val modesButtonGroup: ButtonGroup<VisImageButton> by lazy {
         createButtonGroup()
@@ -70,13 +71,40 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
     }
 
     private fun addLeftSidePanel(root: VisTable) {
-        val leftSidePanel = VisTable()
         leftSidePanel.background = VisUI.getSkin().getDrawable("window-bg")
-        addLayersListDisplay(leftSidePanel)
-        addTilesCatalog(leftSidePanel)
+        addLayersListDisplay(tilesModePanel)
+        addTilesCatalog(tilesModePanel)
+        leftSidePanel.add(tilesModePanel)
         leftSidePanel.pad(10F)
         leftSidePanel.align(Align.top)
         root.add(leftSidePanel).left().expandY().fillY().width(250F).row()
+        createObjectsModesPanel(objectsModePanel)
+    }
+
+    private fun createObjectsModesPanel(objectsModePanel: VisTable) {
+        val objectsListTable = VisTable()
+        objectsListTable.background = VisUI.getSkin().getDrawable("window-bg")
+        val list = SelectableList<AmbDefinition>(VisUI.getSkin()).apply {
+            initializeSelectableList(this, AmbDefinition.entries.toTypedArray())
+        }
+        list.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                sharedData.selectedObject = AmbDefinition.entries[list.selectedIndex]
+                dispatcher.dispatchMessage(EditorEvents.OBJECT_SELECTED.ordinal)
+            }
+        })
+        addHeaderToSelectableList(objectsListTable, "Objects")
+        addSelectableListScrollPane(list, objectsListTable)
+        objectsModePanel.add(objectsListTable)
+    }
+
+    private fun <T> initializeSelectableList(
+        selectableList: SelectableList<T>,
+        entries: Array<T>
+    ) {
+        selectableList.setItems(*entries)
+        selectableList.style.background = VisUI.getSkin().getDrawable("window-bg")
+        selectableList.selectedIndex = 1
     }
 
     private fun addTilesCatalog(leftSidePanel: VisTable) {
@@ -146,12 +174,11 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         return newTexture
     }
 
-    private fun addLayersListDisplay(leftSidePanel: VisTable) {
+    private fun addLayersListDisplay(parentPanel: VisTable) {
         val layersTable = VisTable()
         layersTable.background = VisUI.getSkin().getDrawable("window-bg")
-        val list = TileLayerList(VisUI.getSkin()).apply {
-            setItems(*sharedData.layers.toTypedArray())
-            style.background = VisUI.getSkin().getDrawable("window-bg")
+        val list = SelectableLayerList(VisUI.getSkin()).apply {
+            initializeSelectableList(this, sharedData.layers.toTypedArray())
         }
         list.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
@@ -159,17 +186,25 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
                 dispatcher.dispatchMessage(EditorEvents.LAYER_SELECTED.ordinal)
             }
         })
-        list.selectedIndex = 1
+        addHeaderToSelectableList(layersTable, "Layers")
+        addSelectableListScrollPane(list, layersTable)
+        layersTable.add(addLayerButton("+", list)).expandX().fillX().pad(10f)
+        layersTable.add(addLayerButton("-", list)).expandX().fillX().pad(10f).row()
+        parentPanel.add(layersTable).row()
+    }
+
+    private fun addHeaderToSelectableList(selectableListTable: VisTable, header: String) {
+        val layersHeader = VisLabel(header)
+        layersHeader.setAlignment(Align.center)
+        selectableListTable.add(layersHeader).colspan(2).center().expandX().fillX().row()
+    }
+
+    private fun <T> addSelectableListScrollPane(list: SelectableList<T>, panel: VisTable): ScrollPane {
         val scrollPane = ScrollPane(list, VisUI.getSkin())
         scrollPane.setFadeScrollBars(false)
         scrollPane.setScrollingDisabled(true, false)
-        val layersHeader = VisLabel("Layers")
-        layersHeader.setAlignment(Align.center)
-        layersTable.add(layersHeader).colspan(2).center().expandX().fillX().row()
-        layersTable.add(scrollPane).colspan(2).height(100F).top().expandX().fillX().row()
-        layersTable.add(addLayerButton("+", list)).expandX().fillX().pad(10f)
-        layersTable.add(addLayerButton("-", list)).expandX().fillX().pad(10f).row()
-        leftSidePanel.add(layersTable).row()
+        panel.add(scrollPane).colspan(2).width(200F).height(200F).top().expandX().fillX().row()
+        return scrollPane
     }
 
     override fun dispose() {
@@ -205,6 +240,19 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         addBarRadioButton(
             buttonGroup,
             object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    super.clicked(event, x, y)
+                    if (sharedData.selectedMode != mode) {
+                        sharedData.selectedMode = mode
+                        if (mode == Modes.TILES) {
+                            objectsModePanel.remove()
+                            leftSidePanel.add(tilesModePanel)
+                        } else {
+                            tilesModePanel.remove()
+                            leftSidePanel.add(objectsModePanel)
+                        }
+                    }
+                }
             },
             editorAssetManager.get(mode.icon.getFileName().lowercase(), Texture::class.java), buttonBar.table, mode.name
         )

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.MessageDispatcher
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
@@ -15,10 +16,12 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.*
 import com.badlogic.gdx.math.collision.Ray
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.gadarts.dte.EditorEvents
 import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
+import com.gadarts.dte.ui.Modes
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
@@ -29,9 +32,9 @@ class CursorHandler(
 ) : InputProcessor,
     SceneHandler(dispatcher) {
     private val prevTileClickPosition = Vector2()
-    private var tiling: Boolean = false
-    private var deleting: Boolean = false
-    private var cursorModelInstance: EditorModelInstance
+    private var placingElement: Boolean = false
+    private var deletingElements: Boolean = false
+    private var cursorModelInstance: EditorModelInstance? = null
     private var cursorModel: Model
     private var cursorMaterial: Material
 
@@ -43,11 +46,33 @@ class CursorHandler(
         )
         SharedUtils.createFlatMesh(modelBuilder, "cursor", 0.5F, null, 0F, cursorMaterial)
         cursorModel = modelBuilder.end()
-        cursorModelInstance = EditorModelInstance(cursorModel)
-        sharedData.modelInstances.add(cursorModelInstance)
+        setCursorModelInstance(cursorModel)
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
     }
 
+    private fun setCursorModelInstance(model: Model) {
+        val modelInstances = sharedData.modelInstances
+        modelInstances.remove(cursorModelInstance)
+        val editorModelInstance = EditorModelInstance(model)
+        cursorModelInstance = editorModelInstance
+        modelInstances.add(editorModelInstance)
+        editorModelInstance.nodes.forEach { node ->
+            node.parts.forEach { nodePart ->
+                nodePart.material = cursorMaterial
+            }
+        }
+        editorModelInstance.materials.clear()
+        editorModelInstance.materials.add(cursorMaterial)
+    }
+
+    override val subscribedEvents: Map<EditorEvents, EditorOnEvent> = mapOf(
+        EditorEvents.OBJECT_SELECTED to object : EditorOnEvent {
+            override fun react(msg: Telegram) {
+                val selectedObject = sharedData.selectedObject ?: return
+
+                setCursorModelInstance(assetsManager.getAssetByDefinition(selectedObject.getModelDefinition()))
+            }
+        })
 
     override fun keyDown(keycode: Int): Boolean {
         return false
@@ -62,19 +87,21 @@ class CursorHandler(
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        val cursorPosition = cursorModelInstance.transform.getTranslation(auxVector)
+        if (cursorModelInstance == null) return false
+
+        val cursorPosition = cursorModelInstance!!.transform.getTranslation(auxVector)
         val z = cursorPosition.z.toInt()
         val x = cursorPosition.x.toInt()
         var appliedAction = false
         if (button == Input.Buttons.LEFT) {
-            appliedAction = placeTile(x, z)
+            appliedAction = placeElement(x, z)
             if (appliedAction) {
-                tiling = true
+                placingElement = true
             }
         } else if (button == Input.Buttons.RIGHT) {
             appliedAction = deleteTile(x, z)
             if (appliedAction) {
-                deleting = true
+                deletingElements = true
             }
         }
         if (appliedAction) {
@@ -96,10 +123,34 @@ class CursorHandler(
         return false
     }
 
-    private fun placeTile(
+    private fun placeElement(
         x: Int,
         z: Int,
     ): Boolean {
+        if (sharedData.selectedMode == Modes.TILES) {
+            return placeTile(x, z)
+        } else if (sharedData.selectedMode == Modes.OBJECTS) {
+            return placeObject(x, z)
+        }
+        return false
+    }
+
+    private fun placeObject(x: Int, z: Int): Boolean {
+        val selectedObject = sharedData.selectedObject ?: return false
+        val modelDefinition = selectedObject.getModelDefinition()
+        val modelInstance = EditorModelInstance(
+            assetsManager.getAssetByDefinition(modelDefinition)
+        )
+        sharedData.modelInstances.add(modelInstance)
+        modelInstance.transform.setToTranslation(
+            x.toFloat() + 0.5F,
+            0.07f,
+            z.toFloat() + 0.5F
+        )
+        return true
+    }
+
+    private fun placeTile(x: Int, z: Int): Boolean {
         val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
         val selectedTile = sharedData.selectedTile
         if (selectedTile != null) {
@@ -140,7 +191,7 @@ class CursorHandler(
         (modelInstance.materials[0].get(
             TextureAttribute.Diffuse
         ) as TextureAttribute
-                ).textureDescription.texture = assetsManager.getTexture(textureName)
+            ).textureDescription.texture = assetsManager.getTexture(textureName)
         tileLayer.tiles[z][x] =
             modelInstance
         modelInstance.transform.setToTranslation(
@@ -173,8 +224,8 @@ class CursorHandler(
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        tiling = false
-        deleting = false
+        placingElement = false
+        deletingElements = false
         return true
     }
 
@@ -183,16 +234,18 @@ class CursorHandler(
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+        if (cursorModelInstance == null) return false
+
         updateCursorPosition(screenX, screenY)
-        val cursorPosition = cursorModelInstance.transform.getTranslation(auxVector)
+        val cursorPosition = cursorModelInstance!!.transform.getTranslation(auxVector)
         val snappedX = MathUtils.floor(cursorPosition.x)
         val snappedZ = MathUtils.floor(cursorPosition.z)
         if (!prevTileClickPosition.epsilonEquals(snappedX.toFloat(), snappedZ.toFloat())) {
-            if (tiling) {
-                placeTile(snappedX, snappedZ)
+            if (placingElement) {
+                placeElement(snappedX, snappedZ)
                 prevTileClickPosition.set(snappedX.toFloat(), snappedZ.toFloat())
                 return true
-            } else if (deleting) {
+            } else if (deletingElements) {
                 deleteTile(snappedX, snappedZ)
                 prevTileClickPosition.set(snappedX.toFloat(), snappedZ.toFloat())
                 return true
@@ -206,6 +259,8 @@ class CursorHandler(
     }
 
     private fun updateCursorPosition(screenX: Int, screenY: Int): Boolean {
+        if (cursorModelInstance == null) return false
+
         auxRay.set(sharedData.camera.getPickRay(screenX.toFloat(), screenY.toFloat()))
 
         val success = Intersector.intersectRayPlane(auxRay, floorPlane, auxVector)
@@ -215,7 +270,7 @@ class CursorHandler(
             val snappedZ = MathUtils.floor(auxVector.z)
 
 
-            cursorModelInstance.transform.setToTranslation(
+            cursorModelInstance!!.transform.setToTranslation(
                 MathUtils.clamp(snappedX.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
                 0.07f,
                 MathUtils.clamp(snappedZ.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),

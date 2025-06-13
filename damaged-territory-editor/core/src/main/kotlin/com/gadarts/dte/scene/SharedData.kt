@@ -5,9 +5,13 @@ import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
+import com.gadarts.dte.ui.Modes
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
+import com.gadarts.shared.model.definitions.AmbDefinition
 
 class SharedData : Disposable {
+    var selectedObject: AmbDefinition? = null
+    var selectedMode: Modes = Modes.TILES
     var selectedTile: TextureDefinition? = null
     var selectedLayerIndex: Int = 1
     lateinit var camera: PerspectiveCamera
