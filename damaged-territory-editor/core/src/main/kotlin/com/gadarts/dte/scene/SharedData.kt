@@ -17,6 +17,7 @@ class SharedData : Disposable {
     lateinit var camera: PerspectiveCamera
     val modelInstances = mutableListOf<EditorModelInstance>()
     val layers = mutableListOf<TileLayer>()
+    val placedObjects = mutableListOf<PlacedObject>()
     lateinit var floorModel: Model
     override fun dispose() {
         floorModel.dispose()

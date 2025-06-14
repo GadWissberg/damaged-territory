@@ -1,7 +1,7 @@
-package com.gadarts.returnfire.systems.map
+package com.gadarts.shared.assets.map
 
 object TilesMapping {
-    val tiles = listOf(
+    val tiles: List<String> = listOf(
         "tile_water",
         "tile_beach_bottom_right",
         "tile_beach_gulf_bottom_right",

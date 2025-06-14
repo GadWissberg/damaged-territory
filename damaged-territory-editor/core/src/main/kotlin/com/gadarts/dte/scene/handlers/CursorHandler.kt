@@ -9,7 +9,6 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
-import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
@@ -17,7 +16,9 @@ import com.badlogic.gdx.math.*
 import com.badlogic.gdx.math.collision.Ray
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.gadarts.dte.EditorEvents
+import com.gadarts.dte.PlacedTile
 import com.gadarts.dte.TileLayer
+import com.gadarts.dte.scene.PlacedObject
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
@@ -99,7 +100,7 @@ class CursorHandler(
                 placingElement = true
             }
         } else if (button == Input.Buttons.RIGHT) {
-            appliedAction = deleteTile(x, z)
+            appliedAction = deleteElement(x, z)
             if (appliedAction) {
                 deletingElements = true
             }
@@ -110,15 +111,30 @@ class CursorHandler(
         return appliedAction
     }
 
-    private fun deleteTile(x: Int, z: Int): Boolean {
-        val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
-        if (tileLayer.tiles[z][x] != null) {
-            tileLayer.tiles[z][x]?.let { modelInstance ->
-                sharedData.modelInstances.remove(modelInstance)
-                tileLayer.tiles[z][x] = null
+    private fun deleteElement(x: Int, z: Int): Boolean {
+        if (sharedData.selectedMode == Modes.TILES) {
+            val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
+            if (tileLayer.tiles[z][x] != null) {
+                tileLayer.tiles[z][x]?.let { placedTile ->
+                    sharedData.modelInstances.remove(placedTile.modelInstance)
+                    tileLayer.tiles[z][x] = null
+                }
+                tileLayer.bitMap[z][x] = 0
+                return true
             }
-            tileLayer.bitMap[z][x] = 0
-            return true
+        } else if (sharedData.selectedMode == Modes.OBJECTS) {
+            val modelInstances = sharedData.modelInstances
+            sharedData.modelInstances.first {
+                it.transform.getTranslation(auxVector).let { position ->
+                    position.x.toInt() == x && position.z.toInt() == z
+                }
+            }.let { modelInstance ->
+                modelInstances.remove(modelInstance)
+                sharedData.placedObjects.removeIf { placedObject ->
+                    placedObject.modelInstance == modelInstance
+                }
+                return true
+            }
         }
         return false
     }
@@ -146,6 +162,14 @@ class CursorHandler(
             x.toFloat() + 0.5F,
             0.07f,
             z.toFloat() + 0.5F
+        )
+        sharedData.placedObjects.add(
+            PlacedObject(
+                z,
+                x,
+                selectedObject,
+                modelInstance
+            )
         )
         return true
     }
@@ -177,29 +201,31 @@ class CursorHandler(
         z: Int,
         x: Int,
         textureName: String
-    ): ModelInstance {
+    ): PlacedTile {
         val tiles = tileLayer.tiles
-        val modelInstance = if (
+        val texture = assetsManager.getTexture(textureName)
+        val placedTile = if (
             tiles[z][x] != null
         ) {
             tiles[z][x]!!
         } else {
             val modelInstance = EditorModelInstance(sharedData.floorModel)
             sharedData.modelInstances.add(modelInstance)
-            modelInstance
+            PlacedTile(modelInstance, assetsManager.getTexturesDefinitions().definitions[textureName]!!)
         }
+        val modelInstance = placedTile.modelInstance
         (modelInstance.materials[0].get(
             TextureAttribute.Diffuse
         ) as TextureAttribute
-            ).textureDescription.texture = assetsManager.getTexture(textureName)
+            ).textureDescription.texture = texture
         tileLayer.tiles[z][x] =
-            modelInstance
+            placedTile
         modelInstance.transform.setToTranslation(
             x.toFloat() + 0.5F,
             sharedData.layers.indexOf(tileLayer).toFloat() * 0.01F,
             z.toFloat() + 0.5F
         )
-        return modelInstance
+        return placedTile
     }
 
     private fun applyTileSurrounding(x: Int, z: Int, tileLayer: TileLayer) {
@@ -246,7 +272,7 @@ class CursorHandler(
                 prevTileClickPosition.set(snappedX.toFloat(), snappedZ.toFloat())
                 return true
             } else if (deletingElements) {
-                deleteTile(snappedX, snappedZ)
+                deleteElement(snappedX, snappedZ)
                 prevTileClickPosition.set(snappedX.toFloat(), snappedZ.toFloat())
                 return true
             }

@@ -1,6 +1,6 @@
 buildscript {
-    ext.kotlin_version = '1.9.24'
-    repositories {
+  ext.kotlin_version = '1.9.24'
+  repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
     gradlePluginPortal()
@@ -11,8 +11,9 @@ buildscript {
   }
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-      classpath 'com.android.tools.build:gradle:8.9.2'
-      classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath 'com.android.tools.build:gradle:8.9.2'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath 'com.google.code.gson:gson:2.10.1'
 
   }
 }
@@ -51,7 +52,7 @@ task writeAllAssetsToFile {
 configure(subprojects - project(':android')) {
   apply plugin: 'java-library'
   apply plugin: 'kotlin'
-    compileJava {
+  compileJava {
     options.incremental = true
   }
 

@@ -1,11 +1,9 @@
 package com.gadarts.dte
 
-import com.gadarts.dte.scene.handlers.render.EditorModelInstance
-
 data class TileLayer(
     val name: String,
     val disabled: Boolean = false,
-    val tiles: Array<Array<EditorModelInstance?>>,
+    val tiles: Array<Array<PlacedTile?>>,
     val bitMap: Array<Array<Int>>
 ) {
     override fun toString(): String {

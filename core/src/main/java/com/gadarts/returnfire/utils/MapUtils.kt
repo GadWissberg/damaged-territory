@@ -5,14 +5,14 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.MapGraph
-import com.gadarts.returnfire.systems.map.TilesMapping
+import com.gadarts.shared.SharedUtils.tilesChars
 import com.gadarts.shared.assets.definitions.external.ExternalDefinitions
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
+import com.gadarts.shared.assets.map.TilesMapping
 import kotlin.math.floor
 
 object MapUtils {
     private val auxBoundingBox = BoundingBox()
-    private val tilesChars = CharArray(80) { (it + 48).toChar() }.joinToString("")
     private val auxVector1 = Vector3()
     private val auxVector2 = Vector3()
 

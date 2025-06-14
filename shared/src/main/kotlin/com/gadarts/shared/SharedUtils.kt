@@ -15,6 +15,8 @@ object SharedUtils {
     const val GAME_VIEW_FOV = 60F
     const val DROWNING_HEIGHT = -1F
     val auxVector = Vector3()
+    val tilesChars = CharArray(80) { (it + 48).toChar() }.joinToString("")
+
     fun createCamera(fov: Float): PerspectiveCamera {
         val perspectiveCamera = PerspectiveCamera(
             fov,

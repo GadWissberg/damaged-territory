@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.gadarts.dte.EditorEvents
+import com.gadarts.dte.PlacedTile
 import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.dte.scene.SharedData
@@ -49,7 +50,7 @@ class MapHandler(
         addNewLayer("Layer 2", null)
         for (z in 0 until MAP_SIZE) {
             for (x in 0 until MAP_SIZE) {
-                sharedData.layers[0].tiles[z][x]?.transform?.setToTranslation(
+                sharedData.layers[0].tiles[z][x]?.modelInstance?.transform?.setToTranslation(
                     x.toFloat() + 0.5F,
                     0F,
                     z.toFloat() + 0.5F
@@ -59,15 +60,15 @@ class MapHandler(
     }
 
     private fun addNewLayer(name: String, texture: Texture? = null, disabled: Boolean = false): MutableList<TileLayer> {
-        val layersGrid: Array<Array<EditorModelInstance?>> = createLayer(texture)
+        val layersGrid: Array<Array<PlacedTile?>> = createLayer(texture)
         val layer0 = TileLayer(name, disabled, layersGrid, Array(MAP_SIZE) { Array(MAP_SIZE) { 0 } })
         val layers = sharedData.layers
         layers.add(layer0)
         return layers
     }
 
-    private fun createLayer(texture: Texture?): Array<Array<EditorModelInstance?>> {
-        val layerTiles: Array<Array<EditorModelInstance?>> = Array(MAP_SIZE) {
+    private fun createLayer(texture: Texture?): Array<Array<PlacedTile?>> {
+        val layerTiles: Array<Array<PlacedTile?>> = Array(MAP_SIZE) {
             Array(MAP_SIZE) {
                 if (texture != null) {
                     texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
@@ -75,12 +76,16 @@ class MapHandler(
                     (modelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute)
                         .set(TextureRegion(texture))
-                    modelInstance
+                    PlacedTile(modelInstance, assetsManager.getTexturesDefinitions().definitions["tile_water"]!!)
                 } else null
             }
         }
         if (texture != null) {
-            sharedData.modelInstances.addAll(layerTiles.flatten().filterNotNull())
+            layerTiles.forEach {
+                it.forEach { placedTile ->
+                    placedTile?.let { it1 -> sharedData.modelInstances.add(it1.modelInstance) }
+                }
+            }
         }
         return layerTiles
     }

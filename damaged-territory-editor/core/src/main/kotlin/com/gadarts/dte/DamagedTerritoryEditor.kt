@@ -24,12 +24,19 @@ import com.gadarts.dte.scene.SceneRenderer
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.ui.*
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.SharedUtils.tilesChars
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
+import com.gadarts.shared.assets.map.MapFile
+import com.gadarts.shared.assets.map.MapFileLayer
+import com.gadarts.shared.assets.map.MapFileObject
+import com.gadarts.shared.assets.map.TilesMapping
+import com.gadarts.shared.model.ElementType
 import com.gadarts.shared.model.definitions.AmbDefinition
+import com.google.gson.GsonBuilder
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
 
-class DamagedTerritoryEditor : ApplicationAdapter() {
+class DamagedTerritoryEditor(private val dispatcher: MessageDispatcher) : ApplicationAdapter() {
     private val leftSidePanel by lazy { VisTable() }
     private val tilesModePanel by lazy { VisTable() }
     private val objectsModePanel by lazy { VisTable() }
@@ -40,7 +47,6 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
     private val stage: Stage by lazy { Stage(ScreenViewport()) }
     private lateinit var menuBar: MenuBar
     private val sharedData = SharedData()
-    private val dispatcher = MessageDispatcher()
     private val sceneRenderer: SceneRenderer by lazy { SceneRenderer(sharedData, gameAssetsManager, dispatcher) }
     private val editorAssetManager = AssetManager()
     private val gameAssetsManager: GameAssetManager by lazy { GameAssetManager() }
@@ -54,6 +60,8 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         loadEditorAssets()
         menuBar = addMenu()
         val buttonBar = MenuBar()
+        addFileButtons(buttonBar)
+        buttonBar.table.add(Separator("vertical")).width(10F).fillY().expandY()
         Modes.entries.forEach {
             addModeButton(modesButtonGroup, buttonBar, it)
         }
@@ -68,6 +76,69 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
         root.add(buttonBar.table).fillX().expandX().row()
         addLeftSidePanel(root)
         root.pack()
+    }
+
+    fun convertLayerToString(layer: TileLayer): String {
+        val tilesString = StringBuilder()
+
+        val tiles = layer.tiles
+        for (row in tiles.indices) {
+            for (col in 0 until tiles[0].size) {
+                val placedTile = tiles[row][col]
+                val defaultTile = tilesChars[0].code
+                val index = placedTile?.definition?.let { TilesMapping.tiles.indexOf(it.fileName) }
+                    ?: defaultTile
+                val char = if (index in tilesChars.indices) {
+                    tilesChars[index]
+                } else {
+                    defaultTile
+                }
+                tilesString.append(char)
+            }
+        }
+
+        return tilesString.toString()
+    }
+
+    private fun addFileButtons(buttonBar: MenuBar) {
+        addLoadButton(buttonBar)
+        addSaveButton(buttonBar)
+    }
+
+    private fun addLoadButton(buttonBar: MenuBar) {
+        addButton(
+            IconsTextures.ICON_FILE_LOAD.getFileName(), object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    super.clicked(event, x, y)
+                }
+            }, buttonBar.table
+        )
+    }
+
+    private fun addSaveButton(buttonBar: MenuBar) {
+        addButton(
+            IconsTextures.ICON_FILE_SAVE.getFileName(), object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    super.clicked(event, x, y)
+                    val mapFileLayers = sharedData.layers.map { layer ->
+                        val tilesString = convertLayerToString(layer)
+                        MapFileLayer(name = layer.name, tiles = tilesString)
+                    }
+                    val mapFileObjects = sharedData.placedObjects.map { obj ->
+                        MapFileObject(
+                            definition = obj.definition.name,
+                            type = ElementType.AMB,
+                            row = obj.row,
+                            column = obj.column
+                        )
+                    }
+                    val mapFile = MapFile(layers = mapFileLayers, objects = mapFileObjects)
+                    val gson = GsonBuilder().setPrettyPrinting().create()
+                    val json = gson.toJson(mapFile)
+                    dispatcher.dispatchMessage(EditorEvents.SAVE_MAP.ordinal, json)
+                }
+            }, buttonBar.table
+        )
     }
 
     private fun addLeftSidePanel(root: VisTable) {
@@ -254,18 +325,18 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
                     }
                 }
             },
-            editorAssetManager.get(mode.icon.getFileName().lowercase(), Texture::class.java), buttonBar.table, mode.name
+            mode.icon.getFileName(), buttonBar.table, mode.name
         )
     }
 
     private fun addBarRadioButton(
         buttonGroup: ButtonGroup<VisImageButton>,
         clickListener: ClickListener,
-        icon: Texture,
+        iconFileName: String,
         table: Table,
         name: String,
     ) {
-        val imageButton = addButton(icon, clickListener, table)
+        val imageButton = addButton(iconFileName, clickListener, table)
         imageButton.name = name
         buttonGroup.add(imageButton)
     }
@@ -279,7 +350,7 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
     }
 
     private fun addButton(
-        icon: Texture,
+        iconFileName: String,
         clickListener: ClickListener,
         table: Table
     ): VisImageButton {
@@ -304,7 +375,12 @@ class DamagedTerritoryEditor : ApplicationAdapter() {
                     Texture::class.java
                 )
             ),
-            TextureRegionDrawable(icon),
+            TextureRegionDrawable(
+                editorAssetManager.get(
+                    iconFileName.lowercase(),
+                    Texture::class.java
+                )
+            ),
             null, null
         )
         style.over =

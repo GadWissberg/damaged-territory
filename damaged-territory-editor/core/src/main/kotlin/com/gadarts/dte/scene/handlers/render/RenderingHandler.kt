@@ -34,13 +34,13 @@ class RenderingHandler(
                     if (index == sharedData.selectedLayerIndex || index == 0) {
                         tileLayer.tiles.forEach { row ->
                             row.forEach { tile ->
-                                tile?.applyGray = false
+                                tile?.modelInstance?.applyGray = false
                             }
                         }
                     } else {
                         tileLayer.tiles.forEach { row ->
                             row.forEach { tile ->
-                                tile?.applyGray = true
+                                tile?.modelInstance?.applyGray = true
                             }
                         }
                     }
