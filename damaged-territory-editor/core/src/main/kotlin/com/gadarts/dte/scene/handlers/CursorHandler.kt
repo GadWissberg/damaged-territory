@@ -10,15 +10,14 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.*
 import com.badlogic.gdx.math.collision.Ray
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.gadarts.dte.EditorEvents
-import com.gadarts.dte.PlacedTile
+import com.gadarts.dte.ObjectFactory
+import com.gadarts.dte.TileFactory
 import com.gadarts.dte.TileLayer
-import com.gadarts.dte.scene.PlacedObject
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
@@ -29,7 +28,9 @@ import com.gadarts.shared.SharedUtils
 class CursorHandler(
     private val sharedData: SharedData,
     private val assetsManager: GameAssetManager,
-    dispatcher: MessageDispatcher
+    private val tilesFactory: TileFactory,
+    private val objectFactory: ObjectFactory,
+    dispatcher: MessageDispatcher,
 ) : InputProcessor,
     SceneHandler(dispatcher) {
     private val prevTileClickPosition = Vector2()
@@ -146,33 +147,16 @@ class CursorHandler(
         if (sharedData.selectedMode == Modes.TILES) {
             return placeTile(x, z)
         } else if (sharedData.selectedMode == Modes.OBJECTS) {
-            return placeObject(x, z)
+            val selectedObject = sharedData.selectedObject
+            return if (selectedObject != null) objectFactory.addObject(
+                x,
+                z,
+                selectedObject
+            ) else false
         }
         return false
     }
 
-    private fun placeObject(x: Int, z: Int): Boolean {
-        val selectedObject = sharedData.selectedObject ?: return false
-        val modelDefinition = selectedObject.getModelDefinition()
-        val modelInstance = EditorModelInstance(
-            assetsManager.getAssetByDefinition(modelDefinition)
-        )
-        sharedData.modelInstances.add(modelInstance)
-        modelInstance.transform.setToTranslation(
-            x.toFloat() + 0.5F,
-            0.07f,
-            z.toFloat() + 0.5F
-        )
-        sharedData.placedObjects.add(
-            PlacedObject(
-                z,
-                x,
-                selectedObject,
-                modelInstance
-            )
-        )
-        return true
-    }
 
     private fun placeTile(x: Int, z: Int): Boolean {
         val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
@@ -201,31 +185,16 @@ class CursorHandler(
         z: Int,
         x: Int,
         textureName: String
-    ): PlacedTile {
+    ) {
         val tiles = tileLayer.tiles
-        val texture = assetsManager.getTexture(textureName)
-        val placedTile = if (
+        if (
             tiles[z][x] != null
         ) {
-            tiles[z][x]!!
+            tilesFactory.initializeTile(textureName, x, sharedData.layers.indexOf(tileLayer), z, tiles[z][x]!!)
         } else {
-            val modelInstance = EditorModelInstance(sharedData.floorModel)
-            sharedData.modelInstances.add(modelInstance)
-            PlacedTile(modelInstance, assetsManager.getTexturesDefinitions().definitions[textureName]!!)
+            tilesFactory.addTile(textureName, tileLayer, x, z)
         }
-        val modelInstance = placedTile.modelInstance
-        (modelInstance.materials[0].get(
-            TextureAttribute.Diffuse
-        ) as TextureAttribute
-            ).textureDescription.texture = texture
-        tileLayer.tiles[z][x] =
-            placedTile
-        modelInstance.transform.setToTranslation(
-            x.toFloat() + 0.5F,
-            sharedData.layers.indexOf(tileLayer).toFloat() * 0.01F,
-            z.toFloat() + 0.5F
-        )
-        return placedTile
+
     }
 
     private fun applyTileSurrounding(x: Int, z: Int, tileLayer: TileLayer) {

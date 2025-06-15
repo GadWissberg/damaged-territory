@@ -60,13 +60,9 @@ class RenderingHandler(
             Gdx.graphics.backBufferWidth,
             Gdx.graphics.backBufferHeight
         )
-
-        // First: auxiliary models
         modelBatch.begin(sharedData.camera)
         auxiliaryModels.render(modelBatch)
         modelBatch.end()
-
-        // Second: gray objects (they write to depth buffer)
         modelBatch.begin(sharedData.camera)
         sharedData.modelInstances.forEach { modelInstance ->
             if (modelInstance.applyGray) {
@@ -75,8 +71,6 @@ class RenderingHandler(
             }
         }
         modelBatch.end()
-
-        // Third: regular objects (render on top, transparent pixels will show gray behind)
         modelBatch.begin(sharedData.camera)
         sharedData.modelInstances.forEach { modelInstance ->
             if (!modelInstance.applyGray) {

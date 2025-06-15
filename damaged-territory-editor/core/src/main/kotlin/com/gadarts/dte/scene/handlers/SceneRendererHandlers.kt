@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.dte.ObjectFactory
+import com.gadarts.dte.TileFactory
 import com.gadarts.dte.scene.AuxiliaryModels
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.RenderingHandler
@@ -14,12 +16,14 @@ data class SceneRendererHandlers(
     val sharedData: SharedData,
     private val auxiliaryModels: AuxiliaryModels,
     private val assetsManager: GameAssetManager,
+    private val tileFactory: TileFactory,
+    private val objectFactory: ObjectFactory
 ) : Disposable {
 
     private val handlers = listOf(
         CameraHandler(sharedData, dispatcher),
         RenderingHandler(auxiliaryModels, sharedData, dispatcher),
-        CursorHandler(sharedData, assetsManager, dispatcher),
+        CursorHandler(sharedData, assetsManager, tileFactory, objectFactory, dispatcher),
         MapHandler(sharedData, assetsManager, dispatcher)
     )
 

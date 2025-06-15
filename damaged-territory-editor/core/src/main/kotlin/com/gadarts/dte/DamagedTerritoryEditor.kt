@@ -4,7 +4,10 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
+import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
@@ -35,8 +38,11 @@ import com.gadarts.shared.model.definitions.AmbDefinition
 import com.google.gson.GsonBuilder
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
+import com.kotcrab.vis.ui.widget.file.FileChooser
+import com.kotcrab.vis.ui.widget.file.FileChooserListener
 
-class DamagedTerritoryEditor(private val dispatcher: MessageDispatcher) : ApplicationAdapter() {
+class DamagedTerritoryEditor(private val dispatcher: MessageDispatcher) : ApplicationAdapter(), Telegraph {
+    private val gson = GsonBuilder().setPrettyPrinting().create()
     private val leftSidePanel by lazy { VisTable() }
     private val tilesModePanel by lazy { VisTable() }
     private val objectsModePanel by lazy { VisTable() }
@@ -47,12 +53,23 @@ class DamagedTerritoryEditor(private val dispatcher: MessageDispatcher) : Applic
     private val stage: Stage by lazy { Stage(ScreenViewport()) }
     private lateinit var menuBar: MenuBar
     private val sharedData = SharedData()
-    private val sceneRenderer: SceneRenderer by lazy { SceneRenderer(sharedData, gameAssetsManager, dispatcher) }
-    private val editorAssetManager = AssetManager()
     private val gameAssetsManager: GameAssetManager by lazy { GameAssetManager() }
+    private val tileFactory = TileFactory(sharedData, gameAssetsManager)
+    private val objectFactory = ObjectFactory(sharedData, gameAssetsManager)
+    private val sceneRenderer: SceneRenderer by lazy {
+        SceneRenderer(
+            sharedData,
+            gameAssetsManager,
+            dispatcher,
+            tileFactory,
+            objectFactory
+        )
+    }
+    private val editorAssetManager = AssetManager()
     private val tileButtonGroup = ButtonGroup<CatalogTileButton>()
 
     override fun create() {
+        dispatcher.addListener(this, EditorEvents.MAP_LOADED.ordinal)
         gameAssetsManager.loadAssets()
         Gdx.input.inputProcessor = InputMultiplexer(stage)
         sceneRenderer.initialize()
@@ -132,10 +149,39 @@ class DamagedTerritoryEditor(private val dispatcher: MessageDispatcher) : Applic
                             column = obj.column
                         )
                     }
-                    val mapFile = MapFile(layers = mapFileLayers, objects = mapFileObjects)
-                    val gson = GsonBuilder().setPrettyPrinting().create()
+                    val tiles = sharedData.layers[0].tiles
+                    val mapFile = MapFile(
+                        layers = mapFileLayers, objects = mapFileObjects,
+                        width = tiles[0].size, depth = tiles.size
+                    )
                     val json = gson.toJson(mapFile)
-                    dispatcher.dispatchMessage(EditorEvents.SAVE_MAP.ordinal, json)
+
+                    val initialDir = Gdx.files.local("maps") // or Gdx.files.external("RiskifiedMaps/")
+                    if (!initialDir.exists()) initialDir.file().mkdirs()
+
+                    val chooser = FileChooser(FileChooser.Mode.SAVE)
+                    chooser.setDirectory(Gdx.files.local("maps")) // Safe default
+                    chooser.setSelectionMode(FileChooser.SelectionMode.FILES)
+
+                    chooser.setListener(object : FileChooserListener {
+
+                        override fun selected(files: com.badlogic.gdx.utils.Array<FileHandle>?) {
+                            val file = files?.firstOrNull() ?: return
+                            try {
+                                file.writeString(json, false)  // Fine to do here for small JSON
+                                println("Saved to: ${file.path()}")
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+
+                        }
+
+                        override fun canceled() {
+                            println("Save cancelled.")
+                        }
+                    })
+
+                    stage.addActor(chooser.fadeIn()) // Always on render thread
                 }
             }, buttonBar.table
         )
@@ -475,6 +521,58 @@ class DamagedTerritoryEditor(private val dispatcher: MessageDispatcher) : Applic
         sceneRenderer.render()
         stage.act()
         stage.draw()
+    }
+
+    override fun handleMessage(msg: Telegram?): Boolean {
+        if (msg == null) return false
+
+        return when (msg.message) {
+            EditorEvents.MAP_LOADED.ordinal -> {
+                val mapJson = msg.extraInfo as String
+                val mapFile = gson.fromJson(mapJson, MapFile::class.java)
+                sharedData.layers.clear()
+                sharedData.modelInstances.clear()
+                sharedData.placedObjects.clear()
+                inflateLayers(mapFile)
+                mapFile.objects.map { obj ->
+                    objectFactory.addObject(
+                        obj.column, obj.row,
+                        AmbDefinition.entries.first { it.name == obj.definition }
+                    )
+                }
+                true
+            }
+
+            else -> false
+        }
+    }
+
+    private fun inflateLayers(mapFile: MapFile) {
+        mapFile.layers.map { layer ->
+            val tiles = Array<Array<PlacedTile?>>(
+                mapFile.depth
+            ) { Array(mapFile.width) { null } }
+            layer.tiles.mapIndexed { i, tile ->
+                TilesMapping.tiles[tile.code].let { textureName ->
+                    val x = i % mapFile.width
+                    val z = i / mapFile.width
+                    tiles[z][x] = tileFactory.createTile(textureName, x, z, i)
+                }
+            }
+            val bitMap = Array(mapFile.depth) { Array(mapFile.width) { 0 } }
+            tiles.forEachIndexed { z, row ->
+                row.forEachIndexed { x, placedTile ->
+                    if (placedTile != null) {
+                        bitMap[z][x] = 1
+                    }
+                }
+            }
+            TileLayer(
+                name = layer.name,
+                tiles = tiles,
+                bitMap = Array(mapFile.depth) { Array(mapFile.width) { 0 } }
+            ).also { sharedData.layers.add(it) }
+        }
     }
 
 }
