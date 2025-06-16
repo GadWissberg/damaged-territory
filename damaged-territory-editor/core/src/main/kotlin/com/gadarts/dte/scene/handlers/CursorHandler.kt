@@ -114,15 +114,7 @@ class CursorHandler(
 
     private fun deleteElement(x: Int, z: Int): Boolean {
         if (sharedData.selectedMode == Modes.TILES) {
-            val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
-            if (tileLayer.tiles[z][x] != null) {
-                tileLayer.tiles[z][x]?.let { placedTile ->
-                    sharedData.modelInstances.remove(placedTile.modelInstance)
-                    tileLayer.tiles[z][x] = null
-                }
-                tileLayer.bitMap[z][x] = 0
-                return true
-            }
+            if (deleteTile(z, x)) return true
         } else if (sharedData.selectedMode == Modes.OBJECTS) {
             val modelInstances = sharedData.modelInstances
             sharedData.modelInstances.first {
@@ -136,6 +128,19 @@ class CursorHandler(
                 }
                 return true
             }
+        }
+        return false
+    }
+
+    private fun deleteTile(z: Int, x: Int, updateBitMap: Boolean = true): Boolean {
+        val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
+        if (tileLayer.tiles[z][x] != null) {
+            tileLayer.tiles[z][x]?.let { placedTile ->
+                sharedData.modelInstances.remove(placedTile.modelInstance)
+                tileLayer.tiles[z][x] = null
+            }
+            tileLayer.bitMap[z][x] = if (updateBitMap) 0 else tileLayer.bitMap[z][x]
+            return true
         }
         return false
     }
@@ -190,11 +195,9 @@ class CursorHandler(
         if (
             tiles[z][x] != null
         ) {
-            tilesFactory.initializeTile(textureName, x, sharedData.layers.indexOf(tileLayer), z, tiles[z][x]!!)
-        } else {
-            tilesFactory.addTile(textureName, tileLayer, x, z)
+            deleteTile(z, x, false)
         }
-
+        tilesFactory.addTile(textureName, tileLayer, x, z)
     }
 
     private fun applyTileSurrounding(x: Int, z: Int, tileLayer: TileLayer) {
