@@ -26,7 +26,7 @@ class TileFactory(private val sharedData: SharedData, private val gameAssetsMana
         return placedTile
     }
 
-    fun initializeTile(
+    private fun initializeTile(
         textureName: String,
         x: Int,
         y: Int,

@@ -7,9 +7,10 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
-import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.Cell
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
+import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
@@ -24,11 +25,14 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.hud.HudSystem.Companion.JOYSTICK_PADDING
 import com.gadarts.returnfire.systems.hud.osii.OnScreenInputInitializerApache
 import com.gadarts.returnfire.systems.hud.osii.OnScreenInputInitializerTank
+import com.gadarts.returnfire.systems.hud.react.HudSystemOnLandingIndicatorVisibilityChanged
+import com.gadarts.returnfire.systems.hud.react.HudSystemOnPlayerAimSky
 import com.gadarts.shared.model.definitions.CharacterDefinition
 import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
-class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem, GameEntitySystem(gamePlayManagers),
+class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
+    GameEntitySystem(gamePlayManagers),
     InputProcessor {
     private val ui: Table by lazy { addUiTable() }
     private val radar: Radar by lazy {
@@ -48,60 +52,21 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem, GameEntityS
                     OnScreenInputInitializerTank(
                         this,
                         hudButtons,
-                        gameSessionData.hudData.turretTouchpad
+                        gameSessionData.hudData.turretTouchpad,
                     )
         )
     }
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.LANDING_INDICATOR_VISIBILITY_CHANGED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
-                val onboardButton = hudButtons.onboardButton
-                if (onboardButton != null) {
-                    onboardButton.isVisible = msg.extraInfo as Boolean
-                }
-            }
-        },
-        SystemEvents.PLAYER_AIM_SKY to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
-                val name =
-                    if (msg.extraInfo as Boolean) "icon_manual_aim_sky" else "icon_manual_aim_ground"
-                if (!gameSessionData.runsOnMobile) {
-                    val texture =
-                        gamePlayManagers.assetsManager.getTexture(name)
-                    val icon = Image(texture)
-                    icon.setPosition(
-                        Gdx.graphics.width / 2F - texture.width / 2F,
-                        Gdx.graphics.height / 2F - texture.height / 2F
-                    )
-                    gameSessionData.hudData.stage.addActor(icon)
-                    icon.addAction(
-                        Actions.sequence(
-                            Actions.fadeOut(1F, Interpolation.fade),
-                            Actions.run { icon.remove() })
-                    )
-                } else {
-                    hudButtons.manualAimButton!!.image.drawable =
-                        TextureRegionDrawable(gamePlayManagers.assetsManager.getTexture(name))
-                }
-            }
-        },
+        SystemEvents.LANDING_INDICATOR_VISIBILITY_CHANGED to HudSystemOnLandingIndicatorVisibilityChanged(hudButtons),
+        SystemEvents.PLAYER_AIM_SKY to HudSystemOnPlayerAimSky(hudButtons),
         SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                ui.add(radar).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
                 if (gameSessionData.runsOnMobile) {
                     val hudTable = Table()
                     val topRowTable = Table()
@@ -112,6 +77,8 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem, GameEntityS
                     ui.row()
                     ui.add(hudTable).bottom().growX().expandY()
                     addOnScreenInput(gameSessionData, hudTable)
+                } else {
+                    ui.add(radar).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
                 }
             }
 
@@ -241,6 +208,10 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem, GameEntityS
             .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
     }
 
+    override fun addRadar(table: Table): Cell<Radar> {
+        return table.add(radar).size(RADAR_SIZE, RADAR_SIZE)
+    }
+
     private fun addBoardingButton(ui: Table) {
         val cell = addButton(
             ui,
@@ -278,8 +249,8 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem, GameEntityS
     }
 
     companion object {
-        const val RADAR_SIZE = 192F
         private const val BOARDING_BUTTON_PADDING = 25F
         private const val BUTTON_SIZE = 150F
+        private const val RADAR_SIZE = 200F
     }
 }

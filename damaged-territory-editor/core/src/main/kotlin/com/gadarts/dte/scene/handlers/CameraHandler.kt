@@ -23,8 +23,12 @@ class CameraHandler(private val sharedData: SharedData, dispatcher: MessageDispa
 
     }
 
-    init {
+    override fun initialize() {
+        super.initialize()
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
+    }
+
+    init {
         sharedData.camera = createCamera()
     }
 

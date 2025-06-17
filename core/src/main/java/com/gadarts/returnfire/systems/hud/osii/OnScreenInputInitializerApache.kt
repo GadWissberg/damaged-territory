@@ -13,6 +13,7 @@ class OnScreenInputInitializerApache(
 ) :
         (Table, Cell<Touchpad>) -> Unit {
     override fun invoke(ui: Table, movementPad: Cell<Touchpad>) {
+        hudSystem.addRadar(ui).pad(0F, RADAR_PADDING_HORIZONTAL, 0F, RADAR_PADDING_HORIZONTAL)
         movementPad.expandX().left()
         addApacheButtons(ui)
     }
@@ -46,5 +47,6 @@ class OnScreenInputInitializerApache(
 
     companion object {
         private const val MANUAL_AIM_BUTTON_SIZE = 150F
+        private const val RADAR_PADDING_HORIZONTAL = 40F
     }
 }

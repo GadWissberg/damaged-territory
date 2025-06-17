@@ -14,7 +14,7 @@ object GameDebugSettings {
     const val SHOW_GL_PROFILING = true
     const val SHOW_HEAP_SIZE = false
     const val DEBUG_INPUT = false
-    const val UI_DEBUG = false
+    const val UI_DEBUG = true
     const val SFX = false
     const val DISABLE_MUSIC = true
     const val DISABLE_AMB_SOUNDS = false

@@ -10,7 +10,7 @@ import com.gadarts.returnfire.systems.hud.HudSystem
 class OnScreenInputInitializerTank(
     private val hudSystem: HudSystem,
     private val hudButtons: HudButtons,
-    private val turretTouchpad: Touchpad
+    private val turretTouchpad: Touchpad,
 ) :
         (Table, Cell<Touchpad>) -> Unit {
     override fun invoke(ui: Table, movementPad: Cell<Touchpad>) {
@@ -20,6 +20,7 @@ class OnScreenInputInitializerTank(
             hudButtons.reverseButtonClickListener
         )
         imageButtonCell.grow().left().bottom().padBottom(32F)
+        hudSystem.addRadar(ui).pad(0F, RADAR_PADDING_HORIZONTAL, 0F, RADAR_PADDING_HORIZONTAL)
         val attackButtonsTable = Table()
         attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
         hudSystem.addButton(
@@ -31,4 +32,7 @@ class OnScreenInputInitializerTank(
         hudSystem.addTouchpad(ui, turretTouchpad).pad(0F, 0F, 0F, HudSystem.JOYSTICK_PADDING).top()
     }
 
+    companion object {
+        private const val RADAR_PADDING_HORIZONTAL = 40F
+    }
 }

@@ -16,6 +16,7 @@ interface HudSystem {
     ): Cell<ImageButton>
 
     fun addTouchpad(ui: Table, touchpad: Touchpad): Cell<Touchpad>
+    fun addRadar(table: Table): Cell<Radar>
 
     companion object {
         const val JOYSTICK_PADDING = 64F
