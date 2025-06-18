@@ -1,7 +1,7 @@
 package com.gadarts.shared.assets.definitions
 
 import com.badlogic.gdx.assets.AssetLoaderParameters
-import com.gadarts.shared.model.GameMap
+import com.gadarts.shared.assets.map.GameMap
 
 enum class MapDefinition :
     AssetDefinition<GameMap> {

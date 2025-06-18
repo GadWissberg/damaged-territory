@@ -5,7 +5,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.shared.GameAssetManager
-import com.gadarts.shared.model.GameMap
+import com.gadarts.shared.assets.map.GameMap
 
 class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
     lateinit var bitMap: Array<Array<Int>>

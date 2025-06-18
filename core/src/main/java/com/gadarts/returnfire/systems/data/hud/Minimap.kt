@@ -6,13 +6,12 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.gadarts.returnfire.systems.data.GameSessionDataGameplay
-import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
 
 class Minimap(
-    private val tilesMapping: Array<CharArray>,
+    private val tilesMapping: CharArray,
     private val assetsManager: GameAssetManager,
     private val gamePlayData: GameSessionDataGameplay
 ) : Actor() {
@@ -27,7 +26,7 @@ class Minimap(
     override fun draw(batch: Batch, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
 
-        val cols = tilesMapping[0].size
+        val cols = tilesMapping.size // TODO: FIX
         val rows = tilesMapping.size
 
         val scaleX = width / cols
@@ -37,13 +36,13 @@ class Minimap(
             for (x in 0 until cols) {
                 val drawX = x * scaleX + getX()
                 val drawY = height - (y + 1) * scaleY + getY()
-                val textureDefinition =
-                    MapUtils.determineTextureOfMapPosition(y, x, assetsManager.getTexturesDefinitions(), tilesMapping)
-                texturesCache.getOrPut(textureDefinition) {
-                    assetsManager.getTexture(textureDefinition)
-                }.let { texture ->
-                    batch.draw(texture, drawX, drawY, scaleX, scaleY)
-                }
+//                val textureDefinition = //TODO: FIX
+//                    MapUtils.determineTextureOfMapPosition(y, x, assetsManager.getTexturesDefinitions(), tilesMapping)
+//                texturesCache.getOrPut(textureDefinition) {
+//                    assetsManager.getTexture(textureDefinition)
+//                }.let { texture ->
+//                    batch.draw(texture, drawX, drawY, scaleX, scaleY)
+//                }
             }
         }
         drawPlayer(scaleX, scaleY, batch)
@@ -58,7 +57,7 @@ class Minimap(
             val playerX = position.x.toInt()
             val playerY = position.z.toInt()
 
-            if (playerY in tilesMapping.indices && playerX in tilesMapping[0].indices) {
+            if (playerY in tilesMapping.indices && playerX in tilesMapping.indices) { // TODO: FIX
                 val drawPlayerX = playerX * scaleX + x
                 val drawPlayerY = height - (playerY + 1) * scaleY + y
 

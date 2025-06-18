@@ -50,10 +50,8 @@ import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import com.gadarts.shared.assets.definitions.model.AutomaticShapeCreator
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.model.CharacterType
-import com.gadarts.shared.model.ElementType
 import com.gadarts.shared.model.definitions.AmbDefinition
 import com.gadarts.shared.model.definitions.CharacterDefinition
-import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class MapInflater(
@@ -77,10 +75,10 @@ class MapInflater(
     }
 
     private fun createGraph() {
-        val tilesMapping = gameSessionData.mapData.currentMap.tilesTexturesMap
-        val mapGraph = MapGraph(tilesMapping[0].size, tilesMapping.size)
-        val depth = tilesMapping.size
-        val width = tilesMapping[0].size
+        val map = gameSessionData.mapData.currentMap
+        val depth = map.depth
+        val width = map.width
+        val mapGraph = MapGraph(width, depth)
         val occupiedTiles = mutableSetOf<Pair<Int, Int>>()
         engine.getEntitiesFor(
             Family.one(AmbComponent::class.java, TurretBaseComponent::class.java).exclude(BaseComponent::class.java)
@@ -107,7 +105,7 @@ class MapInflater(
                 occupiedTiles.addAll(output)
             }
         }
-        createGraphNodes(width, depth, mapGraph, tilesMapping, occupiedTiles)
+        createGraphNodes(width, depth, mapGraph, occupiedTiles)
         connectGraphNodes(width, depth, mapGraph)
         gameSessionData.mapData.mapGraph = mapGraph
     }
@@ -118,7 +116,7 @@ class MapInflater(
         depth: Int,
         mapGraph: MapGraph,
     ) {
-        val tilesMapping = gameSessionData.mapData.currentMap.tilesTexturesMap
+        val tilesMapping = gameSessionData.mapData.currentMap
         for (i in 0 until width * depth) {
             val x = i % width
             val y = i / width
@@ -127,19 +125,19 @@ class MapInflater(
             if (x > 0) {
                 connect(mapGraph, from, x - 1, y, MapGraphCost.FREE_WAY)
             }
-            if (x > 0 && y < tilesMapping.size - 1) {
+            if (x > 0 && y < tilesMapping.depth - 1) {
                 connect(mapGraph, from, x - 1, y + 1, calculateDiagonalCost(mapGraph, x - 1, y, x, y + 1))
             }
-            if (y < tilesMapping.size - 1) {
+            if (y < tilesMapping.depth - 1) {
                 connect(mapGraph, from, x, y + 1, MapGraphCost.FREE_WAY)
             }
-            if (x < tilesMapping[0].size - 1 && y < tilesMapping.size - 1) {
+            if (x < tilesMapping.width - 1 && y < tilesMapping.depth - 1) {
                 connect(mapGraph, from, x + 1, y + 1, calculateDiagonalCost(mapGraph, x + 1, y, x, y + 1))
             }
-            if (x < tilesMapping[0].size - 1) {
+            if (x < tilesMapping.width - 1) {
                 connect(mapGraph, from, x + 1, y, MapGraphCost.FREE_WAY)
             }
-            if (x < tilesMapping[0].size - 1 && y > 0) {
+            if (x < tilesMapping.width - 1 && y > 0) {
                 connect(mapGraph, from, x + 1, y - 1, calculateDiagonalCost(mapGraph, x + 1, y, x, y - 1))
             }
             if (y > 0) {
@@ -184,21 +182,20 @@ class MapInflater(
         width: Int,
         depth: Int,
         mapGraph: MapGraph,
-        tilesMapping: Array<CharArray>,
         occupiedTiles: MutableSet<Pair<Int, Int>>
     ) {
         for (y in 0 until depth) {
             for (x in 0 until width) {
-                val type = if (tilesMapping[y][x] == WATER_TILE_INDEX) {
-                    MapGraphType.WATER
-                } else if (occupiedTiles.contains(x to y)) {
-                    MapGraphType.BLOCKED
-                } else {
-                    MapGraphType.AVAILABLE
-                }
-                mapGraph.addNode(
-                    x, y, type
-                )
+//                val type = if (gameSessionData.mapData.currentMap[y][x] == WATER_TILE_INDEX) { TODO: FIX
+//                    MapGraphType.WATER
+//                } else if (occupiedTiles.contains(x to y)) {
+//                    MapGraphType.BLOCKED
+//                } else {
+//                    MapGraphType.AVAILABLE
+//                }
+//                mapGraph.addNode(
+//                    x, y, type
+//                )
             }
         }
     }
@@ -524,31 +521,31 @@ class MapInflater(
 
 
     private fun addCharacters() {
-        gameSessionData.mapData.currentMap.placedElements.filter {
-            val definition = it.definition
-            definition.getType() == ElementType.CHARACTER
-                    && definition != SimpleCharacterDefinition.APACHE
-                    && definition != TurretCharacterDefinition.TANK
-        }
-            .forEach {
-                addCharacter(
-                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
-                    it.definition as CharacterDefinition,
-                    it.direction
-                )
-            }
+//        gameSessionData.mapData.currentMap.objects.filter { //TODO: FIX
+//            val definition = it.definition
+//            definition.getType() == ElementType.CHARACTER
+//                    && definition != SimpleCharacterDefinition.APACHE
+//                    && definition != TurretCharacterDefinition.TANK
+//        }
+//            .forEach {
+//                addCharacter(
+//                    auxVector2.set(it.col.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
+//                    it.definition as CharacterDefinition,
+//                    it.direction
+//                )
+//            }
     }
 
     private fun addAmbEntities(exculdedTiles: ArrayList<Pair<Int, Int>>) {
-        gameSessionData.mapData.currentMap.placedElements.filter { it.definition.getType() == ElementType.AMB }
-            .forEach {
-                addAmbObject(
-                    auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
-                    it.definition as AmbDefinition,
-                    it.direction,
-                    exculdedTiles
-                )
-            }
+//        gameSessionData.mapData.currentMap.objects.filter { it.definition.getType() == ElementType.AMB } // TODO: FIX
+//            .forEach {
+//                addAmbObject(
+//                    auxVector2.set(it.col.toFloat(), 0.01F, it.row.toFloat()),
+//                    it.definition as AmbDefinition,
+//                    it.direction,
+//                    exculdedTiles
+//                )
+//            }
         applyTransformOnAmbEntities()
         initializeFenceNeighbours()
     }
@@ -607,32 +604,32 @@ class MapInflater(
     }
 
     private fun addFloor(exculdedTiles: ArrayList<Pair<Int, Int>>) {
-        val depth = gameSessionData.mapData.currentMap.tilesTexturesMap.size
-        val width = gameSessionData.mapData.currentMap.tilesTexturesMap[0].size
+        val depth = gameSessionData.mapData.currentMap.depth
+        val width = gameSessionData.mapData.currentMap.width
         val bitMap = StringBuilder()
         for (row in 0 until depth) {
             for (col in 0 until width) {
-                val textureDefinition = MapUtils.determineTextureOfMapPosition(
-                    row,
-                    col,
-                    gamePlayManagers.assetsManager.getTexturesDefinitions(),
-                    gameSessionData.mapData.currentMap.tilesTexturesMap
-                )
-                if (textureDefinition.fileName.contains("road")) {
-                    val modelInstance = GameModelInstance(ModelInstance(gameSessionData.renderData.floorModel), null)
-                    val position = auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
-                    val entityBuilder = gamePlayManagers.ecs.entityBuilder
-                    val tileEntity = createAndAddGroundTileEntity(modelInstance, position)
-                    entityBuilder.addRoadComponentToEntity(tileEntity, textureDefinition)
-                    applyTextureToFloorTile(col, row, tileEntity, modelInstance)
-                    addPhysicsToTile(tileEntity, modelInstance)
-                    exculdedTiles.add(Pair(col, row))
-                }
-                var tileBit = 0
-                if (!textureDefinition.fileName.contains("water")) {
-                    tileBit = 1
-                }
-                bitMap.append(tileBit.toString())
+//                val textureDefinition = MapUtils.determineTextureOfMapPosition( //TODO: FIX
+//                    row,
+//                    col,
+//                    gamePlayManagers.assetsManager.getTexturesDefinitions(),
+//                    gameSessionData.mapData.currentMap.tilesTexturesMap
+//                )
+//                if (textureDefinition.fileName.contains("road")) {
+//                    val modelInstance = GameModelInstance(ModelInstance(gameSessionData.renderData.floorModel), null)
+//                    val position = auxVector1.set(col.toFloat() + 0.5F, 0F, row.toFloat() + 0.5F)
+//                    val entityBuilder = gamePlayManagers.ecs.entityBuilder
+//                    val tileEntity = createAndAddGroundTileEntity(modelInstance, position)
+//                    entityBuilder.addRoadComponentToEntity(tileEntity, textureDefinition)
+//                    applyTextureToFloorTile(col, row, tileEntity, modelInstance)
+//                    addPhysicsToTile(tileEntity, modelInstance)
+//                    exculdedTiles.add(Pair(col, row))
+//                }
+//                var tileBit = 0
+//                if (!textureDefinition.fileName.contains("water")) {
+//                    tileBit = 1
+//                }
+//                bitMap.append(tileBit.toString())
             }
         }
         gameSessionData.mapData.bitMap = Array(depth) { y ->
@@ -668,23 +665,23 @@ class MapInflater(
             .finishAndAddToEngine()
         modelInstance.modelInstance.transform.setTranslation(position)
         if (!exculdedTiles.contains(Pair(col, row))) {
-            entityBuilder.addModelInstanceComponentToEntity(
-                tileEntity,
-                modelInstance,
-                position,
-                null,
-            )
-            applyTextureToFloorTile(col, row, tileEntity, modelInstance)
-            gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
-            entityBuilder.addModelCacheComponentToEntity(tileEntity)
-            val textureDefinition = MapUtils.determineTextureOfMapPosition(
-                row, col,
-                gamePlayManagers.assetsManager.getTexturesDefinitions(),
-                gameSessionData.mapData.currentMap.tilesTexturesMap
-            )
-            if (!textureDefinition.fileName.contains("water")) {
-                addPhysicsToTile(tileEntity, modelInstance)
-            }
+//            entityBuilder.addModelInstanceComponentToEntity( //TODO: FIX
+//                tileEntity,
+//                modelInstance,
+//                position,
+//                null,
+//            )
+//            applyTextureToFloorTile(col, row, tileEntity, modelInstance)
+//            gameSessionData.renderData.modelCache.add(modelInstance.modelInstance)
+//            entityBuilder.addModelCacheComponentToEntity(tileEntity)
+//            val textureDefinition = MapUtils.determineTextureOfMapPosition(
+//                row, col,
+//                gamePlayManagers.assetsManager.getTexturesDefinitions(),
+//                gameSessionData.mapData.currentMap.tilesTexturesMap
+//            )
+//            if (!textureDefinition.fileName.contains("water")) {
+//                addPhysicsToTile(tileEntity, modelInstance)
+//            }
         } else {
             addPhysicsToTile(tileEntity, modelInstance)
         }
@@ -705,38 +702,38 @@ class MapInflater(
         )
     }
 
-    private fun applyTextureToFloorTile(
-        col: Int,
-        row: Int,
-        entity: Entity,
-        modelInstance: GameModelInstance
-    ): TextureDefinition? {
-        var textureDefinition: TextureDefinition? = null
-        val assetsManager = gamePlayManagers.assetsManager
-        if (isPositionInsideBoundaries(row, col)) {
-            gameSessionData.mapData.tilesEntities[row][col] = entity
-            textureDefinition = MapUtils.determineTextureOfMapPosition(
-                row, col,
-                assetsManager.getTexturesDefinitions(),
-                gameSessionData.mapData.currentMap.tilesTexturesMap
-            )
-        }
-        if (textureDefinition != null) {
-            val texture =
-                assetsManager.getTexture(textureDefinition)
-            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-            (modelInstance.modelInstance.materials.get(0)
-                .get(TextureAttribute.Diffuse) as TextureAttribute)
-                .set(TextureRegion(texture))
-            if (textureDefinition.animated) {
-                applyAnimatedTextureComponentToFloor(textureDefinition, entity)
-            }
-            if (textureDefinition.fileName.contains("water")) {
-                ComponentsMapper.ground.get(entity).isWater = true
-            }
-        }
-        return textureDefinition
-    }
+//    private fun applyTextureToFloorTile(
+//        col: Int,
+//        row: Int,
+//        entity: Entity,
+//        modelInstance: GameModelInstance
+//    ): TextureDefinition? {
+//        var textureDefinition: TextureDefinition? = null //TODO: FIX
+//        val assetsManager = gamePlayManagers.assetsManager
+//        if (isPositionInsideBoundaries(row, col)) {
+//            gameSessionData.mapData.tilesEntities[row][col] = entity
+//            textureDefinition = MapUtils.determineTextureOfMapPosition(
+//                row, col,
+//                assetsManager.getTexturesDefinitions(),
+//                gameSessionData.mapData.currentMap.tilesTexturesMap
+//            )
+//        }
+//        if (textureDefinition != null) {
+//            val texture =
+//                assetsManager.getTexture(textureDefinition)
+//            texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+//            (modelInstance.modelInstance.materials.get(0)
+//                .get(TextureAttribute.Diffuse) as TextureAttribute)
+//                .set(TextureRegion(texture))
+//            if (textureDefinition.animated) {
+//                applyAnimatedTextureComponentToFloor(textureDefinition, entity)
+//            }
+//            if (textureDefinition.fileName.contains("water")) {
+//                ComponentsMapper.ground.get(entity).isWater = true
+//            }
+//        }
+//        return textureDefinition
+//    }
 
 
     private fun createAndAddGroundTileEntity(modelInstance: GameModelInstance, position: Vector3): Entity {
@@ -814,8 +811,8 @@ class MapInflater(
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
             && col >= 0
-            && row < gameSessionData.mapData.currentMap.tilesTexturesMap.size
-            && col < gameSessionData.mapData.currentMap.tilesTexturesMap[0].size)
+            && row < gameSessionData.mapData.currentMap.depth
+            && col < gameSessionData.mapData.currentMap.width)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

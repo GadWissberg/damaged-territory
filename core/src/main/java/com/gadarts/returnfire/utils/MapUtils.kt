@@ -5,10 +5,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.model.MapGraph
-import com.gadarts.shared.SharedUtils.tilesChars
-import com.gadarts.shared.assets.definitions.external.ExternalDefinitions
-import com.gadarts.shared.assets.definitions.external.TextureDefinition
-import com.gadarts.shared.assets.map.TilesMapping
 import kotlin.math.floor
 
 object MapUtils {
@@ -16,23 +12,23 @@ object MapUtils {
     private val auxVector1 = Vector3()
     private val auxVector2 = Vector3()
 
-    fun determineTextureOfMapPosition(
-        row: Int,
-        col: Int,
-        textureDefinitions: ExternalDefinitions<TextureDefinition>,
-        tilesTexturesMap: Array<CharArray>
-    ): TextureDefinition {
-        var indexOfFirst =
-            tilesChars.indexOfFirst { c: Char -> tilesTexturesMap[row][col] == c }
-        if (indexOfFirst == -1) {
-            indexOfFirst = 0
-        }
-        return textureDefinitions.definitions[TilesMapping.tiles[indexOfFirst]]!!
-    }
+//    fun determineTextureOfMapPosition(
+//        row: Int,
+//        col: Int,
+//        textureDefinitions: ExternalDefinitions<TextureDefinition>,
+//        tilesTexturesMap: CharArray
+//    ): TextureDefinition {
+//        var indexOfFirst = //TODO: FIX
+//            tilesChars.indexOfFirst { c: Char -> tilesTexturesMap[row][col] == c }
+//        if (indexOfFirst == -1) {
+//            indexOfFirst = 0
+//        }
+//        return textureDefinitions.definitions[TilesMapping.tiles[indexOfFirst]]!!
+//    }
 
     fun isEntityMarksNodeAsBlocked(entity: Entity): Boolean {
         return (ComponentsMapper.amb.has(entity) && ComponentsMapper.amb.get(entity).def.isMarksNodeAsBlocked())
-            || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
+                || (ComponentsMapper.character.has(entity) && ComponentsMapper.character.get(entity).definition.isMarksNodeAsBlocked())
     }
 
     fun getTilesCoveredByBoundingBox(

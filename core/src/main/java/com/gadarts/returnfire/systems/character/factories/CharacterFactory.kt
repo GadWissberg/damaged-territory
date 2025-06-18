@@ -16,7 +16,7 @@ import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.EntityBuilderImpl
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
-import com.gadarts.shared.model.PlacedElement
+import com.gadarts.shared.assets.map.GameMapPlacedObject
 import com.gadarts.shared.model.definitions.CharacterDefinition
 
 abstract class CharacterFactory(
@@ -25,7 +25,7 @@ abstract class CharacterFactory(
     private val assetsManager: GameAssetManager,
 ) : Disposable {
 
-    abstract fun create(base: PlacedElement, color: CharacterColor): Entity
+    abstract fun create(base: GameMapPlacedObject, color: CharacterColor): Entity
 
     protected fun addSpark(
         machineGunSparkModel: Model,
@@ -43,7 +43,7 @@ abstract class CharacterFactory(
     }
 
     protected fun addCharacterBaseComponents(
-        base: PlacedElement,
+        base: GameMapPlacedObject,
         characterDefinition: CharacterDefinition,
         primarySpark: Entity,
         secondarySpark: Entity?,
@@ -58,7 +58,7 @@ abstract class CharacterFactory(
         entityBuilder.addModelInstanceComponent(
             gameModelInstance,
             auxVector3_1.set(
-                base.col.toFloat() + 1F,
+                base.column.toFloat() + 1F,
                 -3.3F + assetsManager.getCachedBoundingBox(modelDefinition).height,
                 base.row.toFloat() + 1F
             ),

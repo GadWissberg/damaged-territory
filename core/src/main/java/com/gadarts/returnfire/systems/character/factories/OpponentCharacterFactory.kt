@@ -7,7 +7,7 @@ import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.shared.GameAssetManager
-import com.gadarts.shared.model.PlacedElement
+import com.gadarts.shared.assets.map.GameMapPlacedObject
 import com.gadarts.shared.model.definitions.CharacterDefinition
 import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.model.definitions.TurretCharacterDefinition
@@ -28,7 +28,7 @@ class OpponentCharacterFactory(
     private val tankFactory =
         TankFactory(assetsManager, gameSessionData, entityBuilder, gameModelInstanceFactory)
 
-    fun create(base: PlacedElement, selected: CharacterDefinition, characterColor: CharacterColor): Entity {
+    fun create(base: GameMapPlacedObject, selected: CharacterDefinition, characterColor: CharacterColor): Entity {
         var opponent: Entity? = null
         if (selected == SimpleCharacterDefinition.APACHE) {
             opponent = apacheFactory.create(base, characterColor)

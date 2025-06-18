@@ -18,7 +18,7 @@ import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
-import com.gadarts.shared.model.PlacedElement
+import com.gadarts.shared.assets.map.GameMapPlacedObject
 import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class TankFactory(
@@ -27,7 +27,7 @@ class TankFactory(
     private val entityBuilder: EntityBuilder,
     gameModelInstanceFactory: GameModelInstanceFactory,
 ) : CharacterFactory(gameModelInstanceFactory, entityBuilder, assetsManager) {
-    override fun create(base: PlacedElement, color: CharacterColor): Entity {
+    override fun create(base: GameMapPlacedObject, color: CharacterColor): Entity {
         val primarySpark = addSpark(
             assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK),
             tankPrimaryRelativePositionCalculator

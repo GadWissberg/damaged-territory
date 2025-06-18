@@ -106,7 +106,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     override fun update(deltaTime: Float) {
         if (isGamePaused()) return
 
-        val tilesMapping = gameSessionData.mapData.currentMap.tilesTexturesMap
+        val tilesMapping = gameSessionData.mapData.currentMap
         for (bullet in bulletEntities) {
             val rigidBody = ComponentsMapper.physics.get(bullet).rigidBody
             val position = rigidBody.worldTransform.getTranslation(auxVector1)
@@ -115,8 +115,8 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 rigidBody.linearVelocity = auxVector2.set(velocity.x, 0f, velocity.z)
             }
             var destroyBullet = bulletLogic.update(bullet, deltaTime)
-            destroyBullet = if (!destroyBullet) position.x <= 0F || position.x >= tilesMapping.size
-                || position.z <= 0F || position.z >= tilesMapping[0].size else true
+            destroyBullet = if (!destroyBullet) position.x <= 0F || position.x >= tilesMapping.depth
+                    || position.z <= 0F || position.z >= tilesMapping.width else true
             if (destroyBullet) {
                 destroyBullet(bullet)
             }

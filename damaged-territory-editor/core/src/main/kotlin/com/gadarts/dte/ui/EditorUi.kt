@@ -24,9 +24,9 @@ import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils.INITIAL_INDEX_OF_TILES_MAPPING
 import com.gadarts.shared.SharedUtils.tilesChars
-import com.gadarts.shared.assets.map.MapFile
-import com.gadarts.shared.assets.map.MapFileLayer
-import com.gadarts.shared.assets.map.MapFileObject
+import com.gadarts.shared.assets.map.GameMap
+import com.gadarts.shared.assets.map.GameMapPlacedObject
+import com.gadarts.shared.assets.map.GameMapTileLayer
 import com.gadarts.shared.assets.map.TilesMapping
 import com.gadarts.shared.model.ElementType
 import com.gadarts.shared.model.definitions.AmbDefinition
@@ -80,11 +80,11 @@ class EditorUi(
         if (file != null) {
             try {
                 val json = file.readString()
-                val mapFile = GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
-                    .create().fromJson(json, MapFile::class.java)
+                val gameMap = GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
+                    .create().fromJson(json, GameMap::class.java)
                 clearMapData()
-                inflateLayers(mapFile)
-                mapFile.objects.map { obj ->
+                inflateLayers(gameMap)
+                gameMap.objects.map { obj ->
                     objectFactory.addObject(
                         obj.column, obj.row,
                         AmbDefinition.entries.first { it.name == obj.definition }
@@ -126,32 +126,32 @@ class EditorUi(
         return buttonGroup
     }
 
-    private fun inflateLayers(mapFile: MapFile) {
-        mapFile.layers.mapIndexed { i, layer ->
-            inflateLayer(mapFile, layer, i)
+    private fun inflateLayers(gameMap: GameMap) {
+        gameMap.layers.mapIndexed { i, layer ->
+            inflateLayer(gameMap, layer, i)
         }
 
     }
 
     private fun inflateLayer(
-        mapFile: MapFile,
-        layer: MapFileLayer,
+        gameMap: GameMap,
+        layer: GameMapTileLayer,
         i: Int
     ) {
         val tiles = Array<Array<PlacedTile?>>(
-            mapFile.depth
-        ) { Array(mapFile.width) { null } }
+            gameMap.depth
+        ) { Array(gameMap.width) { null } }
         layer.tiles.mapIndexed { j, tile ->
             val index = tile.code - INITIAL_INDEX_OF_TILES_MAPPING
             if (index > 0) {
                 TilesMapping.tiles[index].let { textureName ->
-                    val x = j % mapFile.width
-                    val z = j / mapFile.width
+                    val x = j % gameMap.width
+                    val z = j / gameMap.width
                     tiles[z][x] = tileFactory.createTile(textureName, x, z, i + 1)
                 }
             }
         }
-        val bitMap = Array(mapFile.depth) { Array(mapFile.width) { 0 } }
+        val bitMap = Array(gameMap.depth) { Array(gameMap.width) { 0 } }
         tiles.forEachIndexed { z, row ->
             row.forEachIndexed { x, placedTile ->
                 if (placedTile != null && placedTile.definition.surroundedTile) {
@@ -209,12 +209,12 @@ class EditorUi(
             IconsTextures.ICON_FILE_SAVE.getFileName(), object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     super.clicked(event, x, y)
-                    val mapFileLayers = sharedData.layers.drop(1).map { layer ->
+                    val gameMapTileLayers = sharedData.layers.drop(1).map { layer ->
                         val tilesString = convertLayerToString(layer)
-                        MapFileLayer(name = layer.name, tiles = tilesString)
+                        GameMapTileLayer(name = layer.name, tiles = tilesString)
                     }
-                    val mapFileObjects = sharedData.placedObjects.map { obj ->
-                        MapFileObject(
+                    val gameMapPlacedObjects = sharedData.placedObjects.map { obj ->
+                        GameMapPlacedObject(
                             definition = obj.definition.name,
                             type = ElementType.AMB,
                             row = obj.row,
@@ -222,12 +222,12 @@ class EditorUi(
                         )
                     }
                     val firstLayerTiles = sharedData.layers[0].tiles
-                    val mapFile = MapFile(
-                        layers = mapFileLayers, objects = mapFileObjects,
+                    val gameMap = GameMap(
+                        layers = gameMapTileLayers, objects = gameMapPlacedObjects,
                         width = firstLayerTiles[0].size, depth = firstLayerTiles.size
                     )
                     val json = GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
-                        .create().toJson(mapFile)
+                        .create().toJson(gameMap)
 
                     val chooser = FileChooser(FileChooser.Mode.SAVE)
                     chooser.setDirectory(Gdx.files.local("maps"))
@@ -423,7 +423,8 @@ class EditorUi(
 
     fun initialize() {
         VisUI.load()
-        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(0, stage)
+        val inputMultiplexer = Gdx.input.inputProcessor as InputMultiplexer
+        inputMultiplexer.addProcessor(0, stage)
         loadEditorAssets()
         val buttonBar = MenuBar()
         addFileButtons(buttonBar)

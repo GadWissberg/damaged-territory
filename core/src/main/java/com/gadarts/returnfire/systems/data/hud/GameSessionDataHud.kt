@@ -11,7 +11,7 @@ import com.gadarts.shared.GameAssetManager
 class GameSessionDataHud(
     val console: ConsoleImpl,
     assetsManager: GameAssetManager,
-    tilesMapping: Array<CharArray>,
+    tilesMapping: CharArray,
     gamePlayData: GameSessionDataGameplay
 ) :
     Disposable {

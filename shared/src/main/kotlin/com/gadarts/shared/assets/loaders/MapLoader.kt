@@ -1,21 +1,13 @@
 package com.gadarts.shared.assets.loaders
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetDescriptor
 import com.badlogic.gdx.assets.AssetLoaderParameters
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
-import com.gadarts.shared.GameException
-import com.gadarts.shared.model.ElementType
-import com.gadarts.shared.model.GameMap
-import com.gadarts.shared.model.PlacedElement
-import com.gadarts.shared.model.definitions.AmbDefinition
-import com.gadarts.shared.model.definitions.ElementDefinition
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import java.util.*
+import com.gadarts.shared.assets.map.GameMap
+import com.google.gson.GsonBuilder
 
 class MapLoader(resolver: FileHandleResolver) :
     AsynchronousAssetLoader<GameMap, MapLoader.MapLoaderParameter>(resolver) {
@@ -41,58 +33,14 @@ class MapLoader(resolver: FileHandleResolver) :
         file: FileHandle?,
         parameter: MapLoaderParameter?
     ): GameMap {
-        val jsonObj = gson.fromJson(file!!.reader(), JsonObject::class.java)
-        val tilesString = jsonObj.getAsJsonPrimitive(KEY_TILES_MAPPING).asString
-        val size = jsonObj.getAsJsonPrimitive(KEY_SIZE).asInt
-        if (size <= 0) {
-            throw GameException("Failed loading map - size is 0! Map content: $jsonObj")
-        }
-        val tilesMapping = Array(size) { CharArray(size) }
-        for (row in 0 until size) {
-            for (col in 0 until size) {
-                tilesMapping[row][col] = tilesString[row * size + col]
-            }
-        }
-        return GameMap(tilesMapping, inflateElements(jsonObj))
-    }
+        val gson = GsonBuilder()
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .create()
+        val json = file!!.readString("UTF-8")
+        val gameMap = gson.fromJson(json, GameMap::class.java)
 
-    private fun inflateElements(jsonObj: JsonObject): List<PlacedElement> {
-        return jsonObj.getAsJsonArray(KEY_ELEMENTS)
-            .filterNot { it.asJsonObject.get(KEY_DEFINITION).asString.equals("PLAYER") }.map {
-                val asJsonObject = it.asJsonObject
-                val definitionName = asJsonObject.get(KEY_DEFINITION).asString
-                val allDefinitions = ElementType.entries.flatMap { elementType -> elementType.definitions.toList() }
-                var definition: ElementDefinition? = null
-                try {
-                    definition = allDefinitions.find { def -> def.getName() == definitionName }
-                } catch (e: IllegalArgumentException) {
-                    try {
-                        definition = AmbDefinition.valueOf(definitionName.uppercase(Locale.ROOT))
-                    } catch (ignored: IllegalArgumentException) {
-                    }
-                }
-                val row = asJsonObject.get(KEY_ROW).asInt
-                val col = asJsonObject.get(KEY_COL).asInt
-                val direction = asJsonObject.get(KEY_DIRECTION).asInt
-                if (definition == null) {
-                    Gdx.app.log(
-                        MapLoader::class.java.simpleName,
-                        "Failed to find definition for element: $definitionName"
-                    )
-                }
-                PlacedElement(definition!!, row, col, direction)
-            }
-    }
-
-    companion object {
-        private val gson = Gson()
-        private const val KEY_TILES_MAPPING = "tiles"
-        private const val KEY_ELEMENTS = "elements"
-        private const val KEY_DEFINITION = "definition"
-        private const val KEY_ROW = "row"
-        private const val KEY_COL = "col"
-        private const val KEY_DIRECTION = "direction"
-        private const val KEY_SIZE = "size"
+        return gameMap
     }
 
     class MapLoaderParameter : AssetLoaderParameters<GameMap>()

@@ -27,10 +27,10 @@ class CharacterSystemOnMapLoaded(engine: Engine) : HandlerOnEvent {
         val map = gamePlayManagers.assetsManager.getAssetByDefinition(GameDebugSettings.MAP)
         baseEntities.forEach {
             val base =
-                map.placedElements.find { placedElement ->
-                    placedElement.definition == ComponentsMapper.amb.get(
+                map.objects.find { placedObject ->
+                    placedObject.definition.lowercase() == ComponentsMapper.amb.get(
                         it
-                    ).def
+                    ).def.name.lowercase()
                 }
             val characterColor = ComponentsMapper.hangar.get(it).color
             val opponent =

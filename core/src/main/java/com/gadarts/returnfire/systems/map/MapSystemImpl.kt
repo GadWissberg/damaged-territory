@@ -26,7 +26,6 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.pit.BaseComponent
 import com.gadarts.returnfire.components.pit.BaseDoorComponent
-import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -311,10 +310,10 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
-        val tilesMapping = gameSessionData.mapData.currentMap.tilesTexturesMap
+        val map = gameSessionData.mapData.currentMap
         ambEffectsHandlers.waterSplashHandler.init(gameSessionData)
         gameSessionData.mapData.tilesEntities =
-            Array(tilesMapping.size) { arrayOfNulls(tilesMapping[0].size) }
+            Array(map.depth) { arrayOfNulls(map.width) }
         gameSessionData.renderData.floorModel = createFloorModel()
         gameSessionData.renderData.modelCache = ModelCache()
         engine.addEntityListener(object : EntityListener {
@@ -468,24 +467,24 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                 val drowningComponent = ComponentsMapper.drowningEffect.get(entity)
                 val x = position.x.toInt()
                 val z = position.z.toInt()
-                val tilesTexturesMap = gameSessionData.mapData.currentMap.tilesTexturesMap
+                val map = gameSessionData.mapData.currentMap
                 if (x >= 0 && z >= 0
-                    && x < tilesTexturesMap.size && z < tilesTexturesMap[0].size
+                    && x < map.width && z < map.depth
                     && drowningComponent != null
                     && TimeUtils.timeSinceMillis(drowningComponent.lastSplashTime) > 500
                 ) {
-                    val isWater = tilesTexturesMap[x][z] == MapInflater.WATER_TILE_INDEX
-                    if (isWater) {
-                        drowningComponent.refreshLastSplashTime()
-                        position.set(
-                            position.x,
-                            SpecialEffectsFactory.WATER_SPLASH_Y,
-                            position.z
-                        )
-                        gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
-                            position, ComponentsMapper.character.has(entity)
-                        )
-                    }
+//                    val isWater = map[x][z] == MapInflater.WATER_TILE_INDEX TODO: FIX
+//                    if (isWater) {
+//                        drowningComponent.refreshLastSplashTime()
+//                        position.set(
+//                            position.x,
+//                            SpecialEffectsFactory.WATER_SPLASH_Y,
+//                            position.z
+//                        )
+//                        gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
+//                            position, ComponentsMapper.character.has(entity)
+//                        )
+//                    }
                 }
             }
         }

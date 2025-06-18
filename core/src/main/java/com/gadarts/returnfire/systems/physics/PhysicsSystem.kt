@@ -66,8 +66,8 @@ class PhysicsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         super.onSystemReady()
         addBoundary(auxVector.set(1F, 0F, 0F))
         addBoundary(auxVector.set(0F, 0F, 1F))
-        addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.mapData.currentMap.tilesTexturesMap.size)
-        addBoundary(auxVector.set(0F, 0F, -1F), -gameSessionData.mapData.currentMap.tilesTexturesMap[0].size)
+        addBoundary(auxVector.set(-1F, 0F, 0F), -gameSessionData.mapData.currentMap.depth)
+        addBoundary(auxVector.set(0F, 0F, -1F), -gameSessionData.mapData.currentMap.width)
         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.PHYSICS_SYSTEM_READY.ordinal)
     }
 

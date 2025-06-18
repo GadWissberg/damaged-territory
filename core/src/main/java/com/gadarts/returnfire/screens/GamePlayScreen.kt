@@ -34,7 +34,7 @@ import com.gadarts.returnfire.systems.map.MapSystemImpl
 import com.gadarts.returnfire.systems.physics.PhysicsSystem
 import com.gadarts.returnfire.systems.player.PlayerSystemImpl
 import com.gadarts.returnfire.systems.render.RenderSystem
-import com.gadarts.shared.model.GameMap
+import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.model.definitions.CharacterDefinition
 
 class GamePlayScreen(

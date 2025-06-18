@@ -27,9 +27,9 @@ import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.loaders.DefinitionLoader
 import com.gadarts.shared.assets.loaders.MapLoader
+import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.assets.utils.CollisionShapeInfo
 import com.gadarts.shared.assets.utils.ModelCollisionShapeInfo
-import com.gadarts.shared.model.GameMap
 import java.io.File
 import java.util.*
 

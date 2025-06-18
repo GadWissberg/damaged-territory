@@ -253,7 +253,8 @@ class CursorHandler(
     }
 
     override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
-        return updateCursorPosition(screenX, screenY)
+        updateCursorPosition(screenX, screenY)
+        return false
     }
 
     private fun updateCursorPosition(screenX: Int, screenY: Int): Boolean {
