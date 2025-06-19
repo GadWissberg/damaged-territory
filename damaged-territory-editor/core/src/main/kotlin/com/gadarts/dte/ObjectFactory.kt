@@ -4,12 +4,12 @@ import com.gadarts.dte.scene.PlacedObject
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
 import com.gadarts.shared.GameAssetManager
-import com.gadarts.shared.model.definitions.AmbDefinition
+import com.gadarts.shared.model.definitions.ElementDefinition
 
 class ObjectFactory(private val sharedData: SharedData, private val gameAssetsManager: GameAssetManager) {
-    fun addObject(x: Int, z: Int, ambDefinition: AmbDefinition): Boolean {
+    fun addObject(x: Int, z: Int, elementDefinition: ElementDefinition): Boolean {
         val modelInstance = EditorModelInstance(
-            gameAssetsManager.getAssetByDefinition(ambDefinition.getModelDefinition())
+            gameAssetsManager.getAssetByDefinition(elementDefinition.getModelDefinition())
         )
         sharedData.modelInstances.add(modelInstance)
         modelInstance.transform.setToTranslation(
@@ -21,7 +21,7 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
             PlacedObject(
                 z,
                 x,
-                ambDefinition,
+                elementDefinition,
                 modelInstance
             )
         )

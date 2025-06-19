@@ -21,7 +21,7 @@ class GameSessionData(
     val gamePlayData = GameSessionDataGameplay(assetsManager)
     val mapData = GameSessionDataMap(assetsManager)
     val hudData =
-        GameSessionDataHud(console, assetsManager, mapData.currentMap.layers[0].tiles.toCharArray(), gamePlayData)
+        GameSessionDataHud(console, assetsManager, mapData.currentMap, gamePlayData)
     val renderData = GameSessionDataRender()
 
 

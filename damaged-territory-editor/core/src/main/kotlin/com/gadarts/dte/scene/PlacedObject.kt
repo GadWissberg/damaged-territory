@@ -1,11 +1,11 @@
 package com.gadarts.dte.scene
 
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
-import com.gadarts.shared.model.definitions.AmbDefinition
+import com.gadarts.shared.model.definitions.ElementDefinition
 
 data class PlacedObject(
     val row: Int,
     val column: Int,
-    val definition: AmbDefinition,
+    val definition: ElementDefinition,
     val modelInstance: EditorModelInstance
 )

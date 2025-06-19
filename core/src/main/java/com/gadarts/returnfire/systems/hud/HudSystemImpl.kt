@@ -40,7 +40,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
             gameSessionData.gamePlayData.player!!,
             engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
             gamePlayManagers.assetsManager,
-            gameSessionData.mapData.bitMap
+            gameSessionData.mapData.groundBitMap
         )
     }
     private val hudButtons = HudButtons(gamePlayManagers)

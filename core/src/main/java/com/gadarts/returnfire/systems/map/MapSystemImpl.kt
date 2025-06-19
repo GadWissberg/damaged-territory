@@ -26,6 +26,7 @@ import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.model.GameModelInstance
 import com.gadarts.returnfire.components.pit.BaseComponent
 import com.gadarts.returnfire.components.pit.BaseDoorComponent
+import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -467,24 +468,25 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                 val drowningComponent = ComponentsMapper.drowningEffect.get(entity)
                 val x = position.x.toInt()
                 val z = position.z.toInt()
-                val map = gameSessionData.mapData.currentMap
+                val groundBitMap = gameSessionData.mapData.groundBitMap
+                val currentMap = gameSessionData.mapData.currentMap
                 if (x >= 0 && z >= 0
-                    && x < map.width && z < map.depth
+                    && x < currentMap.width && z < currentMap.depth
                     && drowningComponent != null
                     && TimeUtils.timeSinceMillis(drowningComponent.lastSplashTime) > 500
                 ) {
-//                    val isWater = map[x][z] == MapInflater.WATER_TILE_INDEX TODO: FIX
-//                    if (isWater) {
-//                        drowningComponent.refreshLastSplashTime()
-//                        position.set(
-//                            position.x,
-//                            SpecialEffectsFactory.WATER_SPLASH_Y,
-//                            position.z
-//                        )
-//                        gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
-//                            position, ComponentsMapper.character.has(entity)
-//                        )
-//                    }
+                    val isWater = groundBitMap[x][z] == 0
+                    if (isWater) {
+                        drowningComponent.refreshLastSplashTime()
+                        position.set(
+                            position.x,
+                            SpecialEffectsFactory.WATER_SPLASH_Y,
+                            position.z
+                        )
+                        gamePlayManagers.factories.specialEffectsFactory.generateWaterSplash(
+                            position, ComponentsMapper.character.has(entity)
+                        )
+                    }
                 }
             }
         }

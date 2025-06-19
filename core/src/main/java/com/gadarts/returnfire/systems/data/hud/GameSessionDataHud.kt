@@ -7,15 +7,16 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.systems.data.GameSessionDataGameplay
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.assets.map.GameMap
 
 class GameSessionDataHud(
     val console: ConsoleImpl,
     assetsManager: GameAssetManager,
-    tilesMapping: CharArray,
+    gameMap: GameMap,
     gamePlayData: GameSessionDataGameplay
 ) :
     Disposable {
-    val minimap = Minimap(tilesMapping, assetsManager, gamePlayData)
+    val minimap = Minimap(gameMap, assetsManager, gamePlayData)
     val stage: Stage = Stage()
     val movementTouchpad: Touchpad = createTouchpad(assetsManager)
     val turretTouchpad: Touchpad = createTouchpad(assetsManager)

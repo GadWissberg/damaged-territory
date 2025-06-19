@@ -13,12 +13,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
 import com.gadarts.dte.EditorEvents
 import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
-import com.gadarts.shared.model.definitions.AmbDefinition
+import com.gadarts.shared.model.ElementType
+import com.gadarts.shared.model.definitions.ElementDefinition
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
@@ -34,7 +36,12 @@ class EditorPanel(
     private val tileButtonGroup = ButtonGroup<CatalogTileButton>()
     private val layersListDisplay: SelectableLayerList by lazy {
         SelectableLayerList(VisUI.getSkin()).apply {
-            initializeSelectableList(this, sharedData.layers.toTypedArray())
+            val entries = sharedData.layers
+            val array = Array<TileLayer>()
+            array.addAll(*entries.toTypedArray())
+            setItems(array)
+            style.background = VisUI.getSkin().getDrawable("window-bg")
+            selectedIndex = 1
         }
     }
 
@@ -67,12 +74,17 @@ class EditorPanel(
     private fun createObjectsModesPanel(objectsModePanel: VisTable) {
         val objectsListTable = VisTable()
         objectsListTable.background = VisUI.getSkin().getDrawable("window-bg")
-        val list = SelectableList<AmbDefinition>(VisUI.getSkin()).apply {
-            initializeSelectableList(this, AmbDefinition.entries.toTypedArray())
+        val entries = ElementType.entries.flatMap { it.definitions }
+        val list = SelectableList<ElementDefinition>(VisUI.getSkin()).apply {
+            val array = Array<ElementDefinition>()
+            array.addAll(*entries.toTypedArray())
+            setItems(array)
+            style.background = VisUI.getSkin().getDrawable("window-bg")
+            selectedIndex = 1
         }
         list.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                sharedData.selectedObject = AmbDefinition.entries[list.selectedIndex]
+                sharedData.selectedObject = entries[list.selectedIndex]
                 dispatcher.dispatchMessage(EditorEvents.OBJECT_SELECTED.ordinal)
             }
         })
@@ -203,15 +215,5 @@ class EditorPanel(
             *sharedData.layers.toTypedArray()
         )
     }
-
-    private fun <T> initializeSelectableList(
-        selectableList: SelectableList<T>,
-        entries: Array<T>
-    ) {
-        selectableList.setItems(*entries)
-        selectableList.style.background = VisUI.getSkin().getDrawable("window-bg")
-        selectableList.selectedIndex = 1
-    }
-
 
 }

@@ -7,10 +7,10 @@ import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
 import com.gadarts.dte.ui.Modes
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
-import com.gadarts.shared.model.definitions.AmbDefinition
+import com.gadarts.shared.model.definitions.ElementDefinition
 
 class SharedData : Disposable {
-    var selectedObject: AmbDefinition? = null
+    var selectedObject: ElementDefinition? = null
     var selectedMode: Modes = Modes.TILES
     var selectedTile: TextureDefinition? = null
     var selectedLayerIndex: Int = 1

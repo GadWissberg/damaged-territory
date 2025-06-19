@@ -8,7 +8,7 @@ import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.map.GameMap
 
 class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
-    lateinit var bitMap: Array<Array<Int>>
+    lateinit var groundBitMap: Array<Array<Int>>
     lateinit var mapGraph: MapGraph
     val currentMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]

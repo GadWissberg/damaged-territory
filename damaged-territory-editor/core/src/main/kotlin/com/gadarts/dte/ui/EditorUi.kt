@@ -29,7 +29,6 @@ import com.gadarts.shared.assets.map.GameMapPlacedObject
 import com.gadarts.shared.assets.map.GameMapTileLayer
 import com.gadarts.shared.assets.map.TilesMapping
 import com.gadarts.shared.model.ElementType
-import com.gadarts.shared.model.definitions.AmbDefinition
 import com.google.gson.GsonBuilder
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
@@ -84,10 +83,11 @@ class EditorUi(
                     .create().fromJson(json, GameMap::class.java)
                 clearMapData()
                 inflateLayers(gameMap)
+                val definitions = ElementType.entries.flatMap { it.definitions }
                 gameMap.objects.map { obj ->
                     objectFactory.addObject(
                         obj.column, obj.row,
-                        AmbDefinition.entries.first { it.name == obj.definition }
+                        definitions.first { it.getName().lowercase() == obj.definition.lowercase() }
                     )
                 }
                 editorPanel.mapLoaded()
@@ -214,9 +214,10 @@ class EditorUi(
                         GameMapTileLayer(name = layer.name, tiles = tilesString)
                     }
                     val gameMapPlacedObjects = sharedData.placedObjects.map { obj ->
+                        val definition = obj.definition
                         GameMapPlacedObject(
-                            definition = obj.definition.name,
-                            type = ElementType.AMB,
+                            definition = definition.getName(),
+                            type = definition.getType(),
                             row = obj.row,
                             column = obj.column
                         )
