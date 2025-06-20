@@ -137,6 +137,12 @@
       "type": "AMB",
       "row": 16,
       "column": 14
+    },
+    {
+      "definition": "BASE_BROWN",
+      "type": "AMB",
+      "row": 18,
+      "column": 12
     }
   ],
   "width": 32,
