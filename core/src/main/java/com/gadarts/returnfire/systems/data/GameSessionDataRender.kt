@@ -2,7 +2,6 @@ package com.gadarts.returnfire.systems.data
 
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.Model
-import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.particles.ParticleShader.AlignMode
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
@@ -20,14 +19,12 @@ class GameSessionDataRender : Disposable {
     val cameraRelativeTargetLookAtPosition = Vector3()
     val camera: PerspectiveCamera = SharedUtils.createCamera(SharedUtils.GAME_VIEW_FOV)
     lateinit var particleSystem: ParticleSystem
-    lateinit var modelCache: ModelCache
     lateinit var floorModel: Model
     val billboardParticleBatch: BillboardParticleBatch by lazy {
         BillboardParticleBatch(AlignMode.ViewPoint, false, 100)
     }
 
     override fun dispose() {
-        modelCache.dispose()
         floorModel.dispose()
     }
 

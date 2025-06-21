@@ -128,11 +128,11 @@ class AiApacheLogic(
                 val angle = MathUtils.random(0f, MathUtils.PI2)
                 val x: Float = targetPosition.x + RUN_AWAY_RADIUS * MathUtils.cos(angle)
                 val z: Float = targetPosition.z + RUN_AWAY_RADIUS * MathUtils.sin(angle)
-                val tilesEntities = gameSessionData.mapData.tilesEntities
+                val loadedMap = gameSessionData.mapData.loadedMap
                 apacheAiComponent.runAway.set(
-                    MathUtils.clamp(x, 0F, tilesEntities[0].size - 1F),
+                    MathUtils.clamp(x, 0F, loadedMap.width - 1F),
                     0F,
-                    MathUtils.clamp(z, 0F, tilesEntities.size - 1F)
+                    MathUtils.clamp(z, 0F, loadedMap.depth - 1F)
                 )
                 stopAttack()
             }

@@ -25,12 +25,16 @@ object MapUtils {
         gameMapTileLayer: GameMapTileLayer,
         gameMap: GameMap
     ): TextureDefinition {
+        val definitions = textureDefinitions.definitions
+        val tilesMapping = TilesMapping.tiles
+        if (gameMapTileLayer.tiles.isEmpty()) return definitions[tilesMapping[0]]!!
+
         var indexOfFirst =
             tilesChars.indexOfFirst { c: Char -> gameMapTileLayer.tiles[gameMap.width * row + col] == c }
         if (indexOfFirst == -1) {
             indexOfFirst = 0
         }
-        return textureDefinitions.definitions[TilesMapping.tiles[indexOfFirst]]!!
+        return definitions[tilesMapping[indexOfFirst]]!!
     }
 
     fun isEntityMarksNodeAsBlocked(entity: Entity): Boolean {

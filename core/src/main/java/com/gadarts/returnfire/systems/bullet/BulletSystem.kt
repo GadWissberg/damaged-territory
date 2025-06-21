@@ -106,7 +106,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     override fun update(deltaTime: Float) {
         if (isGamePaused()) return
 
-        val tilesMapping = gameSessionData.mapData.currentMap
+        val tilesMapping = gameSessionData.mapData.loadedMap
         for (bullet in bulletEntities) {
             val rigidBody = ComponentsMapper.physics.get(bullet).rigidBody
             val position = rigidBody.worldTransform.getTranslation(auxVector1)
@@ -277,8 +277,8 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 )
             val z = position.z.toInt()
             val x = position.x.toInt()
-            val tilesEntities = gameSessionData.mapData.tilesEntities
-            if (z >= 0 && z < tilesEntities.size && x >= 0 && x < tilesEntities[0].size) {
+            val loadedMap = gameSessionData.mapData.loadedMap
+            if (z >= 0 && z < loadedMap.depth && x >= 0 && x < loadedMap.width) {
                 bulletCollidesWithOtherBody(entity0, entity1)
             }
             if (ComponentsMapper.bullet.has(entity1)) {

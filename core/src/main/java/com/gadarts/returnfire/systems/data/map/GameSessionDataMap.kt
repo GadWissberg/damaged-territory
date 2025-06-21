@@ -10,13 +10,24 @@ import com.gadarts.shared.assets.map.GameMap
 class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
     lateinit var groundBitMap: Array<Array<Int>>
     lateinit var mapGraph: MapGraph
-    val currentMap: GameMap =
+    val loadedMap: GameMap =
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
-    lateinit var tilesEntities: Array<Array<Entity?>>
-    lateinit var stages: Map<CharacterColor, Entity>
+    val tilesEntitiesByLayers by lazy {
+        buildList {
+            add(TilesLayer(loadedMap.width, loadedMap.depth))
+            addAll(
+                loadedMap.layers.map { TilesLayer(loadedMap.width, loadedMap.depth) }
+            )
+        }
+    }
+
+    lateinit
+    var stages: Map<CharacterColor, Entity>
 
     override fun dispose() {
-
+        tilesEntitiesByLayers.forEach {
+            it.modelCache.dispose()
+        }
     }
 
 }

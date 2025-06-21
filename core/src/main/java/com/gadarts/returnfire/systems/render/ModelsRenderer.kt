@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
+import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
 import com.badlogic.gdx.math.Quaternion
@@ -24,7 +25,8 @@ class ModelsRenderer(
     private val relatedEntities: RenderSystemRelatedEntities,
     private val renderFlags: RenderFlags,
     private val renderData: GameSessionDataRender,
-    private val batches: RenderSystemBatches
+    private val batches: RenderSystemBatches,
+    private val modelCaches: List<ModelCache>
 ) : Disposable {
     private var axisModelHandler = AxisModelHandler()
     private val shadowLight: DirectionalShadowLight by lazy {
@@ -52,10 +54,12 @@ class ModelsRenderer(
             renderModel(entity, batch, applyEnvironment, forShadow)
         }
         if (!GameDebugSettings.HIDE_FLOOR && renderFlags.renderGround) {
-            if (applyEnvironment) {
-                batch.render(renderData.modelCache, environment)
-            } else {
-                batch.render(renderData.modelCache)
+            modelCaches.forEach {
+                if (applyEnvironment) {
+                    batch.render(it, environment)
+                } else {
+                    batch.render(it)
+                }
             }
         }
         batch.end()
@@ -148,7 +152,6 @@ class ModelsRenderer(
         val gameModelInstance = modelInsComp.gameModelInstance
         val boundingBox = gameModelInstance.getBoundingBox(auxBox)
         val dims: Vector3 = boundingBox.getDimensions(auxVector3_2)
-
         if (modelInsComp.hidden) return false
         if (dims.isZero) return false
         if (!renderFlags.renderCharacters && (isConsideredCharacter(entity))) return false

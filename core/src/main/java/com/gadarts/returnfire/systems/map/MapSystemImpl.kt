@@ -7,7 +7,6 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.Model
-import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.decals.Decal
@@ -311,12 +310,8 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
-        val map = gameSessionData.mapData.currentMap
         ambEffectsHandlers.waterSplashHandler.init(gameSessionData)
-        gameSessionData.mapData.tilesEntities =
-            Array(map.depth) { arrayOfNulls(map.width) }
         gameSessionData.renderData.floorModel = createFloorModel()
-        gameSessionData.renderData.modelCache = ModelCache()
         engine.addEntityListener(object : EntityListener {
             override fun entityAdded(entity: Entity) {
 
@@ -469,7 +464,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                 val x = position.x.toInt()
                 val z = position.z.toInt()
                 val groundBitMap = gameSessionData.mapData.groundBitMap
-                val currentMap = gameSessionData.mapData.currentMap
+                val currentMap = gameSessionData.mapData.loadedMap
                 if (x >= 0 && z >= 0
                     && x < currentMap.width && z < currentMap.depth
                     && drowningComponent != null
@@ -562,7 +557,6 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
 
     override fun dispose() {
-        gameSessionData.renderData.modelCache.dispose()
     }
 
 
