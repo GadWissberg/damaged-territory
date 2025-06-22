@@ -14,9 +14,9 @@ class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
         assetsManager.getAll(GameMap::class.java, com.badlogic.gdx.utils.Array())[0]
     val tilesEntitiesByLayers by lazy {
         buildList {
-            add(TilesLayer(loadedMap.width, loadedMap.depth))
+            add(InGameTilesLayer(loadedMap.width, loadedMap.depth))
             addAll(
-                loadedMap.layers.map { TilesLayer(loadedMap.width, loadedMap.depth) }
+                loadedMap.layers.map { InGameTilesLayer(loadedMap.width, loadedMap.depth) }
             )
         }
     }

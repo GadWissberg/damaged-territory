@@ -93,7 +93,7 @@ class MapInflater(
         }
         groundBitMap.forEachIndexed { row, cols ->
             cols.forEachIndexed { col, tileBit ->
-                if (tileBit == 1) {
+                if (tileBit == 1 && !exculdedTiles.contains(Pair(col, row))) {
                     val entity = gameSessionData.mapData.tilesEntitiesByLayers[0].tilesEntities[row][col]
                     if (entity != null) {
                         addPhysicsToTile(
@@ -662,6 +662,20 @@ class MapInflater(
         val width = gameSessionData.mapData.loadedMap.width
         val groundBitMap = gameSessionData.mapData.groundBitMap
         val height = index * 0.0008F
+
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder
+        val tilesEntities = gameSessionData.mapData.tilesEntitiesByLayers[index].tilesEntities
+        for (row in 0 until depth) {
+            for (col in 0 until width) {
+                if (index == 0 || layer.tiles[row * width + col].code != INITIAL_INDEX_OF_TILES_MAPPING) {
+                    val tileEntity = entityBuilder.begin()
+                        .addGroundComponent()
+                        .finishAndAddToEngine()
+                    tilesEntities[row][col] = tileEntity
+                }
+            }
+        }
+
         if (index > 0) {
             for (row in 0 until depth) {
                 for (col in 0 until width) {
@@ -678,47 +692,76 @@ class MapInflater(
                     ) {
                         groundBitMap[row][col] = 1
                     }
+                    if (textureDefinition.fileName.contains("road") && !exculdedTiles.contains(
+                            Pair(col, row)
+                        )
+                    ) {
+                        entityBuilder.addRoadComponentToEntity(tilesEntities[row][col]!!, textureDefinition)
+                        addTile(Triple(col, height, row), index, layer)
+                        addPhysicsToTile(
+                            gameSessionData.mapData.tilesEntitiesByLayers[index].tilesEntities[row][col]!!,
+                            auxVector1.set(
+                                col.toFloat() + 0.5F,
+                                0F,
+                                row.toFloat() + 0.5F
+                            )
+                        )
+                        exculdedTiles.add(Pair(col, row))
+                    }
+
                 }
             }
         }
         val modelCache = gameSessionData.mapData.tilesEntitiesByLayers[index].modelCache
         modelCache.begin()
-        addFloorModels(exculdedTiles, layer, height, index)
+        addFloorModels(exculdedTiles, height, index, layer)
         modelCache.end()
         if (index == 0) {
             addAllExternalSea(width, depth)
         }
     }
 
-    private fun addFloorModel(
+    private fun addFloorModelToModelCache(
         position: Triple<Int, Float, Int>,
-        modelInstance: GameModelInstance,
-        exculdedTiles: ArrayList<Pair<Int, Int>>,
-        layer: GameMapTileLayer,
         index: Int,
+        layer: GameMapTileLayer,
     ) {
+        val inGameTilesLayer = gameSessionData.mapData.tilesEntitiesByLayers[index]
+        val tileEntity = inGameTilesLayer.tilesEntities[position.third][position.first] ?: return
+
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
-        val tileEntity = entityBuilder.begin()
-            .addGroundComponent()
-            .finishAndAddToEngine()
-        val x = position.first
-        val z = position.third
-        gameSessionData.mapData.tilesEntitiesByLayers[index].tilesEntities[z][x] =
-            tileEntity
-        if (!exculdedTiles.contains(Pair(x, z))) {
-            val realPosition = auxVector1.set(x.toFloat() + 0.5F, position.second, z.toFloat() + 0.5F)
-            modelInstance.modelInstance.transform.setToTranslation(realPosition)
-            entityBuilder.addModelInstanceComponentToEntity(
-                tileEntity,
-                modelInstance,
-                realPosition,
-                null,
-            )
-            applyTextureToFloorTile(x, z, tileEntity, modelInstance, layer)
-            val modelCache = gameSessionData.mapData.tilesEntitiesByLayers[index].modelCache
-            modelCache.add(modelInstance.modelInstance)
+        val tileModelInstance = addTile(position, index, layer)
+        val modelCache = inGameTilesLayer.modelCache
+        if (tileModelInstance != null) {
+            modelCache.add(tileModelInstance.modelInstance)
             entityBuilder.addModelCacheComponentToEntity(tileEntity)
         }
+    }
+
+    private fun addTile(
+        position: Triple<Int, Float, Int>,
+        index: Int,
+        layer: GameMapTileLayer,
+    ): GameModelInstance? {
+        val x = position.first
+        val z = position.third
+        val tileEntity = gameSessionData.mapData.tilesEntitiesByLayers[index].tilesEntities[z][x] ?: return null
+
+        val modelInstance = GameModelInstance(
+            ModelInstance(gameSessionData.renderData.floorModel),
+            null,
+        )
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder
+        val realPosition = auxVector1.set(x.toFloat() + 0.5F, position.second, z.toFloat() + 0.5F)
+        modelInstance.modelInstance.transform.setToTranslation(realPosition)
+        entityBuilder.addModelInstanceComponentToEntity(
+            tileEntity,
+            modelInstance,
+            realPosition,
+            null,
+        )
+        applyTextureToFloorTile(x, z, tileEntity, modelInstance, layer)
+        return modelInstance
     }
 
     private fun addPhysicsToTile(
@@ -748,7 +791,8 @@ class MapInflater(
         val assetsManager = gamePlayManagers.assetsManager
         if (isPositionInsideBoundaries(row, col)) {
             textureDefinition = MapUtils.determineTextureOfMapPosition(
-                row, col,
+                row,
+                col,
                 assetsManager.getTexturesDefinitions(),
                 layer,
                 gameSessionData.mapData.loadedMap
@@ -813,25 +857,19 @@ class MapInflater(
 
     private fun addFloorModels(
         exculdedTiles: ArrayList<Pair<Int, Int>>,
-        layer: GameMapTileLayer,
         height: Float,
         index: Int,
+        layer: GameMapTileLayer,
     ) {
         val loadedMap = gameSessionData.mapData.loadedMap
         val width = loadedMap.width
         for (row in 0 until loadedMap.depth) {
             for (col in 0 until width) {
-                val tiles = layer.tiles
-                if (tiles == "" || tiles[row * width + col].code != INITIAL_INDEX_OF_TILES_MAPPING)
-                    addFloorModel(
+                if (!exculdedTiles.contains(Pair(col, row)))
+                    addFloorModelToModelCache(
                         Triple(col, height, row),
-                        GameModelInstance(
-                            ModelInstance(gameSessionData.renderData.floorModel),
-                            null,
-                        ),
-                        exculdedTiles,
-                        layer,
-                        index
+                        index,
+                        layer
                     )
             }
         }
