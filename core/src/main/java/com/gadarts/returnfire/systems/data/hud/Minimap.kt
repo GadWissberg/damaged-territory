@@ -9,6 +9,7 @@ import com.gadarts.returnfire.systems.data.GameSessionDataGameplay
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.SharedUtils.INITIAL_INDEX_OF_TILES_MAPPING
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import com.gadarts.shared.assets.map.GameMap
 
@@ -28,47 +29,58 @@ class Minimap(
     override fun draw(batch: Batch, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
 
+        for (layerIndex in gameMap.layers.indices) {
+            drawLayer(batch, layerIndex)
+        }
+
+        drawPlayer(batch)
+    }
+
+    private fun drawLayer(
+        batch: Batch,
+        layerIndex: Int
+    ) {
         val cols = gameMap.width
         val rows = gameMap.depth
-
         val scaleX = width / cols
         val scaleY = height / rows
-
         for (y in 0 until rows) {
             for (x in 0 until cols) {
                 val drawX = x * scaleX + getX()
                 val drawY = height - (y + 1) * scaleY + getY()
+                val gameMapTileLayer = gameMap.layers[layerIndex]
                 val textureDefinition =
                     MapUtils.determineTextureOfMapPosition(
                         y,
                         x,
                         assetsManager.getTexturesDefinitions(),
-                        gameMap.layers[1],
+                        gameMapTileLayer,
                         gameMap
                     )
-                texturesCache.getOrPut(textureDefinition) {
-                    assetsManager.getTexture(textureDefinition)
-                }.let { texture ->
-                    batch.draw(texture, drawX, drawY, scaleX, scaleY)
+                if (layerIndex == 0 || gameMapTileLayer.tiles[gameMap.width * y + x].code != INITIAL_INDEX_OF_TILES_MAPPING) {
+                    texturesCache.getOrPut(textureDefinition) {
+                        assetsManager.getTexture(textureDefinition)
+                    }.let { texture ->
+                        batch.draw(texture, drawX, drawY, scaleX, scaleY)
+                    }
                 }
             }
         }
-        drawPlayer(scaleX, scaleY, batch)
     }
 
-    private fun drawPlayer(scaleX: Float, scaleY: Float, batch: Batch) {
+    private fun drawPlayer(batch: Batch) {
+        val cols = gameMap.width
+        val rows = gameMap.depth
+        val scaleX = width / cols
+        val scaleY = height / rows
         val player = gamePlayData.player
         if (player != null) {
-
             val position: Vector3 = ModelUtils.getPositionOfModel(player)
-
             val playerX = position.x.toInt()
             val playerY = position.z.toInt()
-
             if (playerY >= 0 && playerX >= 0 && playerY < gameMap.depth && playerX < gameMap.width) {
                 val drawPlayerX = playerX * scaleX + x
                 val drawPlayerY = height - (playerY + 1) * scaleY + y
-
                 val alpha = 0.5f + 0.5f * MathUtils.sin(flickerTime * 5f)
                 val indicatorSize = locationIndicatorTexture.width
 

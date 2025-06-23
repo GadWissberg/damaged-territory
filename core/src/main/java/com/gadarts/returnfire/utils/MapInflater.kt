@@ -78,9 +78,8 @@ class MapInflater(
         gameSessionData.mapData.groundBitMap = Array(
             depth
         ) { Array(width) { 0 } }
-        addFloor(exculdedTiles, GameMapTileLayer("Deep Water", ""), 0)
         currentMap.layers.forEachIndexed { index, layer ->
-            addFloor(exculdedTiles, layer, index + 1)
+            addFloor(exculdedTiles, layer, index)
         }
         val groundBitMap = gameSessionData.mapData.groundBitMap
         if (GameDebugSettings.PRINT_BIT_MAP) {

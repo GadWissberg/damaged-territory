@@ -470,7 +470,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                     && drowningComponent != null
                     && TimeUtils.timeSinceMillis(drowningComponent.lastSplashTime) > 500
                 ) {
-                    val isWater = groundBitMap[x][z] == 0
+                    val isWater = groundBitMap[z][x] == 0
                     if (isWater) {
                         drowningComponent.refreshLastSplashTime()
                         position.set(

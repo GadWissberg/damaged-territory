@@ -7,6 +7,7 @@ import com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader
 import com.badlogic.gdx.assets.loaders.FileHandleResolver
 import com.badlogic.gdx.files.FileHandle
 import com.gadarts.shared.assets.map.GameMap
+import com.gadarts.shared.assets.map.GameMapTileLayer
 import com.google.gson.GsonBuilder
 
 class MapLoader(resolver: FileHandleResolver) :
@@ -39,8 +40,9 @@ class MapLoader(resolver: FileHandleResolver) :
             .create()
         val json = file!!.readString("UTF-8")
         val gameMap = gson.fromJson(json, GameMap::class.java)
-
-        return gameMap
+        return gameMap.copy(
+            layers = listOf(GameMapTileLayer("Deep Water", "")) + gameMap.layers
+        )
     }
 
     class MapLoaderParameter : AssetLoaderParameters<GameMap>()
