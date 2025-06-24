@@ -714,10 +714,10 @@ class MapInflater(
         val modelCache = gameSessionData.mapData.tilesEntitiesByLayers[index].modelCache
         modelCache.begin()
         addFloorModels(exculdedTiles, height, index, layer)
-        modelCache.end()
         if (index == 0) {
             addAllExternalSea(width, depth)
         }
+        modelCache.end()
     }
 
     private fun addFloorModelToModelCache(
@@ -831,11 +831,13 @@ class MapInflater(
             modelInstance,
             auxVector1.set(x, 0F, z)
         )
+        gamePlayManagers.ecs.entityBuilder.addModelCacheComponentToEntity(entity)
         modelInstance.modelInstance.transform.scl(width.toFloat(), 1F, depth.toFloat())
         val textureAttribute =
             modelInstance.modelInstance.materials.first()
                 .get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
+        gameSessionData.mapData.tilesEntitiesByLayers[0].modelCache.add(modelInstance.modelInstance)
         val texturesDefinitions = gamePlayManagers.assetsManager.getTexturesDefinitions()
         applyAnimatedTextureComponentToFloor(
             texturesDefinitions.definitions["tile_water"]!!,
