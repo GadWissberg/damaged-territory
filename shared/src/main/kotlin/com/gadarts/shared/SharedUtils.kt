@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.VertexAttributes.Usage
+import com.badlogic.gdx.graphics.VertexAttributes
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
@@ -72,36 +72,30 @@ object SharedUtils {
         meshName: String,
         size: Float,
         texture: Texture?,
-        offset: Float = 0f,
-        customMaterial: Material? = null,
-        subdivisions: Int = 4
+        offset: Float = 0F,
+        customMaterial: Material? = null
     ) {
-        val material =
-            customMaterial ?: if (texture != null) Material(TextureAttribute.createDiffuse(texture)) else Material()
-        material.set(BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, 1f))
-        val attributes = (Usage.Position or Usage.Normal or Usage.TextureCoordinates).toLong()
-        val mbp = builder.part(meshName, GL20.GL_TRIANGLES, attributes, material)
-
-        val cell = size * 2f / subdivisions
-        for (i in 0 until subdivisions) {
-            for (j in 0 until subdivisions) {
-                val x0 = offset - size + i * cell
-                val x1 = x0 + cell
-                val z0 = offset - size + j * cell
-                val z1 = z0 + cell
-                val u0 = i.toFloat() / subdivisions
-                val v0 = j.toFloat() / subdivisions
-                val u1 = (i + 1).toFloat() / subdivisions
-                val v1 = (j + 1).toFloat() / subdivisions
-                mbp.setUVRange(u0, v0, u1, v1)
-                mbp.rect(
-                    x0, 0f, z1,
-                    x1, 0f, z1,
-                    x1, 0f, z0,
-                    x0, 0f, z0,
-                    0f, 1f, 0f
+        val material = customMaterial
+            ?: if (texture != null) Material(TextureAttribute.createDiffuse(texture)) else Material(
+                TextureAttribute(
+                    TextureAttribute.Diffuse
                 )
-            }
-        }
+            )
+        material.set(BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, 1F))
+        val mbp = builder.part(
+            meshName,
+            GL20.GL_TRIANGLES,
+            (VertexAttributes.Usage.Position or VertexAttributes.Usage.Normal or VertexAttributes.Usage.TextureCoordinates).toLong(),
+            material
+        )
+        mbp.setUVRange(0F, 0F, 1F, 1F)
+        mbp.rect(
+            offset + -size, 0F, offset + size,
+            offset + size, 0F, offset + size,
+            offset + size, 0F, offset + -size,
+            offset + -size, 0F, offset + -size,
+            0F, size, 0F,
+        )
     }
+
 }
