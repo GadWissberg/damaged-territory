@@ -5,10 +5,13 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.GL20.GL_ONE_MINUS_SRC_ALPHA
+import com.badlogic.gdx.graphics.GL20.GL_SRC_ALPHA
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.math.MathUtils
@@ -563,8 +566,8 @@ class MapInflater(
                 def.getName().lowercase() == definition
             }
             it.type == ElementType.CHARACTER
-                    && elementDefinition != SimpleCharacterDefinition.APACHE
-                    && elementDefinition != TurretCharacterDefinition.TANK
+                && elementDefinition != SimpleCharacterDefinition.APACHE
+                && elementDefinition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 val elementDefinition = stringToDefinition(it.definition, ElementType.CHARACTER)
@@ -660,7 +663,7 @@ class MapInflater(
         val depth = gameSessionData.mapData.loadedMap.depth
         val width = gameSessionData.mapData.loadedMap.width
         val groundBitMap = gameSessionData.mapData.groundBitMap
-        val height = index * 0.0008F
+        val height = index * 0.0128F
 
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
         val tilesEntities = gameSessionData.mapData.tilesEntitiesByLayers[index].tilesEntities
@@ -687,7 +690,7 @@ class MapInflater(
                     )
                     if (groundBitMap[row][col] == 0
                         && (!textureDefinition.fileName.contains("water")
-                                || exculdedTiles.contains(Pair(col, row)))
+                            || exculdedTiles.contains(Pair(col, row)))
                     ) {
                         groundBitMap[row][col] = 1
                     }
@@ -746,10 +749,47 @@ class MapInflater(
         val z = position.third
         val tileEntity = gameSessionData.mapData.tilesEntitiesByLayers[index].tilesEntities[z][x] ?: return null
 
+        val assetsManager = gamePlayManagers.assetsManager
+        val textureDefinition = MapUtils.determineTextureOfMapPosition(
+            z,
+            x,
+            assetsManager.getTexturesDefinitions(),
+            layer,
+            gameSessionData.mapData.loadedMap
+        )
+
+        if (arrayOf(
+                "tile_beach",
+                "tile_beach_dark",
+                "tile_beach_grass",
+                "tile_water_shallow_0",
+                "tile_water_shallow_1",
+                "tile_water_shallow_2",
+                "tile_water_shallow_3"
+            ).contains(
+                textureDefinition.fileName
+            )
+        ) {
+            for (i in 0 until index) {
+                val inGameTilesLayer = gameSessionData.mapData.tilesEntitiesByLayers[i]
+                engine.removeEntity(
+                    inGameTilesLayer.tilesEntities[z][x] ?: continue
+                )
+                inGameTilesLayer.tilesEntities[z][x] = null
+
+            }
+        }
+
         val modelInstance = GameModelInstance(
-            ModelInstance(gameSessionData.renderData.floorModel),
+            if (textureDefinition.fileName.contains("road") || textureDefinition.fileName.contains("water"))
+                ModelInstance(gameSessionData.renderData.floorModel) else ModelInstance(
+                assetsManager.getAssetByDefinition(
+                    ModelDefinition.TILE
+                )
+            ),
             null,
         )
+        modelInstance.modelInstance.materials[0].set(BlendingAttribute(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1F))
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
         val realPosition = auxVector1.set(x.toFloat() + 0.5F, position.second, z.toFloat() + 0.5F)
         modelInstance.modelInstance.transform.setToTranslation(realPosition)
@@ -890,9 +930,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.loadedMap.depth
-            && col < gameSessionData.mapData.loadedMap.width)
+        && col >= 0
+        && row < gameSessionData.mapData.loadedMap.depth
+        && col < gameSessionData.mapData.loadedMap.width)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

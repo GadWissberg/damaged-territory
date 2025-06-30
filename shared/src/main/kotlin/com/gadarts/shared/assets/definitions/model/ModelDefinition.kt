@@ -27,6 +27,7 @@ enum class ModelDefinition(
 ) :
     AssetDefinition<Model> {
 
+    TILE,
     APACHE(
         physicsData = ModelDefinitionPhysicsData(centerOfMass = Vector3(0F, -0.2F, 0F)),
         separateModelForShadow = true
