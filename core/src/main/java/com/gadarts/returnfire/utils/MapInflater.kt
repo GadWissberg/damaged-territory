@@ -663,7 +663,7 @@ class MapInflater(
         val depth = gameSessionData.mapData.loadedMap.depth
         val width = gameSessionData.mapData.loadedMap.width
         val groundBitMap = gameSessionData.mapData.groundBitMap
-        val height = index * 0.1F
+        val height = index * 0.0008F
 
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
         val tilesEntities = gameSessionData.mapData.tilesEntitiesByLayers[index].tilesEntities
@@ -781,18 +781,14 @@ class MapInflater(
         }
 
         val modelInstance = GameModelInstance(
-            ModelInstance(gameSessionData.renderData.floorModel),
+            if (textureDefinition.fileName.contains("road"))
+                ModelInstance(gameSessionData.renderData.floorModel) else ModelInstance(
+                assetsManager.getAssetByDefinition(
+                    ModelDefinition.TILE
+                )
+            ),
             null,
         )
-//        val modelInstance = GameModelInstance(
-//            if (textureDefinition.fileName.contains("road") || textureDefinition.fileName.contains("water"))
-//                ModelInstance(gameSessionData.renderData.floorModel) else ModelInstance(
-//                assetsManager.getAssetByDefinition(
-//                    ModelDefinition.TILE
-//                )
-//            ),
-//            null,
-//        )
         modelInstance.modelInstance.materials[0].set(BlendingAttribute(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1F))
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
         val realPosition = auxVector1.set(x.toFloat() + 0.5F, position.second, z.toFloat() + 0.5F)
@@ -844,6 +840,7 @@ class MapInflater(
         if (textureDefinition != null) {
             val texture =
                 assetsManager.getTexture(textureDefinition)
+            texture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge)
             texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
             (modelInstance.modelInstance.materials.get(0)
                 .get(TextureAttribute.Diffuse) as TextureAttribute)
