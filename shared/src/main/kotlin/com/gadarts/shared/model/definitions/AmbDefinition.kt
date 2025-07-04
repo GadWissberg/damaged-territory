@@ -103,7 +103,6 @@ enum class AmbDefinition(
         destructionSound = SoundDefinition.METAL_BEND,
         corpseCollisionSound = SoundDefinition.METAL_CRASH,
         forceSingleNodeForMarksNodeAsBlocked = true,
-        drowningHeight = 2F
     ),
     STREET_LIGHT(
         modelDefinition = ModelDefinition.STREET_LIGHT,

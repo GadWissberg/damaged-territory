@@ -765,15 +765,15 @@ class MapInflater(
 
     private fun addTile(
         position: Triple<Int, Float, Int>,
-        index: Int,
+        layerIndex: Int,
         forceFlat: Boolean = false
     ) {
         val x = position.first
         val z = position.third
-        val tileEntity = gameSessionData.mapData.tilesEntitiesByLayers[index].tilesEntities[z][x] ?: return
+        val tileEntity = gameSessionData.mapData.tilesEntitiesByLayers[layerIndex].tilesEntities[z][x] ?: return
 
         val assetsManager = gamePlayManagers.assetsManager
-        val layer = gameSessionData.mapData.loadedMap.layers[index]
+        val layer = gameSessionData.mapData.loadedMap.layers[layerIndex]
         val textureDefinition = MapUtils.determineTextureOfMapPosition(
             z,
             x,
@@ -787,18 +787,19 @@ class MapInflater(
                 "tile_beach_dark",
                 "tile_beach_grass",
                 "tile_water_shallow",
+                "tile_water",
             ).contains(
                 textureDefinition.fileName
-            )
+            ) && areNeighboringTilesFlat(x, z, layerIndex)
         ) {
-            deleteAllTilesBelow(index, z, x)
+            deleteAllTilesBelow(layerIndex, z, x)
             val modelInstance = ModelInstance(
                 assetsManager.getAssetByDefinition(ModelDefinition.TILE_BUMPY)
             )
             randomDirection = true
             modelInstance
         } else {
-            flatAllTilesBelow(index, z, x)
+            flatAllTilesBelow(layerIndex, z, x)
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TILE_FLAT))
         }
 
@@ -824,6 +825,33 @@ class MapInflater(
         applyTextureToFloorTile(x, z, tileEntity, gameModelInstance, layer)
     }
 
+    private fun areNeighboringTilesFlat(x: Int, z: Int, layerIndex: Int): Boolean {
+        val mapData = gameSessionData.mapData
+        val tilesEntities = mapData.tilesEntitiesByLayers[layerIndex].tilesEntities
+        if (isTileBumpy(x - 1, z, tilesEntities)) return false
+        if (isTileBumpy(x - 1, z + 1, tilesEntities)) return false
+        if (isTileBumpy(x, z + 1, tilesEntities)) return false
+        if (isTileBumpy(x + 1, z + 1, tilesEntities)) return false
+        if (isTileBumpy(x + 1, z, tilesEntities)) return false
+        if (isTileBumpy(x + 1, z - 1, tilesEntities)) return false
+        if (isTileBumpy(x, z - 1, tilesEntities)) return false
+        if (isTileBumpy(x - 1, z - 1, tilesEntities)) return false
+
+        return true
+    }
+
+    private fun isTileBumpy(
+        x: Int,
+        z: Int,
+        tilesEntities: Array<Array<Entity?>>,
+    ) = (x > 0
+        && z > 0
+        && x < tilesEntities[0].size
+        && z < tilesEntities.size
+        && tilesEntities[z][x] != null
+        && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
+        && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.definition == ModelDefinition.TILE_BUMPY)
+
     private fun flatAllTilesBelow(
         index: Int,
         z: Int,
@@ -839,14 +867,18 @@ class MapInflater(
         }
     }
 
-    private fun deleteAllTilesBelow(index: Int, z: Int, x: Int) {
-        for (i in 0 until index) {
-            val inGameTilesLayer = gameSessionData.mapData.tilesEntitiesByLayers[i]
-            engine.removeEntity(
-                inGameTilesLayer.tilesEntities[z][x] ?: continue
-            )
-            inGameTilesLayer.tilesEntities[z][x] = null
+    private fun deleteAllTilesBelow(layerIndex: Int, z: Int, x: Int) {
+        for (i in 0 until layerIndex) {
+            deleteTile(i, z, x)
         }
+    }
+
+    private fun deleteTile(layerIndex: Int, z: Int, x: Int) {
+        val inGameTilesLayer = gameSessionData.mapData.tilesEntitiesByLayers[layerIndex]
+        engine.removeEntity(
+            inGameTilesLayer.tilesEntities[z][x] ?: return
+        )
+        inGameTilesLayer.tilesEntities[z][x] = null
     }
 
     private fun addPhysicsToTile(
