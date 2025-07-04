@@ -782,31 +782,24 @@ class MapInflater(
             gameSessionData.mapData.loadedMap
         )
         var randomDirection = false
-        val modelInstance = if (!forceFlat && arrayOf(
+        val modelDefinition = if (!forceFlat && arrayOf(
                 "tile_beach",
                 "tile_beach_dark",
                 "tile_beach_grass",
-                "tile_water_shallow",
-                "tile_water",
             ).contains(
                 textureDefinition.fileName
             ) && areNeighboringTilesFlat(x, z, layerIndex)
         ) {
             deleteAllTilesBelow(layerIndex, z, x)
-            val modelInstance = ModelInstance(
-                assetsManager.getAssetByDefinition(ModelDefinition.TILE_BUMPY)
-            )
             randomDirection = true
-            modelInstance
+            ModelDefinition.TILE_BUMPY
         } else {
             flatAllTilesBelow(layerIndex, z, x)
-            ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TILE_FLAT))
+            ModelDefinition.TILE_FLAT
         }
 
-        val gameModelInstance = GameModelInstance(
-            modelInstance,
-            null,
-        )
+        val gameModelInstance =
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(modelDefinition)
         gameModelInstance.modelInstance.materials[0].set(BlendingAttribute(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1F))
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
         val realPosition = auxVector1.set(x.toFloat() + 0.5F, position.second, z.toFloat() + 0.5F)
@@ -819,7 +812,7 @@ class MapInflater(
         )
 
         if (randomDirection) {
-            modelInstance.transform.rotate(Vector3.Y, 90F * MathUtils.random(3))
+            gameModelInstance.modelInstance.transform.rotate(Vector3.Y, 90F * MathUtils.random(3))
         }
 
         applyTextureToFloorTile(x, z, tileEntity, gameModelInstance, layer)
@@ -948,7 +941,7 @@ class MapInflater(
         val assetsManager = gamePlayManagers.assetsManager
         val modelInstance = GameModelInstance(
             ModelInstance(ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TILE_BUMPY))),
-            null
+            ModelDefinition.TILE_BUMPY
         )
         val entity = createAndAddGroundTileEntity(
             modelInstance,
