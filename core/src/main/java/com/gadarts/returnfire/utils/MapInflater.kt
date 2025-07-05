@@ -95,7 +95,7 @@ class MapInflater(
         }
         groundBitMap.forEachIndexed { row, cols ->
             cols.forEachIndexed { col, tileBit ->
-                if (tileBit == 1 && !exculdedTiles.contains(Pair(col, row))) {
+                if (tileBit == 1) {
                     val entity = gameSessionData.mapData.tilesEntitiesByLayers[0].tilesEntities[row][col]
                     if (entity != null) {
                         addPhysicsToTile(
@@ -731,14 +731,6 @@ class MapInflater(
                     ) {
                         entityBuilder.addRoadComponentToEntity(tilesEntities[row][col]!!, textureDefinition)
                         addTile(Triple(col, height, row), index)
-                        addPhysicsToTile(
-                            inGameTilesLayer.tilesEntities[row][col]!!,
-                            auxVector1.set(
-                                col.toFloat() + 0.5F,
-                                0F,
-                                row.toFloat() + 0.5F
-                            )
-                        )
                         exculdedTiles.add(Pair(col, row))
                     }
 

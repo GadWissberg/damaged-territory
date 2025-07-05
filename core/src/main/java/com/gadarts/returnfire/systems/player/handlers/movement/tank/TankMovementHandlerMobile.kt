@@ -11,13 +11,13 @@ class TankMovementHandlerMobile :
     TankMovementHandler() {
     private val desiredDirection = Vector2()
     private var desiredDirectionChanged: Boolean = false
-    private var reverse = false
+    private var movement: Int = 0
 
 
     override fun thrust(character: Entity, directionX: Float, directionY: Float) {
         if (directionX != 0F || directionY != 0F) {
             updateDesiredDirection(directionX, directionY)
-            reverse = false
+            movement = 1
         }
     }
 
@@ -30,7 +30,7 @@ class TankMovementHandlerMobile :
         if (!desiredDirection.isZero) {
             rigidBody.worldTransform.getRotation(auxQuaternion)
                 .transform(auxVector3.set(1F, 0F, 0F))
-            pushForward(rigidBody, if (!reverse) 1 else -1, character, deltaTime)
+            pushForward(rigidBody, if (movement >= 0) 1 else -1, character, deltaTime)
             val yaw = auxQuaternion.yaw
             if (!MathUtils.isEqual(
                     yaw + (if (yaw >= 0) 0F else 360F),
@@ -77,11 +77,11 @@ class TankMovementHandlerMobile :
     }
 
     override fun isThrusting(character: Entity): Boolean {
-        return !reverse
+        return movement == 1
     }
 
     override fun isReversing(character: Entity): Boolean {
-        return reverse
+        return movement == -1
     }
 
     override fun onReverseScreenButtonPressed(character: Entity) {
@@ -93,7 +93,7 @@ class TankMovementHandlerMobile :
         updateDesiredDirection(
             direction.x, direction.y
         )
-        reverse = true
+        movement = -1
     }
 
     override fun reverse() {
@@ -125,7 +125,8 @@ class TankMovementHandlerMobile :
     }
 
     override fun onTurretTouchPadTouchUp(character: Entity) {
-        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRotating = 0
+        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRotating =
+            0
     }
 
 

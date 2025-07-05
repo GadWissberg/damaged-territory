@@ -61,10 +61,13 @@ class EditorPanel(
         if (mode == Modes.TILES) {
             objectsModePanel.remove()
             leftSidePanel.add(tilesModePanel)
+            sharedData.selectedLayerIndex = 1
+            layerSelected()
         } else {
             tilesModePanel.remove()
             leftSidePanel.add(objectsModePanel)
         }
+        dispatcher.dispatchMessage(EditorEvents.MODE_CHANGED.ordinal, mode)
     }
 
     fun initialize(root: VisTable) {
@@ -121,8 +124,7 @@ class EditorPanel(
         layersTable.background = VisUI.getSkin().getDrawable("window-bg")
         layersListDisplay.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                sharedData.selectedLayerIndex = layersListDisplay.selectedIndex
-                dispatcher.dispatchMessage(EditorEvents.LAYER_SELECTED.ordinal)
+                layerSelected()
             }
         })
         addHeaderToSelectableList(layersTable, "Layers")
@@ -130,6 +132,11 @@ class EditorPanel(
         layersTable.add(addLayerButton("+", layersListDisplay)).expandX().fillX().pad(10f)
         layersTable.add(addLayerButton("-", layersListDisplay)).expandX().fillX().pad(10f).row()
         parentPanel.add(layersTable).row()
+    }
+
+    private fun layerSelected() {
+        sharedData.selectedLayerIndex = layersListDisplay.selectedIndex
+        dispatcher.dispatchMessage(EditorEvents.LAYER_SELECTED.ordinal)
     }
 
     private fun addHeaderToSelectableList(selectableListTable: VisTable, header: String) {

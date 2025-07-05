@@ -18,7 +18,7 @@ class GrayShader(private val shaderProgram: ShaderProgram) : Shader {
 
     init {
         val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
-        pixmap.setColor(0.5f, 0.5f, 0.5f, 1f) // Gray
+        pixmap.setColor(0.5f, 0.5f, 0.5f, 1f)
         pixmap.fill()
         dummyGrayTexture = Texture(pixmap)
         pixmap.dispose()

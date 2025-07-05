@@ -15,6 +15,7 @@ import com.gadarts.dte.scene.AuxiliaryModels
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.EditorOnEvent
 import com.gadarts.dte.scene.handlers.SceneHandler
+import com.gadarts.dte.ui.Modes
 
 class RenderingHandler(
     private val auxiliaryModels: AuxiliaryModels,
@@ -46,8 +47,20 @@ class RenderingHandler(
                     }
                 }
             }
-
         },
+        EditorEvents.MODE_CHANGED to object : EditorOnEvent {
+            override fun react(msg: Telegram) {
+                if (sharedData.selectedMode == Modes.TILES) return
+
+                sharedData.layers.forEachIndexed { _, tileLayer ->
+                    tileLayer.tiles.forEach { row ->
+                        row.forEach { tile ->
+                            tile?.modelInstance?.applyGray = false
+                        }
+                    }
+                }
+            }
+        }
     )
 
     private val modelBatch: ModelBatch by lazy { ModelBatch(EditorShaderProvider(grayShader)) }

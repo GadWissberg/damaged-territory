@@ -18,7 +18,6 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
 
     fun update(deltaTime: Float) {
         followPlayer(deltaTime)
-
     }
 
     private fun enoughTimeSinceLastCameraStateChanged(): Boolean {
@@ -34,9 +33,15 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         val renderData = gameSessionData.renderData
         val camera = renderData.camera
         val playerPosition = ModelUtils.getPositionOfModel(player)
-        val finalCameraRelativeTargetPosition = auxVector3_1.set(renderData.cameraRelativeTargetPosition)
-        val finalCameraRelativeLookAtTargetPosition = auxVector3_2.set(renderData.cameraRelativeTargetLookAtPosition)
-        handleCameraPushWhenThrusting(finalCameraRelativeTargetPosition, finalCameraRelativeLookAtTargetPosition)
+        val finalCameraRelativeTargetPosition =
+            auxVector3_1.set(renderData.cameraRelativeTargetPosition)
+
+        val finalCameraRelativeLookAtTargetPosition =
+            auxVector3_2.set(renderData.cameraRelativeTargetLookAtPosition)
+        handleCameraPushWhenThrusting(
+            finalCameraRelativeTargetPosition,
+            finalCameraRelativeLookAtTargetPosition
+        )
         renderData.cameraRelativePosition.lerp(
             finalCameraRelativeTargetPosition,
             1f - exp((-deltaTime * 0.5F))
@@ -47,12 +52,14 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         )
         positionCamera()
         val cameraPos = camera.position
-        val targetPos = auxVector3_1.set(playerPosition).add(renderData.cameraRelativeLookAtPosition)
+        val targetPos =
+            auxVector3_1.set(playerPosition).add(renderData.cameraRelativeLookAtPosition)
         val toTarget = auxVector3_2.set(targetPos).sub(cameraPos)
         val flatDist = auxVector2_1.set(-toTarget.z, toTarget.y)
         val pitchRad = MathUtils.atan2(flatDist.y, flatDist.x)
         val pitchDeg = pitchRad * MathUtils.radDeg
-        val constrainedDirection = auxVector3_2.set(Vector3.Z).scl(-1f).rotate(Vector3.X, pitchDeg).nor()
+        val constrainedDirection =
+            auxVector3_2.set(Vector3.Z).scl(-1f).rotate(Vector3.X, pitchDeg).nor()
         camera.direction.set(constrainedDirection)
         camera.up.set(Vector3.Y)
     }
@@ -84,7 +91,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
                     .getRotation(auxQuat)
                     .yaw
             )
-            val forward = auxVector3_2.set(Vector3.X).rot(auxMatrix).nor()
+            val forward = auxVector3_3.set(Vector3.X).rot(auxMatrix).nor()
             val absX = abs(forward.x)
             val absZ = abs(forward.z)
             val distance = if (absX > absZ) 4f else 2f
@@ -103,7 +110,9 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
 
     private fun applyRegularCameraPosition() {
         val player = gameSessionData.gamePlayData.player ?: return
-        val mapping = cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition] ?: return
+        val mapping =
+            cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition]
+                ?: return
 
         gameSessionData.renderData.cameraRelativeTargetPosition.set(
             0F,
@@ -126,7 +135,9 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
     private fun followPlayer(deltaTime: Float) {
         val renderData = gameSessionData.renderData
         val player = gameSessionData.gamePlayData.player ?: return
-        val mapping = cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition] ?: return
+        val mapping =
+            cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition]
+                ?: return
 
         moveCameraToTargetPosition(deltaTime)
         if (renderData.cameraState != CameraState.FOCUS_DEPLOYMENT) {
@@ -152,7 +163,9 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
 
     fun init() {
         val player = gameSessionData.gamePlayData.player ?: return
-        val mapping = cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition] ?: return
+        val mapping =
+            cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition]
+                ?: return
 
         gameSessionData.renderData.cameraRelativePosition.set(
             0F,
@@ -175,6 +188,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
     companion object {
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
+        private val auxVector3_3 = Vector3()
         private val auxVector2_1 = Vector2()
         private val auxQuat = com.badlogic.gdx.math.Quaternion()
         private val auxMatrix = com.badlogic.gdx.math.Matrix4()
