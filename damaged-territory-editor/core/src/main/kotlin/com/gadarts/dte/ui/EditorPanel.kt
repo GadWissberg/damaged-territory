@@ -221,6 +221,7 @@ class EditorPanel(
         layersListDisplay.setItems(
             *sharedData.layers.toTypedArray()
         )
+        layersListDisplay.selectedIndex = 1
     }
 
 }
