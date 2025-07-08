@@ -18,10 +18,10 @@ import com.gadarts.dte.EditorEvents
 import com.gadarts.dte.ObjectFactory
 import com.gadarts.dte.TileFactory
 import com.gadarts.dte.TileLayer
+import com.gadarts.dte.scene.Modes
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
-import com.gadarts.dte.ui.Modes
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
@@ -37,7 +37,7 @@ class CursorHandler(
     private var placingElement: Boolean = false
     private var deletingElements: Boolean = false
     private var cursorModelInstance: EditorModelInstance? = null
-    private var cursorModel: Model
+    private var tileModel: Model
     private var cursorMaterial: Material
 
     init {
@@ -47,8 +47,8 @@ class CursorHandler(
             ColorAttribute.createDiffuse(Color.GREEN),
         )
         SharedUtils.createFlatMesh(modelBuilder, "cursor", 0.5F, null, 0F, cursorMaterial)
-        cursorModel = modelBuilder.end()
-        setCursorModelInstance(cursorModel)
+        tileModel = modelBuilder.end()
+        setCursorModelInstance(tileModel)
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
     }
 
@@ -73,6 +73,13 @@ class CursorHandler(
                 val selectedObject = sharedData.selectedObject ?: return
 
                 setCursorModelInstance(assetsManager.getAssetByDefinition(selectedObject.getModelDefinition()))
+            }
+        },
+        EditorEvents.MODE_CHANGED to object : EditorOnEvent {
+            override fun react(msg: Telegram) {
+                if (sharedData.selectedMode == Modes.TILES) {
+                    setCursorModelInstance(tileModel)
+                }
             }
         })
 
@@ -289,7 +296,7 @@ class CursorHandler(
     }
 
     override fun dispose() {
-        cursorModel.dispose()
+        tileModel.dispose()
     }
 
     companion object {

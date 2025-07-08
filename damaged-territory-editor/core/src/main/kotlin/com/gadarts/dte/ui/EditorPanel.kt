@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.Array
 import com.gadarts.dte.EditorEvents
 import com.gadarts.dte.TileLayer
+import com.gadarts.dte.scene.Modes
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.external.TextureDefinition

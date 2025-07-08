@@ -20,6 +20,7 @@ import com.gadarts.dte.ObjectFactory
 import com.gadarts.dte.PlacedTile
 import com.gadarts.dte.TileFactory
 import com.gadarts.dte.TileLayer
+import com.gadarts.dte.scene.Modes
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils.INITIAL_INDEX_OF_TILES_MAPPING

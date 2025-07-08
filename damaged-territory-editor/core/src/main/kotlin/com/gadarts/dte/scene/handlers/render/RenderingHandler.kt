@@ -12,10 +12,10 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.gadarts.dte.EditorEvents
 import com.gadarts.dte.scene.AuxiliaryModels
+import com.gadarts.dte.scene.Modes
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.EditorOnEvent
 import com.gadarts.dte.scene.handlers.SceneHandler
-import com.gadarts.dte.ui.Modes
 
 class RenderingHandler(
     private val auxiliaryModels: AuxiliaryModels,
