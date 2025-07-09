@@ -81,7 +81,7 @@ class EditorPanel(
         val entries = ElementType.entries.flatMap { it.definitions }
         val list = SelectableList<ElementDefinition>(VisUI.getSkin()).apply {
             val array = Array<ElementDefinition>()
-            array.addAll(*entries.toTypedArray())
+            array.addAll(*entries.filter { it.isPlaceable() }.toTypedArray())
             setItems(array)
             style.background = VisUI.getSkin().getDrawable("window-bg")
             selectedIndex = 1

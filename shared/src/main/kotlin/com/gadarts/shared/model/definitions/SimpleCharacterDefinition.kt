@@ -52,6 +52,7 @@ enum class SimpleCharacterDefinition(
     override fun isUseSeparateTransformObjectForPhysics(): Boolean {
         return true
     }
+
     override fun getModelDefinition(): ModelDefinition {
         return modelDefinition
     }
@@ -98,5 +99,9 @@ enum class SimpleCharacterDefinition(
 
     override fun isConsumingFuelOnIdle(): Boolean {
         return true
+    }
+
+    override fun isPlaceable(): Boolean {
+        return false
     }
 }

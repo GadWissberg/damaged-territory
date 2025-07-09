@@ -14,6 +14,7 @@ enum class TurretCharacterDefinition(
     val turretCorpseModelDefinitions: List<ModelDefinition>,
     private val isNonMoving: Boolean,
     private val fuelConsumptionPace: Float = 0.0F,
+    private val placeable: Boolean = false
 ) : CharacterDefinition {
     TURRET_CANNON(
         hp = 75F,
@@ -29,7 +30,8 @@ enum class TurretCharacterDefinition(
             ModelDefinition.TURRET_CANNON_DEAD_0,
             ModelDefinition.TURRET_CANNON_DEAD_1,
         ),
-        isNonMoving = true
+        isNonMoving = true,
+        placeable = true
     ),
     TANK(
         hp = 275F,
@@ -115,5 +117,9 @@ enum class TurretCharacterDefinition(
 
     override fun getFuelConsumptionPace(): Float {
         return fuelConsumptionPace
+    }
+
+    override fun isPlaceable(): Boolean {
+        return placeable
     }
 }

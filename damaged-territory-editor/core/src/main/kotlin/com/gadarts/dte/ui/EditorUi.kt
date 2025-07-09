@@ -170,11 +170,13 @@ class EditorUi(
     }
 
     private fun showLoadMapDialog() {
+        val lastPath = getLastOpenedDir()
         val chooser = FileChooser(FileChooser.Mode.OPEN)
         chooser.setSelectionMode(FileChooser.SelectionMode.FILES)
-        chooser.setDirectory(Gdx.files.local("maps"))
+        chooser.setDirectory(Gdx.files.absolute(lastPath))
         chooser.setListener(object : FileChooserListener {
             override fun selected(files: com.badlogic.gdx.utils.Array<FileHandle>?) {
+                persistLastOpenedDir(files)
                 loadMap(files)
                 invokeTilesModeButtonClick()
             }
@@ -184,6 +186,20 @@ class EditorUi(
             }
         })
         stage.addActor(chooser.fadeIn())
+    }
+
+    private fun persistLastOpenedDir(files: com.badlogic.gdx.utils.Array<FileHandle>?) {
+        files?.firstOrNull()?.let {
+            val preferences = Gdx.app.getPreferences(PREFERENCES_KEY)
+            preferences.putString(PREFERENCES_KEY_LAST_OPENED_DIR, it.parent().path())
+            preferences.flush()
+        }
+    }
+
+    private fun getLastOpenedDir(): String? {
+        val preferences = Gdx.app.getPreferences(PREFERENCES_KEY)
+        val lastPath = preferences.getString(PREFERENCES_KEY_LAST_OPENED_DIR, "maps")
+        return lastPath
     }
 
     private fun invokeTilesModeButtonClick() {
@@ -232,12 +248,14 @@ class EditorUi(
                         .create().toJson(gameMap)
 
                     val chooser = FileChooser(FileChooser.Mode.SAVE)
-                    chooser.setDirectory(Gdx.files.local("maps"))
+                    val lastPath = getLastOpenedDir()
+                    chooser.setDirectory(Gdx.files.absolute(lastPath))
                     chooser.setSelectionMode(FileChooser.SelectionMode.FILES)
 
                     chooser.setListener(object : FileChooserListener {
 
                         override fun selected(files: com.badlogic.gdx.utils.Array<FileHandle>?) {
+                            persistLastOpenedDir(files)
                             val file = files?.firstOrNull() ?: return
                             try {
                                 file.writeString(json, false)
@@ -447,4 +465,8 @@ class EditorUi(
         root.pack()
     }
 
+    companion object {
+        private const val PREFERENCES_KEY = "damaged_territory_prefs"
+        private const val PREFERENCES_KEY_LAST_OPENED_DIR = "last_opened_dir"
+    }
 }

@@ -10,4 +10,5 @@ interface ElementDefinition {
     fun getType(): ElementType
     fun getName(): String
     fun isMarksNodeAsBlocked(): Boolean
+    fun isPlaceable(): Boolean
 }

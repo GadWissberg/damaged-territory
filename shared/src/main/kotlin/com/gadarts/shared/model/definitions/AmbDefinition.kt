@@ -29,7 +29,8 @@ enum class AmbDefinition(
     val destroyedByExplosiveOnly: Boolean = true,
     val marksNodeAsBlocked: Boolean = true,
     val forceSingleNodeForMarksNodeAsBlocked: Boolean = false,
-    val drowningHeight: Float = DROWNING_HEIGHT
+    val drowningHeight: Float = DROWNING_HEIGHT,
+    val placeable: Boolean = true
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -52,7 +53,7 @@ enum class AmbDefinition(
         corpsePartDestroyOnGroundImpact = true,
     ),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
-    FLAG(ModelDefinition.FLAG),
+    FLAG(ModelDefinition.FLAG, placeable = false),
     BASE_BROWN(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
@@ -183,5 +184,9 @@ enum class AmbDefinition(
 
     override fun isMarksNodeAsBlocked(): Boolean {
         return marksNodeAsBlocked
+    }
+
+    override fun isPlaceable(): Boolean {
+        return placeable
     }
 }
