@@ -7,8 +7,11 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20.GL_ONE_MINUS_SRC_ALPHA
+import com.badlogic.gdx.graphics.GL20.GL_SRC_ALPHA
 import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.*
@@ -33,6 +36,7 @@ class CursorHandler(
     dispatcher: MessageDispatcher,
 ) : InputProcessor,
     SceneHandler(dispatcher) {
+    private var animTime: Float = 0f
     private val prevTileClickPosition = Vector2()
     private var placingElement: Boolean = false
     private var deletingElements: Boolean = false
@@ -47,6 +51,7 @@ class CursorHandler(
             ColorAttribute.createDiffuse(Color.GREEN),
         )
         SharedUtils.createFlatMesh(modelBuilder, "cursor", 0.5F, null, 0F, cursorMaterial)
+        cursorMaterial.set(BlendingAttribute(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 0.1F))
         tileModel = modelBuilder.end()
         setCursorModelInstance(tileModel)
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
@@ -293,6 +298,10 @@ class CursorHandler(
     }
 
     override fun update(parent: Table, deltaTime: Float) {
+        animTime += deltaTime
+        val speed = 8f
+        val alpha = 0.5f + 0.5f * MathUtils.sin(animTime * speed)
+        (cursorMaterial.get(BlendingAttribute.Type) as BlendingAttribute).opacity = alpha
     }
 
     override fun dispose() {

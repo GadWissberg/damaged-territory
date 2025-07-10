@@ -78,7 +78,7 @@ class EditorPanel(
     private fun createObjectsModesPanel(objectsModePanel: VisTable) {
         val objectsListTable = VisTable()
         objectsListTable.background = VisUI.getSkin().getDrawable("window-bg")
-        val entries = ElementType.entries.flatMap { it.definitions }
+        val entries = ElementType.entries.flatMap { it.definitions }.filter { it.isPlaceable() }
         val list = SelectableList<ElementDefinition>(VisUI.getSkin()).apply {
             val array = Array<ElementDefinition>()
             array.addAll(*entries.filter { it.isPlaceable() }.toTypedArray())
@@ -189,7 +189,7 @@ class EditorPanel(
             addTileCatalogButton(tileType, catalogTable, i)
         }
         sharedData.selectedTile = textureDefinitions.first()
-        leftSidePanel.add(scrollPane).size(250F)
+        leftSidePanel.add(scrollPane).width(250F).fill()
     }
 
     private fun addTileCatalogButton(

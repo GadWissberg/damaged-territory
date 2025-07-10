@@ -80,10 +80,11 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         finalCameraRelativeTargetPosition: Vector3,
         finalCameraRelativeLookAtTargetPosition: Vector3
     ) {
-        val player = gameSessionData.gamePlayData.player ?: return
+        val gamePlayData = gameSessionData.gamePlayData
+        val player = gamePlayData.player ?: return
 
-        val thrusting = gameSessionData.gamePlayData.playerMovementHandler.isThrusting(player)
-        if (thrusting) {
+        val thrusting = gamePlayData.playerMovementHandler.isThrusting(player)
+        if (thrusting && !gameSessionData.hudData.minimap.isVisible) {
             auxMatrix.idt().rotate(
                 Vector3.Y,
                 ComponentsMapper.modelInstance.get(player)
