@@ -96,16 +96,20 @@ class MapInflater(
         groundBitMap.forEachIndexed { row, cols ->
             cols.forEachIndexed { col, tileBit ->
                 if (tileBit == 1) {
-                    val entity = gameSessionData.mapData.tilesEntitiesByLayers[0].tilesEntities[row][col]
-                    if (entity != null) {
-                        addPhysicsToTile(
-                            entity,
-                            auxVector1.set(
-                                col.toFloat() + 0.5F,
-                                0F,
-                                row.toFloat() + 0.5F
+                    val tilesEntitiesByLayers = gameSessionData.mapData.tilesEntitiesByLayers
+                    for (i in tilesEntitiesByLayers.size - 1 downTo 0) {
+                        val entity = tilesEntitiesByLayers[i].tilesEntities[row][col]
+                        if (entity != null) {
+                            addPhysicsToTile(
+                                entity,
+                                auxVector1.set(
+                                    col.toFloat() + 0.5F,
+                                    0F,
+                                    row.toFloat() + 0.5F
+                                )
                             )
-                        )
+                            break
+                        }
                     }
                 }
             }
@@ -600,8 +604,8 @@ class MapInflater(
                 def.getName().lowercase() == definition
             }
             it.type == ElementType.CHARACTER
-                && elementDefinition != SimpleCharacterDefinition.APACHE
-                && elementDefinition != TurretCharacterDefinition.TANK
+                    && elementDefinition != SimpleCharacterDefinition.APACHE
+                    && elementDefinition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 val elementDefinition = stringToDefinition(it.definition, ElementType.CHARACTER)
@@ -723,7 +727,7 @@ class MapInflater(
                     )
                     if (groundBitMap[row][col] == 0
                         && (!textureDefinition.fileName.contains("water")
-                            || exculdedTiles.contains(Pair(col, row)))
+                                || exculdedTiles.contains(Pair(col, row)))
                     ) {
                         groundBitMap[row][col] = 1
                     }
@@ -832,12 +836,12 @@ class MapInflater(
         z: Int,
         tilesEntities: Array<Array<Entity?>>,
     ) = (x > 0
-        && z > 0
-        && x < tilesEntities[0].size
-        && z < tilesEntities.size
-        && tilesEntities[z][x] != null
-        && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
-        && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.definition == ModelDefinition.TILE_BUMPY)
+            && z > 0
+            && x < tilesEntities[0].size
+            && z < tilesEntities.size
+            && tilesEntities[z][x] != null
+            && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
+            && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.definition == ModelDefinition.TILE_BUMPY)
 
     private fun flatAllTilesBelow(
         index: Int,
@@ -996,9 +1000,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-        && col >= 0
-        && row < gameSessionData.mapData.loadedMap.depth
-        && col < gameSessionData.mapData.loadedMap.width)
+            && col >= 0
+            && row < gameSessionData.mapData.loadedMap.depth
+            && col < gameSessionData.mapData.loadedMap.width)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,
