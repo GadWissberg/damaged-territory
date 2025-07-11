@@ -288,6 +288,7 @@ class MapInflater(
         position: Vector3,
         def: AmbDefinition,
         exculdedTiles: ArrayList<Pair<Int, Int>>,
+        rotation: Float?,
     ) {
         excludeTilesUnderBase(def, position, exculdedTiles)
         if (def.placeInMiddleOfCell) {
@@ -298,7 +299,7 @@ class MapInflater(
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
             .begin()
-            .addModelInstanceComponent(gameModelInstance, position, null, 0F)
+            .addModelInstanceComponent(gameModelInstance, position, null, rotation ?: 0F)
             .addDrowningEffectComponent()
             .addAmbComponent(
                 if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
@@ -631,7 +632,8 @@ class MapInflater(
                 addAmbObject(
                     auxVector2.set(it.column.toFloat(), 0.02F, it.row.toFloat()),
                     stringToDefinition as AmbDefinition,
-                    exculdedTiles
+                    exculdedTiles,
+                    it.rotation
                 )
             }
         applyTransformOnAmbEntities()

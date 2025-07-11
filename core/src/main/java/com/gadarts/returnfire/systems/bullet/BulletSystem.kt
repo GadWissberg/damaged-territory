@@ -116,7 +116,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             }
             var destroyBullet = bulletLogic.update(bullet, deltaTime)
             destroyBullet = if (!destroyBullet) position.x <= 0F || position.x >= tilesMapping.depth
-                    || position.z <= 0F || position.z >= tilesMapping.width else true
+                || position.z <= 0F || position.z >= tilesMapping.width else true
             if (destroyBullet) {
                 destroyBullet(bullet)
             }
@@ -300,10 +300,10 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val otherIsGround = ComponentsMapper.ground.has(other)
         val collisionFlags = rigidBody.collisionFlags
         if (collisionFlags == CollisionFlags.CF_STATIC_OBJECT || collisionFlags == CollisionFlags.CF_KINEMATIC_OBJECT || rigidBody.mass > 0.75F) {
-            addBulletExplosion(bullet, position)
             if (otherIsGround) {
                 addBulletHole(position, bullet)
             }
+            addBulletExplosion(bullet, position)
             destroyBullet(bullet)
         }
     }

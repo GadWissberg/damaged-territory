@@ -86,6 +86,16 @@ class CursorHandler(
                     setCursorModelInstance(tileModel)
                 }
             }
+        },
+        EditorEvents.BUTTON_PRESSED_ROTATE_CLOCKWISE to object : EditorOnEvent {
+            override fun react(msg: Telegram) {
+                cursorModelInstance?.transform?.rotate(Vector3.Y, -90f)
+            }
+        },
+        EditorEvents.BUTTON_PRESSED_ROTATE_COUNTER_CLOCKWISE to object : EditorOnEvent {
+            override fun react(msg: Telegram) {
+                cursorModelInstance?.transform?.rotate(Vector3.Y, 90f)
+            }
         })
 
     override fun keyDown(keycode: Int): Boolean {
@@ -168,7 +178,8 @@ class CursorHandler(
             return if (selectedObject != null) objectFactory.addObject(
                 x,
                 z,
-                selectedObject
+                selectedObject,
+                cursorModelInstance?.transform?.getRotation(auxQuaternion)
             ) else false
         }
         return false
@@ -281,7 +292,7 @@ class CursorHandler(
             val snappedZ = MathUtils.floor(auxVector.z)
 
 
-            cursorModelInstance!!.transform.setToTranslation(
+            cursorModelInstance!!.transform.setTranslation(
                 MathUtils.clamp(snappedX.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
                 0.07f,
                 MathUtils.clamp(snappedZ.toFloat() + 0.5F, 0.5F, MAP_SIZE.toFloat() - 0.5F),
@@ -327,6 +338,6 @@ class CursorHandler(
             0b00000001 to "_top_left",
             0b11111111 to "",
         )
-
+        private val auxQuaternion = Quaternion()
     }
 }

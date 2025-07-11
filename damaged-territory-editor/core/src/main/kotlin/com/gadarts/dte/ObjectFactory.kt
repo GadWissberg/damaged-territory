@@ -1,5 +1,6 @@
 package com.gadarts.dte
 
+import com.badlogic.gdx.math.Quaternion
 import com.gadarts.dte.scene.PlacedObject
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
@@ -7,7 +8,7 @@ import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.model.definitions.ElementDefinition
 
 class ObjectFactory(private val sharedData: SharedData, private val gameAssetsManager: GameAssetManager) {
-    fun addObject(x: Int, z: Int, elementDefinition: ElementDefinition): Boolean {
+    fun addObject(x: Int, z: Int, elementDefinition: ElementDefinition, rotation: Quaternion? = null): Boolean {
         val modelInstance = EditorModelInstance(
             gameAssetsManager.getAssetByDefinition(elementDefinition.getModelDefinition())
         )
@@ -17,6 +18,9 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
             0.07f,
             z.toFloat() + 0.5F
         )
+        if (rotation != null) {
+            modelInstance.transform.rotate(rotation)
+        }
         sharedData.placedObjects.add(
             PlacedObject(
                 z,

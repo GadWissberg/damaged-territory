@@ -6,6 +6,8 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.math.Quaternion
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -16,10 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.viewport.ScreenViewport
-import com.gadarts.dte.ObjectFactory
-import com.gadarts.dte.PlacedTile
-import com.gadarts.dte.TileFactory
-import com.gadarts.dte.TileLayer
+import com.gadarts.dte.*
 import com.gadarts.dte.scene.Modes
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
@@ -40,7 +39,7 @@ class EditorUi(
     private val sharedData: SharedData,
     private val tileFactory: TileFactory,
     private val objectFactory: ObjectFactory,
-    dispatcher: MessageDispatcher,
+    private val dispatcher: MessageDispatcher,
     gameAssetsManager: GameAssetManager,
 ) {
     fun render() {
@@ -48,6 +47,9 @@ class EditorUi(
         stage.draw()
     }
 
+    private val secondaryButtonBar: MenuBar by lazy {
+        createSecondaryButtonsBar()
+    }
     private val editorPanel = EditorPanel(sharedData, dispatcher, gameAssetsManager)
     private val modesButtonGroup: ButtonGroup<VisImageButton> by lazy {
         createButtonGroup()
@@ -88,7 +90,8 @@ class EditorUi(
                 gameMap.objects.map { obj ->
                     objectFactory.addObject(
                         obj.column, obj.row,
-                        definitions.first { it.getName().lowercase() == obj.definition.lowercase() }
+                        definitions.first { it.getName().lowercase() == obj.definition.lowercase() },
+                        Quaternion(Vector3.Y, obj.rotation ?: 0f)
                     )
                 }
                 editorPanel.mapLoaded()
@@ -236,7 +239,8 @@ class EditorUi(
                             definition = definition.getName(),
                             type = definition.getType(),
                             row = obj.row,
-                            column = obj.column
+                            column = obj.column,
+                            rotation = obj.modelInstance.transform.getRotation(Quaternion()).getAngleAround(Vector3.Y)
                         )
                     }
                     val firstLayerTiles = sharedData.layers[0].tiles
@@ -289,9 +293,7 @@ class EditorUi(
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     super.clicked(event, x, y)
                     if (sharedData.selectedMode != mode) {
-                        sharedData.selectedMode = mode
-                        editorPanel.modeButtonClicked(mode)
-
+                        modeChanged(mode)
                     }
 
                 }
@@ -303,7 +305,8 @@ class EditorUi(
     private fun addButton(
         iconFileName: String,
         clickListener: ClickListener,
-        table: Table
+        table: Table,
+        checkable: Boolean = false
     ): VisImageButton {
         val up =
             TextureRegionDrawable(
@@ -320,12 +323,12 @@ class EditorUi(
                     Texture::class.java
                 )
             ),
-            TextureRegionDrawable(
+            if (checkable) TextureRegionDrawable(
                 editorAssetManager.get(
                     IconsTextures.BUTTON_CHECKED.getFileName().lowercase(),
                     Texture::class.java
                 )
-            ),
+            ) else null,
             TextureRegionDrawable(
                 editorAssetManager.get(
                     iconFileName.lowercase(),
@@ -384,7 +387,10 @@ class EditorUi(
     }
 
     private fun modeChanged(mode: Modes) {
+        sharedData.selectedMode = mode
         modesButtonGroup.buttons.first { it.name.equals(mode.name) }.isChecked = true
+        editorPanel.modeButtonClicked(mode)
+        secondaryButtonBar.table.isVisible = mode == Modes.OBJECTS
     }
 
     private fun getIconAsDrawable(icon: IconsTextures) = TextureRegionDrawable(
@@ -404,7 +410,6 @@ class EditorUi(
             IconsTextures.ICON_FILE_LOAD.getFileName(), object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     showLoadMapDialog()
-
                 }
             }, buttonBar.table
         )
@@ -417,7 +422,7 @@ class EditorUi(
         table: Table,
         name: String,
     ) {
-        val imageButton = addButton(iconFileName, clickListener, table)
+        val imageButton = addButton(iconFileName, clickListener, table, true)
         imageButton.name = name
         buttonGroup.add(imageButton)
     }
@@ -446,13 +451,13 @@ class EditorUi(
         val inputMultiplexer = Gdx.input.inputProcessor as InputMultiplexer
         inputMultiplexer.addProcessor(0, stage)
         loadEditorAssets()
-        val buttonBar = MenuBar()
-        addFileButtons(buttonBar)
-        buttonBar.table.add(Separator("vertical")).width(10F).fillY().expandY()
+        val primaryButtonBar = MenuBar()
+        addFileButtons(primaryButtonBar)
+        primaryButtonBar.table.add(Separator("vertical")).width(10F).fillY().expandY()
         Modes.entries.forEach {
-            addModeButton(modesButtonGroup, buttonBar, it)
+            addModeButton(modesButtonGroup, primaryButtonBar, it)
         }
-        buttonBar.table.pack()
+        primaryButtonBar.table.pack()
         val root = VisTable()
         root.setFillParent(true)
         root.top()
@@ -460,9 +465,36 @@ class EditorUi(
         val stack = Stack()
         stack.setFillParent(true)
         root.add(menuBar.table).fill().expandX().row()
-        root.add(buttonBar.table).fillX().expandX().row()
+        root.add(primaryButtonBar.table).fillX().expandX().row()
+        root.add(secondaryButtonBar.table).fillX().expandX().row()
         editorPanel.initialize(root)
         root.pack()
+    }
+
+    private fun createSecondaryButtonsBar(): MenuBar {
+        val secondaryButtonBar = MenuBar()
+        addRotateButton(
+            secondaryButtonBar,
+            IconsTextures.ICON_ROTATE_CLOCKWISE,
+            EditorEvents.BUTTON_PRESSED_ROTATE_CLOCKWISE
+        )
+        addRotateButton(
+            secondaryButtonBar,
+            IconsTextures.ICON_ROTATE_COUNTER_CLOCKWISE,
+            EditorEvents.BUTTON_PRESSED_ROTATE_COUNTER_CLOCKWISE
+        )
+        secondaryButtonBar.table.isVisible = false
+        return secondaryButtonBar
+    }
+
+    private fun addRotateButton(secondaryButtonBar: MenuBar, iconTexture: IconsTextures, editorEvent: EditorEvents) {
+        addButton(
+            iconTexture.getFileName(), object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    dispatcher.dispatchMessage(editorEvent.ordinal)
+                }
+            }, secondaryButtonBar.table
+        )
     }
 
     companion object {
