@@ -122,9 +122,11 @@ class Radar(
                 val tileZ = positionOfModel.z.toInt() + dz
                 val dotX = topLeftX + (dx + RADIUS) * cellSize
                 val dotY = topLeftY + (RADIUS - dz) * cellSize
-                val clampedZ = MathUtils.clamp(tileZ, 0, bitMap.size - 1)
-                val clampedX = MathUtils.clamp(tileX, 0, bitMap[0].size - 1)
-                val signature = radarTileMap[clampedZ][clampedX]
+                val signature = if (tileZ < 0 || tileZ > bitMap.size - 1 || tileX < 0 || tileX > bitMap[0].size - 1) {
+                    0
+                } else {
+                    radarTileMap[tileZ][tileX]
+                }
                 batch.draw(signatures[signature], dotX, dotY, cellSize, cellSize)
             }
         }
