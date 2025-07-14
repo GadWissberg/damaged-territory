@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
+import com.gadarts.returnfire.systems.hud.radar.Radar
 
 interface HudSystem {
     fun addButton(

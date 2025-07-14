@@ -22,7 +22,8 @@
     {
       "file_name": "tile_beach",
       "folder": "ground/beach",
-      "surrounded_tile": true
+      "surrounded_tile": true,
+      "bumpy_tile": true
     },
     {
       "file_name": "tile_beach_bottom",
@@ -304,7 +305,8 @@
     {
       "file_name": "tile_beach_grass",
       "folder": "ground/beach",
-      "surrounded_tile": true
+      "surrounded_tile": true,
+      "bumpy_tile": true
     },
     {
       "file_name": "tile_beach_grass_top",
@@ -357,7 +359,8 @@
     {
       "file_name": "tile_beach_dark",
       "folder": "ground/beach",
-      "surrounded_tile": true
+      "surrounded_tile": true,
+      "bumpy_tile": true
     },
     {
       "file_name": "tile_beach_dark_top",

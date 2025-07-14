@@ -571,6 +571,28 @@ class EntityBuilderImpl : EntityBuilder {
         friction: Float = 1.5F,
         activationState: Int = DISABLE_DEACTIVATION
     ): PhysicsComponent {
+        initializeRigidBody(rigidBody, activationState, friction, collisionFlag, transform)
+        val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
+        physicsComponent.init(rigidBody)
+        physicsComponent.rigidBody.userData = entity
+        entity.add(physicsComponent)
+        messageDispatcher.dispatchMessage(
+            SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
+            entity
+        )
+        physicsComponent.rigidBody.gravity =
+            if (gravityScalar > 0F) auxVector.set(PhysicsComponent.worldGravity)
+                .scl(gravityScalar) else auxVector.setZero()
+        return physicsComponent
+    }
+
+    private fun initializeRigidBody(
+        rigidBody: RigidBody,
+        activationState: Int,
+        friction: Float,
+        collisionFlag: Int?,
+        transform: Matrix4?
+    ) {
         rigidBody.angularVelocity = Vector3.Zero
         rigidBody.clearForces()
         rigidBody.setSleepingThresholds(1f, 1f)
@@ -588,18 +610,6 @@ class EntityBuilderImpl : EntityBuilder {
             motionState.setWorldTransform(transform)
             rigidBody.worldTransform = transform
         }
-        val physicsComponent = engine.createComponent(PhysicsComponent::class.java)
-        physicsComponent.init(rigidBody)
-        physicsComponent.rigidBody.userData = entity
-        entity.add(physicsComponent)
-        messageDispatcher.dispatchMessage(
-            SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
-            entity
-        )
-        physicsComponent.rigidBody.gravity =
-            if (gravityScalar > 0F) auxVector.set(PhysicsComponent.worldGravity)
-                .scl(gravityScalar) else auxVector.setZero()
-        return physicsComponent
     }
 
 

@@ -780,13 +780,7 @@ class MapInflater(
             gameSessionData.mapData.loadedMap
         )
         var randomDirection = false
-        val modelDefinition = if (!forceFlat && arrayOf(
-                "tile_beach",
-                "tile_beach_dark",
-                "tile_beach_grass",
-            ).contains(
-                textureDefinition.fileName
-            ) && areNeighboringTilesFlat(x, z, layerIndex)
+        val modelDefinition = if (!forceFlat && textureDefinition.bumpyTile && areNeighboringTilesFlat(x, z, layerIndex)
         ) {
             deleteAllTilesBelow(layerIndex, z, x)
             randomDirection = true

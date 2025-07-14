@@ -2,9 +2,7 @@ package com.gadarts.returnfire.systems.hud
 
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
-import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.scenes.scene2d.ui.Cell
@@ -25,6 +23,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.hud.HudSystem.Companion.JOYSTICK_PADDING
 import com.gadarts.returnfire.systems.hud.osii.OnScreenInputInitializerApache
 import com.gadarts.returnfire.systems.hud.osii.OnScreenInputInitializerTank
+import com.gadarts.returnfire.systems.hud.radar.Radar
 import com.gadarts.returnfire.systems.hud.react.HudSystemOnLandingIndicatorVisibilityChanged
 import com.gadarts.returnfire.systems.hud.react.HudSystemOnPlayerAimSky
 import com.gadarts.shared.model.definitions.CharacterDefinition
@@ -32,8 +31,9 @@ import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
-    GameEntitySystem(gamePlayManagers),
-    InputProcessor {
+    GameEntitySystem(gamePlayManagers) {
+
+    private val hudInputProcessor by lazy { HudInputProcessor(gameSessionData) }
     private val ui: Table by lazy { addUiTable() }
     private val radar: Radar by lazy {
         Radar(
@@ -120,47 +120,6 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
         }
     }
 
-    override fun keyDown(keycode: Int): Boolean {
-        if (keycode == Input.Keys.TAB) {
-            val minimap = gameSessionData.hudData.minimap
-            minimap.isVisible = !minimap.isVisible
-            return true
-        }
-        return false
-    }
-
-    override fun keyUp(keycode: Int): Boolean {
-        return false
-    }
-
-    override fun keyTyped(character: Char): Boolean {
-        return false
-    }
-
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
-    }
-
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        return false
-    }
-
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
-        return false
-    }
-
-    override fun scrolled(amountX: Float, amountY: Float): Boolean {
-        return false
-    }
-
     override fun dispose() {
         radar.dispose()
     }
@@ -232,7 +191,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
         } else {
             val inputMultiplexer = Gdx.input.inputProcessor as InputMultiplexer
             inputMultiplexer.addProcessor(gameSessionData.hudData.stage)
-            inputMultiplexer.addProcessor(this)
+            inputMultiplexer.addProcessor(hudInputProcessor)
         }
     }
 

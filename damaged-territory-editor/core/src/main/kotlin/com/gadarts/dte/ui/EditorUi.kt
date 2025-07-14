@@ -117,7 +117,7 @@ class EditorUi(
         sharedData.placedObjects.forEach {
             sharedData.modelInstances.remove(it.modelInstance)
         }
-        sharedData.layers.retainAll(listOf(sharedData.layers.first()))
+        sharedData.layers.retainAll(listOf(sharedData.layers.first()).toSet())
         sharedData.placedObjects.clear()
     }
 

@@ -39,7 +39,9 @@ class ModelsRenderer(
             150f
         )
     }
+    private val environment: Environment by lazy { Environment() }
 
+    @Suppress("SimplifyBooleanWithConstants")
     fun renderModels(
         batch: ModelBatch,
         camera: Camera,
@@ -67,6 +69,55 @@ class ModelsRenderer(
             batches.modelBatch.render(renderData.particleSystem, environment)
             batch.end()
         }
+    }
+
+    fun renderWaterWaves() {
+        batches.modelBatch.begin(renderData.camera)
+        Gdx.gl.glDepthMask(false)
+        for (entity in relatedEntities.waterWaveEntities) {
+            renderModel(entity, batches.modelBatch, true)
+        }
+        batches.modelBatch.end()
+        Gdx.gl.glDepthMask(true)
+    }
+
+    fun renderShadows() {
+        if (renderFlags.renderShadows) {
+            val camera = renderData.camera
+            shadowLight.begin(
+                auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
+                camera.direction
+            )
+            renderModels(
+                batch = batches.shadowBatch,
+                camera = shadowLight.camera,
+                applyEnvironment = false,
+                renderParticleEffects = false,
+                forShadow = true
+            )
+            shadowLight.end()
+        }
+    }
+
+    fun disableShadow() {
+        environment.remove(shadowLight)
+        environment.shadowMap = null
+    }
+
+    fun initializeDirectionalLightAndShadows() {
+        extracted()
+        val dirValue = 0.4f
+        shadowLight.set(dirValue, dirValue, dirValue, 0.3F, -0.7f, -0.3f)
+        enableShadow()
+    }
+
+    fun enableShadow() {
+        environment.add(shadowLight)
+        environment.shadowMap = shadowLight
+    }
+
+    override fun dispose() {
+        shadowLight.dispose()
     }
 
     private fun isConsideredCharacter(entity: Entity) =
@@ -136,16 +187,6 @@ class ModelsRenderer(
         }
     }
 
-    fun renderWaterWaves() {
-        batches.modelBatch.begin(renderData.camera)
-        Gdx.gl.glDepthMask(false)
-        for (entity in relatedEntities.waterWaveEntities) {
-            renderModel(entity, batches.modelBatch, true)
-        }
-        batches.modelBatch.end()
-        Gdx.gl.glDepthMask(true)
-    }
-
     private fun isVisible(entity: Entity, extendBoundingBoxSize: Boolean): Boolean {
         val modelInsComp = ComponentsMapper.modelInstance[entity]
         val gameModelInstance = modelInsComp.gameModelInstance
@@ -172,38 +213,6 @@ class ModelsRenderer(
         return isInFrustum
     }
 
-    fun renderShadows() {
-        if (renderFlags.renderShadows) {
-            val camera = renderData.camera
-            shadowLight.begin(
-                auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
-                camera.direction
-            )
-            renderModels(
-                batch = batches.shadowBatch,
-                camera = shadowLight.camera,
-                applyEnvironment = false,
-                renderParticleEffects = false,
-                forShadow = true
-            )
-            shadowLight.end()
-        }
-    }
-
-    private val environment: Environment by lazy { Environment() }
-
-    fun disableShadow() {
-        environment.remove(shadowLight)
-        environment.shadowMap = null
-    }
-
-    fun initializeDirectionalLightAndShadows() {
-        extracted()
-        val dirValue = 0.4f
-        shadowLight.set(dirValue, dirValue, dirValue, 0.3F, -0.7f, -0.3f)
-        enableShadow()
-    }
-
     private fun extracted() {
         environment.set(
             ColorAttribute(
@@ -211,15 +220,6 @@ class ModelsRenderer(
                 Color(0.9F, 0.9F, 0.9F, 1F)
             )
         )
-    }
-
-    override fun dispose() {
-        shadowLight.dispose()
-    }
-
-    fun enableShadow() {
-        environment.add(shadowLight)
-        environment.shadowMap = shadowLight
     }
 
     companion object {

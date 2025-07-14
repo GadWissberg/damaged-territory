@@ -9,6 +9,7 @@ class TextureDefinition(
     val animated: Boolean,
     val folder: String,
     val surroundedTile: Boolean,
+    val bumpyTile: Boolean
 ) :
     ExternalDefinition<Texture> {
     companion object {
