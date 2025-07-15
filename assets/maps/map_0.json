@@ -497,6 +497,13 @@
       "row": 7,
       "column": 18,
       "rotation": 270.0
+    },
+    {
+      "definition": "HANGAR",
+      "type": "AMB",
+      "row": 4,
+      "column": 19,
+      "rotation": 270.0001
     }
   ],
   "width": 32,
