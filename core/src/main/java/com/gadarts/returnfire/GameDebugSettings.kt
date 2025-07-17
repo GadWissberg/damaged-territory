@@ -16,7 +16,7 @@ object GameDebugSettings {
     const val SHOW_HEAP_SIZE = false
     const val DEBUG_INPUT = false
     const val UI_DEBUG = false
-    const val SFX = false
+    const val SFX = true
     const val DISABLE_MUSIC = true
     const val DISABLE_AMB_SOUNDS = false
     const val HIDE_PLAYER = false
@@ -32,7 +32,7 @@ object GameDebugSettings {
     val SELECTED_VEHICLE: CharacterDefinition? = SimpleCharacterDefinition.APACHE
     val SELECTED_VEHICLE_AI: CharacterDefinition? = TurretCharacterDefinition.TANK
     const val FORCE_AIM = 1
-    const val AI_DISABLED = true
+    const val AI_DISABLED = false
     const val AI_ATTACK_DISABLED = false
     const val USE_DEBUG_DLL = false
 }

@@ -2,23 +2,23 @@
   "layers": [
     {
       "name": "Layer 2",
-      "tiles": "0000000000000000000000IHHHF00000000IHF0000000000000IHHJKKKGHF000000EKD0000IHHHHHHFIJKKKK@KKKD00000IJKD000IJKKKKKKGJKK@AA?ACKD00000EKKD000EKKKKKKKKKK@?0000EKD00000EKKD000EKKKKKKKKKG?00000EKGF0000BAA?000BCKKKKKKKKKD00000EKKD000000000000BCKKKKKKKKD000IHJKKD00000000IHF00BCKKKK@AA?HHHJKKK@?00000000EKGHHFEKK@HHHHJKKKKK@A?000000000EKKKKGJK@EKKKKKK@AAA?00000000000BACKKKKKDEKK@AAA?00000000000000000BACKKKDEKKD00000000000000000000000BCKKDBCKGF00000000000000000000000EK@?0EKKD000IHHF000000000000000IJKD00EKKGHHHJKKD0000000IHHF000IJKKD00EKKKKKKKKKD0000000EKKGF00EKK@?00EKKK@CKKKKD0000000EKKKGHHJK@?000BAAA?BCKKKGF000000EKKKKKKKKD0000000000EKKKKD000000BCKK@AAAA?0000000000EKKKKD0000000EKG?000000000000000BCKKKD00000IHJKKD0000000000000000EKKKD00000EKKKKD0000000000000000BJKKD00000EKK@A?0000000000000000EKKKD00000BCKD000000000000000000BCK@?000000EKGF00000000000000000IJKD0000000EKKGHF000000000000000EKKD0000000BCKKKGFIHHHHHHHHHHHHHJK@?00000000BACKKGJKKKKKKKKKKKKKKKD00000000000BCKKKK@CKKK@CK@CKKKKD000000000000BAAAA?BAAA?BA?BAAAA?000000"
+      "tiles": "000000IHF00IHHHHHHF0000000000000000000EKGHFJKKKKKKGHF0000000000000IHHHJKKKGKKKKKKKKKD000IHHF000000EKKKKKKKKKKKKKKKKKD00IJKKGHF0000BCKKKKKKKKKKKKKKKKGHHJKKKKKD00000EKKKKKKKKKKKKKKKKKKKKKKKK@?00000EKKKKKKKKKKKKKKKKKKKKKKK@?000000EKK@KKKKKKKKKKKKKKKKKKKKD000000IJKKGKKKKKKKKKKKKKKKKKKKKD000000EKKKKKKKKKKKKKKKKKKKKKKK@?000000EKKKKKKKKKKKKKKKKKKKKKKKD0000000BCKKKKKKKKKKKKKKKKKKKKK@?00000000EKKKKKKKKKKKKKKKKKKKKKD000000000BCKKKKKKKKKKKKKKKKKKKKGF000000000BACKKKKKKKKKKKKKKKKKKKGF0000000000BAAACKKKKKKKKKKKKKKKKGF0000000000000EKKKKKKKKKKKKKKKKKD0000IHHHF0000EKKKKKKKKKKKKKKKK@?0000EKKKD0000BCKKKKKKKK@AAAAAA?00000EKKKGHHHHHJKKKKKKKKGHHFIHF000000EKKKKKKKKKKKKKKKKKKKKKGJKGHF0000BAACKKKKKKKKKKKKKKKKKKKKKKKGF000000EKKKKKKKKKKKKKKKKKKKKKKKKD00000IJKKKKKKKKKKKKKKKKKKKKKKKKD00000EKKKKKKKKKKKKKKKKKKKKKKKK@?00000EKKKKKKKKKKKKKKKKKKKKKKK@?000000EKKKKKKKKKKKKKKKKKKKKKK@?00000IHJKKKKKKKKKKKKKKKKKKKKKKGHF0000EKKKKKKKKKKKKKKKKKKKKKKKKKKGF000EK@ACKKKKKKKKKKKKKKKK@CKKKKKD000BA?0BAAACKKKKKKKKKK@A?BAAAAA?00000000000BAAAAAAAAAA?00000000000"
     },
     {
       "name": "Layer 3",
-      "tiles": "00000000000000000000000000000000000000000000000000000000<;90000000000000000000000000<;;;=>:9000000<;;900000<;;;;;90<=>>>>>>70000008>>7000008>>>>>:;=>>>>>>>70000008>210000056>>>>>>>>>>>>>>:90000053100000008>>>>>>>>>>>>>>>70000000000000008>>>>>>>>>>>>>>2100000000000000056>>>>>>>>>>>231000000000000000008>>>>>>>2333100000000000000000008>>233331000000000000000000000008>>700000000000000000000000000008>>:900000000000000000000000000<=>>>7000000000000000000000000008>>>>7000000000000000000000000008>>>>70000000000000000000000000<=>>>>70<;;90000000000000000000<=>>>>>:;=>>700000000000000000008>>>>>>>>>>>:90000000000000<;;;;=>>>>>>>>>>>>:;;900000000008>>>>>>>>>>>>>>>>>>>>700000000008>>>>>>>>>>>>>>>>>>>>700000000008>>>>>>>>>>>>>>>>>>>>700000000<;=>>>>>>>>>>>>>>>>>>>21000000008>>>>>>>>>>>>>>>>>>>>>70000000008>>>>>>>>>>>>>>>>>>>>>70000000008>>>>>>>>>>>>>>>>>>>>>7000000000536>>>>>>>>>>>>>>>>>>210000000000056>>>>>>>>>>>>>>>>>7000000000000056>>>23336>>233333100000000000000533310005331000000000000000000000000000000000000000000000"
+      "tiles": "0000000000000000000000000000000000000000000000000000000000000000000000000000<;;;;;90000000000000000000<;;;;;=>>>>>700000000000000000008>>>>>>>>>>>:;90000000000000000<=>>>>>>>>>>>>>:90<;;9000000000<=>>>>>>>>>>>>>>>:;=>>70000000008>>>>>>>>>>>>>>>>>>>>210000000008>2>>>>>>>>>>>>>>>>>>7000000000<=>8>>>>>>>>>>>>>>>>>>70000000008>>:>>>>>>>>>>>>>>>>>>700000000056>>>>>>>>>>>>>>>>>>23100000000008>>>>>>>>>>>>>>>>>>70000000000005336>>26>>>>>>>>>>>:90000000000000053318>>>>>>>>>>>>:;9000000000000000056>>>>>>>>>>>>>7000000000000000008>>>>>>>>>>2331000000000000000008>>>>>233331000000000000000000008>>>>>:90000000000000000000000008>>>>>>:9000000000000000000<;;;;=>>>>>>>700000000000000000<=>>>>>>>>>>>>7<;;;;;900000000008>>>>>>>>>>>>>:=>>>>>7000000000<=>>>>>>>>>>>>>>>>>>>>70000000008>>>>>>>>>>>>>>>>>>>>>70000000008>>>>>>>>>>>>>>>>>>>231000000000536>>>>>>>>>>>>>>233100000000000008>>>>>>>>>>>>>21000000000000000056>>>>>>>>>>>2100000000000000000056>>>>>>>>>>7000000000000000000005333333333310000000000000000000000000000000000000000000"
     },
     {
       "name": "Layer 4",
-      "tiles": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a\\\\`00000000000000000000000000a\\e[[]000000000000000000000000a\\e[[[[]00000000000000000000000ae[[[[[[]00000000000000000000000_[[[[[[[]00000000000000000000000c^g[f^^^b0000000000000000000000000c^b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a\\\\`0000000000000000000000000000_[[d\\`0000000000000000000000000ae[[[[d\\`0000000000000000000000ae[[[[[[[]0000000000000000000000_[[[[[[[[]0000000000000000000000c^^^^g[[[]000000000000000000000000000c^^^b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      "tiles": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a\\\\\\`00000000000000000000000000ae[[[]00000000000000000000000000_[[[[d`000000000000000000000a\\\\\\e[[[[[d\\`0000000000000000000_[[[[[[[[[[[d`000000000000000000_[[[[[[[[[[[[]000000000000000000_[fg[[[[[[[[[]000000000000000000c^b_[[f^g[[[fb000000000000000000000c^^b0_[[[]000000000000000000000000000_[[[]000000000000000000000000000c^^^b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a\\\\`000000000000000000000000000ae[[]00000000000000000000000000ae[[[d`0000000000000000000000000_[[[[[]0000000000000000000000000cg[[[fb00000000000000000000000000c^^^b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     },
     {
       "name": "Layer 5",
-      "tiles": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000nim00000000000000000000000000000lhqim00000000000000000000000000nrhhhj0000000000000000000000000nrhhhhqm000000000000000000000000lhhhhhhj000000000000000000000000pkkkthso0000000000000000000000000000pko00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000nim0000000000000000000000000000nrhj00nim00000000000000000000000lhhj00lhqiim000000000000000000nipkko00lhhhhj00000000000000niiirhj0000nrhhhhj00000000000000lhhhhhqm00nrhhhhso00000000000000pthhhhhj00lhhhhso0000000000000000lhhhhso00lhskko00000000000000000pkkkko000pko0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      "tiles": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000nim00000000000000000000000000000lhj00000000000000000000000000000lhj00000000000000000000000000000lhqiim00000000000000000000000000lhhhhqm0000000000000000000000000lhhhhhj0000000000000000000000000lhhhhso000000000000000000000000nrhhhso0000000000000000000000000lhhsko00000000000000000000000000pkko000000000000000000000000000000000000000000000000000000000000000nim00000000000000000000000000000lhqm0000000000000000000000000000lhhqiim0000000000000000000000000lhhhhhj0000000000000000000000000lhhhhhj0000000000000000000000000pthhhso00000000000000000000000000pkkko00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     },
     {
       "name": "Layer 6",
-      "tiles": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000VLLLLLLLLO0000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q00000000000000000000000000PLLLLZLLLO000000000000000000000000000Q0000000000000000000000000000000Q00000000000000000000000000PLLLLMLLLO00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      "tiles": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000T0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000PLLLLLZLLLLLLLW00000000000000000000000Q0000000Q00000000000000000000000Q0000000Q00000000000000000000000Q0000000Q00000000000000000000000Q0000000Q00000000000000000000000RLLLLLLLX00000000000000000000000Q0000000000000000000000000000000Q000000000000000000000000000000VX000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q0000000000000000000000000000000Q00000000000000000000000000VLNLLMLLNLLLNLLO0000000000000000Q0Q00000Q000Q0000000000000000000Q0Q00000Q000Q0000000000000000000YLS0LML0YLLLX000000000000000000000Q0000000000000000000000000000000Q00T0000000000000000000000000000YLLX0000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     }
   ],
   "objects": [
@@ -26,307 +26,244 @@
       "definition": "BASE_BROWN",
       "type": "AMB",
       "row": 4,
-      "column": 23,
-      "rotation": 0.0
-    },
-    {
-      "definition": "TURRET_CANNON",
-      "type": "CHARACTER",
-      "row": 19,
-      "column": 16,
-      "rotation": 0.0
-    },
-    {
-      "definition": "TURRET_CANNON",
-      "type": "CHARACTER",
-      "row": 19,
-      "column": 12,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "row": 7,
-      "column": 22,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "row": 5,
-      "column": 14,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "row": 15,
-      "column": 16,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "row": 23,
-      "column": 7,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "row": 29,
-      "column": 10,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_BIG",
-      "type": "AMB",
-      "row": 22,
-      "column": 22,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 19,
-      "column": 19,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 24,
-      "column": 20,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 27,
-      "column": 22,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 25,
-      "column": 11,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 21,
-      "column": 9,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 16,
-      "column": 13,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 6,
-      "column": 16,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 4,
-      "column": 20,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_MED",
-      "type": "AMB",
-      "row": 3,
-      "column": 21,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 6,
-      "column": 20,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 5,
-      "column": 18,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 6,
-      "column": 14,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 12,
-      "column": 13,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 13,
-      "column": 15,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 17,
-      "column": 15,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 18,
-      "column": 12,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 21,
-      "column": 16,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 25,
-      "column": 20,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 25,
-      "column": 16,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 24,
-      "column": 12,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 24,
-      "column": 8,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 20,
-      "column": 7,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 26,
-      "column": 6,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 28,
-      "column": 15,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ROCK_SMALL",
-      "type": "AMB",
-      "row": 20,
-      "column": 21,
-      "rotation": 0.0
-    },
-    {
-      "definition": "BUILDING_0",
-      "type": "AMB",
-      "row": 21,
-      "column": 18,
-      "rotation": 0.0
-    },
-    {
-      "definition": "ANTENNA",
-      "type": "AMB",
-      "row": 4,
-      "column": 21,
-      "rotation": 0.0
-    },
-    {
-      "definition": "STREET_LIGHT",
-      "type": "AMB",
-      "row": 9,
-      "column": 13,
-      "rotation": 0.0
-    },
-    {
-      "definition": "STREET_LIGHT",
-      "type": "AMB",
-      "row": 13,
-      "column": 13,
-      "rotation": 0.0
-    },
-    {
-      "definition": "STREET_LIGHT",
-      "type": "AMB",
-      "row": 17,
-      "column": 13,
-      "rotation": 0.0
-    },
-    {
-      "definition": "SIGN",
-      "type": "AMB",
-      "row": 7,
-      "column": 21,
-      "rotation": 0.0
-    },
-    {
-      "definition": "SIGN_BIG",
-      "type": "AMB",
-      "row": 7,
       "column": 13,
       "rotation": 0.0
     },
     {
       "definition": "BASE_GREEN",
       "type": "AMB",
-      "row": 25,
-      "column": 7,
+      "row": 22,
+      "column": 24,
       "rotation": 0.0
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 15,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 16,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 17,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 18,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 19,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 20,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 21,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 22,
+      "rotation": 89.99997
     },
     {
       "definition": "TURRET_CANNON",
       "type": "CHARACTER",
-      "row": 24,
+      "row": 21,
       "column": 22,
       "rotation": 0.0
     },
     {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 21,
+      "column": 23,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 21,
+      "column": 24,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 21,
+      "column": 25,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 21,
+      "column": 26,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 27,
+      "rotation": 179.99998
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 23,
+      "column": 27,
+      "rotation": 179.99998
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 24,
+      "column": 27,
+      "rotation": 179.99998
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 25,
+      "column": 27,
+      "rotation": 179.99998
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 25,
+      "column": 26,
+      "rotation": 270.0
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 25,
+      "column": 25,
+      "rotation": 270.0
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 25,
+      "column": 24,
+      "rotation": 270.0
+    },
+    {
       "definition": "TURRET_CANNON",
       "type": "CHARACTER",
-      "row": 29,
+      "row": 26,
+      "column": 23,
+      "rotation": 0.0
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 22,
+      "column": 14,
+      "rotation": 0.0
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 22,
+      "column": 11,
+      "rotation": 0.0
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 28,
+      "column": 9,
+      "rotation": 0.0
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 5,
+      "column": 0,
+      "rotation": 0.0
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 10,
+      "rotation": 270.0
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 9,
+      "rotation": 270.0
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 8,
+      "rotation": 270.0
+    },
+    {
+      "definition": "FENCE",
+      "type": "AMB",
+      "row": 22,
+      "column": 7,
+      "rotation": 270.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 9,
+      "column": 15,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 8,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 8,
+      "column": 15,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 6,
       "column": 16,
       "rotation": 0.0
     },
@@ -334,28 +271,7 @@
       "definition": "PALM_TREE",
       "type": "AMB",
       "row": 7,
-      "column": 20,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 5,
-      "column": 21,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 3,
-      "column": 25,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 7,
-      "column": 26,
+      "column": 15,
       "rotation": 0.0
     },
     {
@@ -368,148 +284,540 @@
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 5,
-      "column": 13,
+      "row": 9,
+      "column": 17,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 10,
-      "column": 15,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 15,
-      "column": 15,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 15,
-      "column": 13,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 20,
-      "column": 11,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 21,
-      "column": 12,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 19,
-      "column": 13,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 21,
-      "column": 15,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 25,
-      "column": 19,
-      "rotation": 0.0
-    },
-    {
-      "definition": "PALM_TREE",
-      "type": "AMB",
-      "row": 27,
+      "row": 9,
       "column": 20,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 25,
-      "column": 23,
+      "row": 9,
+      "column": 18,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 21,
-      "column": 24,
+      "row": 12,
+      "column": 18,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 22,
-      "column": 7,
+      "row": 13,
+      "column": 19,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 25,
-      "column": 5,
+      "row": 13,
+      "column": 20,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 28,
+      "row": 11,
+      "column": 20,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 11,
+      "column": 17,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 11,
+      "column": 15,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 11,
       "column": 10,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 25,
+      "row": 13,
       "column": 13,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 24,
+      "row": 14,
+      "column": 12,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 11,
+      "column": 12,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 9,
+      "column": 11,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 7,
+      "column": 10,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 8,
+      "column": 12,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 12,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 13,
       "column": 15,
       "rotation": 0.0
     },
     {
       "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 17,
-      "column": 20,
+      "row": 14,
+      "column": 18,
       "rotation": 0.0
     },
     {
-      "definition": "STREET_LIGHT",
+      "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 7,
-      "column": 18,
-      "rotation": 270.0
+      "row": 13,
+      "column": 17,
+      "rotation": 0.0
     },
     {
-      "definition": "HANGAR",
+      "definition": "PALM_TREE",
       "type": "AMB",
-      "row": 4,
+      "row": 12,
       "column": 19,
-      "rotation": 270.00006
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 8,
+      "column": 22,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 8,
+      "column": 24,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 9,
+      "column": 23,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 20,
+      "column": 15,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 18,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 17,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 16,
+      "column": 15,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 21,
+      "column": 17,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 19,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 29,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 28,
+      "column": 18,
+      "rotation": 0.0
+    },
+    {
+      "definition": "PALM_TREE",
+      "type": "AMB",
+      "row": 16,
+      "column": 13,
+      "rotation": 0.0
     },
     {
       "definition": "WATCH_TOWER",
       "type": "AMB",
       "row": 6,
-      "column": 27,
+      "column": 18,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_BIG",
+      "type": "AMB",
+      "row": 7,
+      "column": 21,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_BIG",
+      "type": "AMB",
+      "row": 14,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_BIG",
+      "type": "AMB",
+      "row": 21,
+      "column": 10,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_BIG",
+      "type": "AMB",
+      "row": 29,
+      "column": 18,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_MED",
+      "type": "AMB",
+      "row": 28,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_MED",
+      "type": "AMB",
+      "row": 27,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_MED",
+      "type": "AMB",
+      "row": 25,
+      "column": 6,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_MED",
+      "type": "AMB",
+      "row": 24,
+      "column": 22,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_MED",
+      "type": "AMB",
+      "row": 20,
+      "column": 18,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_MED",
+      "type": "AMB",
+      "row": 17,
+      "column": 15,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_MED",
+      "type": "AMB",
+      "row": 8,
+      "column": 19,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_MED",
+      "type": "AMB",
+      "row": 12,
+      "column": 9,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 7,
+      "column": 11,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 11,
+      "column": 13,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 11,
+      "column": 18,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 14,
+      "column": 20,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 16,
+      "column": 21,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 15,
+      "column": 23,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 21,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 17,
+      "column": 17,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 23,
+      "column": 7,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 28,
+      "column": 11,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ROCK_SMALL",
+      "type": "AMB",
+      "row": 28,
+      "column": 20,
+      "rotation": 0.0
+    },
+    {
+      "definition": "BUILDING_0",
+      "type": "AMB",
+      "row": 10,
+      "column": 6,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "ANTENNA",
+      "type": "AMB",
+      "row": 25,
+      "column": 9,
+      "rotation": 0.0
+    },
+    {
+      "definition": "HANGAR",
+      "type": "AMB",
+      "row": 26,
+      "column": 13,
+      "rotation": 270.0
+    },
+    {
+      "definition": "SIGN",
+      "type": "AMB",
+      "row": 20,
+      "column": 14,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "SIGN",
+      "type": "AMB",
+      "row": 20,
+      "column": 12,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "SIGN_BIG",
+      "type": "AMB",
+      "row": 0,
+      "column": 0,
+      "rotation": 0.0
+    },
+    {
+      "definition": "SIGN_BIG",
+      "type": "AMB",
+      "row": 15,
+      "column": 13,
+      "rotation": 270.0
+    },
+    {
+      "definition": "WATCH_TOWER",
+      "type": "AMB",
+      "row": 24,
+      "column": 17,
+      "rotation": 0.0
+    },
+    {
+      "definition": "ANTENNA",
+      "type": "AMB",
+      "row": 3,
+      "column": 16,
+      "rotation": 0.0
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 8,
+      "column": 13,
+      "rotation": 0.0
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 9,
+      "column": 10,
+      "rotation": 270.0
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 12,
+      "column": 13,
+      "rotation": 360.0
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 17,
+      "column": 13,
+      "rotation": 360.0
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 20,
+      "column": 12,
+      "rotation": 360.0
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 16,
+      "column": 17,
+      "rotation": 89.99997
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 14,
+      "column": 21,
+      "rotation": 270.0
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 11,
+      "column": 23,
+      "rotation": 180.0
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 11,
+      "column": 19,
+      "rotation": 89.9999
+    },
+    {
+      "definition": "STREET_LIGHT",
+      "type": "AMB",
+      "row": 9,
+      "column": 16,
+      "rotation": 270.0001
+    },
+    {
+      "definition": "RUINS",
+      "type": "AMB",
+      "row": 5,
+      "column": 9,
       "rotation": 0.0
     }
   ],
