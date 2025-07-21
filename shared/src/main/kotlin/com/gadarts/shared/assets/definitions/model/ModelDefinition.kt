@@ -145,7 +145,11 @@ enum class ModelDefinition(
     SIGN_BIG(
         physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = SignPhysicalShapeCreator),
         origin = Vector3(0F, -0.63F, 0F)
-    );
+    ),
+    JEEP,
+    JEEP_GUN,
+    JEEP_TURRET_BASE,
+    JEEP_WHEEL;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()
