@@ -63,8 +63,9 @@ class HangarSceneHandler(
         sceneModels.hangarAmbModels.fanModelInstance.transform.rotate(Vector3.Y, 320F * delta)
         sceneModels.hangarAmbModels.ceilingFanModelInstance.transform.rotate(Vector3.Y, 160F * delta)
         sceneModels.camera.update()
-        sceneModels.charactersModels.tank.updateLocation()
-        sceneModels.charactersModels.apache.updateLocation()
+        sceneModels.charactersModels.vehicles.forEach { vehicle ->
+            vehicle.updateLocation()
+        }
         renderShadows(hangarSceneLightingData.shadowLight, hangarSceneLightingData.shadowBatch)
         sceneModels.batch.begin(sceneModels.camera)
         renderModels(hangarSceneLightingData.environment)
@@ -106,10 +107,11 @@ class HangarSceneHandler(
         sceneModels.batch.render(sceneModels.stagesModels.stageTopRightModelInstance.modelInstance, environment)
         sceneModels.batch.render(sceneModels.stagesModels.stageTank.modelInstance, environment)
         sceneModels.batch.render(sceneModels.stagesModels.stageApache.modelInstance, environment)
-        sceneModels.batch.render(sceneModels.stagesModels.stageBottomLeftModelInstance.modelInstance, environment)
+        sceneModels.batch.render(sceneModels.stagesModels.stageJeep.modelInstance, environment)
         sceneModels.batch.render(sceneModels.stagesModels.stageBottomRightModelInstance.modelInstance, environment)
-        renderVehicle(sceneModels.charactersModels.tank)
-        renderVehicle(sceneModels.charactersModels.apache)
+        sceneModels.charactersModels.vehicles.forEach { vehicle ->
+            renderVehicle(vehicle)
+        }
     }
 
     private fun renderShadows(
@@ -125,11 +127,11 @@ class HangarSceneHandler(
         modelBatch.render(sceneModels.hangarAmbModels.sceneModelInstance)
         modelBatch.render(sceneModels.hangarAmbModels.hookModelInstance)
         modelBatch.render(sceneModels.hangarAmbModels.fanModelInstance)
-        modelBatch.render(sceneModels.stagesModels.stageTopLeftModelInstance.modelInstance)
+        modelBatch.render(sceneModels.stagesModels.stageJeep.modelInstance)
         modelBatch.render(sceneModels.stagesModels.stageTopRightModelInstance.modelInstance)
         modelBatch.render(sceneModels.stagesModels.stageTank.modelInstance)
         modelBatch.render(sceneModels.stagesModels.stageApache.modelInstance)
-        modelBatch.render(sceneModels.stagesModels.stageBottomLeftModelInstance.modelInstance)
+        modelBatch.render(sceneModels.stagesModels.stageJeep.modelInstance)
         modelBatch.render(sceneModels.stagesModels.stageBottomRightModelInstance.modelInstance)
         modelBatch.render(sceneModels.hangarAmbModels.ceilingModelInstance)
         modelBatch.render(sceneModels.hangarAmbModels.ceilingFanModelInstance)
@@ -152,17 +154,8 @@ class HangarSceneHandler(
     }
 
     fun selectCharacter(character: CharacterDefinition) {
-        when (character) {
-            TurretCharacterDefinition.TANK -> {
-                selected = sceneModels.stagesModels.stageTank
-                deployingState = 1
-            }
-
-            SimpleCharacterDefinition.APACHE -> {
-                selected = sceneModels.stagesModels.stageApache
-                deployingState = 1
-            }
-        }
+        selected = sceneModels.stagesModels.mapping[character]
+        deployingState = 1
         soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY))
         soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
     }

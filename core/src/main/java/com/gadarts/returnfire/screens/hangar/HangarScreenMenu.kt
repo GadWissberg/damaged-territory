@@ -10,6 +10,7 @@ import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.FontDefinition
+import com.gadarts.shared.model.definitions.CharacterDefinition
 import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
@@ -20,8 +21,9 @@ class HangarScreenMenu(
     private val hangarSceneHandler: HangarSceneHandler
 ) {
     fun init() {
-        buttonsTable.add(tankButton)
-        buttonsTable.add(apacheButton)
+        characterButtons.forEach {
+            buttonsTable.add(it).size(128F, 128F)
+        }
         buttonsTable.bottom()
         stage.addActor(buttonsTable)
         textTable.add(Image(assetsManager.getTexture("logo"))).expandX().left().row()
@@ -93,22 +95,6 @@ class HangarScreenMenu(
         ).expandX().top().left().row()
     }
 
-    private fun onClick(text: String) = object : ClickListener() {
-        override fun clicked(event: InputEvent?, x: Float, y: Float) {
-            when (text) {
-                "Tank" -> {
-                    buttonsTable.remove()
-                    hangarSceneHandler.selectCharacter(TurretCharacterDefinition.TANK)
-                }
-
-                "Apache" -> {
-                    buttonsTable.remove()
-                    hangarSceneHandler.selectCharacter(SimpleCharacterDefinition.APACHE)
-                }
-            }
-        }
-    }
-
     fun isAutoAimSelected(): Boolean {
         return aimButtonGroup.checked.text.toString() == AIM_BUTTON_AUTOAIM
     }
@@ -125,7 +111,7 @@ class HangarScreenMenu(
         createTable()
     }
 
-    private fun addVehicleButton(text: String): TextButton {
+    private fun createVehicleButton(text: String, characterDefinition: CharacterDefinition): TextButton {
         val textButton = TextButton(
             text,
             TextButton.TextButtonStyle(
@@ -135,13 +121,23 @@ class HangarScreenMenu(
                 assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL)
             )
         )
-        textButton.addListener(onClick(text))
+        textButton.addListener(object : ClickListener() {
+            override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                buttonsTable.remove()
+                hangarSceneHandler.selectCharacter(characterDefinition)
+            }
+        })
         return textButton
     }
 
-    private val tankButton: TextButton by lazy { addVehicleButton("Tank") }
+    private val characterButtons: List<TextButton> by lazy {
+        listOf(
+            createVehicleButton("Tank", TurretCharacterDefinition.TANK),
+            createVehicleButton("Apache", SimpleCharacterDefinition.APACHE),
+            createVehicleButton("Jeep", SimpleCharacterDefinition.JEEP),
+        )
+    }
 
-    private val apacheButton: TextButton by lazy { addVehicleButton("Apache") }
 
     companion object {
         private const val AIM_BUTTON_AUTOAIM = "Auto-Aim"

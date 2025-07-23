@@ -27,6 +27,18 @@ enum class SimpleCharacterDefinition(
         true,
         listOf(ModelDefinition.APACHE_DEAD),
         0.05F
+    ),
+    JEEP(
+        65F,
+        ModelDefinition.JEEP,
+        gravity = Vector3(0F, -10F, 0F),
+        Vector3(1F, 1F, 1F),
+        Vector3.Zero,
+        0.1F,
+        false,
+        false,
+        listOf(ModelDefinition.APACHE_DEAD),
+        0.1F
     );
 
     override fun isFlyer(): Boolean {

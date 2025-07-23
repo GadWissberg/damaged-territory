@@ -1,39 +1,89 @@
 package com.gadarts.returnfire.screens.hangar
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 
-class HangarCharacterModels(assetsManager: GameAssetManager, private val stagesModels: HangarStagesModels) {
-    val tank by lazy {
-        val modelInstance =
-            ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_BODY))
-        val vehicle = SelectableVehicle(modelInstance, stagesModels.stageTank.modelInstance, 1.07F, -45F)
+class HangarCharacterModels(private val assetsManager: GameAssetManager, private val stagesModels: HangarStagesModels) {
+    private val tank by lazy {
+        val vehicle = createSelectableVehicle(ModelDefinition.TANK_BODY, 1.07F, -45F, stagesModels.stageTank)
         vehicle.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
-                Vector3(-0.05F, 0.2F, 0F)
+                Matrix4().translate(-0.05F, 0.2F, 0F)
             )
         )
         vehicle.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_CANNON)),
-                Vector3(0.25F, 0.17F, 0F)
+                Matrix4().translate(0.25F, 0.17F, 0F)
             )
         )
         vehicle
     }
-    val apache by lazy {
-        val modelInstance =
-            ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.APACHE))
-        val vehicle = SelectableVehicle(modelInstance, stagesModels.stageApache.modelInstance, 1.27F, 215F)
+
+    private val apache by lazy {
+        val vehicle = createSelectableVehicle(ModelDefinition.APACHE, 1.27F, 215F, stagesModels.stageApache)
         vehicle.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.PROPELLER)),
-                Vector3(0F, -0.02F, 0F)
+                Matrix4().translate(0F, -0.02F, 0F)
             )
         )
         vehicle
     }
+
+    private val jeep by lazy {
+        val jeep = createSelectableVehicle(ModelDefinition.JEEP, 1.27F, -45F, stagesModels.stageJeep)
+        val wheel = assetsManager.getAssetByDefinition(ModelDefinition.JEEP_WHEEL)
+        jeep.addChild(
+            SelectableVehicleChild(
+                ModelInstance(wheel),
+                Matrix4().translate(0.4F, 0F, 0.2F).rotate(Vector3.Y, 90F)
+            )
+        )
+        jeep.addChild(
+            SelectableVehicleChild(
+                ModelInstance(wheel),
+                Matrix4().translate(0.4F, 0F, -0.15F).rotate(Vector3.Y, -90F)
+            )
+        )
+        jeep.addChild(
+            SelectableVehicleChild(
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.JEEP_TURRET_BASE)),
+                Matrix4().translate(0F, 0.2F, 0F)
+            )
+        )
+        jeep.addChild(
+            SelectableVehicleChild(
+                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.JEEP_GUN)),
+                Matrix4().translate(0F, 0.25F, 0F)
+            )
+        )
+        jeep
+    }
+
+    private fun createSelectableVehicle(
+        modelDefinition: ModelDefinition,
+        relativeHeight: Float,
+        yaw: Float,
+        vehicleStage: VehicleStage
+    ): SelectableVehicle {
+        val modelInstance =
+            ModelInstance(assetsManager.getAssetByDefinition(modelDefinition))
+        val vehicle = SelectableVehicle(
+            modelInstance, vehicleStage.modelInstance, relativeHeight,
+            yaw
+        )
+        return vehicle
+    }
+
+    val vehicles by lazy {
+        listOf(
+            apache, tank, jeep
+        )
+    }
+
 }

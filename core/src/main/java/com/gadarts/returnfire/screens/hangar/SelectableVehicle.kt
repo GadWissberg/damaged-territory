@@ -18,7 +18,7 @@ class SelectableVehicle(
 
     fun updateLocation() {
         translateToStage(modelInstance)
-        children.forEach { translateToStage(it.modelInstance).translate(it.relativePosition) }
+        children.forEach { translateToStage(it.modelInstance).mul(it.transform) }
     }
 
     private fun translateToStage(model: ModelInstance): Matrix4 {
