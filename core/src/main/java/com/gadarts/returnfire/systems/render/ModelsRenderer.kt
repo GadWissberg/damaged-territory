@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
@@ -16,6 +17,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.systems.data.GameSessionDataRender
 import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxBox
 import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxVector3_1
@@ -41,7 +43,6 @@ class ModelsRenderer(
     }
     private val environment: Environment by lazy { Environment() }
 
-    @Suppress("SimplifyBooleanWithConstants")
     fun renderModels(
         batch: ModelBatch,
         camera: Camera,
@@ -135,7 +136,57 @@ class ModelsRenderer(
                 modelInstanceComponent.hideAt = -1L
             }
             renderChildModelInstance(entity, forShadow, applyEnvironment, batch)
+            renderFrontWheels(entity, forShadow, applyEnvironment, batch)
         }
+    }
+
+    private fun renderFrontWheels(entity: Entity, forShadow: Boolean, applyEnvironment: Boolean, batch: ModelBatch) {
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
+        val frontWheelComponent = ComponentsMapper.frontWheelsComponent.get(entity)
+        if (frontWheelComponent != null) {
+            renderWheel(
+                modelInstanceComponent,
+                forShadow,
+                applyEnvironment,
+                batch,
+                frontWheelComponent.leftWheel,
+                frontWheelComponent.leftRelativeTransform
+            )
+            renderWheel(
+                modelInstanceComponent,
+                forShadow,
+                applyEnvironment,
+                batch,
+                frontWheelComponent.rightWheel,
+                frontWheelComponent.rightRelativeTransform
+            )
+        }
+    }
+
+    private fun renderWheel(
+        modelInstanceComponent: ModelInstanceComponent,
+        forShadow: Boolean,
+        applyEnvironment: Boolean,
+        batch: ModelBatch,
+        wheelGameModelInstance: GameModelInstance,
+        relativeTransform: Matrix4
+    ) {
+        val wheelModelInstance = wheelGameModelInstance.modelInstance
+        val modelInstancePosition = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+            auxVector3_1
+        )
+        wheelModelInstance.transform.setToTranslation(
+            modelInstancePosition
+        )
+        wheelModelInstance.transform.mul(
+            relativeTransform
+        )
+        renderGameModelInstance(
+            wheelGameModelInstance,
+            forShadow,
+            applyEnvironment,
+            batch
+        )
     }
 
     private fun renderChildModelInstance(

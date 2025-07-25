@@ -48,7 +48,7 @@ abstract class CharacterFactory(
         primarySpark: Entity,
         secondarySpark: Entity?,
         primaryArmComponentCreator: () -> EntityBuilder,
-        secondaryArmComponentCreator: () -> EntityBuilder,
+        secondaryArmComponentCreator: (() -> EntityBuilder)?,
         boardingAnimation: BoardingAnimation?,
         color: CharacterColor
     ): GameModelInstance {
@@ -71,9 +71,9 @@ abstract class CharacterFactory(
             boardingAnimation,
         )
         primaryArmComponentCreator()
-        secondaryArmComponentCreator()
+        secondaryArmComponentCreator?.let { it() }
         ComponentsMapper.spark.get(primarySpark).parent = EntityBuilderImpl.entity!!
-        ComponentsMapper.spark.get(secondarySpark).parent = EntityBuilderImpl.entity!!
+        secondarySpark?.let { ComponentsMapper.spark.get(secondarySpark).parent = EntityBuilderImpl.entity!! }
         return gameModelInstance
     }
 

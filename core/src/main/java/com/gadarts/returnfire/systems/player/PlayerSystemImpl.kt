@@ -21,6 +21,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.SystemEvents.*
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
+import com.gadarts.returnfire.systems.player.handlers.movement.JeepMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerMobile
@@ -30,6 +31,7 @@ import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.Movement
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
 import com.gadarts.returnfire.systems.player.react.*
 import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 @Suppress("KotlinConstantConditions")
 class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), PlayerSystem,
@@ -156,9 +158,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (isGamePaused()
-                || player == null
-                || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player).isBoarding())
-                || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
+            || player == null
+            || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player).isBoarding())
+            || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -305,12 +307,14 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             } else {
                 ApacheMovementHandlerDesktop()
             }
-        } else {
+        } else if (characterDefinition == TurretCharacterDefinition.TANK) {
             if (runsOnMobile) {
                 TankMovementHandlerMobile()
             } else {
                 TankMovementHandlerDesktop()
             }
+        } else {
+            JeepMovementHandler()
         }
     }
 
@@ -330,9 +334,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-                && position.x >= stagePosition.x - LANDING_OK_OFFSET
-                && position.z <= stagePosition.z + LANDING_OK_OFFSET
-                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(

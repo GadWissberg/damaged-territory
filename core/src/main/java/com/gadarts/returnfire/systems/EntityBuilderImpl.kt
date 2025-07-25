@@ -47,6 +47,7 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.model.definitions.AmbDefinition
 import com.gadarts.shared.model.definitions.CharacterDefinition
 
@@ -524,6 +525,14 @@ class EntityBuilderImpl : EntityBuilder {
     override fun addTurretEnemyAiComponent(): EntityBuilder {
         val turretEnemyAiComponent = TurretEnemyAiComponent()
         entity!!.add(turretEnemyAiComponent)
+        return this
+    }
+
+    override fun addFrontWheelsComponent(wheel: ModelDefinition): EntityBuilder {
+        val rightWheel = factories.gameModelInstanceFactory.createGameModelInstance(wheel)
+        val leftWheel = factories.gameModelInstanceFactory.createGameModelInstance(wheel)
+        val frontWheelsComponent = FrontWheelsComponent(rightWheel, leftWheel, 0.3F, 0.05F, 0.1F)
+        entity!!.add(frontWheelsComponent)
         return this
     }
 

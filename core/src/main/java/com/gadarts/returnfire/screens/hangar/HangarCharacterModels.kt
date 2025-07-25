@@ -36,30 +36,31 @@ class HangarCharacterModels(private val assetsManager: GameAssetManager, private
     }
 
     private val jeep by lazy {
-        val jeep = createSelectableVehicle(ModelDefinition.JEEP, 1.27F, -45F, stagesModels.stageJeep)
+        val jeep = createSelectableVehicle(ModelDefinition.JEEP, 0.9F, -45F, stagesModels.stageJeep)
         val wheel = assetsManager.getAssetByDefinition(ModelDefinition.JEEP_WHEEL)
+        val wheelX = 0.25F
         jeep.addChild(
             SelectableVehicleChild(
                 ModelInstance(wheel),
-                Matrix4().translate(0.4F, 0F, 0.2F).rotate(Vector3.Y, 90F)
+                Matrix4().translate(wheelX, 0.1F, 0.15F).rotate(Vector3.Y, 90F)
             )
         )
         jeep.addChild(
             SelectableVehicleChild(
                 ModelInstance(wheel),
-                Matrix4().translate(0.4F, 0F, -0.15F).rotate(Vector3.Y, -90F)
+                Matrix4().translate(wheelX, 0.1F, -0.15F).rotate(Vector3.Y, -90F)
             )
         )
         jeep.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.JEEP_TURRET_BASE)),
-                Matrix4().translate(0F, 0.2F, 0F)
+                Matrix4().translate(0F, 0.45F, 0F)
             )
         )
         jeep.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.JEEP_GUN)),
-                Matrix4().translate(0F, 0.25F, 0F)
+                Matrix4().translate(-0.025F, 0.5F, 0F)
             )
         )
         jeep

@@ -32,6 +32,7 @@ import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
+import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.model.definitions.AmbDefinition
 import com.gadarts.shared.model.definitions.CharacterDefinition
 
@@ -188,4 +189,5 @@ interface EntityBuilder {
     fun addTankAiComponentToEntity(entity: Entity): TankAiComponent
     fun addApacheAiComponentToEntity(entity: Entity, initialHp: Float): ApacheAiComponent
     fun addTurretEnemyAiComponent(): EntityBuilder
+    fun addFrontWheelsComponent(wheel: ModelDefinition): EntityBuilder
 }

@@ -18,29 +18,37 @@ class OpponentCharacterFactory(
     gameModelInstanceFactory: GameModelInstanceFactory,
     entityBuilder: EntityBuilder,
 ) : Disposable {
-    private val apacheFactory =
-        ApacheFactory(
+    private val characterFactories = mapOf(
+        SimpleCharacterDefinition.APACHE to ApacheFactory(
             assetsManager,
             gameSessionData,
             entityBuilder,
             gameModelInstanceFactory,
-        )
-    private val tankFactory =
-        TankFactory(assetsManager, gameSessionData, entityBuilder, gameModelInstanceFactory)
+        ),
+        TurretCharacterDefinition.TANK to TankFactory(
+            assetsManager,
+            gameSessionData,
+            entityBuilder,
+            gameModelInstanceFactory
+        ),
+        SimpleCharacterDefinition.JEEP to JeepFactory(
+            assetsManager,
+            gameSessionData,
+            entityBuilder,
+            gameModelInstanceFactory
+        ),
+    )
 
     fun create(base: GameMapPlacedObject, selected: CharacterDefinition, characterColor: CharacterColor): Entity {
         var opponent: Entity? = null
-        if (selected == SimpleCharacterDefinition.APACHE) {
-            opponent = apacheFactory.create(base, characterColor)
-        } else if (selected == TurretCharacterDefinition.TANK) {
-            opponent = tankFactory.create(base, characterColor)
+        characterFactories[selected]?.let { factory ->
+            opponent = factory.create(base, characterColor)
         }
         return opponent!!
     }
 
     override fun dispose() {
-        apacheFactory.dispose()
-        tankFactory.dispose()
+        characterFactories.values.forEach { it.dispose() }
     }
 
 

@@ -17,8 +17,6 @@ import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.model.definitions.CharacterDefinition
-import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class HangarSceneHandler(
     private val soundManager: SoundManager,
@@ -50,7 +48,7 @@ class HangarSceneHandler(
                 }
                 if (deployingState > 0) {
                     screenManager.goToWarScreen(
-                        if (selected == sceneModels.stagesModels.stageTank) TurretCharacterDefinition.TANK else SimpleCharacterDefinition.APACHE,
+                        selected!!.characterDefinition,
                         hangarScreenMenu.isAutoAimSelected()
                     )
                 } else {

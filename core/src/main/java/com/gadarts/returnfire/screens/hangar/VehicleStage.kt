@@ -2,8 +2,13 @@ package com.gadarts.returnfire.screens.hangar
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.shared.model.definitions.CharacterDefinition
 
-class VehicleStage(val modelInstance: ModelInstance, private val initialPosition: Vector3) {
+class VehicleStage(
+    val modelInstance: ModelInstance,
+    val characterDefinition: CharacterDefinition,
+    private val initialPosition: Vector3
+) {
     private var applyMovementForZ: Boolean = false
 
     //UGLY CODE!!!! Change to movement by a graph node
