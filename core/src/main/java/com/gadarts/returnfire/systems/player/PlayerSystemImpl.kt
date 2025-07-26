@@ -21,10 +21,10 @@ import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.SystemEvents.*
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
-import com.gadarts.returnfire.systems.player.handlers.movement.JeepMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerMobile
+import com.gadarts.returnfire.systems.player.handlers.movement.jeep.JeepMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.MovementTouchPadListener
@@ -314,7 +314,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 TankMovementHandlerDesktop()
             }
         } else {
-            JeepMovementHandler()
+            JeepMovementHandlerDesktop()
         }
     }
 

@@ -12,6 +12,8 @@ class FrontWheelsComponent(
     relativeY: Float,
     relativeZ: Float
 ) : Component {
+    var steeringSide: Int = 0
+    var steeringRotation: Float = 0.0f
     val rightRelativeTransform: Matrix4 =
         Matrix4().rotate(Vector3.Y, -90F).setTranslation(relativeX, relativeY, relativeZ)
     val leftRelativeTransform: Matrix4 =

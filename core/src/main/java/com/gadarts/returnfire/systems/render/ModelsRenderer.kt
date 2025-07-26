@@ -150,7 +150,8 @@ class ModelsRenderer(
                 applyEnvironment,
                 batch,
                 frontWheelComponent.leftWheel,
-                frontWheelComponent.leftRelativeTransform
+                frontWheelComponent.leftRelativeTransform,
+                frontWheelComponent.steeringRotation
             )
             renderWheel(
                 modelInstanceComponent,
@@ -158,7 +159,8 @@ class ModelsRenderer(
                 applyEnvironment,
                 batch,
                 frontWheelComponent.rightWheel,
-                frontWheelComponent.rightRelativeTransform
+                frontWheelComponent.rightRelativeTransform,
+                frontWheelComponent.steeringRotation
             )
         }
     }
@@ -169,18 +171,21 @@ class ModelsRenderer(
         applyEnvironment: Boolean,
         batch: ModelBatch,
         wheelGameModelInstance: GameModelInstance,
-        relativeTransform: Matrix4
+        relativeTransform: Matrix4,
+        steeringRotation: Float
     ) {
         val wheelModelInstance = wheelGameModelInstance.modelInstance
         val modelInstancePosition = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
             auxVector3_1
         )
-        wheelModelInstance.transform.setToTranslation(
+        val transform = wheelModelInstance.transform
+        transform.setToTranslation(
             modelInstancePosition
         )
-        wheelModelInstance.transform.mul(
+        transform.mul(
             relativeTransform
         )
+        transform.rotate(Vector3.Y, steeringRotation)
         renderGameModelInstance(
             wheelGameModelInstance,
             forShadow,
