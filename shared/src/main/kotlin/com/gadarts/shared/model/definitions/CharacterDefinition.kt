@@ -24,6 +24,9 @@ interface CharacterDefinition : ElementDefinition {
     fun isConsumingFuelOnIdle(): Boolean
     fun getFuelConsumptionPace(): Float
     fun isUseSeparateTransformObjectForPhysics(): Boolean
+    fun getLinearDamping(): Float
+    fun getAngularDamping(): Float
+    fun getFriction(): Float
 
     companion object {
         const val FLYER_HEIGHT = 3.9F

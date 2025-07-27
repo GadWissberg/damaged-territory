@@ -13,7 +13,7 @@ class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(
     4F,
     45F,
     25F,
-    6F,
+    12F,
 ) {
     private var movement: Int = 0
     private var rotation: Int = 0
@@ -40,6 +40,7 @@ class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(
 
     override fun pressedLeft(character: Entity) {
         rotateFrontWheels(character, 1)
+        applyRotation(1, character)
     }
 
     private fun rotateFrontWheels(character: Entity, side: Int) {
@@ -49,6 +50,7 @@ class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(
 
     override fun pressedRight(character: Entity) {
         rotateFrontWheels(character, -1)
+        applyRotation(-1, character)
     }
 
     override fun isThrusting(character: Entity): Boolean {

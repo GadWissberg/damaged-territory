@@ -15,6 +15,10 @@ enum class SimpleCharacterDefinition(
     private val gibable: Boolean,
     private val corpseModelDefinitions: List<ModelDefinition>,
     private val fuelConsumptionPace: Float,
+    private val linearDamping: Float,
+    private val angularDamping: Float,
+    private val friction: Float,
+    private val useSeparateTransformObjectForPhysics: Boolean
 ) : CharacterDefinition {
     APACHE(
         125F,
@@ -26,7 +30,11 @@ enum class SimpleCharacterDefinition(
         true,
         true,
         listOf(ModelDefinition.APACHE_DEAD),
-        0.05F
+        0.05F,
+        0F,
+        0.75F,
+        1.5F,
+        true
     ),
     JEEP(
         65F,
@@ -38,7 +46,11 @@ enum class SimpleCharacterDefinition(
         false,
         false,
         listOf(ModelDefinition.APACHE_DEAD),
-        0.1F
+        0.1F,
+        linearDamping = 0.1F,
+        angularDamping = 0.99F,
+        friction = 0F,
+        false
     );
 
     override fun isFlyer(): Boolean {
@@ -62,7 +74,7 @@ enum class SimpleCharacterDefinition(
     }
 
     override fun isUseSeparateTransformObjectForPhysics(): Boolean {
-        return true
+        return useSeparateTransformObjectForPhysics
     }
 
     override fun getModelDefinition(): ModelDefinition {
@@ -115,5 +127,17 @@ enum class SimpleCharacterDefinition(
 
     override fun isPlaceable(): Boolean {
         return false
+    }
+
+    override fun getLinearDamping(): Float {
+        return linearDamping
+    }
+
+    override fun getAngularDamping(): Float {
+        return angularDamping
+    }
+
+    override fun getFriction(): Float {
+        return friction
     }
 }

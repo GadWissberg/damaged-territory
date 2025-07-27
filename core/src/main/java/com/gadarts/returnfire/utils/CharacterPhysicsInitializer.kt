@@ -8,12 +8,10 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.shared.GameAssetManager
-import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 
 class CharacterPhysicsInitializer {
     fun initialize(entityBuilder: EntityBuilder, character: Entity, assetsManager: GameAssetManager) {
         val characterDefinition = ComponentsMapper.character.get(character).definition
-        val isApache = characterDefinition == SimpleCharacterDefinition.APACHE
         val modelCollisionShapeInfo =
             assetsManager.getCachedModelCollisionShapeInfo(characterDefinition.getModelDefinition())
         val shape = if (modelCollisionShapeInfo != null) {
@@ -38,12 +36,10 @@ class CharacterPhysicsInitializer {
         val rigidBody = physicsComponent.rigidBody
         rigidBody.gravity = characterDefinition.getGravity(Vector3())
         rigidBody.setDamping(
-            if (isApache) 0F else 0.1F,
-            if (isApache) 0.75F else 0.99F
+            characterDefinition.getLinearDamping(),
+            characterDefinition.getAngularDamping()
         )
-        if (!isApache) {
-            rigidBody.friction = 0F
-        }
+        rigidBody.friction = characterDefinition.getFriction()
         rigidBody.angularFactor = characterDefinition.getAngularFactor(Vector3())
         rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
     }
