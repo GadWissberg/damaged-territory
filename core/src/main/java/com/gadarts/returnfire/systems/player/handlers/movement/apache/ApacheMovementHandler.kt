@@ -7,7 +7,6 @@ import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 
 abstract class ApacheMovementHandler : VehicleMovementHandler(
-    -15F,
     8.3F,
     50F,
     25F,

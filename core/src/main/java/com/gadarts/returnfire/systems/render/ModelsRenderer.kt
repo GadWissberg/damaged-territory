@@ -175,13 +175,8 @@ class ModelsRenderer(
         steeringRotation: Float
     ) {
         val wheelModelInstance = wheelGameModelInstance.modelInstance
-        val modelInstancePosition = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
-            auxVector3_1
-        )
         val transform = wheelModelInstance.transform
-        transform.setToTranslation(
-            modelInstancePosition
-        )
+        transform.set(modelInstanceComponent.gameModelInstance.modelInstance.transform)
         transform.mul(
             relativeTransform
         )

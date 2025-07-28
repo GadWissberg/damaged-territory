@@ -7,11 +7,9 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 
 abstract class VehicleMovementHandler(
-    private val lateralVelocityScale: Float,
     private val rotationScale: Float,
     private val forwardForceSize: Float,
     private val reverseForceSize: Float,
@@ -33,13 +31,15 @@ abstract class VehicleMovementHandler(
         val physicsComponent = ComponentsMapper.physics.get(character)
         val rigidBody = physicsComponent.rigidBody
         val newVelocity = auxVector3_1.set(rigidBody.linearVelocity)
-        if (newVelocity.len2() < maxVelocity) {
+        val len2 = newVelocity.len2()
+        if (len2 < maxVelocity) {
             val pushDirectionRelativeToFacing =
                 rigidBody.worldTransform.getRotation(auxQuaternion1)
                     .transform(direction)
+            val push = auxVector3_1.set(pushDirectionRelativeToFacing.x, 0F, pushDirectionRelativeToFacing.z)
+                .scl(scale)
             rigidBody.applyCentralForce(
-                auxVector3_1.set(pushDirectionRelativeToFacing.x, 0F, pushDirectionRelativeToFacing.z)
-                    .scl(scale)
+                push
             )
         }
         consumeFuelByPace(ComponentsMapper.character.get(character), deltaTime)
@@ -49,11 +49,14 @@ abstract class VehicleMovementHandler(
         character: Entity,
         deltaTime: Float,
     ) {
-        applyLateralDamping(character)
         val characterComponent = ComponentsMapper.character.get(character)
         val definition = characterComponent.definition
+        val flyer = definition.isFlyer()
+        if (!flyer) {
+            applyLateralDamping(character)
+        }
         consumeFuelInIdle(ComponentsMapper.character.get(character), deltaTime)
-        if (definition == TurretCharacterDefinition.TANK) {
+        if (!flyer) {
             val rigidBody = ComponentsMapper.physics.get(character).rigidBody
             if (!rigidBody.linearVelocity.epsilonEquals(Vector3.Zero)) {
                 val transform: Matrix4 = rigidBody.worldTransform
@@ -120,10 +123,14 @@ abstract class VehicleMovementHandler(
         if (!ComponentsMapper.physics.has(character)) return
 
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody
-        val velocity: Vector3 = rigidBody.linearVelocity
-        val lateralVelocity = auxVector3_1.set(velocity.x, 0f, velocity.z)
-        val dampingForce: Vector3 = lateralVelocity.scl(lateralVelocityScale)
-        rigidBody.applyCentralForce(dampingForce)
+        val worldVelocity = auxVector3_1.set(rigidBody.linearVelocity)
+        val worldRotation = rigidBody.worldTransform.getRotation(auxQuaternion1)
+        val inverseRotation = auxQuaternion2.set(worldRotation).conjugate()
+        val localVelocity = auxVector3_3.set(worldVelocity)
+        inverseRotation.transform(localVelocity)
+        localVelocity.z *= 0.1f
+        worldRotation.transform(localVelocity)
+        rigidBody.linearVelocity = localVelocity
     }
 
     abstract fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float, character: Entity)
@@ -147,8 +154,10 @@ abstract class VehicleMovementHandler(
     companion object {
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
+        private val auxVector3_3 = Vector3()
         private const val MAX_ROTATION = 3F
         private val auxQuaternion1 = Quaternion()
+        private val auxQuaternion2 = Quaternion()
         private const val IDLE_FUEL_CONSUMPTION_DURATION_IN_SECONDS = 5F
     }
 }

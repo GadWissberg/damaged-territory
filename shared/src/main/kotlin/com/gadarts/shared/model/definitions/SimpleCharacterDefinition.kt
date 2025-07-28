@@ -31,7 +31,7 @@ enum class SimpleCharacterDefinition(
         true,
         listOf(ModelDefinition.APACHE_DEAD),
         0.05F,
-        0F,
+        0.4F,
         0.75F,
         1.5F,
         true
@@ -47,8 +47,8 @@ enum class SimpleCharacterDefinition(
         false,
         listOf(ModelDefinition.APACHE_DEAD),
         0.1F,
-        linearDamping = 0.1F,
-        angularDamping = 0.99F,
+        linearDamping = 0.8F,
+        angularDamping = 0.999F,
         friction = 0F,
         false
     );

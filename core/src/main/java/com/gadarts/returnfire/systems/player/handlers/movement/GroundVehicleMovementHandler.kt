@@ -6,14 +6,12 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.ComponentsMapper
 
 abstract class GroundVehicleMovementHandler(
-    lateralVelocityScale: Float,
     rotationScale: Float,
     forwardForceSize: Float,
     reverseForceSize: Float,
     maxVelocity: Float,
 ) :
     VehicleMovementHandler(
-        lateralVelocityScale = lateralVelocityScale,
         rotationScale = rotationScale,
         forwardForceSize = forwardForceSize,
         reverseForceSize = reverseForceSize,

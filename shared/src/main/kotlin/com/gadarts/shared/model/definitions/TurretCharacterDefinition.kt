@@ -47,7 +47,7 @@ enum class TurretCharacterDefinition(
         ),
         isNonMoving = false,
         fuelConsumptionPace = 0.1F,
-        linearDamping = 0.1F,
+        linearDamping = 0.9F,
         angularDamping = 0.99F,
     );
 
