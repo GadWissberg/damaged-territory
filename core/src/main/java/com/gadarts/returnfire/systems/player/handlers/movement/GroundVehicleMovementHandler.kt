@@ -10,6 +10,7 @@ abstract class GroundVehicleMovementHandler(
     forwardForceSize: Float,
     reverseForceSize: Float,
     maxVelocity: Float,
+    private val engineMaxPitch: Float
 ) :
     VehicleMovementHandler(
         rotationScale = rotationScale,
@@ -31,7 +32,7 @@ abstract class GroundVehicleMovementHandler(
         super.pushForward(rigidBody, forwardDirection, character, deltaTime)
 
         if (ComponentsMapper.ambSound.has(character)) {
-            ComponentsMapper.ambSound.get(character).pitchTarget = 2F
+            ComponentsMapper.ambSound.get(character).pitchTarget = engineMaxPitch
         }
     }
 

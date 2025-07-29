@@ -7,4 +7,5 @@ abstract class TankMovementHandler : GroundVehicleMovementHandler(
     45F,
     25F,
     6F,
+    2F
 )

@@ -15,6 +15,7 @@ class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(
     30F,
     15F,
     5F,
+    2F
 ) {
     private var movement: Int = 0
     private var rotation: Int = 0

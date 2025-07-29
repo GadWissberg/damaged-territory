@@ -44,7 +44,7 @@ class JeepFactory(
             color
         )
         entityBuilder.addFrontWheelsComponent(ModelDefinition.JEEP_WHEEL)
-        entityBuilder.addAmbSoundComponent(assetsManager.getAssetByDefinition(SoundDefinition.ENGINE))
+        entityBuilder.addAmbSoundComponent(assetsManager.getAssetByDefinition(SoundDefinition.ENGINE_LIGHT))
         val character = entityBuilder.finish()
         return character
     }

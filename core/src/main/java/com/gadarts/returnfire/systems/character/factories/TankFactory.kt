@@ -53,7 +53,7 @@ class TankFactory(
         )
         entityBuilder.addTurretBaseComponent()
         entityBuilder.addLimitedVelocityComponent(1.1F)
-        entityBuilder.addAmbSoundComponent(assetsManager.getAssetByDefinition(SoundDefinition.ENGINE))
+        entityBuilder.addAmbSoundComponent(assetsManager.getAssetByDefinition(SoundDefinition.ENGINE_HEAVY))
         val character = entityBuilder.finish()
         val cannon = addTankCannon(character)
         addTurret(character, cannon, color)
