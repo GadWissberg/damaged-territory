@@ -4,7 +4,13 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
 
-class TurretComponent(val base: Entity, val followBase: Boolean, val cannon: Entity?) : Component {
+class TurretComponent(
+    val base: Entity,
+    val followBase: Boolean,
+    val relativeHeight: Float,
+    val cannon: Entity?
+) :
+    Component {
     private val baseOffset = Vector3()
     var baseOffsetApplied = false
     private var currentShootingArm: Int = 1

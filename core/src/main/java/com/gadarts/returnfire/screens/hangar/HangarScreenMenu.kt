@@ -134,7 +134,7 @@ class HangarScreenMenu(
         listOf(
             createVehicleButton("Tank", TurretCharacterDefinition.TANK),
             createVehicleButton("Apache", SimpleCharacterDefinition.APACHE),
-            createVehicleButton("Jeep", SimpleCharacterDefinition.JEEP),
+            createVehicleButton("Jeep", TurretCharacterDefinition.JEEP),
         )
     }
 

@@ -31,7 +31,7 @@ class OpponentCharacterFactory(
             entityBuilder,
             gameModelInstanceFactory
         ),
-        SimpleCharacterDefinition.JEEP to JeepFactory(
+        TurretCharacterDefinition.JEEP to JeepFactory(
             assetsManager,
             gameSessionData,
             entityBuilder,

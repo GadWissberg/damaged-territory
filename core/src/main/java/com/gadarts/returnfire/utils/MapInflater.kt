@@ -493,7 +493,7 @@ class MapInflater(
                 calculateTurretPosition(baseEntity, assetsManager),
                 null,
             )
-            .addTurretComponent(baseEntity, false, null)
+            .addTurretComponent(baseEntity, false, 0.2F, null)
             .addTurretEnemyAiComponent()
             .addPrimaryArmComponent(
                 spark,

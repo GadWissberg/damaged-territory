@@ -81,7 +81,7 @@ class TankFactory(
             ),
             null
         )
-        entityBuilder.addTurretComponent(player, true, cannon)
+        entityBuilder.addTurretComponent(player, true, 0.2F, cannon)
         entityBuilder.addChildModelInstanceComponent(
             gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TANK_MISSILE_LAUNCHER),
             true,
@@ -177,18 +177,19 @@ class TankFactory(
     }
 
     private fun addTankCannon(
-        player: Entity
+        tank: Entity
     ): Entity {
         entityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
             gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TANK_CANNON),
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(tank).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_1
             ),
             null
         )
+        entityBuilder.addTurretCannonComponent(0.31F, 0F)
         val cannon = entityBuilder.finishAndAddToEngine()
-        applyOpponentColor(cannon, ComponentsMapper.character.get(player).color, "tank_cannon_texture")
+        applyOpponentColor(cannon, ComponentsMapper.character.get(tank).color, "tank_cannon_texture")
         return cannon
     }
 

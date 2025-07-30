@@ -39,6 +39,7 @@ import com.gadarts.returnfire.components.physics.RigidBody
 import com.gadarts.returnfire.components.pit.BaseComponent
 import com.gadarts.returnfire.components.pit.BaseDoorComponent
 import com.gadarts.returnfire.components.turret.TurretBaseComponent
+import com.gadarts.returnfire.components.turret.TurretCannonComponent
 import com.gadarts.returnfire.components.turret.TurretComponent
 import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.systems.data.pools.GameParticleEffectPool
@@ -265,8 +266,13 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addTurretComponent(base: Entity, followBase: Boolean, cannon: Entity?): EntityBuilder {
-        val turretComponent = TurretComponent(base, followBase, cannon)
+    override fun addTurretComponent(
+        base: Entity,
+        followBase: Boolean,
+        relativeY: Float,
+        cannon: Entity?
+    ): EntityBuilder {
+        val turretComponent = TurretComponent(base, followBase, relativeY, cannon)
         entity!!.add(turretComponent)
         return this
     }
@@ -533,6 +539,12 @@ class EntityBuilderImpl : EntityBuilder {
         val leftWheel = factories.gameModelInstanceFactory.createGameModelInstance(wheel)
         val frontWheelsComponent = FrontWheelsComponent(rightWheel, leftWheel, 0.3F, 0.05F, 0.1F)
         entity!!.add(frontWheelsComponent)
+        return this
+    }
+
+    override fun addTurretCannonComponent(relativeX: Float, relativeY: Float): EntityBuilder {
+        val turretCannonComponent = TurretCannonComponent(relativeX, relativeY)
+        entity!!.add(turretCannonComponent)
         return this
     }
 

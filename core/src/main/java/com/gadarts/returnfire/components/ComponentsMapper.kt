@@ -18,6 +18,7 @@ import com.gadarts.returnfire.components.physics.PhysicsComponent
 import com.gadarts.returnfire.components.pit.BaseComponent
 import com.gadarts.returnfire.components.pit.BaseDoorComponent
 import com.gadarts.returnfire.components.turret.TurretBaseComponent
+import com.gadarts.returnfire.components.turret.TurretCannonComponent
 import com.gadarts.returnfire.components.turret.TurretComponent
 
 object ComponentsMapper {
@@ -101,4 +102,6 @@ object ComponentsMapper {
         ComponentMapper.getFor(TurretEnemyAiComponent::class.java)
     val frontWheelsComponent: ComponentMapper<FrontWheelsComponent> =
         ComponentMapper.getFor(FrontWheelsComponent::class.java)
+    val turretCannonComponent: ComponentMapper<TurretCannonComponent> =
+        ComponentMapper.getFor(TurretCannonComponent::class.java)
 }

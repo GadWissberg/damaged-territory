@@ -16,32 +16,51 @@ class TurretsHandler(engine: PooledEngine) {
 
     fun update() {
         for (turret in turretEntities) {
-            val turretComponent = ComponentsMapper.turret.get(turret)
-            val base = turretComponent.base
-            if (turretComponent.followBase && ComponentsMapper.modelInstance.has(base)) {
-                val baseTransform =
-                    ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
-                baseTransform.getTranslation(auxVector1)
-                val turretTransform =
-                    ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
-                turretTransform.setToTranslation(auxVector1).translate(auxVector2.set(0F, 0.2F, 0F))
-                applyTurretOffsetFromBase(turretComponent, turretTransform)
-                turretTransform.rotate(baseTransform.getRotation(auxQuat.idt()))
-                turretTransform.rotate(Vector3.Y, turretComponent.turretRelativeRotation)
-            }
-            val cannon = turretComponent.cannon
-            if (cannon != null) {
-                val turretTransform =
-                    ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
-                turretTransform.getTranslation(
-                    auxVector1
-                )
-                ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform.setToTranslation(
-                    auxVector1
-                ).rotate(turretTransform.getRotation(auxQuat.idt()))
-                    .translate(auxVector2.set(0.31F, 0F, 0F))
-            }
+            updateTurret(turret)
         }
+    }
+
+    private fun updateTurret(turret: Entity?) {
+        val turretComponent = ComponentsMapper.turret.get(turret)
+        val base = turretComponent.base
+        if (turretComponent.followBase && ComponentsMapper.modelInstance.has(base)) {
+            updateTurretTransform(base, turret)
+        }
+        val cannon = turretComponent.cannon
+        if (cannon != null) {
+            val turretTransform =
+                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
+            turretTransform.getTranslation(
+                auxVector1
+            )
+            ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform.setToTranslation(
+                auxVector1
+            ).rotate(turretTransform.getRotation(auxQuat.idt()))
+                .translate(
+                    auxVector2.set(
+                        ComponentsMapper.turretCannonComponent.get(cannon).relativeX,
+                        ComponentsMapper.turretCannonComponent.get(cannon).relativeY,
+                        0F
+                    )
+                )
+        }
+    }
+
+    private fun updateTurretTransform(
+        base: Entity,
+        turret: Entity?,
+    ) {
+        val turretComponent = ComponentsMapper.turret.get(turret)
+        val baseTransform =
+            ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
+        baseTransform.getTranslation(auxVector1)
+        val turretTransform =
+            ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
+        turretTransform.setToTranslation(auxVector1)
+            .translate(auxVector2.set(0F, turretComponent.relativeHeight, 0F))
+        applyTurretOffsetFromBase(turretComponent, turretTransform)
+        turretTransform.rotate(baseTransform.getRotation(auxQuat.idt()))
+        turretTransform.rotate(Vector3.Y, turretComponent.turretRelativeRotation)
     }
 
     private fun applyTurretOffsetFromBase(

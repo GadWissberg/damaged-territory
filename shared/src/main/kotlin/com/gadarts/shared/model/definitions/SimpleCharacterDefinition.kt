@@ -35,22 +35,6 @@ enum class SimpleCharacterDefinition(
         0.75F,
         1.5F,
         true
-    ),
-    JEEP(
-        65F,
-        ModelDefinition.JEEP,
-        gravity = Vector3(0F, -10F, 0F),
-        Vector3(1F, 1F, 1F),
-        Vector3.Zero,
-        0.1F,
-        false,
-        false,
-        listOf(ModelDefinition.APACHE_DEAD),
-        0.1F,
-        linearDamping = 0.8F,
-        angularDamping = 0.999F,
-        friction = 0F,
-        false
     );
 
     override fun isFlyer(): Boolean {

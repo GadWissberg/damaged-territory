@@ -17,7 +17,7 @@ import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.map.GameMapPlacedObject
-import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 class JeepFactory(
     private val assetsManager: GameAssetManager,
@@ -33,7 +33,7 @@ class JeepFactory(
         val entityBuilder = entityBuilder.begin()
         addCharacterBaseComponents(
             base,
-            SimpleCharacterDefinition.JEEP,
+            TurretCharacterDefinition.JEEP,
             primarySpark,
             null,
             {
@@ -45,8 +45,47 @@ class JeepFactory(
         )
         entityBuilder.addFrontWheelsComponent(ModelDefinition.JEEP_WHEEL)
         entityBuilder.addAmbSoundComponent(assetsManager.getAssetByDefinition(SoundDefinition.ENGINE_LIGHT))
-        val character = entityBuilder.finish()
-        return character
+        entityBuilder.addTurretBaseComponent()
+        val jeep = entityBuilder.finish()
+        val cannon = addCannon(jeep)
+        addTurret(jeep, cannon, color)
+        return jeep
+    }
+
+    private fun addCannon(
+        jeep: Entity
+    ): Entity {
+        entityBuilder.begin()
+        entityBuilder.addModelInstanceComponent(
+            gameModelInstanceFactory.createGameModelInstance(ModelDefinition.JEEP_GUN),
+            ComponentsMapper.modelInstance.get(jeep).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            ),
+            null
+        )
+        entityBuilder.addTurretCannonComponent(0F, 0.1F)
+        val cannon = entityBuilder.finishAndAddToEngine()
+//        applyOpponentColor(cannon, ComponentsMapper.character.get(jeep).color, "tank_cannon_texture")
+        return cannon
+    }
+
+    private fun addTurret(
+        player: Entity,
+        cannon: Entity,
+        color: CharacterColor
+    ) {
+        entityBuilder.begin()
+        entityBuilder.addModelInstanceComponent(
+            gameModelInstanceFactory.createGameModelInstance(ModelDefinition.JEEP_TURRET_BASE),
+            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            ),
+            null
+        )
+        entityBuilder.addTurretComponent(player, true, 0.4F, cannon)
+        val turret = entityBuilder.finishAndAddToEngine()
+        ComponentsMapper.turretBase.get(player).turret = turret
+//        applyOpponentColor(turret, color, "tank_turret_texture")
     }
 
     override fun dispose() {
@@ -98,6 +137,6 @@ class JeepFactory(
     companion object {
         private const val TANK_PRI_RELOAD_DUR = 2000L
         private const val TANK_PRI_BULLET_SPEED = 8F
-
+        private val auxVector3_1 = Vector3()
     }
 }

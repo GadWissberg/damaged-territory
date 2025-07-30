@@ -49,6 +49,22 @@ enum class TurretCharacterDefinition(
         fuelConsumptionPace = 0.1F,
         linearDamping = 0.9F,
         angularDamping = 0.99F,
+    ),
+    JEEP(
+        hp = 65F,
+        baseModelDefinition = ModelDefinition.JEEP,
+        smokeEmissionRelativePosition = Vector3.Zero,
+        gravity = Vector3(0F, -10F, 0F),
+        linearFactor = Vector3(1F, 1F, 1F),
+        corpseModelDefinitions = listOf(ModelDefinition.TANK_BODY_DESTROYED),
+        turretCorpseModelDefinitions = listOf(
+            ModelDefinition.TANK_TURRET_DESTROYED,
+        ),
+        isNonMoving = false,
+        fuelConsumptionPace = 0.1F,
+        placeable = false,
+        linearDamping = 0.8F,
+        angularDamping = 0.999F,
     );
 
     override fun isUseSeparateTransformObjectForPhysics(): Boolean {

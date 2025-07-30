@@ -94,7 +94,13 @@ interface EntityBuilder {
     fun addAmbSoundComponent(sound: Sound): EntityBuilder
     fun addAmbSoundComponentToEntity(entity: Entity, sound: Sound): EntityBuilder
     fun finish(): Entity
-    fun addTurretComponent(base: Entity, followBase: Boolean, cannon: Entity?): EntityBuilder
+    fun addTurretComponent(
+        base: Entity,
+        followBase: Boolean,
+        relativeY: Float,
+        cannon: Entity?
+    ): EntityBuilder
+
     fun addPrimaryArmComponent(
         spark: Entity,
         armProperties: ArmProperties,
@@ -190,4 +196,5 @@ interface EntityBuilder {
     fun addApacheAiComponentToEntity(entity: Entity, initialHp: Float): ApacheAiComponent
     fun addTurretEnemyAiComponent(): EntityBuilder
     fun addFrontWheelsComponent(wheel: ModelDefinition): EntityBuilder
+    fun addTurretCannonComponent(relativeX: Float, relativeY: Float): EntityBuilder
 }
