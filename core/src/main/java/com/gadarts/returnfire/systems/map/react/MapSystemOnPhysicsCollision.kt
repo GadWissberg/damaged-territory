@@ -481,7 +481,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val ambCorpsePart = ComponentsMapper.ambCorpsePart.get(entity1)
         if (ComponentsMapper.ground.has(entity0) && ambCorpsePart != null) {
             val rigidBody = physicsComponent.rigidBody
-            if (rigidBody.linearVelocity.len2() > 4 && rigidBody.mass > 5 || ambCorpsePart.destroyOnGroundImpact) {
+            if (rigidBody.linearVelocity.len2() > SPEED_THRESHOLD && rigidBody.mass > 5 || ambCorpsePart.destroyOnGroundImpact) {
                 if (ambCorpsePart.collisionSound != null) {
                     gamePlayManagers.soundManager.play(
                         gamePlayManagers.assetsManager.getAssetByDefinition(ambCorpsePart.collisionSound),
@@ -494,7 +494,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         }
         if (roadComponent != null && physicsComponent != null) {
             val rigidBody = physicsComponent.rigidBody
-            if (rigidBody.linearVelocity.len2() > 4 && rigidBody.mass > 5) {
+            if (rigidBody.linearVelocity.len2() > SPEED_THRESHOLD && rigidBody.mass > 5) {
                 handleRoadHit(entity0, gamePlayManagers, true)
             }
             return result
@@ -599,5 +599,6 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
         private val auxMatrix = Matrix4()
+        private val SPEED_THRESHOLD =6
     }
 }

@@ -16,9 +16,9 @@ class CameraRelativeValuesMapper {
             6F, 4F
         ),
         TurretCharacterDefinition.JEEP to CameraRelativeValues(
-            4F, 3F,
-            6F, 3F,
-            4F, 4F
+            6F, 5F,
+            8F, 5F,
+            6F, 6F
         ),
     )
 }

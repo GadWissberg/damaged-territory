@@ -11,10 +11,10 @@ import kotlin.math.max
 import kotlin.math.min
 
 class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(
-    2.5F,
-    30F,
+    2F,
+    35F,
     15F,
-    5F,
+    7F,
     2F
 ) {
     private var movement: Int = 0

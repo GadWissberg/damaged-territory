@@ -2,7 +2,7 @@ package com.gadarts.returnfire
 
 import com.gadarts.shared.assets.definitions.MapDefinition
 import com.gadarts.shared.model.definitions.CharacterDefinition
-import com.gadarts.shared.model.definitions.TurretCharacterDefinition
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 
 @Suppress("RedundantNullableReturnType", "RedundantSuppression")
 object GameDebugSettings {
@@ -15,7 +15,7 @@ object GameDebugSettings {
     const val SHOW_HEAP_SIZE = false
     const val DEBUG_INPUT = false
     const val UI_DEBUG = false
-    const val SFX = false
+    const val SFX = true
     const val DISABLE_MUSIC = true
     const val DISABLE_AMB_SOUNDS = false
     const val HIDE_PLAYER = false
@@ -28,10 +28,10 @@ object GameDebugSettings {
     const val AVOID_PARTICLE_EFFECTS_DRAWING = false
     const val ENABLE_PROFILER = true
     const val DISABLE_HUD = false
-    val SELECTED_VEHICLE: CharacterDefinition? = TurretCharacterDefinition.TANK
-    val SELECTED_VEHICLE_AI: CharacterDefinition? = TurretCharacterDefinition.TANK
+    val SELECTED_VEHICLE: CharacterDefinition? = null
+    val SELECTED_VEHICLE_AI: CharacterDefinition? = SimpleCharacterDefinition.APACHE
     const val FORCE_AIM = 1
-    const val AI_DISABLED = true
+    const val AI_DISABLED = false
     const val AI_ATTACK_DISABLED = false
     const val USE_DEBUG_DLL = false
 }
