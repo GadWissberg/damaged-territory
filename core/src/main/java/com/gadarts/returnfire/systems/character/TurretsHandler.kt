@@ -7,11 +7,16 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.GreenComponent
 import com.gadarts.returnfire.components.turret.TurretComponent
+import com.gadarts.returnfire.utils.ModelUtils
 
 class TurretsHandler(engine: PooledEngine) {
     private val turretEntities: ImmutableArray<Entity> = engine.getEntitiesFor(
         Family.all(TurretComponent::class.java).get()
+    )
+    private val greenCharactersEntities: ImmutableArray<Entity> = engine.getEntitiesFor(
+        Family.all(GreenComponent::class.java).get()
     )
 
     fun update() {
@@ -20,8 +25,9 @@ class TurretsHandler(engine: PooledEngine) {
         }
     }
 
-    private fun updateTurret(turret: Entity?) {
+    private fun updateTurret(turret: Entity) {
         val turretComponent = ComponentsMapper.turret.get(turret)
+        handleTurretAutomation(turret)
         val base = turretComponent.base
         if (turretComponent.followBase && ComponentsMapper.modelInstance.has(base)) {
             updateTurretTransform(base, turret)
@@ -43,6 +49,57 @@ class TurretsHandler(engine: PooledEngine) {
                         0F
                     )
                 )
+        }
+    }
+
+    private fun handleTurretAutomation(turret: Entity) {
+        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
+        if (turretAutomationComponent != null) {
+            val target = turretAutomationComponent.target
+            if (target == null) {
+                var closestGreen: Entity? = null
+                var closestGreenDistance = Float.MAX_VALUE
+                val turretPosition = ModelUtils.getPositionOfModel(
+                    turret,
+                    auxVector1
+                )
+                for (greenCharacter in greenCharactersEntities) {
+                    val greenCharacterComponent = ComponentsMapper.character.get(greenCharacter)
+                    if (!greenCharacterComponent.dead && greenCharacterComponent.hp > 0) {
+                        val greenPosition = ModelUtils.getPositionOfModel(
+                            greenCharacter,
+                            auxVector2
+                        )
+                        if (greenPosition.dst2(turretPosition) < closestGreenDistance) {
+                            closestGreenDistance = greenPosition.dst2(turretPosition)
+                            closestGreen = greenCharacter
+                        }
+                    }
+                }
+                if (closestGreen != null) {
+                    turretAutomationComponent.target = closestGreen
+                }
+            } else {
+                val targetPosition = ModelUtils.getPositionOfModel(target)
+                val turretTransform =
+                    ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
+                val directionToTarget = auxVector2.set(targetPosition).sub(
+                    turretTransform.getTranslation(auxVector1)
+                ).nor()
+                directionToTarget.y = 0F
+                val currentForward = auxVector4.setZero()
+                auxVector3.set(turretTransform.getRotation(auxQuat).transform(Vector3.Z)).also {
+                    currentForward.set(it.x, 0f, it.z).nor()
+                }
+//                val angleRad = currentForward.angleRad(directionToTarget)
+//                val crossY = currentForward.crs(flatDirectionToTarget).y
+//                val signedAngleRad = if (crossY >= 0f) angleRad else -angleRad
+//
+//// 4. Apply rotation around Y axis
+//                val rotationQuat = Quaternion(Vector3.Y, signedAngleRad * MathUtils.radiansToDegrees)
+//                turretTransform.rotate(rotationQuat)
+
+            }
         }
     }
 
@@ -82,6 +139,8 @@ class TurretsHandler(engine: PooledEngine) {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
+        private val auxVector4 = Vector3()
         private val auxQuat = com.badlogic.gdx.math.Quaternion()
+        private val auxMatrix = Matrix4()
     }
 }

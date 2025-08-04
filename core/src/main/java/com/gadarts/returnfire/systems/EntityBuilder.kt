@@ -197,4 +197,7 @@ interface EntityBuilder {
     fun addTurretEnemyAiComponent(): EntityBuilder
     fun addFrontWheelsComponent(wheel: ModelDefinition): EntityBuilder
     fun addTurretCannonComponent(relativeX: Float, relativeY: Float): EntityBuilder
+    fun addBrownComponent(): EntityBuilder
+    fun addGreenComponent(): EntityBuilder
+    fun addTurretAutomationComponent(): EntityBuilder
 }

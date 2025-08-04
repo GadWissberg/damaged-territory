@@ -548,6 +548,24 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
+    override fun addBrownComponent(): EntityBuilder {
+        val brownComponent = BrownComponent()
+        entity!!.add(brownComponent)
+        return this
+    }
+
+    override fun addGreenComponent(): EntityBuilder {
+        val greenComponent = GreenComponent()
+        entity!!.add(greenComponent)
+        return this
+    }
+
+    override fun addTurretAutomationComponent(): EntityBuilder {
+        val turretAutomationComponent = TurretAutomationComponent()
+        entity!!.add(turretAutomationComponent)
+        return this
+    }
+
     private fun createParticleEffectComponent(
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,

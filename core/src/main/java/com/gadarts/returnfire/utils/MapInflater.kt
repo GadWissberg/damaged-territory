@@ -395,7 +395,7 @@ class MapInflater(
     ) {
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
-        val baseEntity = gamePlayManagers.ecs.entityBuilder.begin()
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 gameModelInstance,
                 position,
@@ -404,6 +404,11 @@ class MapInflater(
                 GameDebugSettings.HIDE_ENEMIES
             )
             .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON, CharacterColor.GREEN)
+        GeneralUtils.addColorComponent(
+            entityBuilder,
+            CharacterColor.GREEN
+        )
+        val baseEntity = entityBuilder
             .addBaseAiComponent(characterDefinition.getHP())
             .addTurretBaseComponent()
             .finishAndAddToEngine()
@@ -604,8 +609,8 @@ class MapInflater(
                 def.getName().lowercase() == definition
             }
             it.type == ElementType.CHARACTER
-                    && elementDefinition != SimpleCharacterDefinition.APACHE
-                    && elementDefinition != TurretCharacterDefinition.TANK
+                && elementDefinition != SimpleCharacterDefinition.APACHE
+                && elementDefinition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 val elementDefinition = stringToDefinition(it.definition, ElementType.CHARACTER)
@@ -727,7 +732,7 @@ class MapInflater(
                     )
                     if (groundBitMap[row][col] == 0
                         && (!textureDefinition.fileName.contains("water")
-                                || exculdedTiles.contains(Pair(col, row)))
+                            || exculdedTiles.contains(Pair(col, row)))
                     ) {
                         groundBitMap[row][col] = 1
                     }
@@ -830,12 +835,12 @@ class MapInflater(
         z: Int,
         tilesEntities: Array<Array<Entity?>>,
     ) = (x > 0
-            && z > 0
-            && x < tilesEntities[0].size
-            && z < tilesEntities.size
-            && tilesEntities[z][x] != null
-            && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
-            && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.definition == ModelDefinition.TILE_BUMPY)
+        && z > 0
+        && x < tilesEntities[0].size
+        && z < tilesEntities.size
+        && tilesEntities[z][x] != null
+        && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
+        && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.definition == ModelDefinition.TILE_BUMPY)
 
     private fun flatAllTilesBelow(
         index: Int,
@@ -994,9 +999,9 @@ class MapInflater(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.loadedMap.depth
-            && col < gameSessionData.mapData.loadedMap.width)
+        && col >= 0
+        && row < gameSessionData.mapData.loadedMap.depth
+        && col < gameSessionData.mapData.loadedMap.width)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

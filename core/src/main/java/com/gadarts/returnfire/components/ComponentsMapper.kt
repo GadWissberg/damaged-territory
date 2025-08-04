@@ -104,4 +104,6 @@ object ComponentsMapper {
         ComponentMapper.getFor(FrontWheelsComponent::class.java)
     val turretCannonComponent: ComponentMapper<TurretCannonComponent> =
         ComponentMapper.getFor(TurretCannonComponent::class.java)
+    val turretAutomationComponent: ComponentMapper<TurretAutomationComponent> =
+        ComponentMapper.getFor(TurretAutomationComponent::class.java)
 }

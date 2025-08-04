@@ -14,6 +14,7 @@ import com.gadarts.returnfire.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.systems.EntityBuilder
 import com.gadarts.returnfire.systems.EntityBuilderImpl
+import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.map.GameMapPlacedObject
@@ -69,6 +70,10 @@ abstract class CharacterFactory(
         entityBuilder.addBoardingCharacterComponent(
             color,
             boardingAnimation,
+        )
+        GeneralUtils.addColorComponent(
+            entityBuilder,
+            color
         )
         primaryArmComponentCreator()
         secondaryArmComponentCreator?.let { it() }

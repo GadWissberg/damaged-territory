@@ -178,7 +178,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
 
-    @Suppress("SimplifyBooleanWithConstants")
     override fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
         if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)

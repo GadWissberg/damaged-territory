@@ -9,6 +9,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.components.character.CharacterColor
+import com.gadarts.returnfire.systems.EntityBuilder
 
 object GeneralUtils {
 
@@ -76,6 +78,14 @@ object GeneralUtils {
 
     fun isBodyDisposed(entity: Entity): Boolean {
         return !ComponentsMapper.physics.has(entity) || ComponentsMapper.physics.get(entity).disposed
+    }
+
+    fun addColorComponent(entityBuilder: EntityBuilder, color: CharacterColor) {
+        if (color == CharacterColor.BROWN) {
+            entityBuilder.addBrownComponent()
+        } else {
+            entityBuilder.addGreenComponent()
+        }
     }
 
 }

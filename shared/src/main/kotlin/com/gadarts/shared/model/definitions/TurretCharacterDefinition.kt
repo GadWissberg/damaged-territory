@@ -13,6 +13,7 @@ enum class TurretCharacterDefinition(
     private val corpseModelDefinitions: List<ModelDefinition>,
     val turretCorpseModelDefinitions: List<ModelDefinition>,
     private val isNonMoving: Boolean,
+    private val mass: Float,
     private val fuelConsumptionPace: Float = 0.0F,
     private val placeable: Boolean = false,
     private val linearDamping: Float = 0.0F,
@@ -33,6 +34,7 @@ enum class TurretCharacterDefinition(
             ModelDefinition.TURRET_CANNON_DEAD_1,
         ),
         isNonMoving = true,
+        mass = 0F,
         placeable = true
     ),
     TANK(
@@ -46,6 +48,7 @@ enum class TurretCharacterDefinition(
             ModelDefinition.TANK_TURRET_DESTROYED,
         ),
         isNonMoving = false,
+        mass = 10F,
         fuelConsumptionPace = 0.1F,
         linearDamping = 0.9F,
         angularDamping = 0.99F,
@@ -61,6 +64,7 @@ enum class TurretCharacterDefinition(
             ModelDefinition.TANK_TURRET_DESTROYED,
         ),
         isNonMoving = false,
+        mass = 10F,
         fuelConsumptionPace = 0.1F,
         placeable = false,
         linearDamping = 0.8F,
@@ -153,5 +157,9 @@ enum class TurretCharacterDefinition(
 
     override fun getFriction(): Float {
         return 0F
+    }
+
+    override fun getMass(): Float {
+        return mass
     }
 }

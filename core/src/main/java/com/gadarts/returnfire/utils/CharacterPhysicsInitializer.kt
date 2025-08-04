@@ -29,7 +29,7 @@ class CharacterPhysicsInitializer {
         val physicsComponent = entityBuilder.addPhysicsComponentToEntity(
             character,
             shape,
-            10F,
+            characterDefinition.getMass(),
             CollisionFlags.CF_CHARACTER_OBJECT,
             physicsTransform,
         )

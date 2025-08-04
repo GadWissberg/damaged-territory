@@ -124,4 +124,8 @@ enum class SimpleCharacterDefinition(
     override fun getFriction(): Float {
         return friction
     }
+
+    override fun getMass(): Float {
+        return 10F
+    }
 }

@@ -83,6 +83,7 @@ class JeepFactory(
             null
         )
         entityBuilder.addTurretComponent(player, true, 0.4F, cannon)
+        entityBuilder.addTurretAutomationComponent()
         val turret = entityBuilder.finishAndAddToEngine()
         ComponentsMapper.turretBase.get(player).turret = turret
 //        applyOpponentColor(turret, color, "tank_turret_texture")
