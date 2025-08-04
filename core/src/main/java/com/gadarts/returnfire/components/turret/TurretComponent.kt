@@ -6,7 +6,8 @@ import com.badlogic.gdx.math.Vector3
 
 class TurretComponent(
     val base: Entity,
-    val followBase: Boolean,
+    var followBasePosition: Boolean,
+    var followBaseRotation: Boolean,
     val relativeHeight: Float,
     val cannon: Entity?
 ) :

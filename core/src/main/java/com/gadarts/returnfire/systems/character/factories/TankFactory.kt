@@ -81,7 +81,7 @@ class TankFactory(
             ),
             null
         )
-        entityBuilder.addTurretComponent(player, true, 0.2F, cannon)
+        entityBuilder.addTurretComponent(player, true, true, 0.2F, cannon)
         entityBuilder.addChildModelInstanceComponent(
             gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TANK_MISSILE_LAUNCHER),
             true,

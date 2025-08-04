@@ -158,7 +158,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         if (isGamePaused()) return
 
         updateCharacters(deltaTime)
-        turretsHandler.update()
+        turretsHandler.update(deltaTime)
         characterAmbSoundHandler.update(deltaTime)
     }
 

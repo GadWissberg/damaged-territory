@@ -268,11 +268,12 @@ class EntityBuilderImpl : EntityBuilder {
 
     override fun addTurretComponent(
         base: Entity,
-        followBase: Boolean,
+        followBasePosition: Boolean,
+        followBaseRotation: Boolean,
         relativeY: Float,
         cannon: Entity?
     ): EntityBuilder {
-        val turretComponent = TurretComponent(base, followBase, relativeY, cannon)
+        val turretComponent = TurretComponent(base, followBasePosition, followBaseRotation, relativeY, cannon)
         entity!!.add(turretComponent)
         return this
     }

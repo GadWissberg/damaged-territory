@@ -96,7 +96,8 @@ interface EntityBuilder {
     fun finish(): Entity
     fun addTurretComponent(
         base: Entity,
-        followBase: Boolean,
+        followBasePosition: Boolean,
+        followBaseRotation: Boolean,
         relativeY: Float,
         cannon: Entity?
     ): EntityBuilder

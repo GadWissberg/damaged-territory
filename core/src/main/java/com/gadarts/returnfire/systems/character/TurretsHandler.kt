@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
@@ -19,29 +20,36 @@ class TurretsHandler(engine: PooledEngine) {
         Family.all(GreenComponent::class.java).get()
     )
 
-    fun update() {
+    fun update(deltaTime: Float) {
         for (turret in turretEntities) {
-            updateTurret(turret)
+            updateTurret(turret, deltaTime)
         }
     }
 
-    private fun updateTurret(turret: Entity) {
+    private fun updateTurret(turret: Entity, deltaTime: Float) {
         val turretComponent = ComponentsMapper.turret.get(turret)
-        handleTurretAutomation(turret)
         val base = turretComponent.base
-        if (turretComponent.followBase && ComponentsMapper.modelInstance.has(base)) {
+        val turretTransform =
+            ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
+        if (turretComponent.followBaseRotation && ComponentsMapper.modelInstance.has(base)) {
             updateTurretTransform(base, turret)
         }
+        if (turretComponent.followBasePosition) {
+            val baseTransform =
+                ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
+            baseTransform.getTranslation(auxVector1)
+            turretTransform.setTranslation(auxVector1).translate(auxVector2.set(0F, turretComponent.relativeHeight, 0F))
+        }
+        applyTurretOffsetFromBase(turretComponent, turretTransform)
+        handleTurretAutomation(turret, deltaTime)
         val cannon = turretComponent.cannon
         if (cannon != null) {
-            val turretTransform =
-                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
             turretTransform.getTranslation(
                 auxVector1
             )
             ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform.setToTranslation(
                 auxVector1
-            ).rotate(turretTransform.getRotation(auxQuat.idt()))
+            ).rotate(turretTransform.getRotation(auxQuat1.idt()))
                 .translate(
                     auxVector2.set(
                         ComponentsMapper.turretCannonComponent.get(cannon).relativeX,
@@ -52,17 +60,17 @@ class TurretsHandler(engine: PooledEngine) {
         }
     }
 
-    private fun handleTurretAutomation(turret: Entity) {
+    private fun handleTurretAutomation(turret: Entity, deltaTime: Float) {
         val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
         if (turretAutomationComponent != null) {
             val target = turretAutomationComponent.target
+            val turretPosition = ModelUtils.getPositionOfModel(
+                turret,
+                auxVector1
+            )
             if (target == null) {
                 var closestGreen: Entity? = null
-                var closestGreenDistance = Float.MAX_VALUE
-                val turretPosition = ModelUtils.getPositionOfModel(
-                    turret,
-                    auxVector1
-                )
+                var closestGreenDistance = AUTOMATED_TURRET_MAX_DISTANCE
                 for (greenCharacter in greenCharactersEntities) {
                     val greenCharacterComponent = ComponentsMapper.character.get(greenCharacter)
                     if (!greenCharacterComponent.dead && greenCharacterComponent.hp > 0) {
@@ -78,29 +86,43 @@ class TurretsHandler(engine: PooledEngine) {
                 }
                 if (closestGreen != null) {
                     turretAutomationComponent.target = closestGreen
+                    ComponentsMapper.turret.get(turret).followBaseRotation = false
                 }
             } else {
-                val targetPosition = ModelUtils.getPositionOfModel(target)
-                val turretTransform =
-                    ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
-                val directionToTarget = auxVector2.set(targetPosition).sub(
-                    turretTransform.getTranslation(auxVector1)
-                ).nor()
-                directionToTarget.y = 0F
-                val currentForward = auxVector4.setZero()
-                auxVector3.set(turretTransform.getRotation(auxQuat).transform(Vector3.Z)).also {
-                    currentForward.set(it.x, 0f, it.z).nor()
+                if (ModelUtils.getPositionOfModel(target).dst2(turretPosition) > AUTOMATED_TURRET_MAX_DISTANCE) {
+                    ComponentsMapper.turret.get(turret).followBaseRotation = true
+                    turretAutomationComponent.target = null
+                } else {
+                    rotateAutomatedTurret(turret, deltaTime)
                 }
-//                val angleRad = currentForward.angleRad(directionToTarget)
-//                val crossY = currentForward.crs(flatDirectionToTarget).y
-//                val signedAngleRad = if (crossY >= 0f) angleRad else -angleRad
-//
-//// 4. Apply rotation around Y axis
-//                val rotationQuat = Quaternion(Vector3.Y, signedAngleRad * MathUtils.radiansToDegrees)
-//                turretTransform.rotate(rotationQuat)
-
             }
         }
+    }
+
+    private fun rotateAutomatedTurret(
+        turret: Entity,
+        deltaTime: Float
+    ) {
+        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
+        val target = turretAutomationComponent.target ?: return
+
+        val targetPosition = ModelUtils.getPositionOfModel(target)
+        val turretTransform =
+            ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
+        val directionToTarget =
+            targetPosition.sub(turretTransform.getTranslation(auxVector1)).nor()
+        directionToTarget.y = 0f
+        val forward = turretTransform.getRotation(auxQuat1).transform(auxVector2.set(Vector3.X)).nor()
+        val currentForwardFlat = auxVector3.set(forward.x, 0f, forward.z).nor()
+        val dot = currentForwardFlat.dot(directionToTarget)
+        val clampedDot = MathUtils.clamp(dot, -1f, 1f)
+        val angleDeg = MathUtils.acos(clampedDot) * MathUtils.radiansToDegrees
+        val cross = currentForwardFlat.crs(directionToTarget)
+        val signedAngleDeg = if (cross.y >= 0f) angleDeg else -angleDeg
+        val maxTurnDegPerFrame = 90f * deltaTime
+        val clampedDeg = MathUtils.clamp(signedAngleDeg, -maxTurnDegPerFrame, maxTurnDegPerFrame)
+        val rotationQuat = auxQuat1.set(Vector3.Y, clampedDeg)
+        turretTransform.rotate(rotationQuat)
     }
 
     private fun updateTurretTransform(
@@ -113,10 +135,8 @@ class TurretsHandler(engine: PooledEngine) {
         baseTransform.getTranslation(auxVector1)
         val turretTransform =
             ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
-        turretTransform.setToTranslation(auxVector1)
-            .translate(auxVector2.set(0F, turretComponent.relativeHeight, 0F))
-        applyTurretOffsetFromBase(turretComponent, turretTransform)
-        turretTransform.rotate(baseTransform.getRotation(auxQuat.idt()))
+        turretTransform.idt()
+        turretTransform.rotate(baseTransform.getRotation(auxQuat1.idt()))
         turretTransform.rotate(Vector3.Y, turretComponent.turretRelativeRotation)
     }
 
@@ -139,8 +159,7 @@ class TurretsHandler(engine: PooledEngine) {
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
-        private val auxVector4 = Vector3()
-        private val auxQuat = com.badlogic.gdx.math.Quaternion()
-        private val auxMatrix = Matrix4()
+        private val auxQuat1 = com.badlogic.gdx.math.Quaternion()
+        private const val AUTOMATED_TURRET_MAX_DISTANCE = 30F
     }
 }
