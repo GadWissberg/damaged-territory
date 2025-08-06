@@ -82,7 +82,7 @@ class JeepFactory(
             ),
             null
         )
-        entityBuilder.addTurretComponent(player, true, false, 0.4F, cannon)
+        entityBuilder.addTurretComponent(player, true, true, 0.4F, cannon)
         entityBuilder.addTurretAutomationComponent()
         val turret = entityBuilder.finishAndAddToEngine()
         ComponentsMapper.turretBase.get(player).turret = turret

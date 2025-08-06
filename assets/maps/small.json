@@ -14,10 +14,10 @@
       "rotation": 0.0
     },
     {
-      "definition": "TURRET_CANNON",
-      "type": "CHARACTER",
-      "row": 7,
-      "column": 8,
+      "definition": "BASE_GREEN",
+      "type": "AMB",
+      "row": 3,
+      "column": 6,
       "rotation": 0.0
     }
   ],

@@ -47,7 +47,8 @@ class TurretsHandler(engine: PooledEngine) {
             turretTransform.getTranslation(
                 auxVector1
             )
-            ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform.setToTranslation(
+            val cannonTransform = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
+            cannonTransform.setToTranslation(
                 auxVector1
             ).rotate(turretTransform.getRotation(auxQuat1.idt()))
                 .translate(
@@ -94,32 +95,7 @@ class TurretsHandler(engine: PooledEngine) {
                     turretComponent.followBaseRotation = true
                     turretAutomationComponent.target = null
                 } else {
-                    val rotateVertically = rotateAutomatedTurret(turret, deltaTime)
-                    if (rotateVertically) {
-                        val cannonInstance =
-                            ComponentsMapper.modelInstance.get(turretComponent.cannon).gameModelInstance.modelInstance
-                        val cannonTransform = cannonInstance.transform
-
-                        val cannonForward =
-                            cannonTransform.getRotation(auxQuat1).transform(auxVector1.set(Vector3.X)).nor()
-                        val cannonPosition = cannonTransform.getTranslation(auxVector2)
-                        val targetPosition = ModelUtils.getPositionOfModel(turretAutomationComponent.target!!)
-                        val directionToTarget = auxVector3.set(targetPosition).sub(cannonPosition).nor()
-
-                        val dot = MathUtils.clamp(cannonForward.dot(directionToTarget), -1f, 1f)
-                        val angleDeg = MathUtils.acos(dot) * MathUtils.radiansToDegrees
-
-                        if (angleDeg > 2f) {
-                            val cross = cannonForward.crs(directionToTarget)
-                            val signedPitchDeg = if (cross.z >= 0f) -angleDeg else angleDeg
-                            val maxPitchPerFrame = 90f * deltaTime
-                            val clampedPitchDeg = MathUtils.clamp(signedPitchDeg, -maxPitchPerFrame, maxPitchPerFrame)
-
-                            val localZ =
-                                cannonTransform.getRotation(auxQuat1).transform(auxVector4.set(Vector3.Z)).nor()
-                            cannonTransform.rotate(localZ, clampedPitchDeg)
-                        }
-                    }
+                    rotateAutomatedTurret(turret, deltaTime)
                 }
             }
         }
