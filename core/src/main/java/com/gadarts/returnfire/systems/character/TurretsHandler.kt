@@ -2,21 +2,43 @@ package com.gadarts.returnfire.systems.character
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GreenComponent
+import com.gadarts.returnfire.components.TurretAutomationComponent
 import com.gadarts.returnfire.components.turret.TurretComponent
+import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.assets.definitions.SoundDefinition
+import kotlin.math.sqrt
 
-class TurretsHandler(engine: PooledEngine) {
-    private val turretEntities: ImmutableArray<Entity> = engine.getEntitiesFor(
+class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSessionData) {
+    private val shootingHandler = CharacterShootingHandler(
+        gamePlayManagers.ecs.entityBuilder,
+        gamePlayManagers.soundManager,
+        gamePlayManagers.assetsManager.getAssetByDefinition(
+            SoundDefinition.EMPTY
+        )
+    )
+
+    init {
+        shootingHandler.initialize(
+            gamePlayManagers.dispatcher, gameSessionData, gamePlayManagers.factories.autoAimShapeFactory.generate(
+                BulletEngineHandler.COLLISION_GROUP_PLAYER,
+                BulletEngineHandler.COLLISION_GROUP_AI,
+            )
+        )
+    }
+
+    private val turretEntities: ImmutableArray<Entity> = gamePlayManagers.ecs.engine.getEntitiesFor(
         Family.all(TurretComponent::class.java).get()
     )
-    private val greenCharactersEntities: ImmutableArray<Entity> = engine.getEntitiesFor(
+    private val greenCharactersEntities: ImmutableArray<Entity> = gamePlayManagers.ecs.engine.getEntitiesFor(
         Family.all(GreenComponent::class.java).get()
     )
 
@@ -48,10 +70,11 @@ class TurretsHandler(engine: PooledEngine) {
                 auxVector1
             )
             val cannonTransform = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
+            val cannonRotation = cannonTransform.getRotation(auxQuat2)
             cannonTransform.setToTranslation(
                 auxVector1
-            ).rotate(turretTransform.getRotation(auxQuat1.idt()))
-                .translate(
+            ).rotate(turretTransform.getRotation(auxQuat1.idt())).rotate(Vector3.Z, cannonRotation.roll)
+                .trn(
                     auxVector2.set(
                         ComponentsMapper.turretCannonComponent.get(cannon).relativeX,
                         ComponentsMapper.turretCannonComponent.get(cannon).relativeY,
@@ -62,42 +85,66 @@ class TurretsHandler(engine: PooledEngine) {
     }
 
     private fun handleTurretAutomation(turret: Entity, deltaTime: Float) {
-        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
-        if (turretAutomationComponent != null) {
-            val target = turretAutomationComponent.target
-            val turretPosition = ModelUtils.getPositionOfModel(
-                turret,
-                auxVector1
-            )
-            val turretComponent = ComponentsMapper.turret.get(turret)
-            if (target == null) {
-                var closestGreen: Entity? = null
-                var closestGreenDistance = AUTOMATED_TURRET_MAX_DISTANCE
-                for (greenCharacter in greenCharactersEntities) {
-                    val greenCharacterComponent = ComponentsMapper.character.get(greenCharacter)
-                    if (!greenCharacterComponent.dead && greenCharacterComponent.hp > 0) {
-                        val greenPosition = ModelUtils.getPositionOfModel(
-                            greenCharacter,
-                            auxVector2
-                        )
-                        if (greenPosition.dst2(turretPosition) < closestGreenDistance) {
-                            closestGreenDistance = greenPosition.dst2(turretPosition)
-                            closestGreen = greenCharacter
-                        }
-                    }
-                }
-                if (closestGreen != null) {
-                    turretAutomationComponent.target = closestGreen
-                    turretComponent.followBaseRotation = false
-                }
+        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret) ?: return
+        val turretComponent = ComponentsMapper.turret.get(turret)
+
+        val target = turretAutomationComponent.target
+        val turretPosition = ModelUtils.getPositionOfModel(turret, auxVector1)
+        if (target == null) {
+            findClosestEnemy(turretPosition, turretAutomationComponent, turretComponent)
+        } else {
+            if (ModelUtils.getPositionOfModel(target).dst2(turretPosition) > AUTOMATED_TURRET_MAX_DISTANCE) {
+                turretComponent.followBaseRotation = true
+                turretAutomationComponent.target = null
             } else {
-                if (ModelUtils.getPositionOfModel(target).dst2(turretPosition) > AUTOMATED_TURRET_MAX_DISTANCE) {
-                    turretComponent.followBaseRotation = true
-                    turretAutomationComponent.target = null
+                val aimedHorizontally = rotateAutomatedTurret(turret, deltaTime)
+                if (aimedHorizontally) {
+                    val targetPosition = ModelUtils.getPositionOfModel(target, auxVector2)
+                    val directionToTarget = targetPosition.sub(turretPosition).nor()
+                    val targetElevationAngle = MathUtils.atan2(
+                        directionToTarget.y,
+                        sqrt(directionToTarget.x * directionToTarget.x + directionToTarget.z * directionToTarget.z)
+                    )
+                    val targetElevationDegrees = targetElevationAngle * MathUtils.radiansToDegrees
+                    val transform =
+                        ComponentsMapper.modelInstance.get(turretComponent.cannon).gameModelInstance.modelInstance.transform
+                    transform.setToRotation(Vector3.Z, targetElevationDegrees)
+                    if (!shootingHandler.isPrimaryShooting()) {
+                        shootingHandler.startPrimaryShooting(turretComponent.base)
+                    }
                 } else {
-                    rotateAutomatedTurret(turret, deltaTime)
+                    shootingHandler.stopPrimaryShooting()
                 }
             }
+        }
+        shootingHandler.update(turretComponent.base)
+    }
+
+    private fun findClosestEnemy(
+        turretPosition: Vector3,
+        turretAutomationComponent: TurretAutomationComponent,
+        turretComponent: TurretComponent
+    ) {
+        var closestGreen: Entity? = null
+        var closestGreenDistance = AUTOMATED_TURRET_MAX_DISTANCE
+        for (greenCharacter in greenCharactersEntities) {
+            val greenCharacterComponent = ComponentsMapper.character.get(greenCharacter)
+            if (!greenCharacterComponent.dead && greenCharacterComponent.hp > 0) {
+                val greenPosition = ModelUtils.getPositionOfModel(
+                    greenCharacter,
+                    auxVector2
+                )
+                if (greenPosition.dst2(turretPosition) < closestGreenDistance) {
+                    closestGreenDistance = greenPosition.dst2(turretPosition)
+                    closestGreen = greenCharacter
+                }
+            }
+        }
+        if (closestGreen != null) {
+            turretAutomationComponent.target = closestGreen
+            turretComponent.followBaseRotation = false
+        } else {
+            shootingHandler.stopPrimaryShooting()
         }
     }
 
@@ -166,6 +213,7 @@ class TurretsHandler(engine: PooledEngine) {
         private val auxVector3 = Vector3()
         private val auxVector4 = Vector3()
         private val auxQuat1 = com.badlogic.gdx.math.Quaternion()
+        private val auxQuat2 = com.badlogic.gdx.math.Quaternion()
         private const val AUTOMATED_TURRET_MAX_DISTANCE = 60F
     }
 }

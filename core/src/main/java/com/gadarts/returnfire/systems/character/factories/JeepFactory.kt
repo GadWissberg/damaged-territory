@@ -27,8 +27,8 @@ class JeepFactory(
 ) : CharacterFactory(gameModelInstanceFactory, entityBuilder, assetsManager) {
     override fun create(base: GameMapPlacedObject, color: CharacterColor): Entity {
         val primarySpark = addSpark(
-            assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK),
-            tankPrimaryRelativePositionCalculator
+            assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK),
+            jeepPrimaryRelativePositionCalculator
         )
         val entityBuilder = entityBuilder.begin()
         addCharacterBaseComponents(
@@ -100,44 +100,44 @@ class JeepFactory(
         entityBuilder.addPrimaryArmComponent(
             primarySpark,
             ArmProperties(
-                30F,
-                assetsManager.getAssetByDefinition(SoundDefinition.CANNON_A),
-                TANK_PRI_RELOAD_DUR,
-                TANK_PRI_BULLET_SPEED,
+                1F,
+                assetsManager.getAssetByDefinition(SoundDefinition.MACHINE_GUN_LIGHT),
+                PRI_RELOAD_DUR,
+                PRI_BULLET_SPEED,
                 ArmEffectsData(
-                    ParticleEffectDefinition.EXPLOSION,
+                    ParticleEffectDefinition.RICOCHET,
                     null,
                     gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
-                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
+                    null
                 ),
                 ArmRenderData(
-                    ModelDefinition.TANK_CANNON_BULLET,
-                    assetsManager.getCachedBoundingBox(ModelDefinition.TANK_CANNON_BULLET),
+                    ModelDefinition.BULLET,
+                    assetsManager.getCachedBoundingBox(ModelDefinition.BULLET),
                 ),
-                true,
-                gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.TANK_CANNON_BULLET),
-                40,
-                AimingRestriction.ONLY_GROUND
+                false,
+                gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(ModelDefinition.BULLET),
+                1000,
+                null
             ),
             BulletBehavior.REGULAR
         )
         return entityBuilder
     }
 
-    private val tankPrimaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
+    private val jeepPrimaryRelativePositionCalculator = object : ArmComponent.RelativePositionCalculator {
         override fun calculate(parent: Entity, output: Vector3): Vector3 {
             val turret = ComponentsMapper.turretBase.get(parent).turret
             val transform =
-                ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
-            val pos = output.set(0.7F, 0F, 0F).rot(transform)
-            pos.y += 0.1F
+                ComponentsMapper.modelInstance.get(ComponentsMapper.turret.get(turret).cannon).gameModelInstance.modelInstance.transform
+            val pos = output.set(0.2F, 0F, 0F).rot(transform)
+            pos.y += 0.4F
             return pos
         }
     }
 
     companion object {
-        private const val TANK_PRI_RELOAD_DUR = 2000L
-        private const val TANK_PRI_BULLET_SPEED = 8F
+        private const val PRI_RELOAD_DUR = 150L
+        private const val PRI_BULLET_SPEED = 16F
         private val auxVector3_1 = Vector3()
     }
 }

@@ -142,7 +142,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             player,
             deltaTime
         )
-        playerShootingHandler.update(player)
+        val turretBaseComponent = ComponentsMapper.turretBase.get(player)
+        if (turretBaseComponent == null || !ComponentsMapper.turretAutomationComponent.has(turretBaseComponent.turret)) {
+            playerShootingHandler.update(player)
+        }
         val position =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1

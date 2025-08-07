@@ -48,7 +48,7 @@ import kotlin.math.sign
 
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     GameEntitySystem(gamePlayManagers) {
-    private val turretsHandler = TurretsHandler(gamePlayManagers.ecs.engine)
+    private val turretsHandler by lazy { TurretsHandler(gamePlayManagers, gameSessionData) }
     private val characterPhysicsInitializer = CharacterPhysicsInitializer()
     private val characterAmbSoundHandler =
         CharacterAmbSoundHandler(gamePlayManagers.soundManager, gamePlayManagers.ecs.engine)

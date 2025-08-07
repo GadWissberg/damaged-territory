@@ -26,6 +26,7 @@ open class CharacterShootingHandler(
     private val soundManager: SoundManager,
     private val depletedSound: Sound
 ) {
+    private var initialized: Boolean = false
     protected var priShooting: Boolean = false
     private var secShooting: Boolean = false
     protected lateinit var gameSessionData: GameSessionData
@@ -54,61 +55,61 @@ open class CharacterShootingHandler(
         character: Entity
     ) {
         if (!shooting || armComp.ammo <= 0) return
-
         val now = TimeUtils.millis()
-        if (armComp.loaded <= now) {
-            val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
-            val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
-            armComp.displaySpark = now
-            armComp.loaded = now + armComp.armProperties.reloadDuration
-            val direction =
-                if (!ComponentsMapper.turretBase.has(character) || ComponentsMapper.turret.get(
-                        ComponentsMapper.turretBase.get(
-                            character
-                        ).turret
-                    ).cannon == null
-                ) {
-                    val rotation =
-                        transform.getRotation(
-                            auxQuat
-                        )
-                    auxMatrix.set(
-                        rotation.setEulerAngles(rotation.yaw, 0F, 6F)
-                    )
-                } else {
-                    val cannon =
-                        ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).cannon
-                    val direction = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
-                    if (armComp.isPrimary()) {
-                        val particleEffect = entityBuilder.begin().addParticleEffectComponent(
-                            direction.getTranslation(auxVector3_1),
-                            gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
-                            followRelativePosition = auxVector3_2.set(0.5F, 0F, 0F),
-                        ).finishAndAddToEngine()
-                        ComponentsMapper.particleEffect.get(particleEffect).followEntity = cannon
-                    }
-                    direction
-                }
-            val target = handleAutoAim(
-                if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.modelInstance.get(
+        if (armComp.loaded > now) return
+
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
+        val transform = modelInstanceComponent.gameModelInstance.modelInstance.transform
+        armComp.displaySpark = now
+        armComp.loaded = now + armComp.armProperties.reloadDuration
+        val direction =
+            if (!ComponentsMapper.turretBase.has(character) || ComponentsMapper.turret.get(
                     ComponentsMapper.turretBase.get(
                         character
                     ).turret
-                ).gameModelInstance.modelInstance.transform else transform,
-                armComp.armProperties.aimingRestriction
-            )
-            if (target == null) {
-                CharacterWeaponShotEventData.setWithDirection(
-                    character,
-                    direction,
-                    aimSky
+                ).cannon == null
+            ) {
+                val rotation =
+                    transform.getRotation(
+                        auxQuat
+                    )
+                auxMatrix.set(
+                    rotation.setEulerAngles(rotation.yaw, 0F, 6F)
                 )
             } else {
-                CharacterWeaponShotEventData.setWithTarget(character, target)
+                val cannon =
+                    ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).cannon
+                val direction = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
+                if (armComp.isPrimary()) {
+                    val particleEffect = entityBuilder.begin().addParticleEffectComponent(
+                        direction.getTranslation(auxVector3_1),
+                        gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
+                        followRelativePosition = auxVector3_2.set(0.5F, 0F, 0F),
+                    ).finishAndAddToEngine()
+                    ComponentsMapper.particleEffect.get(particleEffect).followEntity = cannon
+                }
+                direction
             }
-            armComp.consumeAmmo()
-            dispatcher.dispatchMessage(event.ordinal)
+        val target = handleAutoAim(
+            if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.modelInstance.get(
+                ComponentsMapper.turretBase.get(
+                    character
+                ).turret
+            ).gameModelInstance.modelInstance.transform else transform,
+            armComp.armProperties.aimingRestriction
+        )
+        if (target == null) {
+            CharacterWeaponShotEventData.setWithDirection(
+                character,
+                direction,
+                aimSky
+            )
+        } else {
+            CharacterWeaponShotEventData.setWithTarget(character, target)
         }
+        armComp.consumeAmmo()
+        dispatcher.dispatchMessage(event.ordinal)
+
     }
 
     private fun updateAutoAim(character: Entity) {
@@ -171,8 +172,8 @@ open class CharacterShootingHandler(
                 )
                 val isFlyer = characterComponent.definition.isFlyer()
                 if ((aimingRestriction == null
-                            || (isFlyer && aimingRestriction == AimingRestriction.ONLY_SKY)
-                            || (!isFlyer && aimingRestriction == AimingRestriction.ONLY_GROUND))
+                        || (isFlyer && aimingRestriction == AimingRestriction.ONLY_SKY)
+                        || (!isFlyer && aimingRestriction == AimingRestriction.ONLY_GROUND))
                     && !characterComponent.dead
                 ) {
                     val gameModelInstance =
@@ -217,7 +218,7 @@ open class CharacterShootingHandler(
     }
 
     open fun update(character: Entity) {
-        if (!ComponentsMapper.primaryArm.has(character)) return
+        if (!initialized || !ComponentsMapper.primaryArm.has(character)) return
 
         updateAutoAim(character)
         var armComp: ArmComponent = ComponentsMapper.primaryArm.get(character)
@@ -246,6 +247,11 @@ open class CharacterShootingHandler(
         this.gameSessionData = gameSessionData
         this.dispatcher = dispatcher
         this.autoAim = autoAim
+        this.initialized = true
+    }
+
+    fun isPrimaryShooting(): Boolean {
+        return priShooting
     }
 
     companion object {
