@@ -96,8 +96,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(FlyingPartComponent::class.java)
     val apacheAiComponent: ComponentMapper<ApacheAiComponent> =
         ComponentMapper.getFor(ApacheAiComponent::class.java)
-    val tankAiComponent: ComponentMapper<TankAiComponent> =
-        ComponentMapper.getFor(TankAiComponent::class.java)
+    val groundCharacterAiComponent: ComponentMapper<GroundCharacterAiComponent> =
+        ComponentMapper.getFor(GroundCharacterAiComponent::class.java)
     val turretEnemyAiComponent: ComponentMapper<TurretEnemyAiComponent> =
         ComponentMapper.getFor(TurretEnemyAiComponent::class.java)
     val frontWheelsComponent: ComponentMapper<FrontWheelsComponent> =

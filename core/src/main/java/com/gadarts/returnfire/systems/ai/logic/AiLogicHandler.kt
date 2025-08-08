@@ -26,23 +26,26 @@ class AiLogicHandler(
     }
     private val aiEnemyTurretLogic by lazy { AiEnemyTurretLogic(gameSessionData, gamePlayManagers) }
 
-    private val aiApacheLogic by lazy {
-        AiApacheLogic(
+    private val logics = mapOf(
+        SimpleCharacterDefinition.APACHE to AiApacheLogic(
             gameSessionData,
             gamePlayManagers.dispatcher,
             gamePlayManagers.ecs.entityBuilder,
             gamePlayManagers.soundManager,
             gamePlayManagers.assetsManager,
             autoAim
-        )
-    }
-    private val aiTankLogic by lazy {
-        AiTankLogic(
+        ),
+        TurretCharacterDefinition.TANK to AiGroundCharacterLogic(
+            gameSessionData,
+            autoAim,
+            gamePlayManagers
+        ),
+        TurretCharacterDefinition.JEEP to AiGroundCharacterLogic(
             gameSessionData,
             autoAim,
             gamePlayManagers
         )
-    }
+    )
 
     fun update(deltaTime: Float) {
         updateEnemyTurrets(deltaTime)
@@ -53,16 +56,14 @@ class AiLogicHandler(
                 character
             )
 
-
             if ((boardingComponent != null && boardingComponent.isBoarding())
                 || characterComponent == null
                 || characterComponent.dead
             ) continue
 
-            if (characterComponent.definition == SimpleCharacterDefinition.APACHE) {
-                updateLogic(character, deltaTime, aiApacheLogic)
-            } else if (characterComponent.definition == TurretCharacterDefinition.TANK) {
-                updateLogic(character, deltaTime, aiTankLogic)
+            val logic = logics[characterComponent.definition]
+            if (logic != null) {
+                updateLogic(character, deltaTime, logic)
             }
         }
     }
@@ -82,6 +83,8 @@ class AiLogicHandler(
     }
 
     override fun dispose() {
-        aiTankLogic.dispose()
+        logics.forEach { (_, aiLogic) ->
+            aiLogic.dispose()
+        }
     }
 }

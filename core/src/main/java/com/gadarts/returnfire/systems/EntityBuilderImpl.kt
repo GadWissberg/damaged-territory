@@ -517,10 +517,10 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addTankAiComponentToEntity(entity: Entity): TankAiComponent {
-        val tankAiComponent = TankAiComponent()
-        entity.add(tankAiComponent)
-        return tankAiComponent
+    override fun addGroundCharacterAiComponentToEntity(entity: Entity): GroundCharacterAiComponent {
+        val groundCharacterAiComponent = GroundCharacterAiComponent()
+        entity.add(groundCharacterAiComponent)
+        return groundCharacterAiComponent
     }
 
     override fun addApacheAiComponentToEntity(entity: Entity, initialHp: Float): ApacheAiComponent {

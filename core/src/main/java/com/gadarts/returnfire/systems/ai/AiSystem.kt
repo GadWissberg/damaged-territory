@@ -9,6 +9,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ai.BaseAiComponent
+import com.gadarts.returnfire.components.ai.GroundCharacterAiComponent
 import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.GameEntitySystem
@@ -30,17 +31,27 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
             )
         },
         TurretCharacterDefinition.TANK to { entity: Entity ->
-            val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
-            if (turretBaseComponent != null) {
-                gamePlayManagers.ecs.entityBuilder.addAiTurretComponentToEntity(
-                    turretBaseComponent.turret,
-                )
-            }
-            gamePlayManagers.ecs.entityBuilder.addTankAiComponentToEntity(
-                entity,
-            )
+            initializeGroundCharacterAiComponents(entity, gamePlayManagers)
+        }, TurretCharacterDefinition.JEEP to { entity: Entity ->
+            initializeGroundCharacterAiComponents(entity, gamePlayManagers)
         }
     )
+
+    private fun initializeGroundCharacterAiComponents(
+        entity: Entity,
+        gamePlayManagers: GamePlayManagers
+    ): GroundCharacterAiComponent {
+        val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
+        if (turretBaseComponent != null) {
+            gamePlayManagers.ecs.entityBuilder.addAiTurretComponentToEntity(
+                turretBaseComponent.turret,
+            )
+        }
+        return gamePlayManagers.ecs.entityBuilder.addGroundCharacterAiComponentToEntity(
+            entity,
+        )
+    }
+
     private val aiLogicHandler: AiLogicHandler by lazy {
         AiLogicHandler(
             gameSessionData, gamePlayManagers, autoAim, engine.getEntitiesFor(

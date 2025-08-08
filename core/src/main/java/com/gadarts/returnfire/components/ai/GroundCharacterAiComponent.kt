@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Component
 import com.gadarts.returnfire.model.MapGraphPath
 import com.gadarts.returnfire.model.graph.MapGraphNode
 
-class TankAiComponent : Component {
+class GroundCharacterAiComponent : Component {
     var roamingEndTime: Long? = null
     val nodesToExclude: MutableList<MapGraphNode> = ArrayList()
     var currentNode: MapGraphNode? = null

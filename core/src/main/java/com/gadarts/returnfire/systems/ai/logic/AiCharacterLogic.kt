@@ -3,11 +3,12 @@ package com.gadarts.returnfire.systems.ai.logic
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.ComponentsMapper.ai
 import com.gadarts.returnfire.systems.events.SystemEvents
 
-abstract class AiCharacterLogic(protected val dispatcher: MessageDispatcher) {
+abstract class AiCharacterLogic(protected val dispatcher: MessageDispatcher) : Disposable {
     abstract fun preUpdate(character: Entity, deltaTime: Float)
     abstract fun update(character: Entity, deltaTime: Float)
     fun onboard(character: Entity, epsilon: Float) {
@@ -45,6 +46,9 @@ abstract class AiCharacterLogic(protected val dispatcher: MessageDispatcher) {
         return characterComponent.hp <= initialHp / 4F && target != null && !ComponentsMapper.hangarStage.has(target)
     }
 
+    override fun dispose() {
+
+    }
     companion object {
         val auxVector1 = Vector3()
         val auxVector2 = Vector3()

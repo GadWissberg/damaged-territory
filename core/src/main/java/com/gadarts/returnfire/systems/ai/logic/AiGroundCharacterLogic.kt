@@ -21,7 +21,7 @@ import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.systems.ai.AiStatus
 import com.gadarts.returnfire.systems.ai.AiTurretStatus
-import com.gadarts.returnfire.systems.ai.logic.AiTankLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
+import com.gadarts.returnfire.systems.ai.logic.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
 import com.gadarts.returnfire.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_AI
@@ -34,7 +34,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 
 
-class AiTankLogic(
+class AiGroundCharacterLogic(
     private val gameSessionData: GameSessionData,
     autoAim: btPairCachingGhostObject,
     private val gamePlayManagers: GamePlayManagers,
@@ -60,10 +60,10 @@ class AiTankLogic(
         val aiComponent = ai.get(character)
         if (aiComponent.target == null) return
 
-        val tankAiComponent = ComponentsMapper.tankAiComponent.get(character)
-        val roamingEndTime = tankAiComponent.roamingEndTime
+        val groundCharacterAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
+        val roamingEndTime = groundCharacterAiComponent.roamingEndTime
         val mapGraph = gameSessionData.mapData.mapGraph
-        val path = tankAiComponent.path
+        val path = groundCharacterAiComponent.path
         if (aiComponent.state == AiStatus.PLANNING) {
             val position =
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
@@ -84,25 +84,25 @@ class AiTankLogic(
                     start,
                     end,
                     path,
-                    tankAiComponent.nodesToExclude,
+                    groundCharacterAiComponent.nodesToExclude,
                     MapGraphCost.FREE_WAY
                 )
             if (pathFound) {
                 aiComponent.state = AiStatus.MOVING
                 path.nodes.removeIndex(0)
-                tankAiComponent.currentNode = start
+                groundCharacterAiComponent.currentNode = start
             } else {
                 val pathFoundIncludingBlockedWAY = gamePlayManagers.pathFinder.searchNodePath(
                     start,
                     end,
                     path,
-                    tankAiComponent.nodesToExclude,
+                    groundCharacterAiComponent.nodesToExclude,
                     MapGraphCost.BLOCKED_WAY
                 )
                 if (pathFoundIncludingBlockedWAY) {
                     aiComponent.state = AiStatus.MOVING
                     path.nodes.removeIndex(0)
-                    tankAiComponent.currentNode = start
+                    groundCharacterAiComponent.currentNode = start
                 } else {
                     activateRoaming(character)
                 }
@@ -141,7 +141,7 @@ class AiTankLogic(
     }
 
     private fun deactivateRoamingIfNeeded(character: Entity) {
-        val tankAiComponent = ComponentsMapper.tankAiComponent.get(character)
+        val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
         val baseAiComponent = ai.get(character)
         val roamingEndTime = tankAiComponent.roamingEndTime
         if (roamingEndTime == null || roamingEndTime < TimeUtils.millis()) {
@@ -153,7 +153,7 @@ class AiTankLogic(
     }
 
     private fun activateRoaming(tank: Entity) {
-        val tankAiComponent = ComponentsMapper.tankAiComponent.get(tank)
+        val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(tank)
         val baseAiComponent = ai.get(tank)
         baseAiComponent.state = AiStatus.ROAMING
         tankAiComponent.roamingEndTime = System.currentTimeMillis() + 10000L
@@ -330,7 +330,7 @@ class AiTankLogic(
         val aiComponent = ai.get(character)
         if (shouldReturnToBase(character)) {
             aiComponent.state = AiStatus.PLANNING
-            ComponentsMapper.tankAiComponent.get(character).roamingEndTime = 0
+            ComponentsMapper.groundCharacterAiComponent.get(character).roamingEndTime = 0
             aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(character).color]
         }
     }
@@ -341,7 +341,7 @@ class AiTankLogic(
         deltaTime: Float
     ) {
         val baseAiComponent = ai.get(tank)
-        val tankAiComponent = ComponentsMapper.tankAiComponent.get(tank)
+        val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(tank)
         val pathNodes = tankAiComponent.path.nodes
         val target = baseAiComponent.target
         val targetTransform =
@@ -502,7 +502,7 @@ class AiTankLogic(
                     val colliderModelInstanceComponent =
                         ComponentsMapper.modelInstance.get(collisionObjectEntity)
                     val aiComponent = ai.get(character)
-                    val tankAiComponent = ComponentsMapper.tankAiComponent.get(character)
+                    val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
                     if (colliderModelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector3_1
                         )
@@ -544,7 +544,7 @@ class AiTankLogic(
                 tileCollector
             )
             val aiComponent = ai.get(character)
-            val tankAiComponent = ComponentsMapper.tankAiComponent.get(character)
+            val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
             aiComponent.state =
                 if (tankAiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
             tankAiComponent.setNodesToExclude(result)
@@ -670,14 +670,14 @@ class AiTankLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                rayTest(
-                    position,
-                    direction,
-                    collisionWorld,
-                    callback,
-                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                    MAX_LOOKING_AHEAD
-                ) || rayTest(
+                    rayTest(
+                        position,
+                        direction,
+                        collisionWorld,
+                        callback,
+                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                        MAX_LOOKING_AHEAD
+                    ) || rayTest(
                 position,
                 direction,
                 collisionWorld,

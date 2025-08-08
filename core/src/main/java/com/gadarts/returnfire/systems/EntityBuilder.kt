@@ -16,7 +16,7 @@ import com.gadarts.returnfire.components.TreeComponent
 import com.gadarts.returnfire.components.ai.AiTurretComponent
 import com.gadarts.returnfire.components.ai.ApacheAiComponent
 import com.gadarts.returnfire.components.ai.BaseAiComponent
-import com.gadarts.returnfire.components.ai.TankAiComponent
+import com.gadarts.returnfire.components.ai.GroundCharacterAiComponent
 import com.gadarts.returnfire.components.amb.AmbAnimationComponent
 import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.components.arm.ArmProperties
@@ -193,7 +193,7 @@ interface EntityBuilder {
     fun addFenceComponentToEntity(entity: Entity): FenceComponent
     fun addAiTurretComponentToEntity(turret: Entity): AiTurretComponent
     fun addDrowningEffectComponent(): EntityBuilder
-    fun addTankAiComponentToEntity(entity: Entity): TankAiComponent
+    fun addGroundCharacterAiComponentToEntity(entity: Entity): GroundCharacterAiComponent
     fun addApacheAiComponentToEntity(entity: Entity, initialHp: Float): ApacheAiComponent
     fun addTurretEnemyAiComponent(): EntityBuilder
     fun addFrontWheelsComponent(wheel: ModelDefinition): EntityBuilder
