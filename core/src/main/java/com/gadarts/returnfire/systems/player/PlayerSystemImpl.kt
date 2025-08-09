@@ -18,24 +18,64 @@ import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.SystemEvents.*
+import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_MANUAL_AIM_PRESSED
+import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_ONBOARD_PRESSED
+import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_REVERSE_PRESSED
+import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_REVERSE_RELEASED
+import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED
+import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED
+import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED
+import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED
+import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_DEPLOYED
+import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_DIED
+import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_ONBOARDING_FINISHED
+import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_REQUEST_BOARDING
+import com.gadarts.returnfire.systems.events.SystemEvents.LANDING_INDICATOR_VISIBILITY_CHANGED
+import com.gadarts.returnfire.systems.events.SystemEvents.OPPONENT_CHARACTER_CREATED
+import com.gadarts.returnfire.systems.events.SystemEvents.PLAYER_ADDED
 import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
+import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerMobile
 import com.gadarts.returnfire.systems.player.handlers.movement.jeep.JeepMovementHandlerDesktop
+import com.gadarts.returnfire.systems.player.handlers.movement.jeep.JeepMovementHandlerParams
 import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
-import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerMobile
+import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerParams
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.MovementTouchPadListener
 import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.TurretTouchPadListener
-import com.gadarts.returnfire.systems.player.react.*
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonOnboardPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonWeaponPrimaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonWeaponPrimaryReleased
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonWeaponSecondaryPressed
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonWeaponSecondaryReleased
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterDied
+import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterOffBoarded
+import com.gadarts.shared.model.definitions.CharacterDefinition
 import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 @Suppress("KotlinConstantConditions")
-class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), PlayerSystem,
+class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers),
+    PlayerSystem,
     InputProcessor {
+    private val playerMovementHandlersDesktop = mapOf<CharacterDefinition, VehicleMovementHandler>(
+        SimpleCharacterDefinition.APACHE to ApacheMovementHandlerDesktop(),
+        TurretCharacterDefinition.TANK to TankMovementHandlerDesktop(),
+        TurretCharacterDefinition.JEEP to JeepMovementHandlerDesktop()
+    )
+
+    private val playerMovementHandlersMobile: Map<CharacterDefinition, VehicleMovementHandler> =
+        mapOf(
+            SimpleCharacterDefinition.APACHE to ApacheMovementHandlerMobile(),
+            TurretCharacterDefinition.TANK to GroundVehicleMovementHandlerMobile(
+                TankMovementHandlerParams()
+            ),
+            TurretCharacterDefinition.JEEP to GroundVehicleMovementHandlerMobile(
+                JeepMovementHandlerParams()
+            )
+        )
 
     private val playerStage: Entity by lazy {
         engine.getEntitiesFor(
@@ -64,18 +104,24 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         BUTTON_WEAPON_PRIMARY_PRESSED to PlayerSystemOnButtonWeaponPrimaryPressed(
             playerShootingHandler,
         ),
-        BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnButtonWeaponPrimaryReleased(playerShootingHandler),
+        BUTTON_WEAPON_PRIMARY_RELEASED to PlayerSystemOnButtonWeaponPrimaryReleased(
+            playerShootingHandler
+        ),
         BUTTON_WEAPON_SECONDARY_PRESSED to PlayerSystemOnButtonWeaponSecondaryPressed(
             playerShootingHandler,
         ),
-        BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnButtonWeaponSecondaryReleased(playerShootingHandler),
+        BUTTON_WEAPON_SECONDARY_RELEASED to PlayerSystemOnButtonWeaponSecondaryReleased(
+            playerShootingHandler
+        ),
         BUTTON_REVERSE_PRESSED to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonPressed(gameSessionData.gamePlayData.player!!)
+                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonPressed(
+                    gameSessionData.gamePlayData.player!!
+                )
             }
         },
         BUTTON_REVERSE_RELEASED to object : HandlerOnEvent {
@@ -84,7 +130,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonReleased(gameSessionData.gamePlayData.player!!)
+                gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonReleased(
+                    gameSessionData.gamePlayData.player!!
+                )
             }
         },
         CHARACTER_DEPLOYED to PlayerSystemOnCharacterOffBoarded(this),
@@ -92,13 +140,18 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
             @Suppress("SimplifyBooleanWithConstants", "RedundantSuppression")
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
                 val entity = msg.extraInfo as Entity
                 if (ComponentsMapper.character.get(entity).color == CharacterColor.BROWN) {
                     gameSessionData.gamePlayData.player = entity
                     @Suppress("KotlinConstantConditions")
                     if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {
-                        ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_PLAYER_HP
+                        ComponentsMapper.character.get(entity).hp =
+                            GameDebugSettings.FORCE_PLAYER_HP
                     }
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
                     modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
@@ -118,7 +171,11 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
         },
         CHARACTER_ONBOARDING_FINISHED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
                 if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
                     gamePlayManagers.screensManager.goToHangarScreen()
                 }
@@ -143,7 +200,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             deltaTime
         )
         val turretBaseComponent = ComponentsMapper.turretBase.get(player)
-        if (turretBaseComponent == null || !ComponentsMapper.turretAutomationComponent.has(turretBaseComponent.turret)) {
+        if (turretBaseComponent == null || !ComponentsMapper.turretAutomationComponent.has(
+                turretBaseComponent.turret
+            )
+        ) {
             playerShootingHandler.update(player)
         }
         val position =
@@ -161,9 +221,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (isGamePaused()
-            || player == null
-            || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player).isBoarding())
-            || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
+                || player == null
+                || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
+            .isBoarding())
+                || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -222,7 +283,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (gameSessionData.gamePlayData.player == null || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player)
+        if (gameSessionData.gamePlayData.player == null || ComponentsMapper.boarding.get(
+                gameSessionData.gamePlayData.player
+            )
                 .isBoarding()
         ) return false
 
@@ -303,21 +366,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         val player = gameSessionData.gamePlayData.player
         val characterDefinition = ComponentsMapper.character.get(player).definition
         val runsOnMobile = gameSessionData.runsOnMobile
-        return if (characterDefinition == SimpleCharacterDefinition.APACHE) {
-            if (runsOnMobile) {
-                ApacheMovementHandlerMobile(
-                )
-            } else {
-                ApacheMovementHandlerDesktop()
-            }
-        } else if (characterDefinition == TurretCharacterDefinition.TANK) {
-            if (runsOnMobile) {
-                TankMovementHandlerMobile()
-            } else {
-                TankMovementHandlerDesktop()
-            }
+        return if (runsOnMobile) {
+            playerMovementHandlersMobile[characterDefinition]!!
         } else {
-            JeepMovementHandlerDesktop()
+            playerMovementHandlersDesktop[characterDefinition]!!
         }
     }
 
@@ -337,9 +389,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-            && position.x >= stagePosition.x - LANDING_OK_OFFSET
-            && position.z <= stagePosition.z + LANDING_OK_OFFSET
-            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+                && position.x >= stagePosition.x - LANDING_OK_OFFSET
+                && position.z <= stagePosition.z + LANDING_OK_OFFSET
+                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(

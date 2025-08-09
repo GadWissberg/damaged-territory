@@ -1,0 +1,11 @@
+package com.gadarts.returnfire.systems.player.handlers.movement.jeep
+
+import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMovementHandlerParams
+
+class JeepMovementHandlerParams : GroundVehicleMovementHandlerParams(
+    2F,
+    35F,
+    15F,
+    7F,
+    2F
+)

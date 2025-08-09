@@ -10,13 +10,7 @@ import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMove
 import kotlin.math.max
 import kotlin.math.min
 
-class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(
-    2F,
-    35F,
-    15F,
-    7F,
-    2F
-) {
+class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(JeepMovementHandlerParams()) {
     private var movement: Int = 0
     private var rotation: Int = 0
 
@@ -100,7 +94,8 @@ class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(
     ) {
         val moving = isMoving(rigidBody)
         if (frontWheelsComponent.steeringRotation != 0F && moving != 0) {
-            val clockwise = (if (frontWheelsComponent.steeringRotation > 0F) 1 else -1) * (if (moving > 0) 1 else -1)
+            val clockwise =
+                (if (frontWheelsComponent.steeringRotation > 0F) 1 else -1) * (if (moving > 0) 1 else -1)
             applyRotation(clockwise, character)
         } else {
             rotation = 0

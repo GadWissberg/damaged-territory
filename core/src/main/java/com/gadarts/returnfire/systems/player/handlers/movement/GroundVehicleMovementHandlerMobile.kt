@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems.player.handlers.movement.tank
+package com.gadarts.returnfire.systems.player.handlers.movement
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
 
-class TankMovementHandlerMobile :
-    TankMovementHandler() {
+class GroundVehicleMovementHandlerMobile(params: GroundVehicleMovementHandlerParams) :
+    GroundVehicleMovementHandler(params) {
     private val desiredDirection = Vector2()
     private var desiredDirectionChanged: Boolean = false
     private var movement: Int = 0

@@ -5,18 +5,12 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.gadarts.returnfire.components.ComponentsMapper
 
-abstract class GroundVehicleMovementHandler(
-    rotationScale: Float,
-    forwardForceSize: Float,
-    reverseForceSize: Float,
-    maxVelocity: Float,
-    private val engineMaxPitch: Float
-) :
+abstract class GroundVehicleMovementHandler(private val params: GroundVehicleMovementHandlerParams) :
     VehicleMovementHandler(
-        rotationScale = rotationScale,
-        forwardForceSize = forwardForceSize,
-        reverseForceSize = reverseForceSize,
-        maxVelocity = maxVelocity
+        rotationScale = params.rotationScale,
+        forwardForceSize = params.forwardForceSize,
+        reverseForceSize = params.reverseForceSize,
+        maxVelocity = params.maxVelocity
     ) {
 
     protected open fun idleEngineSound(character: Entity) {
@@ -28,11 +22,16 @@ abstract class GroundVehicleMovementHandler(
         rigidBody.angularFactor = Vector3.Y
     }
 
-    override fun pushForward(rigidBody: btRigidBody, forwardDirection: Int, character: Entity, deltaTime: Float) {
+    override fun pushForward(
+        rigidBody: btRigidBody,
+        forwardDirection: Int,
+        character: Entity,
+        deltaTime: Float
+    ) {
         super.pushForward(rigidBody, forwardDirection, character, deltaTime)
 
         if (ComponentsMapper.ambSound.has(character)) {
-            ComponentsMapper.ambSound.get(character).pitchTarget = engineMaxPitch
+            ComponentsMapper.ambSound.get(character).pitchTarget = params.engineMaxPitch
         }
     }
 

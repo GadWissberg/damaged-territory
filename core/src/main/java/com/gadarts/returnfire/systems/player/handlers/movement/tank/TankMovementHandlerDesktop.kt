@@ -4,9 +4,10 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMovementHandler
 
 class TankMovementHandlerDesktop :
-    TankMovementHandler() {
+    GroundVehicleMovementHandler(TankMovementHandlerParams()) {
     private var turretRotationEnabled: Boolean = false
     private var movement: Int = 0
     private var rotation: Int = 0
