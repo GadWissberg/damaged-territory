@@ -13,7 +13,7 @@ class CharacterSystemOnCharacterWeaponShotPrimary(characterSystem: CharacterSyst
     HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val shooter = CharacterWeaponShotEventData.shooter
-        shoot(gameSessionData, gamePlayManagers, ComponentsMapper.primaryArm.get(shooter), shooter)
+        shoot(gamePlayManagers, ComponentsMapper.primaryArm.get(shooter), shooter)
     }
 
 

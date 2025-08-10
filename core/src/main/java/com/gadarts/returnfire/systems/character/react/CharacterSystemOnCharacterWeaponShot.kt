@@ -9,7 +9,6 @@ import com.gadarts.returnfire.components.arm.ArmComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.character.CharacterSystem
-import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
@@ -18,7 +17,6 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
     HandlerOnEvent {
 
     protected fun shoot(
-        gameSessionData: GameSessionData,
         gamePlayManagers: GamePlayManagers,
         arm: ArmComponent,
         shooter: Entity,
@@ -28,12 +26,7 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
             sparkComponent.parent,
             auxVector1
         )
-        val player = gameSessionData.gamePlayData.player
-        characterSystem.positionSpark(
-            arm,
-            ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance,
-            relativePosition
-        )
+        positionSpark(arm, shooter, relativePosition)
         initiateTurretKickoff(shooter, arm)
         val bulletDirection: Matrix4 = calculateBulletDirection(shooter, relativePosition, arm)
         BulletCreationRequestEventData.set(
@@ -45,6 +38,23 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
             CharacterWeaponShotEventData.aimSky
         )
         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.BULLET_CREATION_REQUEST.ordinal)
+    }
+
+    private fun positionSpark(
+        arm: ArmComponent,
+        shooter: Entity,
+        relativePosition: Vector3
+    ) {
+        val entity = if (ComponentsMapper.turretBase.has(shooter)) ComponentsMapper.turret.get(
+            ComponentsMapper.turretBase.get(shooter).turret
+        ).cannon else shooter
+        characterSystem.positionSpark(
+            arm,
+            ComponentsMapper.modelInstance.get(
+                entity
+            ).gameModelInstance.modelInstance,
+            relativePosition
+        )
     }
 
     private fun calculateBulletDirection(

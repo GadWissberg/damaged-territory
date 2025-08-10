@@ -130,7 +130,6 @@ class JeepFactory(
             val transform =
                 ComponentsMapper.modelInstance.get(ComponentsMapper.turret.get(turret).cannon).gameModelInstance.modelInstance.transform
             val pos = output.set(0.2F, 0F, 0F).rot(transform)
-            pos.y += 0.4F
             return pos
         }
     }

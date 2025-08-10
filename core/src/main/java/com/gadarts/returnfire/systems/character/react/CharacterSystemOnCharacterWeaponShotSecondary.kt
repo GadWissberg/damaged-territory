@@ -14,7 +14,6 @@ class CharacterSystemOnCharacterWeaponShotSecondary(characterSystem: CharacterSy
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val shooter = CharacterWeaponShotEventData.shooter
         shoot(
-            gameSessionData,
             gamePlayManagers,
             ComponentsMapper.secondaryArm.get(CharacterWeaponShotEventData.shooter),
             shooter

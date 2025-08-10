@@ -6,8 +6,6 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -116,7 +114,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             }
             var destroyBullet = bulletLogic.update(bullet, deltaTime)
             destroyBullet = if (!destroyBullet) position.x <= 0F || position.x >= tilesMapping.depth
-                || position.z <= 0F || position.z >= tilesMapping.width else true
+                    || position.z <= 0F || position.z >= tilesMapping.width else true
             if (destroyBullet) {
                 destroyBullet(bullet)
             }
@@ -130,16 +128,15 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun createBullet() {
-        val spark = BulletCreationRequestEventData.armComponent.spark
-        val parentModelInstanceComponent = ComponentsMapper.modelInstance.get(ComponentsMapper.spark.get(spark).parent)
-        val parentTransform = parentModelInstanceComponent.gameModelInstance.modelInstance.transform
-        val position = parentTransform.getTranslation(auxVector1)
+        val sparkParent = ComponentsMapper.spark.get(BulletCreationRequestEventData.armComponent.spark).parent
+        val parent = resolveParent(sparkParent)
+        val position = ModelUtils.getPositionOfModel(parent, auxVector1)
         gamePlayManagers.soundManager.play(
             BulletCreationRequestEventData.armComponent.armProperties.shootingSound,
             position
         )
         position.add(BulletCreationRequestEventData.relativePosition)
-        showSpark(position, parentTransform)
+        showSpark()
         val modelDefinition = BulletCreationRequestEventData.armComponent.armProperties.renderData.modelDefinition
         val gameModelInstance =
             gameSessionData.gamePlayData.pools.gameModelInstancePools[modelDefinition]!!.obtain()
@@ -155,6 +152,15 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         )
         addSmokeEmission(BulletCreationRequestEventData.armComponent.armProperties, gameModelInstance, position)
         addSparkParticleEffect(position, BulletCreationRequestEventData.armComponent)
+    }
+
+    private fun resolveParent(sparkParent: Entity) = if (ComponentsMapper.turretBase.has(sparkParent)) {
+        val turret = ComponentsMapper.turretBase.get(sparkParent).turret
+        ComponentsMapper.turret.get(
+            turret
+        ).cannon ?: turret
+    } else {
+        sparkParent
     }
 
     private fun createBulletEntity(
@@ -191,17 +197,9 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun showSpark(
-        position: Vector3?,
-        parentTransform: Matrix4
     ) {
         val spark = BulletCreationRequestEventData.armComponent.spark
         val sparkModelInstanceComponent = ComponentsMapper.modelInstance.get(spark)
-        val sparkTransform = sparkModelInstanceComponent.gameModelInstance.modelInstance.transform
-        sparkTransform.setToTranslation(position).rotate(parentTransform.getRotation(auxQuat))
-            .rotate(Vector3.Z, -30F)
-        sparkTransform.rotate(
-            Vector3.X, MathUtils.random(360F)
-        )
         sparkModelInstanceComponent.hideAt = TimeUtils.millis() + 50L
         sparkModelInstanceComponent.hidden = false
     }

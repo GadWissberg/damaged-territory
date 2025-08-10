@@ -12,7 +12,6 @@ import com.gadarts.returnfire.components.TurretAutomationComponent
 import com.gadarts.returnfire.components.turret.TurretComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import kotlin.math.sqrt
@@ -28,10 +27,7 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
 
     init {
         shootingHandler.initialize(
-            gamePlayManagers.dispatcher, gameSessionData, gamePlayManagers.factories.autoAimShapeFactory.generate(
-                BulletEngineHandler.COLLISION_GROUP_PLAYER,
-                BulletEngineHandler.COLLISION_GROUP_AI,
-            )
+            gamePlayManagers.dispatcher, gameSessionData, null
         )
     }
 
@@ -71,16 +67,21 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
             )
             val cannonTransform = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
             val cannonRotation = cannonTransform.getRotation(auxQuat2)
+            val turretCannonComponent = ComponentsMapper.turretCannonComponent.get(cannon)
             cannonTransform.setToTranslation(
                 auxVector1
             ).rotate(turretTransform.getRotation(auxQuat1.idt())).rotate(Vector3.Z, cannonRotation.roll)
-                .trn(
+                .translate(
                     auxVector2.set(
-                        ComponentsMapper.turretCannonComponent.get(cannon).relativeX,
-                        ComponentsMapper.turretCannonComponent.get(cannon).relativeY,
+                        turretCannonComponent.relativeX,
+                        turretCannonComponent.relativeY,
                         0F
                     )
                 )
+        }
+        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
+        if (turretAutomationComponent != null) {
+            shootingHandler.update(turretComponent.base)
         }
     }
 
@@ -100,15 +101,15 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
                 val aimedHorizontally = rotateAutomatedTurret(turret, deltaTime)
                 if (aimedHorizontally) {
                     val targetPosition = ModelUtils.getPositionOfModel(target, auxVector2)
-                    val directionToTarget = targetPosition.sub(turretPosition).nor()
+                    val cannonTransform =
+                        ComponentsMapper.modelInstance.get(turretComponent.cannon).gameModelInstance.modelInstance.transform
+                    val directionToTarget = targetPosition.sub(cannonTransform.getTranslation(auxVector3)).nor()
                     val targetElevationAngle = MathUtils.atan2(
                         directionToTarget.y,
                         sqrt(directionToTarget.x * directionToTarget.x + directionToTarget.z * directionToTarget.z)
                     )
                     val targetElevationDegrees = targetElevationAngle * MathUtils.radiansToDegrees
-                    val transform =
-                        ComponentsMapper.modelInstance.get(turretComponent.cannon).gameModelInstance.modelInstance.transform
-                    transform.setToRotation(Vector3.Z, targetElevationDegrees)
+                    cannonTransform.setToRotation(Vector3.Z, targetElevationDegrees)
                     if (!shootingHandler.isPrimaryShooting()) {
                         shootingHandler.startPrimaryShooting(turretComponent.base)
                     }
@@ -117,7 +118,6 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
                 }
             }
         }
-        shootingHandler.update(turretComponent.base)
     }
 
     private fun findClosestEnemy(
