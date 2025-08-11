@@ -178,6 +178,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
 
+    @Suppress("SimplifyBooleanWithConstants")
     override fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
         if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
@@ -187,7 +188,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         }
     }
-
 
     private fun updateCharacters(deltaTime: Float) {
         for (character in charactersEntities) {
@@ -566,6 +566,13 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             character,
             gamePlayManagers.assetsManager
         )
+        val turretBaseComponent = ComponentsMapper.turretBase.get(character)
+        if (turretBaseComponent != null) {
+            val automationComponent = ComponentsMapper.turretAutomationComponent.get(turretBaseComponent.turret)
+            if (automationComponent != null && !automationComponent.enabled) {
+                automationComponent.enabled = true
+            }
+        }
         gamePlayManagers.dispatcher.dispatchMessage(
             SystemEvents.CHARACTER_DEPLOYED.ordinal,
             character

@@ -18,7 +18,6 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
 import com.gadarts.returnfire.systems.player.PlayerSystem
-import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import kotlin.math.min
 
 open class CharacterShootingHandler(
@@ -80,14 +79,6 @@ open class CharacterShootingHandler(
                 val cannon =
                     ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).cannon
                 val direction = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
-                if (armComp.isPrimary()) {
-                    val particleEffect = entityBuilder.begin().addParticleEffectComponent(
-                        direction.getTranslation(auxVector3_1),
-                        gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL),
-                        followRelativePosition = auxVector3_2.set(0.5F, 0F, 0F),
-                    ).finishAndAddToEngine()
-                    ComponentsMapper.particleEffect.get(particleEffect).followEntity = cannon
-                }
                 direction
             }
         val target = handleAutoAim(
@@ -109,7 +100,6 @@ open class CharacterShootingHandler(
         }
         armComp.consumeAmmo()
         dispatcher.dispatchMessage(event.ordinal)
-
     }
 
     private fun updateAutoAim(character: Entity) {

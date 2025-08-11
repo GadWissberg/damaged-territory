@@ -152,7 +152,8 @@ interface EntityBuilder {
         explosion: ParticleEffectDefinition?,
         explosive: Boolean,
         friendly: Boolean,
-        damage: Float
+        damage: Float,
+        destroyOnSky: Boolean
     ): EntityBuilder
 
     fun addPhysicsComponentPooledToEntity(

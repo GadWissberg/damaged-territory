@@ -109,12 +109,18 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             val rigidBody = ComponentsMapper.physics.get(bullet).rigidBody
             val position = rigidBody.worldTransform.getTranslation(auxVector1)
             val velocity: Vector3 = rigidBody.linearVelocity
+            var destroyBullet = false
             if (velocity.y > 0F && position.y > CharacterDefinition.FLYER_HEIGHT) {
-                rigidBody.linearVelocity = auxVector2.set(velocity.x, 0f, velocity.z)
+                val bulletComponent = ComponentsMapper.bullet.get(bullet)
+                if (bulletComponent != null && bulletComponent.destroyOnSky) {
+                    destroyBullet = true
+                } else {
+                    rigidBody.linearVelocity = auxVector2.set(velocity.x, 0f, velocity.z)
+                }
             }
-            var destroyBullet = bulletLogic.update(bullet, deltaTime)
-            destroyBullet = if (!destroyBullet) position.x <= 0F || position.x >= tilesMapping.depth
-                    || position.z <= 0F || position.z >= tilesMapping.width else true
+            destroyBullet = destroyBullet or bulletLogic.update(bullet, deltaTime)
+            destroyBullet = destroyBullet or (position.x <= 0F || position.x >= tilesMapping.depth
+                    || position.z <= 0F || position.z >= tilesMapping.width)
             if (destroyBullet) {
                 destroyBullet(bullet)
             }
@@ -180,7 +186,8 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 BulletCreationRequestEventData.armComponent.armProperties.effectsData.explosion,
                 BulletCreationRequestEventData.armComponent.armProperties.explosive,
                 BulletCreationRequestEventData.friendly,
-                BulletCreationRequestEventData.armComponent.armProperties.damage
+                BulletCreationRequestEventData.armComponent.armProperties.damage,
+                BulletCreationRequestEventData.armComponent.armProperties.destroyOnSky
             )
         addSmokeTrail(BulletCreationRequestEventData.armComponent, position)
         val bullet = entityBuilder.finishAndAddToEngine()

@@ -6,6 +6,8 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 
 class BulletComponent : Component, Poolable {
+    var destroyOnSky: Boolean = false
+        private set
     var destroyed: Boolean = false
         private set
     var damage: Float = 0F
@@ -30,7 +32,8 @@ class BulletComponent : Component, Poolable {
         explosion: ParticleEffectDefinition?,
         explosive: Boolean,
         friendly: Boolean,
-        damage: Float
+        damage: Float,
+        destroyOnSky: Boolean
     ) {
         this.behavior = behavior
         this.createdTime = TimeUtils.millis()
@@ -39,6 +42,7 @@ class BulletComponent : Component, Poolable {
         this.friendly = friendly
         this.damage = damage
         this.destroyed = false
+        this.destroyOnSky = destroyOnSky
     }
 
     fun markAsDestroyed() {

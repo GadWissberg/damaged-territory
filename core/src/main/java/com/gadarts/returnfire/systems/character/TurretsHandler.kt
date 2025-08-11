@@ -59,7 +59,7 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
             turretTransform.setTranslation(auxVector1).translate(auxVector2.set(0F, turretComponent.relativeHeight, 0F))
         }
         applyTurretOffsetFromBase(turretComponent, turretTransform)
-        handleTurretAutomation(turret, deltaTime)
+        handleTurretAutomationAiming(turret, deltaTime)
         val cannon = turretComponent.cannon
         if (cannon != null) {
             turretTransform.getTranslation(
@@ -80,15 +80,16 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
                 )
         }
         val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
-        if (turretAutomationComponent != null) {
+        if (turretAutomationComponent != null && turretAutomationComponent.enabled) {
             shootingHandler.update(turretComponent.base)
         }
     }
 
-    private fun handleTurretAutomation(turret: Entity, deltaTime: Float) {
+    private fun handleTurretAutomationAiming(turret: Entity, deltaTime: Float) {
         val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret) ?: return
-        val turretComponent = ComponentsMapper.turret.get(turret)
+        if (!turretAutomationComponent.enabled) return
 
+        val turretComponent = ComponentsMapper.turret.get(turret)
         val target = turretAutomationComponent.target
         val turretPosition = ModelUtils.getPositionOfModel(turret, auxVector1)
         if (target == null) {
@@ -198,7 +199,7 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
     ) {
         if (turretComponent.baseOffsetApplied) {
             val offset = turretComponent.getBaseOffset(auxVector3)
-            turretTransform.translate(offset)
+            turretTransform.trn(offset)
             offset.lerp(Vector3.Zero, 0.05F)
             turretComponent.setBaseOffset(offset)
             if (offset.epsilonEquals(Vector3.Zero)) {

@@ -107,7 +107,7 @@ class JeepFactory(
                 ArmEffectsData(
                     ParticleEffectDefinition.RICOCHET,
                     null,
-                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.RICOCHET),
                     null
                 ),
                 ArmRenderData(

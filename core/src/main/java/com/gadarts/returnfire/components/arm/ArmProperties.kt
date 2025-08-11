@@ -15,4 +15,5 @@ class ArmProperties(
     val rigidBodyPool: RigidBodyPool,
     val ammo: Int,
     val aimingRestriction: AimingRestriction? = null,
+    val destroyOnSky: Boolean = true,
 )

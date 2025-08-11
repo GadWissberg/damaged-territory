@@ -187,10 +187,11 @@ class EntityBuilderImpl : EntityBuilder {
         explosion: ParticleEffectDefinition?,
         explosive: Boolean,
         friendly: Boolean,
-        damage: Float
+        damage: Float,
+        destroyOnSky: Boolean
     ): EntityBuilderImpl {
         val bulletComponent = engine.createComponent(BulletComponent::class.java)
-        bulletComponent.init(bulletBehavior, explosion, explosive, friendly, damage)
+        bulletComponent.init(bulletBehavior, explosion, explosive, friendly, damage, destroyOnSky)
         entity!!.add(bulletComponent)
         return this
     }
