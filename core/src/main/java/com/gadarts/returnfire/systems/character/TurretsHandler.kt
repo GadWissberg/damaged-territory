@@ -6,9 +6,10 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.returnfire.components.BrownComponent
 import com.gadarts.returnfire.components.ComponentsMapper
 import com.gadarts.returnfire.components.GreenComponent
-import com.gadarts.returnfire.components.TurretAutomationComponent
+import com.gadarts.returnfire.components.character.CharacterColor
 import com.gadarts.returnfire.components.turret.TurretComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
@@ -36,6 +37,9 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
     )
     private val greenCharactersEntities: ImmutableArray<Entity> = gamePlayManagers.ecs.engine.getEntitiesFor(
         Family.all(GreenComponent::class.java).get()
+    )
+    private val brownCharactersEntities: ImmutableArray<Entity> = gamePlayManagers.ecs.engine.getEntitiesFor(
+        Family.all(BrownComponent::class.java).get()
     )
 
     fun update(deltaTime: Float) {
@@ -89,12 +93,12 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
         val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret) ?: return
         if (!turretAutomationComponent.enabled) return
 
-        val turretComponent = ComponentsMapper.turret.get(turret)
         val target = turretAutomationComponent.target
-        val turretPosition = ModelUtils.getPositionOfModel(turret, auxVector1)
         if (target == null) {
-            findClosestEnemy(turretPosition, turretAutomationComponent, turretComponent)
+            findClosestRival(turret)
         } else {
+            val turretPosition = ModelUtils.getPositionOfModel(turret)
+            val turretComponent = ComponentsMapper.turret.get(turret)
             if (ModelUtils.getPositionOfModel(target).dst2(turretPosition) > AUTOMATED_TURRET_MAX_DISTANCE) {
                 turretComponent.followBaseRotation = true
                 turretAutomationComponent.target = null
@@ -121,28 +125,31 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
         }
     }
 
-    private fun findClosestEnemy(
-        turretPosition: Vector3,
-        turretAutomationComponent: TurretAutomationComponent,
-        turretComponent: TurretComponent
+    private fun findClosestRival(
+        turret: Entity
     ) {
-        var closestGreen: Entity? = null
-        var closestGreenDistance = AUTOMATED_TURRET_MAX_DISTANCE
-        for (greenCharacter in greenCharactersEntities) {
-            val greenCharacterComponent = ComponentsMapper.character.get(greenCharacter)
-            if (!greenCharacterComponent.dead && greenCharacterComponent.hp > 0) {
-                val greenPosition = ModelUtils.getPositionOfModel(
-                    greenCharacter,
+        val turretComponent = ComponentsMapper.turret.get(turret)
+        val turretPosition = ModelUtils.getPositionOfModel(turret, auxVector1)
+        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
+        val color = ComponentsMapper.character.get(turretComponent.base).color
+        var closestRival: Entity? = null
+        var closestRivalDistance = AUTOMATED_TURRET_MAX_DISTANCE
+        val rivalCharacters = if (color == CharacterColor.BROWN) greenCharactersEntities else brownCharactersEntities
+        for (rivalCharacter in rivalCharacters) {
+            val rivalCharacterComponent = ComponentsMapper.character.get(rivalCharacter)
+            if (!rivalCharacterComponent.dead && rivalCharacterComponent.hp > 0) {
+                val rivalPosition = ModelUtils.getPositionOfModel(
+                    rivalCharacter,
                     auxVector2
                 )
-                if (greenPosition.dst2(turretPosition) < closestGreenDistance) {
-                    closestGreenDistance = greenPosition.dst2(turretPosition)
-                    closestGreen = greenCharacter
+                if (rivalPosition.dst2(turretPosition) < closestRivalDistance) {
+                    closestRivalDistance = rivalPosition.dst2(turretPosition)
+                    closestRival = rivalCharacter
                 }
             }
         }
-        if (closestGreen != null) {
-            turretAutomationComponent.target = closestGreen
+        if (closestRival != null) {
+            turretAutomationComponent.target = closestRival
             turretComponent.followBaseRotation = false
         } else {
             shootingHandler.stopPrimaryShooting()
