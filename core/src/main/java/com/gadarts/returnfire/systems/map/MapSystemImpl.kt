@@ -82,7 +82,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                 }
             },
             SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE to MapSystemOnCharacterOnboardingAnimationDone(this),
-            SystemEvents.CHARACTER_BOARDING to MapSystemOnCharacterBoarding(this),
+            SystemEvents.CHARACTER_ONBOARDING_BEGIN to MapSystemOnCharacterBoarding(this),
             SystemEvents.EXPLOSION_PUSH_BACK to MapSystemOnExplosionPushBack(mapSystemRelatedEntities),
             SystemEvents.DEATH_SEQUENCE_FINISHED to object : HandlerOnEvent {
                 override fun react(

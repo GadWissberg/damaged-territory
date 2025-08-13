@@ -94,6 +94,18 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
                 destroyCharacter(msg, gamePlayManagers)
             }
+        },
+        SystemEvents.CHARACTER_ONBOARDING_BEGIN to object : HandlerOnEvent {
+            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+                val character = msg.extraInfo as Entity
+                val turretBaseComponent = ComponentsMapper.turretBase.get(character) ?: return
+
+                val turretAutomationComponent =
+                    ComponentsMapper.turretAutomationComponent.get(turretBaseComponent.turret)
+                if (turretAutomationComponent != null) {
+                    turretAutomationComponent.enabled = false
+                }
+            }
         })
 
     private fun destroyCharacter(
@@ -178,7 +190,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
 
-    @Suppress("SimplifyBooleanWithConstants")
     override fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
         if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)

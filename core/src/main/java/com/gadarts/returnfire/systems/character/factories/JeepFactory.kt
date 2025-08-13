@@ -48,7 +48,8 @@ class JeepFactory(
         entityBuilder.addTurretBaseComponent()
         val jeep = entityBuilder.finish()
         val cannon = addCannon(jeep)
-        addTurret(jeep, cannon, color)
+        addTurret(jeep, cannon)
+        applyOpponentColor(jeep, color, "jeep_texture")
         return jeep
     }
 
@@ -65,14 +66,12 @@ class JeepFactory(
         )
         entityBuilder.addTurretCannonComponent(0F, 0.1F)
         val cannon = entityBuilder.finishAndAddToEngine()
-//        applyOpponentColor(cannon, ComponentsMapper.character.get(jeep).color, "tank_cannon_texture")
         return cannon
     }
 
     private fun addTurret(
         player: Entity,
         cannon: Entity,
-        color: CharacterColor
     ) {
         entityBuilder.begin()
         entityBuilder.addModelInstanceComponent(
@@ -82,11 +81,16 @@ class JeepFactory(
             ),
             null
         )
-        entityBuilder.addTurretComponent(player, true, true, 0.4F, cannon)
+        entityBuilder.addTurretComponent(
+            player,
+            followBasePosition = true,
+            followBaseRotation = true,
+            relativeY = 0.4F,
+            cannon = cannon
+        )
         entityBuilder.addTurretAutomationComponent()
         val turret = entityBuilder.finishAndAddToEngine()
         ComponentsMapper.turretBase.get(player).turret = turret
-//        applyOpponentColor(turret, color, "tank_turret_texture")
     }
 
     override fun dispose() {
