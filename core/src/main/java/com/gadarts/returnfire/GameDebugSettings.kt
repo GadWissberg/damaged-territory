@@ -7,7 +7,7 @@ import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 @Suppress("RedundantNullableReturnType", "RedundantSuppression")
 object GameDebugSettings {
 
-    val MAP = MapDefinition.SMALL
+    val MAP = MapDefinition.MAP_0
     const val PRINT_BIT_MAP: Boolean = false
     const val SHOW_OBJECT_POOL_PROFILING = false
     const val SHOW_COLLISION_SHAPES = false
@@ -31,7 +31,7 @@ object GameDebugSettings {
     val SELECTED_VEHICLE: CharacterDefinition? = TurretCharacterDefinition.JEEP
     val SELECTED_VEHICLE_AI: CharacterDefinition? = TurretCharacterDefinition.JEEP
     const val FORCE_AIM = 1
-    const val AI_DISABLED = false
+    const val AI_DISABLED = true
     const val AI_ATTACK_DISABLED = false
     const val USE_DEBUG_DLL = false
 }

@@ -15,6 +15,7 @@ import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.assets.definitions.SoundDefinition
+import kotlin.math.max
 import kotlin.math.sqrt
 
 class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSessionData) {
@@ -99,13 +100,20 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
         } else {
             val turretPosition = ModelUtils.getPositionOfModel(turret)
             val turretComponent = ComponentsMapper.turret.get(turret)
-            if (ModelUtils.getPositionOfModel(target).dst2(turretPosition) > AUTOMATED_TURRET_MAX_DISTANCE) {
+            val targetCharacterComponent = ComponentsMapper.character.get(target)
+            if (targetCharacterComponent.dead || ModelUtils.getPositionOfModel(
+                    target,
+                    auxVector1
+                )
+                    .dst2(turretPosition) > AUTOMATED_TURRET_MAX_DISTANCE
+            ) {
                 turretComponent.followBaseRotation = true
                 turretAutomationComponent.target = null
             } else {
                 val aimedHorizontally = rotateAutomatedTurret(turret, deltaTime)
                 if (aimedHorizontally) {
                     val targetPosition = ModelUtils.getPositionOfModel(target, auxVector2)
+                    targetPosition.y = max(0.2F, targetPosition.y)
                     val cannonTransform =
                         ComponentsMapper.modelInstance.get(turretComponent.cannon).gameModelInstance.modelInstance.transform
                     val directionToTarget = targetPosition.sub(cannonTransform.getTranslation(auxVector3)).nor()
