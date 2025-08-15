@@ -3,6 +3,7 @@ package com.gadarts.dte
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
+import com.gadarts.dte.scene.handlers.render.EditorModelInstanceProps
 import com.gadarts.shared.GameAssetManager
 
 class TileFactory(private val sharedData: SharedData, private val gameAssetsManager: GameAssetManager) {
@@ -18,7 +19,7 @@ class TileFactory(private val sharedData: SharedData, private val gameAssetsMana
         z: Int,
         layerIndex: Int,
     ): PlacedTile {
-        val modelInstance = EditorModelInstance(sharedData.floorModel)
+        val modelInstance = EditorModelInstance(EditorModelInstanceProps(sharedData.floorModel, null))
         val placedTile =
             PlacedTile(modelInstance, gameAssetsManager.getTexturesDefinitions().definitions[textureName]!!)
         sharedData.modelInstances.add(modelInstance)

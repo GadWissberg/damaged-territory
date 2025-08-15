@@ -31,6 +31,16 @@ class EditorPanel(
     private val dispatcher: MessageDispatcher,
     private val gameAssetsManager: GameAssetManager
 ) {
+    private val objectList: SelectableList<ElementDefinition> by lazy {
+        val entries = ElementType.entries.flatMap { it.definitions }.filter { it.isPlaceable() }
+        SelectableList<ElementDefinition>(VisUI.getSkin()).apply {
+            val array = Array<ElementDefinition>()
+            array.addAll(*entries.filter { it.isPlaceable() }.toTypedArray())
+            setItems(array)
+            style.background = VisUI.getSkin().getDrawable("window-bg")
+            selectedIndex = 1
+        }
+    }
     private val leftSidePanel by lazy { VisTable() }
     private val tilesModePanel by lazy { VisTable() }
     private val objectsModePanel by lazy { VisTable() }
@@ -67,6 +77,7 @@ class EditorPanel(
         } else {
             tilesModePanel.remove()
             leftSidePanel.add(objectsModePanel)
+            objectList.selectedIndex = 0
         }
         dispatcher.dispatchMessage(EditorEvents.MODE_CHANGED.ordinal, mode)
     }
@@ -78,22 +89,14 @@ class EditorPanel(
     private fun createObjectsModesPanel(objectsModePanel: VisTable) {
         val objectsListTable = VisTable()
         objectsListTable.background = VisUI.getSkin().getDrawable("window-bg")
-        val entries = ElementType.entries.flatMap { it.definitions }.filter { it.isPlaceable() }
-        val list = SelectableList<ElementDefinition>(VisUI.getSkin()).apply {
-            val array = Array<ElementDefinition>()
-            array.addAll(*entries.filter { it.isPlaceable() }.toTypedArray())
-            setItems(array)
-            style.background = VisUI.getSkin().getDrawable("window-bg")
-            selectedIndex = 1
-        }
-        list.addListener(object : ChangeListener() {
+        objectList.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                sharedData.selectedObject = entries[list.selectedIndex]
+                sharedData.selectedObject = objectList.items[objectList.selectedIndex]
                 dispatcher.dispatchMessage(EditorEvents.OBJECT_SELECTED.ordinal)
             }
         })
         addHeaderToSelectableList(objectsListTable, "Objects")
-        addSelectableListScrollPane(list, objectsListTable)
+        addSelectableListScrollPane(objectList, objectsListTable)
         objectsModePanel.add(objectsListTable)
     }
 

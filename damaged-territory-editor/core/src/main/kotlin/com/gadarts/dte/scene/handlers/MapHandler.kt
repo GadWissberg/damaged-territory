@@ -13,6 +13,7 @@ import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
+import com.gadarts.dte.scene.handlers.render.EditorModelInstanceProps
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
@@ -72,7 +73,7 @@ class MapHandler(
             Array(MAP_SIZE) {
                 if (texture != null) {
                     texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-                    val modelInstance = EditorModelInstance(sharedData.floorModel)
+                    val modelInstance = EditorModelInstance(EditorModelInstanceProps(sharedData.floorModel, null))
                     (modelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute)
                         .set(TextureRegion(texture))

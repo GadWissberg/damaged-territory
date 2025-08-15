@@ -25,6 +25,7 @@ import com.gadarts.dte.scene.Modes
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
+import com.gadarts.dte.scene.handlers.render.EditorModelInstanceProps
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
@@ -53,14 +54,14 @@ class CursorHandler(
         SharedUtils.createFlatMesh(modelBuilder, "cursor", 0.5F, null, 0F, cursorMaterial)
         cursorMaterial.set(BlendingAttribute(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 0.1F))
         tileModel = modelBuilder.end()
-        setCursorModelInstance(tileModel)
+        setCursorModelInstance(EditorModelInstanceProps(tileModel, null))
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
     }
 
-    private fun setCursorModelInstance(model: Model) {
+    private fun setCursorModelInstance(props: EditorModelInstanceProps) {
         val modelInstances = sharedData.modelInstances
         modelInstances.remove(cursorModelInstance)
-        val editorModelInstance = EditorModelInstance(model)
+        val editorModelInstance = EditorModelInstance(props)
         cursorModelInstance = editorModelInstance
         modelInstances.add(editorModelInstance)
         editorModelInstance.nodes.forEach { node ->
@@ -77,13 +78,22 @@ class CursorHandler(
             override fun react(msg: Telegram) {
                 val selectedObject = sharedData.selectedObject ?: return
 
-                setCursorModelInstance(assetsManager.getAssetByDefinition(selectedObject.getModelDefinition()))
+                val definition = selectedObject.getModelDefinition()
+                setCursorModelInstance(
+                    EditorModelInstanceProps(
+                        assetsManager.getAssetByDefinition(definition),
+                        definition
+                    ),
+                )
             }
         },
         EditorEvents.MODE_CHANGED to object : EditorOnEvent {
             override fun react(msg: Telegram) {
-                if (sharedData.selectedMode == Modes.TILES) {
-                    setCursorModelInstance(tileModel)
+                val selectedMode = sharedData.selectedMode
+                if (selectedMode == Modes.TILES) {
+                    setCursorModelInstance(EditorModelInstanceProps(tileModel, null))
+                } else if (selectedMode == Modes.OBJECTS) {
+                    dispatcher.dispatchMessage(EditorEvents.OBJECT_SELECTED.ordinal)
                 }
             }
         },
@@ -139,15 +149,13 @@ class CursorHandler(
             if (deleteTile(z, x)) return true
         } else if (sharedData.selectedMode == Modes.OBJECTS) {
             val modelInstances = sharedData.modelInstances
-            sharedData.modelInstances.first {
-                it.transform.getTranslation(auxVector).let { position ->
+            sharedData.placedObjects.firstOrNull {
+                it.modelInstance.transform.getTranslation(auxVector).let { position ->
                     position.x.toInt() == x && position.z.toInt() == z
                 }
-            }.let { modelInstance ->
-                modelInstances.remove(modelInstance)
-                sharedData.placedObjects.removeIf { placedObject ->
-                    placedObject.modelInstance == modelInstance
-                }
+            }?.let { placedObject ->
+                modelInstances.remove(placedObject.modelInstance)
+                sharedData.placedObjects.remove(placedObject)
                 return true
             }
         }
