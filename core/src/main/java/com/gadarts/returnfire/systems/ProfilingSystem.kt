@@ -19,6 +19,7 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
     private val label: Label by lazy {
         val font = BitmapFont()
         font.data.setScale(2f)
+        font.data.markupEnabled = true
         val style = Label.LabelStyle(font, Color.WHITE)
         Label(stringBuilder, style)
     }
@@ -35,7 +36,12 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
     override fun update(delta: Float) {
         if (GameDebugSettings.ENABLE_PROFILER && glProfiler.isEnabled) {
             stringBuilder.setLength(0)
-            displayLine(LABEL_FPS, Gdx.graphics.framesPerSecond)
+            displayLine(
+                label = LABEL_FPS,
+                value = Gdx.graphics.framesPerSecond,
+                newline = true,
+                markRedOnBadValue = true
+            )
             displayHeapSize()
             displayGlProfiling()
             displayBatchCalls()
@@ -109,9 +115,18 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
         glProfiler.reset()
     }
 
-    private fun displayLine(label: String, value: Any, newline: Boolean = true): StringBuilder {
+    private fun displayLine(
+        label: String,
+        value: Any,
+        newline: Boolean = true,
+        markRedOnBadValue: Boolean = false
+    ): StringBuilder {
         stringBuilder.append(label)
-        stringBuilder.append(value)
+        if (markRedOnBadValue && value is Int && value < 80) {
+            stringBuilder.append("[#FF0000]$value[#FFFFFF]")
+        } else {
+            stringBuilder.append(value)
+        }
         if (newline) {
             stringBuilder.append('\n')
         }

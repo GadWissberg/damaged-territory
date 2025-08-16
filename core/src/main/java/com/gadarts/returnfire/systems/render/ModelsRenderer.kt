@@ -43,6 +43,7 @@ class ModelsRenderer(
     }
     private val environment: Environment by lazy { Environment() }
 
+    @Suppress("SimplifyBooleanWithConstants")
     fun renderModels(
         batch: ModelBatch,
         camera: Camera,

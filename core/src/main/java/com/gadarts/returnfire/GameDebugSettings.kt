@@ -6,6 +6,7 @@ import com.gadarts.shared.model.definitions.TurretCharacterDefinition
 
 @Suppress("RedundantNullableReturnType", "RedundantSuppression")
 object GameDebugSettings {
+    const val FULL_SCREEN: Boolean = false
 
     val MAP = MapDefinition.MAP_0
     const val PRINT_BIT_MAP: Boolean = false

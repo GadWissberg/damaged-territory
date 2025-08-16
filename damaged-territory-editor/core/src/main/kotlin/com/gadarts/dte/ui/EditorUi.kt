@@ -42,6 +42,7 @@ class EditorUi(
     private val dispatcher: MessageDispatcher,
     gameAssetsManager: GameAssetManager,
 ) {
+
     fun render() {
         stage.act()
         stage.draw()
@@ -77,27 +78,24 @@ class EditorUi(
         return tilesString.toString()
     }
 
-    private fun loadMap(files: com.badlogic.gdx.utils.Array<FileHandle>?) {
-        val file = files?.firstOrNull()
-        if (file != null) {
-            try {
-                val json = file.readString()
-                val gameMap = GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
-                    .create().fromJson(json, GameMap::class.java)
-                clearMapData()
-                inflateLayers(gameMap)
-                val definitions = ElementType.entries.flatMap { it.definitions }
-                gameMap.objects.map { obj ->
-                    objectFactory.addObject(
-                        obj.column, obj.row,
-                        definitions.first { it.getName().lowercase() == obj.definition.lowercase() },
-                        Quaternion(Vector3.Y, obj.rotation ?: 0f)
-                    )
-                }
-                editorPanel.mapLoaded()
-            } catch (e: Exception) {
-                e.printStackTrace()
+    private fun loadMap(file: FileHandle) {
+        try {
+            val json = file.readString()
+            val gameMap = GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
+                .create().fromJson(json, GameMap::class.java)
+            clearMapData()
+            inflateLayers(gameMap)
+            val definitions = ElementType.entries.flatMap { it.definitions }
+            gameMap.objects.map { obj ->
+                objectFactory.addObject(
+                    obj.column, obj.row,
+                    definitions.first { it.getName().lowercase() == obj.definition.lowercase() },
+                    Quaternion(Vector3.Y, obj.rotation ?: 0f)
+                )
             }
+            editorPanel.mapLoaded()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -179,8 +177,13 @@ class EditorUi(
         chooser.setDirectory(Gdx.files.absolute(lastPath))
         chooser.setListener(object : FileChooserListener {
             override fun selected(files: com.badlogic.gdx.utils.Array<FileHandle>?) {
+                if (files == null || files.isEmpty) {
+                    return
+                }
+
                 persistLastOpenedDir(files)
-                loadMap(files)
+                persistLastOpenedMapPath(files)
+                loadMap(files.first())
                 invokeTilesModeButtonClick()
             }
 
@@ -195,6 +198,14 @@ class EditorUi(
         files?.firstOrNull()?.let {
             val preferences = Gdx.app.getPreferences(PREFERENCES_KEY)
             preferences.putString(PREFERENCES_KEY_LAST_OPENED_DIR, it.parent().path())
+            preferences.flush()
+        }
+    }
+
+    private fun persistLastOpenedMapPath(files: com.badlogic.gdx.utils.Array<FileHandle>?) {
+        files?.firstOrNull()?.let {
+            val preferences = Gdx.app.getPreferences(PREFERENCES_KEY)
+            preferences.putString(PREFERENCES_KEY_LAST_OPENED_MAP_PATH, it.path())
             preferences.flush()
         }
     }
@@ -240,7 +251,8 @@ class EditorUi(
                             type = definition.getType(),
                             row = obj.row,
                             column = obj.column,
-                            rotation = obj.modelInstance.transform.getRotation(Quaternion()).getAngleAround(Vector3.Y)
+                            rotation = obj.modelInstance.transform.getRotation(Quaternion())
+                                .getAngleAround(Vector3.Y)
                         )
                     }
                     val firstLayerTiles = sharedData.layers[0].tiles
@@ -448,16 +460,9 @@ class EditorUi(
 
     fun initialize() {
         VisUI.load()
-        val inputMultiplexer = Gdx.input.inputProcessor as InputMultiplexer
-        inputMultiplexer.addProcessor(0, stage)
+        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(0, stage)
         loadEditorAssets()
-        val primaryButtonBar = MenuBar()
-        addFileButtons(primaryButtonBar)
-        primaryButtonBar.table.add(Separator("vertical")).width(10F).fillY().expandY()
-        Modes.entries.forEach {
-            addModeButton(modesButtonGroup, primaryButtonBar, it)
-        }
-        primaryButtonBar.table.pack()
+        val primaryButtonBar = createPrimaryButtonBar()
         val root = VisTable()
         root.setFillParent(true)
         root.top()
@@ -469,6 +474,25 @@ class EditorUi(
         root.add(secondaryButtonBar.table).fillX().expandX().row()
         editorPanel.initialize(root)
         root.pack()
+        Gdx.app.getPreferences(PREFERENCES_KEY)
+            .getString(PREFERENCES_KEY_LAST_OPENED_MAP_PATH)?.let { lastOpenedMapPath ->
+                Gdx.files.absolute(lastOpenedMapPath).also { fileHandle ->
+                    if (fileHandle.exists()) {
+                        loadMap(fileHandle)
+                    }
+                }
+            }
+    }
+
+    private fun createPrimaryButtonBar(): MenuBar {
+        val primaryButtonBar = MenuBar()
+        addFileButtons(primaryButtonBar)
+        primaryButtonBar.table.add(Separator("vertical")).width(10F).fillY().expandY()
+        Modes.entries.forEach {
+            addModeButton(modesButtonGroup, primaryButtonBar, it)
+        }
+        primaryButtonBar.table.pack()
+        return primaryButtonBar
     }
 
     private fun createSecondaryButtonsBar(): MenuBar {
@@ -487,7 +511,11 @@ class EditorUi(
         return secondaryButtonBar
     }
 
-    private fun addRotateButton(secondaryButtonBar: MenuBar, iconTexture: IconsTextures, editorEvent: EditorEvents) {
+    private fun addRotateButton(
+        secondaryButtonBar: MenuBar,
+        iconTexture: IconsTextures,
+        editorEvent: EditorEvents
+    ) {
         addButton(
             iconTexture.getFileName(), object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -500,5 +528,6 @@ class EditorUi(
     companion object {
         private const val PREFERENCES_KEY = "damaged_territory_prefs"
         private const val PREFERENCES_KEY_LAST_OPENED_DIR = "last_opened_dir"
+        private const val PREFERENCES_KEY_LAST_OPENED_MAP_PATH = "last_opened_map_path"
     }
 }
