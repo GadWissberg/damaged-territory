@@ -2,13 +2,11 @@ package com.gadarts.returnfire
 
 import com.gadarts.shared.assets.definitions.MapDefinition
 import com.gadarts.shared.model.definitions.CharacterDefinition
-import com.gadarts.shared.model.definitions.TurretCharacterDefinition
+import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
 
 @Suppress("RedundantNullableReturnType", "RedundantSuppression")
 object GameDebugSettings {
-    const val FULL_SCREEN: Boolean = false
-
-    val MAP = MapDefinition.MAP_0
+    val MAP = MapDefinition.SMALL
     const val PRINT_BIT_MAP: Boolean = false
     const val SHOW_OBJECT_POOL_PROFILING = false
     const val SHOW_COLLISION_SHAPES = false
@@ -29,10 +27,10 @@ object GameDebugSettings {
     const val AVOID_PARTICLE_EFFECTS_DRAWING = false
     const val ENABLE_PROFILER = true
     const val DISABLE_HUD = false
-    val SELECTED_VEHICLE: CharacterDefinition? = TurretCharacterDefinition.JEEP
-    val SELECTED_VEHICLE_AI: CharacterDefinition? = TurretCharacterDefinition.JEEP
+    val SELECTED_VEHICLE: CharacterDefinition? = SimpleCharacterDefinition.APACHE
+    val SELECTED_VEHICLE_AI: CharacterDefinition? = SimpleCharacterDefinition.APACHE
     const val FORCE_AIM = 1
-    const val AI_DISABLED = true
-    const val AI_ATTACK_DISABLED = false
+    const val AI_DISABLED = false
+    const val AI_ATTACK_DISABLED = true
     const val USE_DEBUG_DLL = false
 }

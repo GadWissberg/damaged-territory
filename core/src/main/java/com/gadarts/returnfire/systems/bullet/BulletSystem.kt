@@ -286,6 +286,9 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             if (z >= 0 && z < loadedMap.depth && x >= 0 && x < loadedMap.width) {
                 bulletCollidesWithOtherBody(entity0, entity1)
             }
+            if (!ComponentsMapper.physics.has(entity1) && ComponentsMapper.ground.has(entity1)) {
+                destroyBullet(entity0)
+            }
             if (ComponentsMapper.bullet.has(entity1)) {
                 destroyBullet(entity1)
             }

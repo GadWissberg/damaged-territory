@@ -32,7 +32,7 @@ enum class PooledObjectPhysicalDefinition(
         },
     ),
     MISSILE(
-        4F,
+        8F,
         object : ShapeCreator {
             override fun create(boundingBox: BoundingBox): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 val halfExtents = boundingBox.getDimensions(SharedUtils.auxVector).scl(0.5F)
