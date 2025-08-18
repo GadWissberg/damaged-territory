@@ -331,7 +331,7 @@ class AiGroundCharacterLogic(
         if (shouldReturnToBase(character)) {
             aiComponent.state = AiStatus.PLANNING
             ComponentsMapper.groundCharacterAiComponent.get(character).roamingEndTime = 0
-            aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(character).color]
+            aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(character).color]
         }
     }
 

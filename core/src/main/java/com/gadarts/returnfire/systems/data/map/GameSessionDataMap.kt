@@ -22,7 +22,7 @@ class GameSessionDataMap(assetsManager: GameAssetManager) : Disposable {
     }
 
     lateinit
-    var stages: Map<CharacterColor, Entity>
+    var elevators: Map<CharacterColor, Entity>
 
     override fun dispose() {
         tilesEntitiesByLayers.forEach {

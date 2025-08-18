@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.components.onboarding
 
 import com.badlogic.ashley.core.Component
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.character.CharacterColor
 
 class BoardingComponent(val color: CharacterColor, val boardingAnimation: BoardingAnimation?) : Component {
@@ -26,4 +27,5 @@ class BoardingComponent(val color: CharacterColor, val boardingAnimation: Boardi
 
     var offBoardSoundId: Long = 0
     private var boardingStatus = 1
+    val creationTime = TimeUtils.millis()
 }

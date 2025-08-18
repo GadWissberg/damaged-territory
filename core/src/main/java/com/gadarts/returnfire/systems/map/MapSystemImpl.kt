@@ -372,7 +372,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         val door = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
                 doorModelInstance,
-                basePosition.add(1F, -0.1F, 1F), null
+                basePosition.add(1F, -0.2F, 1F), null
             )
             .addBaseDoorComponent(basePosition.x, basePosition.x + relativeTargetX)
             .finishAndAddToEngine()

@@ -161,8 +161,7 @@ class TankFactory(
             val turret = ComponentsMapper.turretBase.get(parent).turret
             val transform =
                 ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
-            val pos = output.set(0.7F, 0F, 0F).rot(transform)
-            pos.y += 0.1F
+            val pos = output.set(0.4F, 0F, 0F).rot(transform)
             return pos
         }
     }
@@ -172,7 +171,7 @@ class TankFactory(
             val turret = ComponentsMapper.turretBase.get(parent).turret
             val transform =
                 ComponentsMapper.childModelInstance.get(turret).gameModelInstance.modelInstance.transform
-            val pos = output.set(-0.1F, 0.4F, -0.05F).rot(transform)
+            val pos = output.set(-0.4F, 0.2F, -0.05F).rot(transform)
             return pos
         }
     }

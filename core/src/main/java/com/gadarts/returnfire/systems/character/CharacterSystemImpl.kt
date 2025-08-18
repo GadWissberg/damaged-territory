@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.components.CharacterComponent
 import com.gadarts.returnfire.components.ChildModelInstanceComponent
@@ -82,7 +83,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             ) {
                 val stageEntities =
                     engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
-                gameSessionData.mapData.stages =
+                gameSessionData.mapData.elevators =
                     stageEntities.associateBy(
                         { ComponentsMapper.hangar.get(ComponentsMapper.hangarStage.get(it).base).color },
                         { it })
@@ -218,9 +219,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             val boardingComponent = ComponentsMapper.boarding.get(
                 character
             )
-            if (boardingComponent != null && boardingComponent.isBoarding()) {
+            if (boardingComponent != null && boardingComponent.isBoarding() && TimeUtils.timeSinceMillis(
+                    boardingComponent.creationTime
+                ) > 1000F
+            ) {
                 val elevatorTransform =
-                    ComponentsMapper.modelInstance.get(gameSessionData.mapData.stages[boardingComponent.color]).gameModelInstance.modelInstance.transform
+                    ComponentsMapper.modelInstance.get(gameSessionData.mapData.elevators[boardingComponent.color]).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isDeploying()) {
                     if (elevatorTransform.getTranslation(auxVector1).y < MAX_Y) {
                         takeStepForElevatorWithCharacter(elevatorTransform, character, MAX_Y, deltaTime)

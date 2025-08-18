@@ -117,7 +117,7 @@ class AiApacheLogic(
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
         if (shouldReturnToBase(character)) {
             aiComponent.state = AiStatus.MOVING
-            aiComponent.target = gameSessionData.mapData.stages[ComponentsMapper.boarding.get(
+            aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(
                 character
             ).color]
             stopAttack()
