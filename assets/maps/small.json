@@ -19,6 +19,13 @@
       "row": 3,
       "column": 6,
       "rotation": 0.0
+    },
+    {
+      "definition": "SIGN_BIG",
+      "type": "AMB",
+      "row": 5,
+      "column": 4,
+      "rotation": 0.0
     }
   ],
   "width": 32,

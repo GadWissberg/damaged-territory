@@ -143,7 +143,7 @@ enum class ModelDefinition(
         origin = Vector3(0F, -0.2F, 0F)
     ),
     SIGN_BIG(
-        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = SignPhysicalShapeCreator),
+        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AutomaticShapeCreator),
         origin = Vector3(0F, -0.63F, 0F)
     ),
     JEEP,
