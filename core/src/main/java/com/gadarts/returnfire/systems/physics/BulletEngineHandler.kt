@@ -128,6 +128,8 @@ class BulletEngineHandler(
 
     fun removePhysicsOfComponent(entity: Entity) {
         val physicsComponent = ComponentsMapper.physics.get(entity)
+        if (physicsComponent.disposed || physicsComponent.rigidBody.isDisposed) return
+
         gameSessionData.physicsData.collisionWorld.removeCollisionObject(
             physicsComponent.rigidBody
         )
