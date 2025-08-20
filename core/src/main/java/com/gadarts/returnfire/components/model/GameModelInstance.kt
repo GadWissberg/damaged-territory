@@ -10,6 +10,7 @@ class GameModelInstance(
     val modelInstance: ModelInstance,
     val definition: ModelDefinition?,
     val shadow: ModelInstance? = null,
+    val modelIndex: Int? = null,
 ) {
     var sphere: Boolean = false
         private set

@@ -48,17 +48,19 @@ open class GameAssetManager : AssetManager() {
     private fun inflateCollisionShapesInfo() {
         Arrays.stream(ModelDefinition.entries.toTypedArray())
             .forEach { def ->
-                val model: Model = getAssetByDefinition(def)
-                val collisionShapes = inflateCollisionShapesInfo(model)
-                if (collisionShapes.isNotEmpty()) {
-                    val modelCollisionShapeInfo = ModelCollisionShapeInfo(collisionShapes)
-                    addAsset(
-                        "$PREFIX_COLLISION_SHAPE${def.getDefinitionName()}",
-                        ModelCollisionShapeInfo::class.java,
-                        modelCollisionShapeInfo
-                    )
+                val models: List<Model> = getAllAssetsByDefinition(def)
+                models.forEachIndexed { index, model ->
+                    val collisionShapes = inflateCollisionShapesInfo(model)
+                    if (collisionShapes.isNotEmpty()) {
+                        val modelCollisionShapeInfo = ModelCollisionShapeInfo(collisionShapes)
+                        addAsset(
+                            "$PREFIX_COLLISION_SHAPE${def.getDefinitionName()}${if (models.size > 1) "_$index" else ""}",
+                            ModelCollisionShapeInfo::class.java,
+                            modelCollisionShapeInfo
+                        )
+                    }
+                    removeCollisionNodes(model.nodes)
                 }
-                removeCollisionNodes(model.nodes)
             }
     }
 
@@ -190,9 +192,9 @@ open class GameAssetManager : AssetManager() {
         )
     }
 
-    fun getCachedModelCollisionShapeInfo(definition: ModelDefinition): ModelCollisionShapeInfo? {
+    fun getCachedModelCollisionShapeInfo(definition: ModelDefinition, index: Int? = null): ModelCollisionShapeInfo? {
         return get(
-            "$PREFIX_COLLISION_SHAPE${definition.getDefinitionName()}",
+            "$PREFIX_COLLISION_SHAPE${definition.getDefinitionName()}${if (index != null) "_$index" else ""}",
             ModelCollisionShapeInfo::class.java,
             false
         )

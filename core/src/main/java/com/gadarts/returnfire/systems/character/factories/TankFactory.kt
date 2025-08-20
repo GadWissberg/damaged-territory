@@ -74,7 +74,7 @@ class TankFactory(
         entityBuilder.addModelInstanceComponent(
             GameModelInstance(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
-                ModelDefinition.TANK_TURRET
+                ModelDefinition.TANK_TURRET,
             ),
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_1
@@ -138,7 +138,7 @@ class TankFactory(
                     ParticleEffectDefinition.EXPLOSION,
                     null,
                     gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SPARK_SMALL),
-                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP)
+                    gameSessionData.gamePlayData.pools.particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_SMALL_LOOP)
                 ),
                 ArmRenderData(
                     ModelDefinition.MISSILE,

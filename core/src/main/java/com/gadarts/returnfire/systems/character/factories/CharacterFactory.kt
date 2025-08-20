@@ -34,7 +34,10 @@ abstract class CharacterFactory(
     ): Entity {
         return entityBuilder.begin()
             .addModelInstanceComponent(
-                GameModelInstance(ModelInstance(machineGunSparkModel), ModelDefinition.MACHINE_GUN_SPARK),
+                GameModelInstance(
+                    ModelInstance(machineGunSparkModel),
+                    ModelDefinition.MACHINE_GUN_SPARK,
+                ),
                 Vector3(),
                 null,
                 hidden = true

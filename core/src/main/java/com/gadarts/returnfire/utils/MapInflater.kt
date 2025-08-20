@@ -433,7 +433,8 @@ class MapInflater(
         activationState: Int = ISLAND_SLEEPING
     ): PhysicsComponent {
         val definition = gameModelInstance.definition
-        val modelCollisionShapeInfo = gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(definition!!)
+        val modelCollisionShapeInfo =
+            gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(definition!!, gameModelInstance.modelIndex)
         val shape = if (modelCollisionShapeInfo != null) {
             ModelUtils.buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo)
         } else {
@@ -938,7 +939,7 @@ class MapInflater(
         val assetsManager = gamePlayManagers.assetsManager
         val modelInstance = GameModelInstance(
             ModelInstance(ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TILE_BUMPY))),
-            ModelDefinition.TILE_BUMPY
+            ModelDefinition.TILE_BUMPY,
         )
         val entity = createAndAddGroundTileEntity(
             modelInstance,

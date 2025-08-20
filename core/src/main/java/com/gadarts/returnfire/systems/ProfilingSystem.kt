@@ -122,7 +122,7 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
         markRedOnBadValue: Boolean = false
     ): StringBuilder {
         stringBuilder.append(label)
-        if (markRedOnBadValue && value is Int && value < 80) {
+        if (markRedOnBadValue && value is Int && value < gameSessionData.fpsTarget * 5 / 6) {
             stringBuilder.append("[#FF0000]$value[#FFFFFF]")
         } else {
             stringBuilder.append(value)

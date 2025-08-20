@@ -363,7 +363,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     private fun addBaseDoor(base: Entity, rotationAroundY: Float, relativeTargetX: Float): Entity {
         val doorModelInstance = GameModelInstance(
             ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.PIT_DOOR)),
-            ModelDefinition.PIT_DOOR
+            ModelDefinition.PIT_DOOR,
         )
         val basePosition =
             ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
@@ -398,7 +398,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             .addModelInstanceComponent(
                 model = GameModelInstance(
                     ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
-                    ModelDefinition.STAGE
+                    ModelDefinition.STAGE,
                 ),
                 position = ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1

@@ -21,7 +21,8 @@ class GameModelInstanceFactory(private val assetsManager: GameAssetManager) {
         val gameModelInstance = GameModelInstance(
             ModelInstance(assetsManager.getAssetByDefinition(modelDefinition, selectedIndex)),
             modelDefinition,
-            shadow
+            shadow,
+            if (paths.size > 1) selectedIndex else null
         )
         return gameModelInstance
     }
