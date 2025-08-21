@@ -59,7 +59,7 @@ class CursorHandler(
     }
 
     private fun setCursorModelInstance(props: EditorModelInstanceProps) {
-        val modelInstances = sharedData.modelInstances
+        val modelInstances = sharedData.mapData.modelInstances
         modelInstances.remove(cursorModelInstance)
         val editorModelInstance = EditorModelInstance(props)
         cursorModelInstance = editorModelInstance
@@ -76,7 +76,7 @@ class CursorHandler(
     override val subscribedEvents: Map<EditorEvents, EditorOnEvent> = mapOf(
         EditorEvents.OBJECT_SELECTED to object : EditorOnEvent {
             override fun react(msg: Telegram) {
-                val selectedObject = sharedData.selectedObject ?: return
+                val selectedObject = sharedData.selectionData.selectedObject ?: return
 
                 val definition = selectedObject.getModelDefinition()
                 setCursorModelInstance(
@@ -89,7 +89,7 @@ class CursorHandler(
         },
         EditorEvents.MODE_CHANGED to object : EditorOnEvent {
             override fun react(msg: Telegram) {
-                val selectedMode = sharedData.selectedMode
+                val selectedMode = sharedData.selectionData.selectedMode
                 if (selectedMode == Modes.TILES) {
                     setCursorModelInstance(EditorModelInstanceProps(tileModel, null))
                 } else if (selectedMode == Modes.OBJECTS) {
@@ -145,17 +145,17 @@ class CursorHandler(
     }
 
     private fun deleteElement(x: Int, z: Int): Boolean {
-        if (sharedData.selectedMode == Modes.TILES) {
+        if (sharedData.selectionData.selectedMode == Modes.TILES) {
             if (deleteTile(z, x)) return true
-        } else if (sharedData.selectedMode == Modes.OBJECTS) {
-            val modelInstances = sharedData.modelInstances
-            sharedData.placedObjects.firstOrNull {
+        } else if (sharedData.selectionData.selectedMode == Modes.OBJECTS) {
+            val modelInstances = sharedData.mapData.modelInstances
+            sharedData.mapData.placedObjects.firstOrNull {
                 it.modelInstance.transform.getTranslation(auxVector).let { position ->
                     position.x.toInt() == x && position.z.toInt() == z
                 }
             }?.let { placedObject ->
                 modelInstances.remove(placedObject.modelInstance)
-                sharedData.placedObjects.remove(placedObject)
+                sharedData.mapData.placedObjects.remove(placedObject)
                 return true
             }
         }
@@ -163,10 +163,10 @@ class CursorHandler(
     }
 
     private fun deleteTile(z: Int, x: Int, updateBitMap: Boolean = true): Boolean {
-        val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
+        val tileLayer = sharedData.mapData.layers[sharedData.selectionData.selectedLayerIndex]
         if (tileLayer.tiles[z][x] != null) {
             tileLayer.tiles[z][x]?.let { placedTile ->
-                sharedData.modelInstances.remove(placedTile.modelInstance)
+                sharedData.mapData.modelInstances.remove(placedTile.modelInstance)
                 tileLayer.tiles[z][x] = null
             }
             tileLayer.bitMap[z][x] = if (updateBitMap) 0 else tileLayer.bitMap[z][x]
@@ -179,10 +179,10 @@ class CursorHandler(
         x: Int,
         z: Int,
     ): Boolean {
-        if (sharedData.selectedMode == Modes.TILES) {
+        if (sharedData.selectionData.selectedMode == Modes.TILES) {
             return placeTile(x, z)
-        } else if (sharedData.selectedMode == Modes.OBJECTS) {
-            val selectedObject = sharedData.selectedObject
+        } else if (sharedData.selectionData.selectedMode == Modes.OBJECTS) {
+            val selectedObject = sharedData.selectionData.selectedObject
             return if (selectedObject != null) objectFactory.addObject(
                 x,
                 z,
@@ -195,8 +195,8 @@ class CursorHandler(
 
 
     private fun placeTile(x: Int, z: Int): Boolean {
-        val tileLayer = sharedData.layers[sharedData.selectedLayerIndex]
-        val selectedTile = sharedData.selectedTile
+        val tileLayer = sharedData.mapData.layers[sharedData.selectionData.selectedLayerIndex]
+        val selectedTile = sharedData.selectionData.selectedTile
         if (selectedTile != null) {
             prevTileClickPosition.set(x.toFloat(), z.toFloat())
             addTile(tileLayer, z, x, selectedTile.fileName.lowercase())
@@ -232,7 +232,7 @@ class CursorHandler(
     }
 
     private fun applyTileSurrounding(x: Int, z: Int, tileLayer: TileLayer) {
-        if (sharedData.selectedTile == null || x < 0 || x >= MAP_SIZE || z < 0 || z >= MAP_SIZE || tileLayer.disabled) return
+        if (sharedData.selectionData.selectedTile == null || x < 0 || x >= MAP_SIZE || z < 0 || z >= MAP_SIZE || tileLayer.disabled) return
 
         val tileSignature = SharedUtils.calculateTileSignature(x, z, tileLayer.bitMap)
         val textureSignature = signatures.keys
@@ -241,7 +241,7 @@ class CursorHandler(
         if (textureSignature != null) {
             if (textureSignature > 0) {
                 val textureName =
-                    "${sharedData.selectedTile!!.fileName.lowercase()}${signatures[textureSignature]}"
+                    "${sharedData.selectionData.selectedTile!!.fileName.lowercase()}${signatures[textureSignature]}"
                 addTile(
                     tileLayer,
                     z,

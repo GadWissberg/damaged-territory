@@ -51,7 +51,7 @@ class MapHandler(
         addNewLayer("Layer 2", null)
         for (z in 0 until MAP_SIZE) {
             for (x in 0 until MAP_SIZE) {
-                sharedData.layers[0].tiles[z][x]?.modelInstance?.transform?.setToTranslation(
+                sharedData.mapData.layers[0].tiles[z][x]?.modelInstance?.transform?.setToTranslation(
                     x.toFloat() + 0.5F,
                     0F,
                     z.toFloat() + 0.5F
@@ -63,7 +63,7 @@ class MapHandler(
     private fun addNewLayer(name: String, texture: Texture? = null, disabled: Boolean = false): MutableList<TileLayer> {
         val layersGrid: Array<Array<PlacedTile?>> = createLayer(texture)
         val layer0 = TileLayer(name, disabled, layersGrid, Array(MAP_SIZE) { Array(MAP_SIZE) { 0 } })
-        val layers = sharedData.layers
+        val layers = sharedData.mapData.layers
         layers.add(layer0)
         return layers
     }
@@ -84,7 +84,7 @@ class MapHandler(
         if (texture != null) {
             layerTiles.forEach {
                 it.forEach { placedTile ->
-                    placedTile?.let { it1 -> sharedData.modelInstances.add(it1.modelInstance) }
+                    placedTile?.let { it1 -> sharedData.mapData.modelInstances.add(it1.modelInstance) }
                 }
             }
         }

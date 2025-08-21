@@ -43,6 +43,32 @@ class EditorUi(
     gameAssetsManager: GameAssetManager,
 ) {
 
+    fun initialize() {
+        VisUI.load()
+        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(0, stage)
+        loadEditorAssets()
+        val primaryButtonBar = createPrimaryButtonBar()
+        val root = VisTable()
+        root.setFillParent(true)
+        root.top()
+        stage.addActor(root)
+        val stack = Stack()
+        stack.setFillParent(true)
+        root.add(menuBar.table).fill().expandX().row()
+        root.add(primaryButtonBar.table).fillX().expandX().row()
+        root.add(secondaryButtonBar.table).fillX().expandX().row()
+        editorPanel.initialize(root)
+        root.pack()
+        Gdx.app.getPreferences(PREFERENCES_KEY)
+            .getString(PREFERENCES_KEY_LAST_OPENED_MAP_PATH)?.let { lastOpenedMapPath ->
+                Gdx.files.absolute(lastOpenedMapPath).also { fileHandle ->
+                    if (fileHandle.exists()) {
+                        loadMap(fileHandle)
+                    }
+                }
+            }
+    }
+
     fun render() {
         stage.act()
         stage.draw()
@@ -59,6 +85,7 @@ class EditorUi(
     private val menuBar: MenuBar by lazy {
         addMenu()
     }
+
     private val editorAssetManager = AssetManager()
 
     private fun convertLayerToString(layer: TileLayer): String {
@@ -77,6 +104,7 @@ class EditorUi(
 
         return tilesString.toString()
     }
+
 
     private fun loadMap(file: FileHandle) {
         try {
@@ -101,24 +129,23 @@ class EditorUi(
 
 
     private fun clearMapData() {
-        sharedData.layers.drop(1).forEach {
+        sharedData.mapData.layers.drop(1).forEach {
             it.tiles.forEach { tileArray ->
                 tileArray.forEach { tile ->
                     if (tile != null) {
-                        sharedData.modelInstances.remove(
+                        sharedData.mapData.modelInstances.remove(
                             tile.modelInstance
                         )
                     }
                 }
             }
         }
-        sharedData.placedObjects.forEach {
-            sharedData.modelInstances.remove(it.modelInstance)
+        sharedData.mapData.placedObjects.forEach {
+            sharedData.mapData.modelInstances.remove(it.modelInstance)
         }
-        sharedData.layers.retainAll(listOf(sharedData.layers.first()).toSet())
-        sharedData.placedObjects.clear()
+        sharedData.mapData.layers.retainAll(listOf(sharedData.mapData.layers.first()).toSet())
+        sharedData.mapData.placedObjects.clear()
     }
-
 
     private fun createButtonGroup(): ButtonGroup<VisImageButton> {
         val buttonGroup = ButtonGroup<VisImageButton>()
@@ -140,9 +167,7 @@ class EditorUi(
         layer: GameMapTileLayer,
         i: Int
     ) {
-        val tiles = Array<Array<PlacedTile?>>(
-            gameMap.depth
-        ) { Array(gameMap.width) { null } }
+        val tiles = Array<Array<PlacedTile?>>(gameMap.depth) { Array(gameMap.width) { null } }
         layer.tiles.mapIndexed { j, tile ->
             val index = tile.code - INITIAL_INDEX_OF_TILES_MAPPING
             if (index > 0) {
@@ -161,12 +186,8 @@ class EditorUi(
                 }
             }
         }
-        TileLayer(
-            name = layer.name,
-            tiles = tiles,
-            bitMap = bitMap
-        ).also {
-            sharedData.layers.add(it)
+        TileLayer(name = layer.name, tiles = tiles, bitMap = bitMap).also {
+            sharedData.mapData.layers.add(it)
         }
     }
 
@@ -235,16 +256,17 @@ class EditorUi(
         first.fire(eventUp)
     }
 
+
     private fun addSaveButton(buttonBar: MenuBar) {
         addButton(
             IconsTextures.ICON_FILE_SAVE.getFileName(), object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     super.clicked(event, x, y)
-                    val gameMapTileLayers = sharedData.layers.drop(1).map { layer ->
+                    val gameMapTileLayers = sharedData.mapData.layers.drop(1).map { layer ->
                         val tilesString = convertLayerToString(layer)
                         GameMapTileLayer(name = layer.name, tiles = tilesString)
                     }
-                    val gameMapPlacedObjects = sharedData.placedObjects.map { obj ->
+                    val gameMapPlacedObjects = sharedData.mapData.placedObjects.map { obj ->
                         val definition = obj.definition
                         GameMapPlacedObject(
                             definition = definition.getName(),
@@ -255,7 +277,7 @@ class EditorUi(
                                 .getAngleAround(Vector3.Y)
                         )
                     }
-                    val firstLayerTiles = sharedData.layers[0].tiles
+                    val firstLayerTiles = sharedData.mapData.layers[0].tiles
                     val gameMap = GameMap(
                         layers = gameMapTileLayers, objects = gameMapPlacedObjects,
                         width = firstLayerTiles[0].size, depth = firstLayerTiles.size
@@ -293,7 +315,6 @@ class EditorUi(
         )
     }
 
-
     private fun addModeButton(
         buttonGroup: ButtonGroup<VisImageButton>,
         buttonBar: MenuBar,
@@ -304,7 +325,7 @@ class EditorUi(
             object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     super.clicked(event, x, y)
-                    if (sharedData.selectedMode != mode) {
+                    if (sharedData.selectionData.selectedMode != mode) {
                         modeChanged(mode)
                     }
 
@@ -399,7 +420,7 @@ class EditorUi(
     }
 
     private fun modeChanged(mode: Modes) {
-        sharedData.selectedMode = mode
+        sharedData.selectionData.selectedMode = mode
         modesButtonGroup.buttons.first { it.name.equals(mode.name) }.isChecked = true
         editorPanel.modeButtonClicked(mode)
         secondaryButtonBar.table.isVisible = mode == Modes.OBJECTS
@@ -446,7 +467,6 @@ class EditorUi(
         val saveItem = MenuItem("Save")
         val openItem = MenuItem("Open")
         val exitItem = MenuItem("Exit")
-        exitItem.setShortcut("Ctrl+Q")
         fileMenu.addItem(newItem)
         fileMenu.addItem(saveItem)
         fileMenu.addItem(openItem)
@@ -456,32 +476,6 @@ class EditorUi(
         menuBar.addMenu(fileMenu)
         menuBar.addMenu(editMenu)
         return menuBar
-    }
-
-    fun initialize() {
-        VisUI.load()
-        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(0, stage)
-        loadEditorAssets()
-        val primaryButtonBar = createPrimaryButtonBar()
-        val root = VisTable()
-        root.setFillParent(true)
-        root.top()
-        stage.addActor(root)
-        val stack = Stack()
-        stack.setFillParent(true)
-        root.add(menuBar.table).fill().expandX().row()
-        root.add(primaryButtonBar.table).fillX().expandX().row()
-        root.add(secondaryButtonBar.table).fillX().expandX().row()
-        editorPanel.initialize(root)
-        root.pack()
-        Gdx.app.getPreferences(PREFERENCES_KEY)
-            .getString(PREFERENCES_KEY_LAST_OPENED_MAP_PATH)?.let { lastOpenedMapPath ->
-                Gdx.files.absolute(lastOpenedMapPath).also { fileHandle ->
-                    if (fileHandle.exists()) {
-                        loadMap(fileHandle)
-                    }
-                }
-            }
     }
 
     private fun createPrimaryButtonBar(): MenuBar {
@@ -507,8 +501,46 @@ class EditorUi(
             IconsTextures.ICON_ROTATE_COUNTER_CLOCKWISE,
             EditorEvents.BUTTON_PRESSED_ROTATE_COUNTER_CLOCKWISE
         )
+        addSetGridButton(secondaryButtonBar)
         secondaryButtonBar.table.isVisible = false
         return secondaryButtonBar
+    }
+
+    private fun addSetGridButton(secondaryButtonBar: MenuBar) {
+        addButton(
+            IconsTextures.ICON_SET_GRID.getFileName(), object : ClickListener() {
+                override fun clicked(event: InputEvent?, x: Float, y: Float) {
+                    displaySetGridDialog()
+                }
+            }, secondaryButtonBar.table
+        )
+    }
+
+    private fun displaySetGridDialog(
+    ) {
+        val widthField = VisTextField("1")
+        val heightField = VisTextField("1")
+        val dialog = object : VisDialog("Set Grid") {
+            override fun result(obj: Any?) {
+                if (obj == true) {
+                    dispatcher.dispatchMessage(
+                        EditorEvents.GRID_SET.ordinal,
+                        Pair(
+                            widthField.text.toFloat(),
+                            heightField.text.toFloat()
+                        )
+                    )
+                }
+            }
+        }
+        val contentTable = dialog.contentTable
+        contentTable.add(VisLabel("Width:"))
+        contentTable.add(widthField).width(50f).pad(10f).row()
+        contentTable.add(VisLabel("Height:"))
+        contentTable.add(heightField).width(50f).pad(10f).row()
+        dialog.button("OK")
+        dialog.centerWindow()
+        dialog.show(stage)
     }
 
     private fun addRotateButton(

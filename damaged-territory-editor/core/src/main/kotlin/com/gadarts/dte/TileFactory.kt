@@ -8,7 +8,7 @@ import com.gadarts.shared.GameAssetManager
 
 class TileFactory(private val sharedData: SharedData, private val gameAssetsManager: GameAssetManager) {
     fun addTile(textureName: String, tileLayer: TileLayer, x: Int, z: Int): PlacedTile {
-        val placedTile = createTile(textureName, x, z, sharedData.layers.indexOf(tileLayer))
+        val placedTile = createTile(textureName, x, z, sharedData.mapData.layers.indexOf(tileLayer))
         tileLayer.tiles[z][x] = placedTile
         return placedTile
     }
@@ -22,7 +22,7 @@ class TileFactory(private val sharedData: SharedData, private val gameAssetsMana
         val modelInstance = EditorModelInstance(EditorModelInstanceProps(sharedData.floorModel, null))
         val placedTile =
             PlacedTile(modelInstance, gameAssetsManager.getTexturesDefinitions().definitions[textureName]!!)
-        sharedData.modelInstances.add(modelInstance)
+        sharedData.mapData.modelInstances.add(modelInstance)
         initializeTile(textureName, x, layerIndex, z, placedTile)
         return placedTile
     }

@@ -124,9 +124,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         for (i in 0 until MathUtils.random(3, 4)) {
             gamePlayManagers.factories.specialEffectsFactory.generateExplosionForCharacter(character)
         }
-        val isApache = characterComponent.definition == SimpleCharacterDefinition.APACHE
         var planeCrashSoundId = -1L
-        if (isApache) {
+        if (characterComponent.definition.isFlyer()) {
             planeCrashSoundId = gamePlayManagers.soundManager.play(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(

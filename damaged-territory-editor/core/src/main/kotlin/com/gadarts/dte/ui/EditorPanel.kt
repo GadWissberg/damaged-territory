@@ -47,7 +47,7 @@ class EditorPanel(
     private val tileButtonGroup = ButtonGroup<CatalogTileButton>()
     private val layersListDisplay: SelectableLayerList by lazy {
         SelectableLayerList(VisUI.getSkin()).apply {
-            val entries = sharedData.layers
+            val entries = sharedData.mapData.layers
             val array = Array<TileLayer>()
             array.addAll(*entries.toTypedArray())
             setItems(array)
@@ -72,7 +72,7 @@ class EditorPanel(
         if (mode == Modes.TILES) {
             objectsModePanel.remove()
             leftSidePanel.add(tilesModePanel)
-            sharedData.selectedLayerIndex = 1
+            sharedData.selectionData.selectedLayerIndex = 1
             layerSelected()
         } else {
             tilesModePanel.remove()
@@ -91,7 +91,7 @@ class EditorPanel(
         objectsListTable.background = VisUI.getSkin().getDrawable("window-bg")
         objectList.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                sharedData.selectedObject = objectList.items[objectList.selectedIndex]
+                sharedData.selectionData.selectedObject = objectList.items[objectList.selectedIndex]
                 dispatcher.dispatchMessage(EditorEvents.OBJECT_SELECTED.ordinal)
             }
         })
@@ -139,7 +139,7 @@ class EditorPanel(
     }
 
     private fun layerSelected() {
-        sharedData.selectedLayerIndex = layersListDisplay.selectedIndex
+        sharedData.selectionData.selectedLayerIndex = layersListDisplay.selectedIndex
         dispatcher.dispatchMessage(EditorEvents.LAYER_SELECTED.ordinal)
     }
 
@@ -161,7 +161,7 @@ class EditorPanel(
         val addLayer = TextButton(label, VisUI.getSkin())
         addLayer.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                val layers = sharedData.layers
+                val layers = sharedData.mapData.layers
                 val newLayerName = "Layer ${layers.size + 1}"
                 dispatcher.dispatchMessage(
                     EditorEvents.LAYER_ADDED.ordinal,
@@ -170,7 +170,7 @@ class EditorPanel(
                 list.setItems(*layers.toTypedArray())
                 list.items.last().let { lastLayer ->
                     list.selectedIndex = layers.indexOf(lastLayer)
-                    sharedData.selectedLayerIndex = list.selectedIndex
+                    sharedData.selectionData.selectedLayerIndex = list.selectedIndex
                 }
             }
         })
@@ -191,7 +191,7 @@ class EditorPanel(
         textureDefinitions.forEachIndexed { i, tileType ->
             addTileCatalogButton(tileType, catalogTable, i)
         }
-        sharedData.selectedTile = textureDefinitions.first()
+        sharedData.selectionData.selectedTile = textureDefinitions.first()
         leftSidePanel.add(scrollPane).width(250F).fill()
     }
 
@@ -212,7 +212,7 @@ class EditorPanel(
         button.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
                 if (button.isChecked) {
-                    sharedData.selectedTile = textureDefinition
+                    sharedData.selectionData.selectedTile = textureDefinition
                 }
             }
         })
@@ -223,7 +223,7 @@ class EditorPanel(
 
     fun mapLoaded() {
         layersListDisplay.setItems(
-            *sharedData.layers.toTypedArray()
+            *sharedData.mapData.layers.toTypedArray()
         )
         layersListDisplay.selectedIndex = 1
     }

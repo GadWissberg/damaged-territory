@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.systems
+package com.gadarts.returnfire.systems.effects
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
@@ -12,15 +12,14 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.emitters.RegularEmitter
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.DeathSequenceComponent
 import com.gadarts.returnfire.components.effects.ParticleEffectComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.systems.GameEntitySystem
+import com.gadarts.returnfire.systems.HandlerOnEvent
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.utils.GeneralUtils
 
 
 class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
@@ -47,13 +46,7 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         )
     }
 
-    private val deathSequenceEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(
-            Family.all(
-                DeathSequenceComponent::class.java
-            ).get()
-        )
-    }
+    private val deathSequenceUpdater by lazy { DeathSequenceUpdater(gamePlayManagers) }
 
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
@@ -82,46 +75,9 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         particleEntitiesToRemove.clear()
         updateParticleEffectsComponents()
         removeParticleEffectsMarkedToBeRemoved()
-        updateDeathSequences()
+        deathSequenceUpdater.updateDeathSequences()
         gameSessionData.renderData.particleSystem.update(deltaTime)
     }
-
-    private fun updateDeathSequences() {
-        for (entity in deathSequenceEntities) {
-            val deathSequenceComponent = ComponentsMapper.deathSequence.get(entity)
-            if (deathSequenceComponent.deathSequenceDuration <= 0) {
-                gamePlayManagers.dispatcher.dispatchMessage(
-                    SystemEvents.DEATH_SEQUENCE_FINISHED.ordinal,
-                    entity
-                )
-                entity.remove(DeathSequenceComponent::class.java)
-            } else if (deathSequenceComponent.deathSequenceNextExplosion < TimeUtils.millis()) {
-                deathSequenceComponent.incrementDeathSequence()
-                val specialEffectsFactory = gamePlayManagers.factories.specialEffectsFactory
-                if (ComponentsMapper.character.has(entity)) {
-                    specialEffectsFactory.generateExplosionForCharacter(
-                        character = entity,
-                    )
-                } else {
-                    if (deathSequenceComponent.createExplosionsAround) {
-                        val gameModelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
-                        val position = GeneralUtils.getRandomPositionOnBoundingBox(
-                            gameModelInstance.getBoundingBox(auxBoundingBox),
-                            0.5F
-                        )
-                        specialEffectsFactory.generateExplosion(
-                            position
-                        )
-                    } else {
-                        specialEffectsFactory.generateExplosion(
-                            entity
-                        )
-                    }
-                }
-            }
-        }
-    }
-
 
     override fun dispose() {
         gamePlayManagers.assetsManager.unloadParticleEffects()
@@ -217,6 +173,5 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     companion object {
         private val auxMatrix1 = Matrix4()
         private val auxVector = Vector3()
-        private val auxBoundingBox = BoundingBox()
     }
 }

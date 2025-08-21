@@ -17,7 +17,7 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
                 definition,
             )
         )
-        sharedData.modelInstances.add(modelInstance)
+        sharedData.mapData.modelInstances.add(modelInstance)
         modelInstance.transform.setToTranslation(
             x.toFloat() + 0.5F,
             0.07f,
@@ -26,7 +26,7 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
         if (rotation != null) {
             modelInstance.transform.rotate(rotation)
         }
-        sharedData.placedObjects.add(
+        sharedData.mapData.placedObjects.add(
             PlacedObject(
                 z,
                 x,

@@ -31,8 +31,8 @@ class RenderingHandler(
     override val subscribedEvents: Map<EditorEvents, EditorOnEvent> = mapOf(
         EditorEvents.LAYER_SELECTED to object : EditorOnEvent {
             override fun react(msg: Telegram) {
-                sharedData.layers.forEachIndexed { index, tileLayer ->
-                    if (index == sharedData.selectedLayerIndex || index == 0) {
+                sharedData.mapData.layers.forEachIndexed { index, tileLayer ->
+                    if (index == sharedData.selectionData.selectedLayerIndex || index == 0) {
                         tileLayer.tiles.forEach { row ->
                             row.forEach { tile ->
                                 tile?.modelInstance?.applyGray = false
@@ -50,9 +50,9 @@ class RenderingHandler(
         },
         EditorEvents.MODE_CHANGED to object : EditorOnEvent {
             override fun react(msg: Telegram) {
-                if (sharedData.selectedMode == Modes.TILES) return
+                if (sharedData.selectionData.selectedMode == Modes.TILES) return
 
-                sharedData.layers.forEachIndexed { _, tileLayer ->
+                sharedData.mapData.layers.forEachIndexed { _, tileLayer ->
                     tileLayer.tiles.forEach { row ->
                         row.forEach { tile ->
                             tile?.modelInstance?.applyGray = false
@@ -77,7 +77,7 @@ class RenderingHandler(
         auxiliaryModels.render(modelBatch)
         modelBatch.end()
         modelBatch.begin(sharedData.camera)
-        sharedData.modelInstances.forEach { modelInstance ->
+        sharedData.mapData.modelInstances.forEach { modelInstance ->
             if (modelInstance.applyGray) {
                 modelInstance.userData = modelInstance
                 modelBatch.render(modelInstance)
@@ -85,7 +85,7 @@ class RenderingHandler(
         }
         modelBatch.end()
         modelBatch.begin(sharedData.camera)
-        sharedData.modelInstances.forEach { modelInstance ->
+        sharedData.mapData.modelInstances.forEach { modelInstance ->
             if (!modelInstance.applyGray) {
                 modelInstance.userData = modelInstance
                 modelBatch.render(modelInstance)

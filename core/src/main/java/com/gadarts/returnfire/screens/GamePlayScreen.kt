@@ -14,7 +14,6 @@ import com.gadarts.returnfire.factories.*
 import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
-import com.gadarts.returnfire.systems.EffectsSystem
 import com.gadarts.returnfire.systems.EntityBuilderImpl
 import com.gadarts.returnfire.systems.GameEntitySystem
 import com.gadarts.returnfire.systems.ProfilingSystem
@@ -28,6 +27,7 @@ import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFacto
 import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.StainsHandler
 import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
+import com.gadarts.returnfire.systems.effects.EffectsSystem
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.systems.hud.HudSystemImpl
 import com.gadarts.returnfire.systems.map.MapSystemImpl
