@@ -49,7 +49,6 @@ enum class ModelDefinition(
     WATCH_TOWER_DESTROYED(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = WatchTowerDestroyedPhysicalShapeCreator)),
     WATCH_TOWER_DESTROYED_PART(
         fileNames = 2,
-        physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = WatchTowerDestroyedPartPhysicalShapeCreator)
     ),
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,

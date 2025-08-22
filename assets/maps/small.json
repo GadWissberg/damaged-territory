@@ -26,6 +26,13 @@
       "row": 5,
       "column": 4,
       "rotation": 0.0
+    },
+    {
+      "definition": "WATCH_TOWER",
+      "type": "AMB",
+      "row": 5,
+      "column": 2,
+      "rotation": 0.0
     }
   ],
   "width": 32,
