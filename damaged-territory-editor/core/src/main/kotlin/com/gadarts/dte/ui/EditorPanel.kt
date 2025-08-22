@@ -20,8 +20,8 @@ import com.gadarts.dte.scene.Modes
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
-import com.gadarts.shared.model.ElementType
-import com.gadarts.shared.model.definitions.ElementDefinition
+import com.gadarts.shared.data.definitions.ElementDefinition
+import com.gadarts.shared.data.type.ElementType
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable

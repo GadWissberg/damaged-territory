@@ -10,9 +10,9 @@ import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.FontDefinition
-import com.gadarts.shared.model.definitions.CharacterDefinition
-import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.model.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
 class HangarScreenMenu(
     private val runsOnMobile: Boolean,

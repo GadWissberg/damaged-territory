@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
 
@@ -49,7 +49,6 @@ class SoundManager(private val assetsManager: GameAssetManager, private val runs
         sound.stop(id)
     }
 
-    @Suppress("SimplifyBooleanWithConstants")
     fun play(music: Music) {
         if (!GameDebugSettings.SFX || GameDebugSettings.DISABLE_MUSIC) return
 

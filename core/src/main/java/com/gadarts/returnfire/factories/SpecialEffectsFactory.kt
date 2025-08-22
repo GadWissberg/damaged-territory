@@ -9,15 +9,16 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.model.GameModelInstance
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.systems.EntityBuilder
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.systems.EntityBuilder
-import com.gadarts.returnfire.systems.bullet.BulletSystem.Companion.auxBoundingBox
-import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.assets.definitions.PhysicalShapeCreator
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 
@@ -57,7 +58,7 @@ class SpecialEffectsFactory(
         addBiasToPosition: Boolean = true,
     ) {
         val transform = ComponentsMapper.modelInstance.get(entity).gameModelInstance.modelInstance.transform
-        val position = transform.getTranslation(auxVector1)
+        val position: Vector3 = transform.getTranslation(auxVector1)
         generateExplosion(position, blastRing, addBiasToPosition)
     }
 
@@ -141,7 +142,7 @@ class SpecialEffectsFactory(
     ) {
         val gameModelInstance = gameSessionData.gamePlayData.pools.groundBlastPool.obtain()
         val modelInstance = gameModelInstance.modelInstance
-        modelInstance.transform.setToScaling(1F, 1F, 1F)
+        modelInstance.transform.setToScaling(1f, 1f, 1f)
         val material = modelInstance.materials.get(0)
         val blendingAttribute = material.get(BlendingAttribute.Type) as BlendingAttribute
         blendingAttribute.opacity = 1F
@@ -236,7 +237,7 @@ class SpecialEffectsFactory(
         val randomParticleEffect =
             if (MathUtils.random() >= 0.15) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP_SMALL
         val transform = gameModelInstance.modelInstance.transform
-        val physicalShapeCreator = gameModelInstance.definition?.physicsData?.physicalShapeCreator
+        val physicalShapeCreator = gameModelInstance.gameModelInstanceInfo.definition?.physicsData?.physicalShapeCreator
         val entityBuilder = ecs.entityBuilder
             .begin()
             .addDrowningEffectComponent()
@@ -245,7 +246,7 @@ class SpecialEffectsFactory(
         }
         entityBuilder.addModelInstanceComponent(
             gameModelInstance,
-            auxVector1.set(position).add(0F, 0.1F, 0F).add(
+            auxVector1.set(position.x, position.y, position.z).add(0F, 0.1F, 0F).add(
                 MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
                 MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS),
                 MathUtils.random(-FLYING_PART_POSITION_MAX_BIAS, FLYING_PART_POSITION_MAX_BIAS)
@@ -253,12 +254,7 @@ class SpecialEffectsFactory(
             flyingPartBoundingBox
         )
             .addPhysicsComponent(
-                physicalShapeCreator?.create()
-                    ?: btBoxShape(
-                        flyingPartBoundingBox.getDimensions(
-                            auxVector1
-                        ).scl(0.4F * shapeScale)
-                    ),
+                createFlyingPartCollisionPart(physicalShapeCreator, gameModelInstance, shapeScale),
                 CollisionFlags.CF_CHARACTER_OBJECT,
                 transform,
                 1F,
@@ -275,6 +271,33 @@ class SpecialEffectsFactory(
         return entityBuilder.finishAndAddToEngine()
     }
 
+    private fun createFlyingPartCollisionPart(
+        physicalShapeCreator: PhysicalShapeCreator?,
+        gameModelInstance: GameModelInstance,
+        shapeScale: Float
+    ): btCollisionShape {
+        if (physicalShapeCreator != null) {
+            return physicalShapeCreator.create()
+        }
+
+        val definition = gameModelInstance.gameModelInstanceInfo.definition
+        val pooledShapeCreator = definition?.physicsData?.pooledObjectPhysicalDefinition?.shapeCreator
+        if (pooledShapeCreator != null) {
+            return pooledShapeCreator.create(
+                assetsManager.getCachedBoundingBox(definition),
+                assetsManager,
+                gameModelInstance.gameModelInstanceInfo
+            )
+
+        }
+
+        return btBoxShape(
+            flyingPartBoundingBox.getDimensions(
+                auxVector1
+            ).scl(0.4F * shapeScale)
+        )
+    }
+
     private fun makeFlyingPartFlyAway(flyingPart: Entity, minForce: Float, maxForce: Float) {
         val rigidBody = ComponentsMapper.physics.get(flyingPart).rigidBody
         rigidBody.applyCentralImpulse(
@@ -284,7 +307,7 @@ class SpecialEffectsFactory(
     }
 
     private fun createRandomDirectionUpwards(minForce: Float, maxForce: Float): Vector3 {
-        return auxVector1.set(1F, 0F, 0F).mul(
+        return auxVector1.set(1f, 0f, 0f).mul(
             auxQuat.idt()
                 .setEulerAngles(
                     MathUtils.random(360F),
@@ -310,6 +333,7 @@ class SpecialEffectsFactory(
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxQuat = Quaternion()
+        private val auxBoundingBox = com.badlogic.gdx.math.collision.BoundingBox()
         private const val MED_EXPLOSION_DEATH_SEQUENCE_BIAS = 0.1F
         private const val FLYING_PART_POSITION_MAX_BIAS = 0.4F
     }

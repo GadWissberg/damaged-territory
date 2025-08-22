@@ -6,7 +6,7 @@ import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
 import com.gadarts.dte.scene.handlers.render.EditorModelInstanceProps
 import com.gadarts.shared.GameAssetManager
-import com.gadarts.shared.model.definitions.ElementDefinition
+import com.gadarts.shared.data.definitions.ElementDefinition
 
 class ObjectFactory(private val sharedData: SharedData, private val gameAssetsManager: GameAssetManager) {
     fun addObject(x: Int, z: Int, elementDefinition: ElementDefinition, rotation: Quaternion? = null): Boolean {

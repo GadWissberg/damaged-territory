@@ -13,7 +13,7 @@ import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.screens.hangar.HangarScreenImpl
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.MusicDefinition
-import com.gadarts.shared.model.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.CharacterDefinition
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {

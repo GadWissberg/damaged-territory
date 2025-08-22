@@ -1,7 +1,7 @@
 package com.gadarts.dte.scene
 
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
-import com.gadarts.shared.model.definitions.ElementDefinition
+import com.gadarts.shared.data.definitions.ElementDefinition
 
 data class PlacedObject(
     val row: Int,

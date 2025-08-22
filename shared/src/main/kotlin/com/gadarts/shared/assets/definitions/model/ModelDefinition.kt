@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.*
 import com.gadarts.shared.assets.definitions.AssetDefinition
 import com.gadarts.shared.assets.definitions.PhysicalShapeCreator
-import com.gadarts.shared.model.definitions.PooledObjectPhysicalDefinition
+import com.gadarts.shared.data.definitions.PooledObjectPhysicalDefinition
 
 
 enum class ModelDefinition(
@@ -46,9 +46,10 @@ enum class ModelDefinition(
     PALM_TREE_LEAF(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_LEAF)),
     PALM_TREE_PART(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.PALM_TREE_PART)),
     WATCH_TOWER,
-    WATCH_TOWER_DESTROYED(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = WatchTowerDestroyedPhysicalShapeCreator)),
+    WATCH_TOWER_DESTROYED,
     WATCH_TOWER_DESTROYED_PART(
         fileNames = 2,
+        physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.WATCH_TOWER_DESTROYED_PART)
     ),
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,
@@ -262,20 +263,6 @@ object AntennaDestroyedBodyShapeCreator : PhysicalShapeCreator {
     override fun create(): btCollisionShape {
         val btBoxShape = btBoxShape(Vector3(0.125F, 2.25F, 0.125F))
         return btBoxShape
-    }
-
-}
-
-object WatchTowerDestroyedPhysicalShapeCreator : PhysicalShapeCreator {
-    override fun create(): btCollisionShape {
-        return btBoxShape(Vector3(0.35F, 0.25F, 0.4F))
-    }
-
-}
-
-object WatchTowerDestroyedPartPhysicalShapeCreator : PhysicalShapeCreator {
-    override fun create(): btCollisionShape {
-        return btBoxShape(Vector3(0.1F, 0.3F, 0.3F))
     }
 
 }

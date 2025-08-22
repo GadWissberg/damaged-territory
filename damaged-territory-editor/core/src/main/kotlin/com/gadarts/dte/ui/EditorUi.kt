@@ -28,7 +28,7 @@ import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.assets.map.GameMapPlacedObject
 import com.gadarts.shared.assets.map.GameMapTileLayer
 import com.gadarts.shared.assets.map.TilesMapping
-import com.gadarts.shared.model.ElementType
+import com.gadarts.shared.data.type.ElementType
 import com.google.gson.GsonBuilder
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
@@ -194,7 +194,7 @@ class EditorUi(
     private fun showLoadMapDialog() {
         val lastPath = getLastOpenedDir()
         val chooser = FileChooser(FileChooser.Mode.OPEN)
-        chooser.setSelectionMode(FileChooser.SelectionMode.FILES)
+        chooser.selectionMode = FileChooser.SelectionMode.FILES
         chooser.setDirectory(Gdx.files.absolute(lastPath))
         chooser.setListener(object : FileChooserListener {
             override fun selected(files: com.badlogic.gdx.utils.Array<FileHandle>?) {
@@ -288,7 +288,7 @@ class EditorUi(
                     val chooser = FileChooser(FileChooser.Mode.SAVE)
                     val lastPath = getLastOpenedDir()
                     chooser.setDirectory(Gdx.files.absolute(lastPath))
-                    chooser.setSelectionMode(FileChooser.SelectionMode.FILES)
+                    chooser.selectionMode = FileChooser.SelectionMode.FILES
 
                     chooser.setListener(object : FileChooserListener {
 

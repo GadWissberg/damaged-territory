@@ -1,6 +1,6 @@
 package com.gadarts.shared.assets.map
 
-import com.gadarts.shared.model.ElementType
+import com.gadarts.shared.data.type.ElementType
 
 data class GameMapPlacedObject(
     val definition: String,

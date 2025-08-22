@@ -1,16 +1,16 @@
 package com.gadarts.returnfire
 
 import com.gadarts.shared.assets.definitions.MapDefinition
-import com.gadarts.shared.model.definitions.CharacterDefinition
-import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.model.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
 @Suppress("RedundantNullableReturnType", "RedundantSuppression")
 object GameDebugSettings {
     val MAP = MapDefinition.SMALL
     const val PRINT_BIT_MAP: Boolean = false
     const val SHOW_OBJECT_POOL_PROFILING = false
-    const val SHOW_COLLISION_SHAPES = false
+    const val SHOW_COLLISION_SHAPES = true
     const val SHOW_GL_PROFILING = true
     const val SHOW_HEAP_SIZE = false
     const val DEBUG_INPUT = false

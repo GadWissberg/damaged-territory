@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
-import com.gadarts.shared.model.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.model.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
 class HangarStagesModels(assetsManager: GameAssetManager) {
     val stageTopLeftModelInstance by lazy {

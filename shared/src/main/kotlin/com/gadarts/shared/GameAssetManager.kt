@@ -193,11 +193,10 @@ open class GameAssetManager : AssetManager() {
     }
 
     fun getCachedModelCollisionShapeInfo(definition: ModelDefinition, index: Int? = null): ModelCollisionShapeInfo? {
-        return get(
-            "$PREFIX_COLLISION_SHAPE${definition.getDefinitionName()}${if (index != null) "_$index" else ""}",
-            ModelCollisionShapeInfo::class.java,
-            false
-        )
+        val fileName = "$PREFIX_COLLISION_SHAPE${definition.getDefinitionName()}${if (index != null) "_$index" else ""}"
+        val clazz = ModelCollisionShapeInfo::class.java
+        val modelCollisionShapeInfo = get(fileName, clazz, false)
+        return modelCollisionShapeInfo
     }
 
     fun loadParticleEffects(pointSpriteParticleBatch: BillboardParticleBatch) {

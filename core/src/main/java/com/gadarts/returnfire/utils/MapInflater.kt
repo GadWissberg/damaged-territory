@@ -51,6 +51,7 @@ import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.returnfire.systems.data.map.InGameTilesLayer
 import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.SharedUtils.INITIAL_INDEX_OF_TILES_MAPPING
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
@@ -59,9 +60,9 @@ import com.gadarts.shared.assets.definitions.model.AutomaticShapeCreator
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.assets.map.GameMapTileLayer
-import com.gadarts.shared.model.CharacterType
-import com.gadarts.shared.model.ElementType
-import com.gadarts.shared.model.definitions.*
+import com.gadarts.shared.data.definitions.*
+import com.gadarts.shared.data.type.CharacterType
+import com.gadarts.shared.data.type.ElementType
 
 class MapInflater(
     private val gameSessionData: GameSessionData,
@@ -436,7 +437,7 @@ class MapInflater(
         val modelCollisionShapeInfo =
             gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(definition!!, gameModelInstance.modelIndex)
         val shape = if (modelCollisionShapeInfo != null) {
-            ModelUtils.buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo)
+            SharedUtils.buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo)
         } else {
             createShapeForStaticObject(definition, entity)
         }
@@ -499,7 +500,13 @@ class MapInflater(
                 calculateTurretPosition(baseEntity, assetsManager),
                 null,
             )
-            .addTurretComponent(baseEntity, false, false, 0.2F, null)
+            .addTurretComponent(
+                base = baseEntity,
+                followBasePosition = false,
+                followBaseRotation = false,
+                relativeY = 0.2F,
+                cannon = null
+            )
             .addTurretEnemyAiComponent()
             .addPrimaryArmComponent(
                 spark,
