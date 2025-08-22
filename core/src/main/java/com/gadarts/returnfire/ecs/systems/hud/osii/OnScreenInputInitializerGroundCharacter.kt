@@ -4,8 +4,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.systems.hud.HudButtons
-import com.gadarts.returnfire.systems.hud.HudSystem
+import com.gadarts.returnfire.ecs.systems.hud.HudButtons
+import com.gadarts.returnfire.ecs.systems.hud.HudSystem
 
 class OnScreenInputInitializerGroundCharacter(
     private val hudSystem: HudSystem,
@@ -14,7 +14,6 @@ class OnScreenInputInitializerGroundCharacter(
     private val hideAttackButtons: Boolean = false,
 ) :
         (Table, Cell<Touchpad>) -> Unit {
-    @Suppress("KotlinConstantConditions")
     override fun invoke(ui: Table, movementPad: Cell<Touchpad>) {
         val imageButtonCell = hudSystem.addButton(
             ui,

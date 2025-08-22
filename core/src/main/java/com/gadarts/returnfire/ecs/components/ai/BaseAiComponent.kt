@@ -2,7 +2,7 @@ package com.gadarts.returnfire.ecs.components.ai
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
-import com.gadarts.returnfire.systems.ai.AiStatus
+import com.gadarts.returnfire.ecs.systems.ai.AiStatus
 
 class BaseAiComponent(target: Entity?) : Component {
     var state: AiStatus = AiStatus.PLANNING

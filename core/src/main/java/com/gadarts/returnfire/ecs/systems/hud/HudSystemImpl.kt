@@ -13,18 +13,18 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.ai.BaseAiComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
+import com.gadarts.returnfire.ecs.systems.GameEntitySystem
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.JOYSTICK_PADDING
+import com.gadarts.returnfire.ecs.systems.hud.osii.OnScreenInputInitializerApache
+import com.gadarts.returnfire.ecs.systems.hud.osii.OnScreenInputInitializerGroundCharacter
+import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnLandingIndicatorVisibilityChanged
+import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnPlayerAimSky
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.hud.HudSystem.Companion.JOYSTICK_PADDING
-import com.gadarts.returnfire.systems.hud.osii.OnScreenInputInitializerApache
-import com.gadarts.returnfire.systems.hud.osii.OnScreenInputInitializerGroundCharacter
-import com.gadarts.returnfire.systems.hud.react.HudSystemOnLandingIndicatorVisibilityChanged
-import com.gadarts.returnfire.systems.hud.react.HudSystemOnPlayerAimSky
 import com.gadarts.shared.data.definitions.CharacterDefinition
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
@@ -46,20 +46,20 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     private val onScreenInputInitializers: Map<CharacterDefinition, (Table, Cell<Touchpad>) -> Unit> by lazy {
         mapOf(
             SimpleCharacterDefinition.APACHE to
-                    OnScreenInputInitializerApache(this, hudButtons, gameSessionData.autoAim),
+                OnScreenInputInitializerApache(this, hudButtons, gameSessionData.autoAim),
             TurretCharacterDefinition.TANK to
-                    OnScreenInputInitializerGroundCharacter(
-                        this,
-                        hudButtons,
-                        gameSessionData.hudData.turretTouchpad,
-                    ),
+                OnScreenInputInitializerGroundCharacter(
+                    this,
+                    hudButtons,
+                    gameSessionData.hudData.turretTouchpad,
+                ),
             TurretCharacterDefinition.JEEP to
-                    OnScreenInputInitializerGroundCharacter(
-                        this,
-                        hudButtons,
-                        null,
-                        true
-                    )
+                OnScreenInputInitializerGroundCharacter(
+                    this,
+                    hudButtons,
+                    null,
+                    true
+                )
         )
     }
     private val debugInput: CameraInputController by lazy { CameraInputController(gameSessionData.renderData.camera) }
@@ -70,7 +70,6 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
         ),
         SystemEvents.PLAYER_AIM_SKY to HudSystemOnPlayerAimSky(hudButtons),
         SystemEvents.PLAYER_ADDED to object : HandlerOnEvent {
-            @Suppress("KotlinConstantConditions")
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
@@ -117,7 +116,6 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
 
     }
 
-    @Suppress("KotlinConstantConditions")
     override fun update(deltaTime: Float) {
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.update()
@@ -194,7 +192,6 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     }
 
 
-    @Suppress("KotlinConstantConditions")
     private fun initializeInput() {
         if (GameDebugSettings.DEBUG_INPUT) {
             debugInput.autoUpdate = true
@@ -207,7 +204,6 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     }
 
 
-    @Suppress("KotlinConstantConditions")
     private fun addUiTable(): Table {
         val uiTable = Table()
         uiTable.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)

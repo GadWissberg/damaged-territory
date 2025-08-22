@@ -9,18 +9,16 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObjectArray
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.arm.ArmComponent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.data.CharacterWeaponShotEventData
+import com.gadarts.returnfire.ecs.systems.player.PlayerSystem
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.systems.EntityBuilder
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
-import com.gadarts.returnfire.systems.player.PlayerSystem
 import kotlin.math.min
 
 open class CharacterShootingHandler(
-    private val entityBuilder: EntityBuilder,
     private val soundManager: SoundManager,
     private val depletedSound: Sound
 ) {

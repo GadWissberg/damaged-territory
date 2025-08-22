@@ -237,7 +237,8 @@ class SpecialEffectsFactory(
         val randomParticleEffect =
             if (MathUtils.random() >= 0.15) ParticleEffectDefinition.SMOKE_UP_LOOP else ParticleEffectDefinition.FIRE_LOOP_SMALL
         val transform = gameModelInstance.modelInstance.transform
-        val physicalShapeCreator = gameModelInstance.gameModelInstanceInfo.definition?.physicsData?.physicalShapeCreator
+        val physicalShapeCreator =
+            gameModelInstance.gameModelInstanceInfo?.modelDefinition?.physicsData?.physicalShapeCreator
         val entityBuilder = ecs.entityBuilder
             .begin()
             .addDrowningEffectComponent()
@@ -280,7 +281,7 @@ class SpecialEffectsFactory(
             return physicalShapeCreator.create()
         }
 
-        val definition = gameModelInstance.gameModelInstanceInfo.definition
+        val definition = gameModelInstance.gameModelInstanceInfo?.modelDefinition
         val pooledShapeCreator = definition?.physicsData?.pooledObjectPhysicalDefinition?.shapeCreator
         if (pooledShapeCreator != null) {
             return pooledShapeCreator.create(

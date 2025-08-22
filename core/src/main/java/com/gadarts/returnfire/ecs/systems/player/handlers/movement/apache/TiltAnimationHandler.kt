@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 
 class TiltAnimationHandler {
 

@@ -3,7 +3,7 @@ package com.gadarts.returnfire.ecs.systems.map.handlers
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 
 class FadingAwayHandler(private val engine: PooledEngine) {
     private val entitiesToFadeAway: MutableList<Entity> = ArrayDeque()

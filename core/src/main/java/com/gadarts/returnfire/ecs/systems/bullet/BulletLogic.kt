@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 
 class BulletLogic {
     fun update(bullet: Entity, deltaTime: Float): Boolean {

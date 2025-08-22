@@ -3,8 +3,8 @@ package com.gadarts.returnfire.ecs.systems.data.pools
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.components.physics.MotionState
-import com.gadarts.returnfire.components.physics.RigidBody
+import com.gadarts.returnfire.ecs.components.physics.MotionState
+import com.gadarts.returnfire.ecs.components.physics.RigidBody
 
 class RigidBodyFactory {
     fun create(

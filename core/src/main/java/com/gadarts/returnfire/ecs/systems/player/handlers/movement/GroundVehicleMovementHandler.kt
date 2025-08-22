@@ -3,7 +3,7 @@ package com.gadarts.returnfire.ecs.systems.player.handlers.movement
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 
 abstract class GroundVehicleMovementHandler(private val params: GroundVehicleMovementHandlerParams) :
     VehicleMovementHandler(

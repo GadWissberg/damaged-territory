@@ -6,18 +6,19 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.arm.ArmComponent
-import com.gadarts.returnfire.components.character.CharacterColor
-import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.onboarding.BoardingAnimation
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.arm.ArmComponent
+import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.onboarding.BoardingAnimation
+import com.gadarts.returnfire.ecs.systems.EntityBuilder
+import com.gadarts.returnfire.ecs.systems.EntityBuilderImpl
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.systems.EntityBuilder
-import com.gadarts.returnfire.systems.EntityBuilderImpl
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.map.GameMapPlacedObject
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.definitions.CharacterDefinition
 
 abstract class CharacterFactory(
@@ -36,7 +37,7 @@ abstract class CharacterFactory(
             .addModelInstanceComponent(
                 GameModelInstance(
                     ModelInstance(machineGunSparkModel),
-                    ModelDefinition.MACHINE_GUN_SPARK,
+                    ImmutableGameModelInstanceInfo(ModelDefinition.MACHINE_GUN_SPARK),
                 ),
                 Vector3(),
                 null,

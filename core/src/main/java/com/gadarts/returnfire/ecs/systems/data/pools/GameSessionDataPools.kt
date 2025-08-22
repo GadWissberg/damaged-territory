@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.Pool
-import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.systems.player.GameModelInstancePool
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.systems.player.GameModelInstancePool
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.assets.definitions.model.ModelDefinition

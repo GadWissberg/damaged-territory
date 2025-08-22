@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState
-import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
+import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyPool
 
 class RigidBody(
     val mass: Float,

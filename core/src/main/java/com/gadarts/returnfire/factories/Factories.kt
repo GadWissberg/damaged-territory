@@ -1,8 +1,8 @@
 package com.gadarts.returnfire.factories
 
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.systems.character.factories.OpponentCharacterFactory
-import com.gadarts.returnfire.systems.data.pools.RigidBodyFactory
+import com.gadarts.returnfire.ecs.systems.character.factories.OpponentCharacterFactory
+import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyFactory
 
 class Factories(
     val rigidBodyFactory: RigidBodyFactory,

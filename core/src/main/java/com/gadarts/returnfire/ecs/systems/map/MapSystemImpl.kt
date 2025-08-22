@@ -17,26 +17,26 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.StageComponent
-import com.gadarts.returnfire.components.cd.ChildDecal
-import com.gadarts.returnfire.components.cd.DecalAnimation
-import com.gadarts.returnfire.components.character.CharacterColor
-import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.pit.BaseComponent
-import com.gadarts.returnfire.components.pit.BaseDoorComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.StageComponent
+import com.gadarts.returnfire.ecs.components.cd.ChildDecal
+import com.gadarts.returnfire.ecs.components.cd.DecalAnimation
+import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.pit.BaseComponent
+import com.gadarts.returnfire.ecs.components.pit.BaseDoorComponent
+import com.gadarts.returnfire.ecs.systems.GameEntitySystem
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.map.handlers.amb.AmbEffectsHandlers
+import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnCharacterBoarding
+import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnCharacterOnboardingAnimationDone
+import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnExplosionPushBack
+import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnPhysicsCollision
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraphType
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.map.handlers.amb.AmbEffectsHandlers
-import com.gadarts.returnfire.systems.map.react.MapSystemOnCharacterBoarding
-import com.gadarts.returnfire.systems.map.react.MapSystemOnCharacterOnboardingAnimationDone
-import com.gadarts.returnfire.systems.map.react.MapSystemOnExplosionPushBack
-import com.gadarts.returnfire.systems.map.react.MapSystemOnPhysicsCollision
 import com.gadarts.returnfire.utils.MapInflater
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.shared.SharedUtils
@@ -45,6 +45,7 @@ import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.FIRE_LOOP_
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.SMOKE_UP_LOOP
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import kotlin.math.max
 import kotlin.math.min
 
@@ -268,7 +269,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         val gameModelInstance = ComponentsMapper.modelInstance.get(entity).gameModelInstance
         gamePlayManagers.ecs.entityBuilder.addPhysicsComponentPooledToEntity(
             entity,
-            gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(gameModelInstance.definition!!),
+            gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(gameModelInstance.gameModelInstanceInfo?.modelDefinition!!),
             CollisionFlags.CF_CHARACTER_OBJECT,
             gameModelInstance.modelInstance.transform,
             gravityScale
@@ -363,7 +364,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     private fun addBaseDoor(base: Entity, rotationAroundY: Float, relativeTargetX: Float): Entity {
         val doorModelInstance = GameModelInstance(
             ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.PIT_DOOR)),
-            ModelDefinition.PIT_DOOR,
+            ImmutableGameModelInstanceInfo(ModelDefinition.PIT_DOOR),
         )
         val basePosition =
             ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
@@ -398,7 +399,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             .addModelInstanceComponent(
                 model = GameModelInstance(
                     ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
-                    ModelDefinition.STAGE,
+                    ImmutableGameModelInstanceInfo(ModelDefinition.STAGE),
                 ),
                 position = ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1

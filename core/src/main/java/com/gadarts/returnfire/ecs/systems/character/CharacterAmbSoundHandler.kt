@@ -5,9 +5,9 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.MathUtils
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.amb.AmbSoundComponent
+import com.gadarts.returnfire.ecs.components.CharacterComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.amb.AmbSoundComponent
 import com.gadarts.returnfire.managers.SoundManager
 
 class CharacterAmbSoundHandler(private val soundManager: SoundManager, engine: PooledEngine) {

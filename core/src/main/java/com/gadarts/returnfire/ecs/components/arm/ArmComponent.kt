@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.bullet.BulletBehavior
+import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 
 abstract class ArmComponent(
     val armProperties: ArmProperties,
@@ -16,7 +16,7 @@ abstract class ArmComponent(
 
     var loaded: Long = 0L
 
-    @Suppress("SimplifyBooleanWithConstants", "KotlinConstantConditions")
+    @Suppress("KotlinConstantConditions")
     var ammo = if (GameDebugSettings.FORCE_AMMO < 0) armProperties.ammo else GameDebugSettings.FORCE_AMMO
         private set
 

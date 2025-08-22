@@ -3,7 +3,7 @@ package com.gadarts.returnfire.ecs.components.ai
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector2
-import com.gadarts.returnfire.systems.ai.AiTurretStatus
+import com.gadarts.returnfire.ecs.systems.ai.AiTurretStatus
 
 class AiTurretComponent : Component {
     var nextLookingAroundTime: Long = 0

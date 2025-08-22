@@ -7,9 +7,9 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.hud.HudButtons
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.hud.HudButtons
 
 class HudSystemOnPlayerAimSky(private val hudButtons: HudButtons) : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {

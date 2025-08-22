@@ -14,24 +14,24 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GroundComponent
-import com.gadarts.returnfire.components.IndependentDecalComponent
-import com.gadarts.returnfire.components.ModelCacheComponent
-import com.gadarts.returnfire.components.amb.AmbAnimationComponent
-import com.gadarts.returnfire.components.cd.ChildDecal
-import com.gadarts.returnfire.components.cd.ChildDecalComponent
-import com.gadarts.returnfire.components.effects.GroundBlastComponent
-import com.gadarts.returnfire.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.console.CommandList
 import com.gadarts.returnfire.console.commands.ExecutedCommand
 import com.gadarts.returnfire.console.commands.SkipDrawingCommand
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.GroundComponent
+import com.gadarts.returnfire.ecs.components.IndependentDecalComponent
+import com.gadarts.returnfire.ecs.components.ModelCacheComponent
+import com.gadarts.returnfire.ecs.components.amb.AmbAnimationComponent
+import com.gadarts.returnfire.ecs.components.cd.ChildDecal
+import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.ecs.components.effects.GroundBlastComponent
+import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.ecs.systems.GameEntitySystem
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.CollisionShapesDebugDrawing
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.data.CollisionShapesDebugDrawing
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.returnfire.utils.GeneralUtils
 
 class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), Disposable {
@@ -143,7 +143,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun renderCollisionShapes() {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
 
-        val debugDrawingMethod: CollisionShapesDebugDrawing = gameSessionData.physicsData.debugDrawingMethod
+        val debugDrawingMethod: CollisionShapesDebugDrawing? = gameSessionData.physicsData.debugDrawingMethod
         debugDrawingMethod?.drawCollisionShapes(gameSessionData.renderData.camera)
     }
 

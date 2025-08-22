@@ -3,10 +3,10 @@ package com.gadarts.returnfire.ecs.systems.player.handlers.movement.jeep
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.FrontWheelsComponent
-import com.gadarts.returnfire.components.physics.RigidBody
-import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMovementHandler
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.FrontWheelsComponent
+import com.gadarts.returnfire.ecs.components.physics.RigidBody
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.GroundVehicleMovementHandler
 import kotlin.math.max
 import kotlin.math.min
 

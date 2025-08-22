@@ -3,8 +3,8 @@ package com.gadarts.returnfire.ecs.systems.physics
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.physics.bullet.collision.ContactListener
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
-import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
 
 
 class GameContactListener(private val dispatcher: MessageDispatcher) : ContactListener() {

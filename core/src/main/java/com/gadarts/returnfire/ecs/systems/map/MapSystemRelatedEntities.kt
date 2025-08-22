@@ -4,10 +4,10 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
-import com.gadarts.returnfire.components.TreeComponent
-import com.gadarts.returnfire.components.effects.FlyingPartComponent
-import com.gadarts.returnfire.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.components.physics.PhysicsComponent
+import com.gadarts.returnfire.ecs.components.TreeComponent
+import com.gadarts.returnfire.ecs.components.effects.FlyingPartComponent
+import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
 
 class MapSystemRelatedEntities(engine: PooledEngine) {
     val flyingPartEntities: ImmutableArray<Entity> by lazy {

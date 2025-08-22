@@ -4,8 +4,8 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.utils.ModelUtils
 import kotlin.math.abs
 import kotlin.math.exp

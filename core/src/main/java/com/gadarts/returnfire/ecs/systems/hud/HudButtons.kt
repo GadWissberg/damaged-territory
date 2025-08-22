@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 
 class HudButtons(private val gamePlayManagers: GamePlayManagers) {
     var onboardButton: ImageButton? = null

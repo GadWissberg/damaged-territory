@@ -1,12 +1,12 @@
 package com.gadarts.returnfire.ecs.systems.character.react
 
 import com.badlogic.gdx.ai.msg.Telegram
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.character.CharacterSystem
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.data.CharacterWeaponShotEventData
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.character.CharacterSystem
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.data.CharacterWeaponShotEventData
 
 class CharacterSystemOnCharacterWeaponShotSecondary(characterSystem: CharacterSystem) :
     CharacterSystemOnCharacterWeaponShot(characterSystem),

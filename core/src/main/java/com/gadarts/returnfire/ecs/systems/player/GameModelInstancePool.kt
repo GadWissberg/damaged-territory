@@ -3,8 +3,9 @@ package com.gadarts.returnfire.ecs.systems.player
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.utils.Pool
-import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 
 class GameModelInstancePool(
     private val model: Model,
@@ -12,7 +13,7 @@ class GameModelInstancePool(
 ) :
     Pool<GameModelInstance>(BULLET_MODEL_INSTANCES_POOL_SIZE) {
     override fun newObject(): GameModelInstance {
-        return GameModelInstance(ModelInstance(model), modelDefinition)
+        return GameModelInstance(ModelInstance(model), ImmutableGameModelInstanceInfo(modelDefinition))
     }
 
     companion object {

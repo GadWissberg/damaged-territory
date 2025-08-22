@@ -8,7 +8,7 @@ interface ShapeCreator {
     fun create(
         boundingBox: BoundingBox,
         assetsManager: GameAssetManager,
-        gameModelInstanceInfo: GameModelInstanceInfo,
+        gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
     ): btCollisionShape
 
 }

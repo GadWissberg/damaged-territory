@@ -3,22 +3,23 @@ package com.gadarts.returnfire.ecs.systems.character.factories
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.arm.ArmComponent
-import com.gadarts.returnfire.components.arm.ArmEffectsData
-import com.gadarts.returnfire.components.arm.ArmProperties
-import com.gadarts.returnfire.components.arm.ArmRenderData
-import com.gadarts.returnfire.components.bullet.BulletBehavior
-import com.gadarts.returnfire.components.character.CharacterColor
-import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.arm.ArmComponent
+import com.gadarts.returnfire.ecs.components.arm.ArmEffectsData
+import com.gadarts.returnfire.ecs.components.arm.ArmProperties
+import com.gadarts.returnfire.ecs.components.arm.ArmRenderData
+import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
+import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.systems.EntityBuilder
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
-import com.gadarts.returnfire.systems.EntityBuilder
-import com.gadarts.returnfire.systems.data.GameSessionData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.map.GameMapPlacedObject
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
 class TankFactory(
@@ -74,7 +75,7 @@ class TankFactory(
         entityBuilder.addModelInstanceComponent(
             GameModelInstance(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
-                ModelDefinition.TANK_TURRET,
+                ImmutableGameModelInstanceInfo(ModelDefinition.TANK_TURRET),
             ),
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_1

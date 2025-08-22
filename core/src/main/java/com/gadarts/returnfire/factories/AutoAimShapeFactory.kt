@@ -6,8 +6,8 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.physics.bullet.collision.btConeShape
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.player.PlayerSystem
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.player.PlayerSystem
 
 class AutoAimShapeFactory(private val gameSessionData: GameSessionData) {
     fun generate(collisionFilterGroup: Int, collisionFilterMask: Int): btPairCachingGhostObject {

@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.systems.hud.radar.RadarC.RADAR_SIZE
+import com.gadarts.returnfire.ecs.systems.hud.radar.RadarC.RADAR_SIZE
 import com.gadarts.shared.GameAssetManager
 
 class RadarRelatedTextures(assetsManager: GameAssetManager) : Disposable {

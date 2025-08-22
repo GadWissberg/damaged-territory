@@ -2,7 +2,7 @@ package com.gadarts.returnfire.ecs.systems.hud
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
-import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 
 class HudInputProcessor(private val gameSessionData: GameSessionData) : InputProcessor {
 

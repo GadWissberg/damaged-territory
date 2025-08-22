@@ -1,9 +1,10 @@
 package com.gadarts.returnfire.ecs.systems.data.pools
 
 import com.badlogic.gdx.utils.Pool
-import com.gadarts.returnfire.components.physics.RigidBody
+import com.gadarts.returnfire.ecs.components.physics.RigidBody
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.definitions.PooledObjectPhysicalDefinition
 
 class RigidBodyPool(
@@ -21,7 +22,7 @@ class RigidBodyPool(
                     definition
                 ),
                 assetsManager,
-                definition
+                ImmutableGameModelInstanceInfo(definition)
             ),
             this,
         )

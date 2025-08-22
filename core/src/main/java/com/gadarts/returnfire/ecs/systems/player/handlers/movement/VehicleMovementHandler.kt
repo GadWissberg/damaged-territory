@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.CharacterComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 
 
 abstract class VehicleMovementHandler(

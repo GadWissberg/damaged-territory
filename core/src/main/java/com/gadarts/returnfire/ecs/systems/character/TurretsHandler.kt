@@ -6,13 +6,13 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.BrownComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GreenComponent
-import com.gadarts.returnfire.components.character.CharacterColor
-import com.gadarts.returnfire.components.turret.TurretComponent
+import com.gadarts.returnfire.ecs.components.BrownComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.GreenComponent
+import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.returnfire.ecs.components.turret.TurretComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import kotlin.math.max
@@ -20,7 +20,6 @@ import kotlin.math.sqrt
 
 class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSessionData) {
     private val shootingHandler = CharacterShootingHandler(
-        gamePlayManagers.ecs.entityBuilder,
         gamePlayManagers.soundManager,
         gamePlayManagers.assetsManager.getAssetByDefinition(
             SoundDefinition.EMPTY

@@ -15,13 +15,13 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.systems.data.GameSessionDataRender
-import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxBox
-import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxVector3_1
-import com.gadarts.returnfire.systems.render.RenderSystem.Companion.auxVector3_2
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionDataRender
+import com.gadarts.returnfire.ecs.systems.render.RenderSystem.Companion.auxBox
+import com.gadarts.returnfire.ecs.systems.render.RenderSystem.Companion.auxVector3_1
+import com.gadarts.returnfire.ecs.systems.render.RenderSystem.Companion.auxVector3_2
 
 class ModelsRenderer(
     private val relatedEntities: RenderSystemRelatedEntities,
@@ -43,7 +43,6 @@ class ModelsRenderer(
     }
     private val environment: Environment by lazy { Environment() }
 
-    @Suppress("SimplifyBooleanWithConstants")
     fun renderModels(
         batch: ModelBatch,
         camera: Camera,

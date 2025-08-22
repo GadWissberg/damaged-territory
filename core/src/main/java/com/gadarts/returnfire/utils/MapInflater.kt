@@ -27,29 +27,29 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.AnimatedTextureComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.amb.AmbComponent
-import com.gadarts.returnfire.components.arm.ArmComponent
-import com.gadarts.returnfire.components.arm.ArmEffectsData
-import com.gadarts.returnfire.components.arm.ArmProperties
-import com.gadarts.returnfire.components.arm.ArmRenderData
-import com.gadarts.returnfire.components.bullet.BulletBehavior
-import com.gadarts.returnfire.components.cd.ChildDecal
-import com.gadarts.returnfire.components.character.CharacterColor
-import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.physics.PhysicsComponent
-import com.gadarts.returnfire.components.pit.BaseComponent
-import com.gadarts.returnfire.components.turret.TurretBaseComponent
+import com.gadarts.returnfire.ecs.components.AnimatedTextureComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.amb.AmbComponent
+import com.gadarts.returnfire.ecs.components.arm.ArmComponent
+import com.gadarts.returnfire.ecs.components.arm.ArmEffectsData
+import com.gadarts.returnfire.ecs.components.arm.ArmProperties
+import com.gadarts.returnfire.ecs.components.arm.ArmRenderData
+import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
+import com.gadarts.returnfire.ecs.components.cd.ChildDecal
+import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
+import com.gadarts.returnfire.ecs.components.pit.BaseComponent
+import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
+import com.gadarts.returnfire.ecs.systems.EntityBuilder
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.map.InGameTilesLayer
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.returnfire.model.MapGraphCost
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.model.graph.MapGraphNode
-import com.gadarts.returnfire.systems.EntityBuilder
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.data.map.InGameTilesLayer
-import com.gadarts.returnfire.systems.events.SystemEvents
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.SharedUtils.INITIAL_INDEX_OF_TILES_MAPPING
@@ -60,6 +60,7 @@ import com.gadarts.shared.assets.definitions.model.AutomaticShapeCreator
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.assets.map.GameMapTileLayer
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.definitions.*
 import com.gadarts.shared.data.type.CharacterType
 import com.gadarts.shared.data.type.ElementType
@@ -433,13 +434,15 @@ class MapInflater(
         friction: Float = 1.5F,
         activationState: Int = ISLAND_SLEEPING
     ): PhysicsComponent {
-        val definition = gameModelInstance.definition
+        val definition = gameModelInstance.gameModelInstanceInfo?.modelDefinition
         val modelCollisionShapeInfo =
-            gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(definition!!, gameModelInstance.modelIndex)
+            gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(
+                gameModelInstance.gameModelInstanceInfo!!
+            )
         val shape = if (modelCollisionShapeInfo != null) {
             SharedUtils.buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo)
         } else {
-            createShapeForStaticObject(definition, entity)
+            createShapeForStaticObject(definition!!, entity)
         }
         return gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
             entity = entity,
@@ -582,7 +585,7 @@ class MapInflater(
     ): Entity {
         val model = GameModelInstance(
             ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.CANNON_SPARK)),
-            ModelDefinition.CANNON_SPARK,
+            ImmutableGameModelInstanceInfo(ModelDefinition.CANNON_SPARK),
         )
         val spark = gamePlayManagers.ecs.entityBuilder.begin()
             .addModelInstanceComponent(
@@ -848,7 +851,7 @@ class MapInflater(
         && z < tilesEntities.size
         && tilesEntities[z][x] != null
         && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
-        && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.definition == ModelDefinition.TILE_BUMPY)
+        && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.gameModelInstanceInfo?.modelDefinition == ModelDefinition.TILE_BUMPY)
 
     private fun flatAllTilesBelow(
         index: Int,
@@ -946,7 +949,7 @@ class MapInflater(
         val assetsManager = gamePlayManagers.assetsManager
         val modelInstance = GameModelInstance(
             ModelInstance(ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TILE_BUMPY))),
-            ModelDefinition.TILE_BUMPY,
+            ImmutableGameModelInstanceInfo(ModelDefinition.TILE_BUMPY),
         )
         val entity = createAndAddGroundTileEntity(
             modelInstance,

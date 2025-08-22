@@ -3,8 +3,8 @@ package com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMovementHandler
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.GroundVehicleMovementHandler
 
 class TankMovementHandlerDesktop :
     GroundVehicleMovementHandler(TankMovementHandlerParams()) {

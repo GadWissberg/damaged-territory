@@ -1,25 +1,25 @@
 package com.gadarts.returnfire.ecs.components
 
 import com.badlogic.ashley.core.ComponentMapper
-import com.gadarts.returnfire.components.ai.*
-import com.gadarts.returnfire.components.amb.AmbAnimationComponent
-import com.gadarts.returnfire.components.amb.AmbComponent
-import com.gadarts.returnfire.components.amb.AmbCorpsePart
-import com.gadarts.returnfire.components.amb.AmbSoundComponent
-import com.gadarts.returnfire.components.arm.PrimaryArmComponent
-import com.gadarts.returnfire.components.arm.SecondaryArmComponent
-import com.gadarts.returnfire.components.bullet.BulletComponent
-import com.gadarts.returnfire.components.cd.ChildDecalComponent
-import com.gadarts.returnfire.components.effects.*
-import com.gadarts.returnfire.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.components.onboarding.BoardingComponent
-import com.gadarts.returnfire.components.physics.GhostPhysicsComponent
-import com.gadarts.returnfire.components.physics.PhysicsComponent
-import com.gadarts.returnfire.components.pit.BaseComponent
-import com.gadarts.returnfire.components.pit.BaseDoorComponent
-import com.gadarts.returnfire.components.turret.TurretBaseComponent
-import com.gadarts.returnfire.components.turret.TurretCannonComponent
-import com.gadarts.returnfire.components.turret.TurretComponent
+import com.gadarts.returnfire.ecs.components.ai.*
+import com.gadarts.returnfire.ecs.components.amb.AmbAnimationComponent
+import com.gadarts.returnfire.ecs.components.amb.AmbComponent
+import com.gadarts.returnfire.ecs.components.amb.AmbCorpsePart
+import com.gadarts.returnfire.ecs.components.amb.AmbSoundComponent
+import com.gadarts.returnfire.ecs.components.arm.PrimaryArmComponent
+import com.gadarts.returnfire.ecs.components.arm.SecondaryArmComponent
+import com.gadarts.returnfire.ecs.components.bullet.BulletComponent
+import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.ecs.components.effects.*
+import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
+import com.gadarts.returnfire.ecs.components.onboarding.BoardingComponent
+import com.gadarts.returnfire.ecs.components.physics.GhostPhysicsComponent
+import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
+import com.gadarts.returnfire.ecs.components.pit.BaseComponent
+import com.gadarts.returnfire.ecs.components.pit.BaseDoorComponent
+import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
+import com.gadarts.returnfire.ecs.components.turret.TurretCannonComponent
+import com.gadarts.returnfire.ecs.components.turret.TurretComponent
 
 object ComponentsMapper {
     val modelInstance: ComponentMapper<ModelInstanceComponent> =

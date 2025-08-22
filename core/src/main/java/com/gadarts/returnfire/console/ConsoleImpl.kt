@@ -16,7 +16,7 @@ import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.console.ConsoleConstants.INPUT_FIELD_NAME
 import com.gadarts.returnfire.console.commands.ExecutedCommand
-import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.shared.GameAssetManager
 
 

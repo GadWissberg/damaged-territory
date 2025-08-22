@@ -2,7 +2,7 @@ package com.gadarts.returnfire.utils
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.utils.GeneralUtils.auxVector1
 
 object ModelUtils {

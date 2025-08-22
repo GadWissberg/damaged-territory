@@ -3,8 +3,8 @@ package com.gadarts.returnfire.ecs.systems.player.handlers.movement.apache
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.VehicleMovementHandler
 
 abstract class ApacheMovementHandler : VehicleMovementHandler(
     8.3F,

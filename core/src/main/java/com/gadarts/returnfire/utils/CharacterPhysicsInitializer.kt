@@ -5,8 +5,9 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.EntityBuilder
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.model.MutableGameModelInstanceInfo
+import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
@@ -14,7 +15,12 @@ class CharacterPhysicsInitializer {
     fun initialize(entityBuilder: EntityBuilder, character: Entity, assetsManager: GameAssetManager) {
         val characterDefinition = ComponentsMapper.character.get(character).definition
         val modelCollisionShapeInfo =
-            assetsManager.getCachedModelCollisionShapeInfo(characterDefinition.getModelDefinition())
+            assetsManager.getCachedModelCollisionShapeInfo(
+                auxGameModelInstanceInfo.set(
+                    characterDefinition.getModelDefinition(),
+                    null
+                )
+            )
         val shape = if (modelCollisionShapeInfo != null) {
             SharedUtils.buildShapeFromModelCollisionShapeInfo(
                 modelCollisionShapeInfo
@@ -45,4 +51,7 @@ class CharacterPhysicsInitializer {
         rigidBody.linearFactor = characterDefinition.getLinearFactor(Vector3())
     }
 
+    companion object {
+        private val auxGameModelInstanceInfo = MutableGameModelInstanceInfo()
+    }
 }

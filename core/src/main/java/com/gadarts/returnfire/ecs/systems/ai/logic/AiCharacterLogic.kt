@@ -4,9 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.ComponentsMapper.ai
-import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper.ai
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 
 abstract class AiCharacterLogic(protected val dispatcher: MessageDispatcher) : Disposable {
     abstract fun preUpdate(character: Entity, deltaTime: Float)

@@ -3,7 +3,7 @@ package com.gadarts.shared.data.definitions
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
-import com.gadarts.shared.data.GameModelInstanceInfo
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.ShapeCreator
 
 enum class PooledObjectPhysicalDefinition(
@@ -16,7 +16,7 @@ enum class PooledObjectPhysicalDefinition(
             override fun create(
                 boundingBox: BoundingBox,
                 assetsManager: GameAssetManager,
-                gameModelInstanceInfo: GameModelInstanceInfo,
+                gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
             ): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 val auxVector = SharedUtils.auxVector
                 val halfExtents = boundingBox.getDimensions(auxVector).scl(0.5F)
@@ -32,7 +32,7 @@ enum class PooledObjectPhysicalDefinition(
             override fun create(
                 boundingBox: BoundingBox,
                 assetsManager: GameAssetManager,
-                gameModelInstanceInfo: GameModelInstanceInfo,
+                gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
             ): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 val halfExtents = boundingBox.getDimensions(SharedUtils.auxVector).scl(0.5F)
                 val shape = com.badlogic.gdx.physics.bullet.collision.btBoxShape(halfExtents)
@@ -47,7 +47,7 @@ enum class PooledObjectPhysicalDefinition(
             override fun create(
                 boundingBox: BoundingBox,
                 assetsManager: GameAssetManager,
-                gameModelInstanceInfo: GameModelInstanceInfo,
+                gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
             ): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 val halfExtents = boundingBox.getDimensions(SharedUtils.auxVector).scl(0.5F)
                 val shape = com.badlogic.gdx.physics.bullet.collision.btBoxShape(halfExtents)
@@ -61,7 +61,7 @@ enum class PooledObjectPhysicalDefinition(
             override fun create(
                 boundingBox: BoundingBox,
                 assetsManager: GameAssetManager,
-                gameModelInstanceInfo: GameModelInstanceInfo,
+                gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
             ): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 val halfExtents = boundingBox.getDimensions(SharedUtils.auxVector).scl(0.5F)
                 val shape = com.badlogic.gdx.physics.bullet.collision.btBoxShape(halfExtents)
@@ -75,7 +75,7 @@ enum class PooledObjectPhysicalDefinition(
             override fun create(
                 boundingBox: BoundingBox,
                 assetsManager: GameAssetManager,
-                gameModelInstanceInfo: GameModelInstanceInfo,
+                gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
             ): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 val halfExtents = boundingBox.getDimensions(SharedUtils.auxVector).scl(0.5F)
                 val shape = com.badlogic.gdx.physics.bullet.collision.btBoxShape(halfExtents)
@@ -89,7 +89,7 @@ enum class PooledObjectPhysicalDefinition(
             override fun create(
                 boundingBox: BoundingBox,
                 assetsManager: GameAssetManager,
-                gameModelInstanceInfo: GameModelInstanceInfo,
+                gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
             ): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 val shape = com.badlogic.gdx.physics.bullet.collision.btBoxShape(
                     SharedUtils.auxVector.set(
@@ -108,7 +108,7 @@ enum class PooledObjectPhysicalDefinition(
             override fun create(
                 boundingBox: BoundingBox,
                 assetsManager: GameAssetManager,
-                gameModelInstanceInfo: GameModelInstanceInfo,
+                gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
             ): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 val shape = com.badlogic.gdx.physics.bullet.collision.btBoxShape(
                     SharedUtils.auxVector.set(
@@ -127,11 +127,11 @@ enum class PooledObjectPhysicalDefinition(
             override fun create(
                 boundingBox: BoundingBox,
                 assetsManager: GameAssetManager,
-                gameModelInstanceInfo: GameModelInstanceInfo,
+                gameModelInstanceInfo: ImmutableGameModelInstanceInfo,
             ): com.badlogic.gdx.physics.bullet.collision.btCollisionShape {
                 return SharedUtils.buildShapeFromModelCollisionShapeInfo(
                     assetsManager.getCachedModelCollisionShapeInfo(
-                        gameModelInstanceInfo.definition!!
+                        gameModelInstanceInfo
                     )!!
                 )
             }

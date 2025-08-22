@@ -9,13 +9,12 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.systems.ai.AiStatus
+import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.systems.EntityBuilder
-import com.gadarts.returnfire.systems.ai.AiStatus
-import com.gadarts.returnfire.systems.character.CharacterShootingHandler
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
@@ -23,14 +22,13 @@ import com.gadarts.shared.assets.definitions.SoundDefinition
 class AiApacheLogic(
     private val gameSessionData: GameSessionData,
     dispatcher: MessageDispatcher,
-    entityBuilder: EntityBuilder,
     soundManager: SoundManager,
     assetsManager: GameAssetManager,
     autoAim: btPairCachingGhostObject
 ) : AiCharacterLogic(dispatcher) {
     private var nextStrafeActivation: Long = 0
     private val shootingHandler = CharacterShootingHandler(
-        entityBuilder, soundManager, assetsManager.getAssetByDefinition(
+        soundManager, assetsManager.getAssetByDefinition(
             SoundDefinition.EMPTY
         )
     )

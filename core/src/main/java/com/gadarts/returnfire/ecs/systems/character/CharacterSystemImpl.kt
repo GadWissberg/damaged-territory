@@ -18,29 +18,31 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.CharacterComponent
-import com.gadarts.returnfire.components.ChildModelInstanceComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.StageComponent
-import com.gadarts.returnfire.components.StageComponent.Companion.MAX_Y
-import com.gadarts.returnfire.components.arm.ArmComponent
-import com.gadarts.returnfire.components.cd.ChildDecalComponent
-import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.physics.MotionState
-import com.gadarts.returnfire.components.physics.PhysicsComponent
-import com.gadarts.returnfire.components.physics.RigidBody
+import com.gadarts.returnfire.ecs.components.CharacterComponent
+import com.gadarts.returnfire.ecs.components.ChildModelInstanceComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.StageComponent
+import com.gadarts.returnfire.ecs.components.StageComponent.Companion.MAX_Y
+import com.gadarts.returnfire.ecs.components.arm.ArmComponent
+import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.model.MutableGameModelInstanceInfo
+import com.gadarts.returnfire.ecs.components.physics.MotionState
+import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
+import com.gadarts.returnfire.ecs.components.physics.RigidBody
+import com.gadarts.returnfire.ecs.systems.GameEntitySystem
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.character.react.*
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.render.RenderSystem
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.character.react.*
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.render.RenderSystem
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 import com.gadarts.shared.data.type.CharacterType
@@ -317,10 +319,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_BACK)
         val gameModelInstanceFront =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_FRONT)
+        val assetsManager = gamePlayManagers.assetsManager
         val frontBoundingBox =
-            gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_FRONT)
+            assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_FRONT)
         val backBoundingBox =
-            gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_BACK)
+            assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_BACK)
         val backShape = btCompoundShape()
         val btBackShapeMain = btBoxShape(Vector3(0.2F, 0.075F, 0.1F))
         val btBackShapeHorTail = btBoxShape(Vector3(0.05F, 0.05F, 0.135F))
@@ -334,7 +337,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             auxVector2.set(position).add(0.6F, 0F, 0F),
             backBoundingBox,
             SharedUtils.buildShapeFromModelCollisionShapeInfo(
-                gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(ModelDefinition.APACHE_DEAD_BACK)!!
+                assetsManager.getCachedModelCollisionShapeInfo(
+                    auxGameModelInstanceInfo.set(
+                        ModelDefinition.APACHE_DEAD_BACK,
+                        null
+                    )
+                )!!
             ),
             planeCrashSoundId
         )
@@ -343,7 +351,12 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             position,
             frontBoundingBox,
             SharedUtils.buildShapeFromModelCollisionShapeInfo(
-                gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(ModelDefinition.APACHE_DEAD_FRONT)!!
+                assetsManager.getCachedModelCollisionShapeInfo(
+                    auxGameModelInstanceInfo.set(
+                        ModelDefinition.APACHE_DEAD_FRONT,
+                        null
+                    )
+                )!!
             ),
             planeCrashSoundId
         )
@@ -464,7 +477,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             auxMatrix.set(oldModelInstance.transform)
             turretModelInstanceComponent.gameModelInstance = GameModelInstance(
                 ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(randomDeadModel)),
-                randomDeadModel,
+                ImmutableGameModelInstanceInfo(randomDeadModel),
             )
             val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
             if (!isTurretCannon) {
@@ -601,6 +614,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
         const val ROT_STEP = 1600F
+        private val auxGameModelInstanceInfo = MutableGameModelInstanceInfo()
     }
 
 }

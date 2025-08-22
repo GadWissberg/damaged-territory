@@ -4,10 +4,10 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.DeathSequenceComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.DeathSequenceComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.utils.GeneralUtils
 
 class DeathSequenceUpdater(private val gamePlayManagers: GamePlayManagers) {

@@ -1,6 +1,6 @@
 package com.gadarts.returnfire.ecs.systems.player.handlers.movement.jeep
 
-import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMovementHandlerParams
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.GroundVehicleMovementHandlerParams
 
 class JeepMovementHandlerParams : GroundVehicleMovementHandlerParams(
     2F,

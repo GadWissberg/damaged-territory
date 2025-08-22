@@ -30,6 +30,7 @@ import com.gadarts.shared.assets.loaders.MapLoader
 import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.assets.utils.CollisionShapeInfo
 import com.gadarts.shared.assets.utils.ModelCollisionShapeInfo
+import com.gadarts.shared.data.GameModelInstanceInfo
 import java.io.File
 import java.util.*
 
@@ -192,8 +193,12 @@ open class GameAssetManager : AssetManager() {
         )
     }
 
-    fun getCachedModelCollisionShapeInfo(definition: ModelDefinition, index: Int? = null): ModelCollisionShapeInfo? {
-        val fileName = "$PREFIX_COLLISION_SHAPE${definition.getDefinitionName()}${if (index != null) "_$index" else ""}"
+    fun getCachedModelCollisionShapeInfo(gameModelInstanceInfo: GameModelInstanceInfo): ModelCollisionShapeInfo? {
+        val modelIndex = gameModelInstanceInfo.getModelIndex()
+        val fileName =
+            "$PREFIX_COLLISION_SHAPE${
+                gameModelInstanceInfo.getDefinition()!!.getDefinitionName()
+            }${if (modelIndex != null) "_$modelIndex" else ""}"
         val clazz = ModelCollisionShapeInfo::class.java
         val modelCollisionShapeInfo = get(fileName, clazz, false)
         return modelCollisionShapeInfo

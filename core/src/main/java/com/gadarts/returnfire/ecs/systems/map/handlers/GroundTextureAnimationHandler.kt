@@ -5,9 +5,9 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
-import com.gadarts.returnfire.components.AnimatedTextureComponent
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.GroundComponent
+import com.gadarts.returnfire.ecs.components.AnimatedTextureComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.GroundComponent
 
 class GroundTextureAnimationHandler(engine: PooledEngine) {
     private var groundTextureAnimationStateTime = 0F

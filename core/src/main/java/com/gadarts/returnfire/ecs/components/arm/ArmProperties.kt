@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.ecs.components.arm
 
 import com.badlogic.gdx.audio.Sound
-import com.gadarts.returnfire.systems.data.pools.RigidBodyPool
+import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyPool
 
 class ArmProperties(
     val damage: Float,

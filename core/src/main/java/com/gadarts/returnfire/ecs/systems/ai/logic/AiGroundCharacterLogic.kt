@@ -12,22 +12,22 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.ComponentsMapper.ai
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper.ai
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.returnfire.model.MapGraphCost
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.model.graph.MapGraphNode
-import com.gadarts.returnfire.systems.ai.AiStatus
-import com.gadarts.returnfire.systems.ai.AiTurretStatus
-import com.gadarts.returnfire.systems.ai.logic.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
-import com.gadarts.returnfire.systems.character.CharacterShootingHandler
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_AI
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GENERAL
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_PLAYER
-import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
+import com.gadarts.returnfire.ecs.systems.ai.AiStatus
+import com.gadarts.returnfire.ecs.systems.ai.AiTurretStatus
+import com.gadarts.returnfire.ecs.systems.ai.logic.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
+import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_AI
+import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GENERAL
+import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_PLAYER
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import kotlin.math.abs
@@ -45,7 +45,6 @@ class AiGroundCharacterLogic(
     }
     private val shootingHandler: CharacterShootingHandler by lazy {
         val handler = CharacterShootingHandler(
-            gamePlayManagers.ecs.entityBuilder,
             gamePlayManagers.soundManager,
             gamePlayManagers.assetsManager.getAssetByDefinition(
                 SoundDefinition.EMPTY

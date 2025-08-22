@@ -1,6 +1,6 @@
 package com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank
 
-import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMovementHandlerParams
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.GroundVehicleMovementHandlerParams
 
 class TankMovementHandlerParams : GroundVehicleMovementHandlerParams(
     4F,

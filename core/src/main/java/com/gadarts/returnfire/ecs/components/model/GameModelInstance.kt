@@ -3,11 +3,11 @@ package com.gadarts.returnfire.ecs.components.model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.gadarts.shared.data.GameModelInstanceInfo
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 
 class GameModelInstance(
     val modelInstance: ModelInstance,
-    val gameModelInstanceInfo: GameModelInstanceInfo,
+    val gameModelInstanceInfo: ImmutableGameModelInstanceInfo?,
     val shadow: ModelInstance? = null,
 ) {
     var sphere: Boolean = false
@@ -26,7 +26,7 @@ class GameModelInstance(
     }
 
     override fun toString(): String {
-        return gameModelInstanceInfo.definition.toString()
+        return gameModelInstanceInfo?.modelDefinition.toString()
     }
 
     fun calculateBoundingBox() {

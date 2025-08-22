@@ -3,9 +3,10 @@ package com.gadarts.returnfire.factories
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.MathUtils.random
-import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 
 class GameModelInstanceFactory(private val assetsManager: GameAssetManager) {
     fun createGameModelInstance(modelDefinition: ModelDefinition): GameModelInstance {
@@ -20,9 +21,8 @@ class GameModelInstanceFactory(private val assetsManager: GameAssetManager) {
             ) else null
         val gameModelInstance = GameModelInstance(
             ModelInstance(assetsManager.getAssetByDefinition(modelDefinition, selectedIndex)),
-            modelDefinition,
+            ImmutableGameModelInstanceInfo(modelDefinition, if (paths.size > 1) selectedIndex else null),
             shadow,
-            if (paths.size > 1) selectedIndex else null
         )
         return gameModelInstance
     }

@@ -9,48 +9,28 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.StageComponent
-import com.gadarts.returnfire.components.cd.ChildDecalComponent
-import com.gadarts.returnfire.components.character.CharacterColor
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.StageComponent
+import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
+import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.returnfire.ecs.systems.GameEntitySystem
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents.*
+import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
+import com.gadarts.returnfire.ecs.systems.player.handlers.PlayerShootingHandler
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.GroundVehicleMovementHandlerMobile
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.VehicleMovementHandler
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.apache.ApacheMovementHandlerMobile
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.jeep.JeepMovementHandlerDesktop
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.jeep.JeepMovementHandlerParams
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerParams
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.touchpad.MovementTouchPadListener
+import com.gadarts.returnfire.ecs.systems.player.react.*
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_MANUAL_AIM_PRESSED
-import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_ONBOARD_PRESSED
-import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_REVERSE_PRESSED
-import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_REVERSE_RELEASED
-import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_WEAPON_PRIMARY_PRESSED
-import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_WEAPON_PRIMARY_RELEASED
-import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_WEAPON_SECONDARY_PRESSED
-import com.gadarts.returnfire.systems.events.SystemEvents.BUTTON_WEAPON_SECONDARY_RELEASED
-import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_DEPLOYED
-import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_DIED
-import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_ONBOARDING_FINISHED
-import com.gadarts.returnfire.systems.events.SystemEvents.CHARACTER_REQUEST_BOARDING
-import com.gadarts.returnfire.systems.events.SystemEvents.LANDING_INDICATOR_VISIBILITY_CHANGED
-import com.gadarts.returnfire.systems.events.SystemEvents.OPPONENT_CHARACTER_CREATED
-import com.gadarts.returnfire.systems.events.SystemEvents.PLAYER_ADDED
-import com.gadarts.returnfire.systems.physics.BulletEngineHandler
-import com.gadarts.returnfire.systems.player.handlers.PlayerShootingHandler
-import com.gadarts.returnfire.systems.player.handlers.movement.GroundVehicleMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.handlers.movement.VehicleMovementHandler
-import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
-import com.gadarts.returnfire.systems.player.handlers.movement.apache.ApacheMovementHandlerMobile
-import com.gadarts.returnfire.systems.player.handlers.movement.jeep.JeepMovementHandlerDesktop
-import com.gadarts.returnfire.systems.player.handlers.movement.jeep.JeepMovementHandlerParams
-import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
-import com.gadarts.returnfire.systems.player.handlers.movement.tank.TankMovementHandlerParams
-import com.gadarts.returnfire.systems.player.handlers.movement.touchpad.MovementTouchPadListener
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonOnboardPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonWeaponPrimaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonWeaponPrimaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonWeaponSecondaryPressed
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnButtonWeaponSecondaryReleased
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterDied
-import com.gadarts.returnfire.systems.player.react.PlayerSystemOnCharacterOffBoarded
 import com.gadarts.shared.data.definitions.CharacterDefinition
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
@@ -94,7 +74,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
     private val playerShootingHandler =
         PlayerShootingHandler(
-            gamePlayManagers.ecs.entityBuilder,
             gamePlayManagers.soundManager,
             gamePlayManagers.assetsManager
         )
@@ -220,10 +199,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (isGamePaused()
-                || player == null
-                || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
+            || player == null
+            || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
             .isBoarding())
-                || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
+            || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -388,9 +367,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-                && position.x >= stagePosition.x - LANDING_OK_OFFSET
-                && position.z <= stagePosition.z + LANDING_OK_OFFSET
-                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(

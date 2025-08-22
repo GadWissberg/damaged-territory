@@ -12,19 +12,19 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.arm.ArmComponent
-import com.gadarts.returnfire.components.arm.ArmProperties
-import com.gadarts.returnfire.components.bullet.BulletBehavior
-import com.gadarts.returnfire.components.bullet.BulletComponent
-import com.gadarts.returnfire.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.arm.ArmComponent
+import com.gadarts.returnfire.ecs.components.arm.ArmProperties
+import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
+import com.gadarts.returnfire.ecs.components.bullet.BulletComponent
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.GameEntitySystem
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.BulletCreationRequestEventData
-import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.returnfire.ecs.systems.GameEntitySystem
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.data.BulletCreationRequestEventData
+import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
@@ -87,7 +87,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 if (ComponentsMapper.bullet.has(entity)) {
                     gameSessionData.gamePlayData.pools.gameModelInstancePools[ComponentsMapper.modelInstance.get(
                         entity
-                    ).gameModelInstance.definition]
+                    ).gameModelInstance.gameModelInstanceInfo?.modelDefinition]
                         ?.free(
                             ComponentsMapper.modelInstance.get(
                                 entity

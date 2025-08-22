@@ -6,11 +6,11 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.ai.BaseAiComponent
-import com.gadarts.returnfire.components.turret.TurretComponent
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
+import com.gadarts.returnfire.ecs.components.turret.TurretComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
@@ -30,7 +30,6 @@ class AiLogicHandler(
         SimpleCharacterDefinition.APACHE to AiApacheLogic(
             gameSessionData,
             gamePlayManagers.dispatcher,
-            gamePlayManagers.ecs.entityBuilder,
             gamePlayManagers.soundManager,
             gamePlayManagers.assetsManager,
             autoAim

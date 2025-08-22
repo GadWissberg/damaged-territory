@@ -3,7 +3,7 @@ package com.gadarts.returnfire.ecs.systems.events.data
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.arm.ArmComponent
+import com.gadarts.returnfire.ecs.components.arm.ArmComponent
 
 object BulletCreationRequestEventData {
     var aimSky: Boolean = false

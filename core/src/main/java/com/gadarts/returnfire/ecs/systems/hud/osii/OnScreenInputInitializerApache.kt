@@ -3,8 +3,8 @@ package com.gadarts.returnfire.ecs.systems.hud.osii
 import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
-import com.gadarts.returnfire.systems.hud.HudButtons
-import com.gadarts.returnfire.systems.hud.HudSystem
+import com.gadarts.returnfire.ecs.systems.hud.HudButtons
+import com.gadarts.returnfire.ecs.systems.hud.HudSystem
 
 class OnScreenInputInitializerApache(
     private val hudSystem: HudSystem,

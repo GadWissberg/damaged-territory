@@ -4,13 +4,13 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.map.MapSystemImpl
-import com.gadarts.returnfire.systems.map.MapSystemImpl.ExplosionPushBackEffect
-import com.gadarts.returnfire.systems.map.MapSystemRelatedEntities
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.map.MapSystemImpl
+import com.gadarts.returnfire.ecs.systems.map.MapSystemImpl.ExplosionPushBackEffect
+import com.gadarts.returnfire.ecs.systems.map.MapSystemRelatedEntities
 
 class MapSystemOnExplosionPushBack(private val mapSystemRelatedEntities: MapSystemRelatedEntities) : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {

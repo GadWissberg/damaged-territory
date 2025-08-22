@@ -2,8 +2,8 @@ package com.gadarts.returnfire.ecs.systems.data
 
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
-import com.gadarts.returnfire.systems.data.hud.GameSessionDataHud
-import com.gadarts.returnfire.systems.data.map.GameSessionDataMap
+import com.gadarts.returnfire.ecs.systems.data.hud.GameSessionDataHud
+import com.gadarts.returnfire.ecs.systems.data.map.GameSessionDataMap
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.data.definitions.CharacterDefinition
 

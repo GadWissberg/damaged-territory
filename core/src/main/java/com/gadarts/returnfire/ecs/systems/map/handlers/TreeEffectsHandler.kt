@@ -4,9 +4,9 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.systems.map.MapSystem
-import com.gadarts.returnfire.systems.map.MapSystemRelatedEntities
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.systems.map.MapSystem
+import com.gadarts.returnfire.ecs.systems.map.MapSystemRelatedEntities
 
 class TreeEffectsHandler(
     private val mapSystemRelatedEntities: MapSystemRelatedEntities,

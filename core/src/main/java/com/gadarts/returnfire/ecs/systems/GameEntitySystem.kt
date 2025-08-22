@@ -4,9 +4,9 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
 
 abstract class GameEntitySystem(protected val gamePlayManagers: GamePlayManagers) : Disposable, EntitySystem(),
     Telegraph {

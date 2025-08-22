@@ -8,20 +8,21 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
-import com.gadarts.returnfire.components.ComponentsMapper
-import com.gadarts.returnfire.components.amb.AmbComponent
-import com.gadarts.returnfire.components.amb.AmbCorpsePart
-import com.gadarts.returnfire.components.bullet.BulletComponent
-import com.gadarts.returnfire.components.model.GameModelInstance
-import com.gadarts.returnfire.components.physics.RigidBody
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.amb.AmbComponent
+import com.gadarts.returnfire.ecs.components.amb.AmbCorpsePart
+import com.gadarts.returnfire.ecs.components.bullet.BulletComponent
+import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.model.MutableGameModelInstanceInfo
+import com.gadarts.returnfire.ecs.components.physics.RigidBody
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.bullet.BulletSystem.Companion.auxBoundingBox
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.returnfire.ecs.systems.map.MapSystem
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.systems.HandlerOnEvent
-import com.gadarts.returnfire.systems.bullet.BulletSystem.Companion.auxBoundingBox
-import com.gadarts.returnfire.systems.data.GameSessionData
-import com.gadarts.returnfire.systems.events.SystemEvents
-import com.gadarts.returnfire.systems.events.data.PhysicsCollisionEventData
-import com.gadarts.returnfire.systems.map.MapSystem
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
@@ -458,7 +459,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
                 modelDefinition.physicsData.physicalShapeCreator?.create()
                     ?: SharedUtils.buildShapeFromModelCollisionShapeInfo(
                         gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(
-                            modelDefinition
+                            auxGameModelInstanceInfo.set(modelDefinition, null)
                         )!!
                     ),
                 CollisionFlags.CF_CHARACTER_OBJECT,
@@ -605,6 +606,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
         private val auxMatrix = Matrix4()
+        private val auxGameModelInstanceInfo = MutableGameModelInstanceInfo()
         private const val SPEED_THRESHOLD = 6
     }
 }
