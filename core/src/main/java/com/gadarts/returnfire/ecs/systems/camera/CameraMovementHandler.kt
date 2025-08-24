@@ -28,7 +28,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
     private fun moveCameraToTargetPosition(
         deltaTime: Float
     ) {
-        val player = gameSessionData.gamePlayData.player ?: return
+        val player = gameSessionData.gamePlayData.player
 
         val renderData = gameSessionData.renderData
         val camera = renderData.camera
@@ -66,7 +66,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
 
     private fun positionCamera(
     ) {
-        val player = gameSessionData.gamePlayData.player ?: return
+        val player = gameSessionData.gamePlayData.player
 
         val playerPosition = ModelUtils.getPositionOfModel(player)
         val renderData = gameSessionData.renderData
@@ -81,7 +81,8 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         finalCameraRelativeLookAtTargetPosition: Vector3
     ) {
         val gamePlayData = gameSessionData.gamePlayData
-        val player = gamePlayData.player ?: return
+        val player = gamePlayData.player
+        if (ComponentsMapper.character.get(player).dead) return
 
         val thrusting = gamePlayData.playerMovementHandler.isThrusting(player)
         if (thrusting && !gameSessionData.hudData.minimap.isVisible) {
@@ -110,7 +111,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
     }
 
     private fun applyRegularCameraPosition() {
-        val player = gameSessionData.gamePlayData.player ?: return
+        val player = gameSessionData.gamePlayData.player
         val mapping =
             cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition]
                 ?: return
@@ -135,13 +136,20 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
 
     private fun followPlayer(deltaTime: Float) {
         val renderData = gameSessionData.renderData
-        val player = gameSessionData.gamePlayData.player ?: return
+        val player = gameSessionData.gamePlayData.player
         val mapping =
             cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition]
                 ?: return
 
         moveCameraToTargetPosition(deltaTime)
-        if (renderData.cameraState != CameraState.FOCUS_DEPLOYMENT) {
+        if (renderData.cameraState == CameraState.PLAYER_DEAD_FOCUS) {
+            renderData.cameraRelativeTargetPosition.set(
+                0F,
+                mapping.cameraRelativeFocusY,
+                0F
+            )
+            renderData.cameraRelativeTargetLookAtPosition.setZero()
+        } else if (renderData.cameraState != CameraState.FOCUS_DEPLOYMENT) {
             val thrusting = gameSessionData.gamePlayData.playerMovementHandler.isThrusting(player)
             if (thrusting) {
                 if (renderData.cameraState != CameraState.TOP) {
@@ -163,7 +171,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
     }
 
     fun init() {
-        val player = gameSessionData.gamePlayData.player ?: return
+        val player = gameSessionData.gamePlayData.player
         val mapping =
             cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition]
                 ?: return
@@ -181,9 +189,13 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         positionCamera()
     }
 
-    fun onCharacterDeployed() {
+    fun onPlayerDeployed() {
         updateCameraState(CameraState.REGULAR)
         applyRegularCameraPosition()
+    }
+
+    fun onPlayerDied() {
+        updateCameraState(CameraState.PLAYER_DEAD_FOCUS)
     }
 
     companion object {

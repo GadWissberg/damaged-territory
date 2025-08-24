@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
 import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.ui.Table
@@ -25,6 +27,7 @@ import com.gadarts.returnfire.ecs.systems.hud.osii.OnScreenInputInitializerGroun
 import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnLandingIndicatorVisibilityChanged
 import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnPlayerAimSky
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.screens.Screens
 import com.gadarts.shared.data.definitions.CharacterDefinition
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
@@ -36,7 +39,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     private val ui: Table by lazy { addUiTable() }
     private val radar: com.gadarts.returnfire.ecs.systems.hud.radar.Radar by lazy {
         com.gadarts.returnfire.ecs.systems.hud.radar.Radar(
-            gameSessionData.gamePlayData.player!!,
+            gameSessionData.gamePlayData.player,
             engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
             gamePlayManagers.assetsManager,
             gameSessionData.mapData.groundBitMap
@@ -89,7 +92,29 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
                     ui.add(radar).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
                 }
             }
-
+        },
+        SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                val entity = msg.extraInfo as? com.badlogic.ashley.core.Entity ?: return
+                if (entity == gameSessionData.gamePlayData.player) {
+                    gameSessionData.hudData.stage.addAction(Actions.addAction(
+                        Actions.sequence(
+                            DelayAction(5F),
+                            Actions.run {
+                                gamePlayManagers.screensManager.setScreenWithFade(
+                                    Screens.VEHICLE_SELECTION,
+                                    2F,
+                                    null
+                                )
+                            }
+                        )
+                    ))
+                }
+            }
         }
     )
 

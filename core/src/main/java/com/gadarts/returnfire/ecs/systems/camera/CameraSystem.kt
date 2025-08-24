@@ -3,11 +3,11 @@ package com.gadarts.returnfire.ecs.systems.camera
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.managers.GamePlayManagers
 
 class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
@@ -32,9 +32,21 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 ) {
                     if (!ComponentsMapper.player.has(msg.extraInfo as Entity)) return
 
-                    cameraMovementHandler.onCharacterDeployed()
+                    cameraMovementHandler.onPlayerDeployed()
                 }
-            })
+            },
+            SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    if (!ComponentsMapper.player.has(msg.extraInfo as Entity)) return
+
+                    cameraMovementHandler.onPlayerDied()
+                }
+            }
+        )
 
 
     override fun update(deltaTime: Float) {
@@ -47,13 +59,6 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     override fun dispose() {
     }
-
-
-
-
-
-
-
 
 
 }

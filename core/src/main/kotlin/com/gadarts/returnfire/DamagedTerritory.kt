@@ -8,15 +8,20 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.physics.bullet.Bullet
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.screens.GamePlayScreen
+import com.gadarts.returnfire.screens.ScreenSwitchParameters
+import com.gadarts.returnfire.screens.Screens
 import com.gadarts.returnfire.screens.ScreensManager
-import com.gadarts.returnfire.screens.hangar.HangarScreenImpl
+import com.gadarts.returnfire.screens.transition.TransitionHandler
+import com.gadarts.returnfire.screens.types.gameplay.GamePlayScreen
+import com.gadarts.returnfire.screens.types.gameplay.GamePlayScreenSwitchParameters
+import com.gadarts.returnfire.screens.types.hangar.HangarScreenImpl
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.MusicDefinition
 import com.gadarts.shared.data.definitions.CharacterDefinition
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
+    private val transitionHandler = TransitionHandler(this)
     private val dispatcher = MessageDispatcher()
     private val soundManager: SoundManager by lazy { SoundManager(assetsManager, runsOnMobile) }
     private val hangarScreenImpl by lazy {
@@ -33,7 +38,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         "C:\\Users\\gadw1\\StudioProjects\\libgdx\\extensions\\gdx-bullet\\jni\\vs\\gdxBullet\\x64\\Debug\\gdxBullet.dll"
 
     @Suppress(
-        "KotlinConstantConditions", "SimplifyBooleanWithConstants",
+        "KotlinConstantConditions",
         "UnsafeDynamicallyLoadedCode"
     )
     override fun create() {
@@ -58,6 +63,24 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             )
         } else {
             setScreen(hangarScreenImpl)
+        }
+    }
+
+    override fun render() {
+        super.render()
+        transitionHandler.render(Gdx.graphics.deltaTime)
+    }
+
+    override fun setScreenWithFade(screen: Screens, durationInSeconds: Float, param: ScreenSwitchParameters?) {
+        transitionHandler.switch(screen, durationInSeconds, param)
+    }
+
+    override fun switchScreen(screen: Screens, param: ScreenSwitchParameters?) {
+        if (screen == Screens.VEHICLE_SELECTION) {
+            goToHangarScreen()
+        } else {
+            val parameters = param as GamePlayScreenSwitchParameters
+            goToWarScreen(parameters.selectedVehicle, parameters.autoAim)
         }
     }
 

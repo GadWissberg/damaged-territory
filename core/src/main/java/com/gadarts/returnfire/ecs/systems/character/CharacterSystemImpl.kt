@@ -135,12 +135,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 )
             )
         }
-        if (!ComponentsMapper.player.has(character)) {
-            if (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F) {
-                turnCharacterToCorpse(character, planeCrashSoundId)
-            } else {
-                gibCharacter(character, planeCrashSoundId)
-            }
+        if (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F) {
+            turnCharacterToCorpse(character, planeCrashSoundId)
+        } else {
+            gibCharacter(character, planeCrashSoundId)
         }
         gamePlayManagers.dispatcher.dispatchMessage(
             SystemEvents.CHARACTER_DIED.ordinal,
@@ -156,9 +154,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
 
             override fun entityRemoved(entity: Entity) {
-                if (ComponentsMapper.player.has(entity)) {
-                    gameSessionData.gamePlayData.player = null
-                }
             }
 
         })

@@ -98,7 +98,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gamePlayManagers: GamePlayManagers
             ) {
                 gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonPressed(
-                    gameSessionData.gamePlayData.player!!
+                    gameSessionData.gamePlayData.player
                 )
             }
         },
@@ -109,12 +109,11 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gamePlayManagers: GamePlayManagers
             ) {
                 gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonReleased(
-                    gameSessionData.gamePlayData.player!!
+                    gameSessionData.gamePlayData.player
                 )
             }
         },
         CHARACTER_DEPLOYED to PlayerSystemOnCharacterOffBoarded(this),
-        CHARACTER_DIED to PlayerSystemOnCharacterDied(),
         BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
             @Suppress("SimplifyBooleanWithConstants", "RedundantSuppression")
@@ -158,7 +157,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                     gamePlayManagers.screensManager.goToHangarScreen()
                 }
             }
-        }
+        },
     )
 
     override fun resume(delta: Long) {
@@ -172,7 +171,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     override fun update(deltaTime: Float) {
         if (shouldSkipUpdate()) return
 
-        val player = gameSessionData.gamePlayData.player!!
+        val player = gameSessionData.gamePlayData.player
         gameSessionData.gamePlayData.playerMovementHandler.update(
             player,
             deltaTime
@@ -199,7 +198,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (isGamePaused()
-            || player == null
             || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
             .isBoarding())
             || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
@@ -207,9 +205,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
     override fun keyDown(keycode: Int): Boolean {
         val player = gameSessionData.gamePlayData.player
-        if (player == null || ComponentsMapper.boarding.get(player)
-                .isBoarding()
-        ) return false
+        if (ComponentsMapper.boarding.get(player).isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP -> {
@@ -261,16 +257,12 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (gameSessionData.gamePlayData.player == null || ComponentsMapper.boarding.get(
-                gameSessionData.gamePlayData.player
-            )
-                .isBoarding()
-        ) return false
+        if (ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
                 gameSessionData.gamePlayData.playerMovementHandler.onMovementTouchUp(
-                    gameSessionData.gamePlayData.player!!,
+                    gameSessionData.gamePlayData.player,
                     keycode,
                 )
             }
@@ -284,7 +276,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.ALT_LEFT -> {
-                gameSessionData.gamePlayData.playerMovementHandler.releasedAlt(gameSessionData.gamePlayData.player!!)
+                gameSessionData.gamePlayData.playerMovementHandler.releasedAlt(gameSessionData.gamePlayData.player)
             }
 
         }
@@ -321,7 +313,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
     override fun initInputMethod() {
         if (gameSessionData.runsOnMobile) {
-            val player = gameSessionData.gamePlayData.player!!
+            val player = gameSessionData.gamePlayData.player
             gameSessionData.hudData.movementTouchpad.addListener(
                 MovementTouchPadListener(
                     gameSessionData.gamePlayData.playerMovementHandler,

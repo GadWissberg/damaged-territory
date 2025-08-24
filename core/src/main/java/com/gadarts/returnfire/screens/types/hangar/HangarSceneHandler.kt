@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.screens.hangar
+package com.gadarts.returnfire.screens.types.hangar
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -13,7 +13,9 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.managers.SoundManager
+import com.gadarts.returnfire.screens.Screens
 import com.gadarts.returnfire.screens.ScreensManager
+import com.gadarts.returnfire.screens.types.gameplay.GamePlayScreenSwitchParameters
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.data.definitions.CharacterDefinition
@@ -47,9 +49,12 @@ class HangarSceneHandler(
                     )
                 }
                 if (deployingState > 0) {
-                    screenManager.goToWarScreen(
-                        selected!!.characterDefinition,
-                        hangarScreenMenu.isAutoAimSelected()
+                    screenManager.switchScreen(
+                        Screens.GAME_PLAY,
+                        GamePlayScreenSwitchParameters(
+                            selected!!.characterDefinition,
+                            hangarScreenMenu.isAutoAimSelected()
+                        )
                     )
                 } else {
                     selected = null

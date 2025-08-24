@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.screens
+package com.gadarts.returnfire.screens.types.gameplay
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
@@ -10,10 +10,6 @@ import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.console.ConsoleImpl
-import com.gadarts.returnfire.factories.*
-import com.gadarts.returnfire.managers.EcsManager
-import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.ecs.systems.EntityBuilderImpl
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.ProfilingSystem
@@ -34,6 +30,10 @@ import com.gadarts.returnfire.ecs.systems.map.MapSystemImpl
 import com.gadarts.returnfire.ecs.systems.physics.PhysicsSystem
 import com.gadarts.returnfire.ecs.systems.player.PlayerSystemImpl
 import com.gadarts.returnfire.ecs.systems.render.RenderSystem
+import com.gadarts.returnfire.factories.*
+import com.gadarts.returnfire.managers.EcsManager
+import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.data.definitions.CharacterDefinition
 

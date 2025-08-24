@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.screens.hangar
+package com.gadarts.returnfire.screens.types.hangar
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Matrix4

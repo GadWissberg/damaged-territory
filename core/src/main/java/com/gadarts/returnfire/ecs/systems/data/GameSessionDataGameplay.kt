@@ -7,7 +7,7 @@ import com.gadarts.returnfire.ecs.systems.player.handlers.movement.VehicleMoveme
 import com.gadarts.shared.GameAssetManager
 
 class GameSessionDataGameplay(assetsManager: GameAssetManager) : Disposable {
-    var player: Entity? = null
+    lateinit var player: Entity
     var sessionFinished: Boolean = false
     lateinit var playerMovementHandler: VehicleMovementHandler
     val pools by lazy { GameSessionDataPools(assetsManager) }
