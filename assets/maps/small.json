@@ -33,6 +33,20 @@
       "row": 5,
       "column": 2,
       "rotation": 0.0
+    },
+    {
+      "definition": "FLAG_BROWN",
+      "type": "AMB",
+      "row": 1,
+      "column": 4,
+      "rotation": 0.0
+    },
+    {
+      "definition": "FLAG_GREEN",
+      "type": "AMB",
+      "row": 7,
+      "column": 7,
+      "rotation": 0.0
     }
   ],
   "width": 32,

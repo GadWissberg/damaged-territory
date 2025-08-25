@@ -53,7 +53,8 @@ enum class AmbDefinition(
         corpsePartDestroyOnGroundImpact = true,
     ),
     BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
-    FLAG(ModelDefinition.FLAG, placeable = false),
+    FLAG_BROWN(ModelDefinition.FLAG, placeable = true),
+    FLAG_GREEN(ModelDefinition.FLAG, placeable = true),
     BASE_BROWN(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
