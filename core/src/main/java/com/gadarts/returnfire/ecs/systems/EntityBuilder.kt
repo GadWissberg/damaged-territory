@@ -173,7 +173,12 @@ interface EntityBuilder {
     fun addLimitedVelocityComponent(maxValue: Float): EntityBuilder
     fun addRoadComponentToEntity(entity: Entity, textureDefinition: TextureDefinition): EntityBuilder
     fun addModelCacheComponentToEntity(tileEntity: Entity)
-    fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AmbAnimationComponent
+    fun addAnimationComponentToEntity(
+        entity: Entity,
+        loop: Boolean,
+        modelInstance: ModelInstance
+    ): AmbAnimationComponent
+
     fun addGhostPhysicsComponentToEntity(
         entity: Entity,
         shape: btCollisionShape,

@@ -41,10 +41,10 @@ import com.gadarts.returnfire.ecs.components.pit.BaseDoorComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretCannonComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
-import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.ecs.systems.data.pools.GameParticleEffectPool
 import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyPool
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.factories.Factories
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
@@ -340,8 +340,12 @@ class EntityBuilderImpl : EntityBuilder {
         tileEntity.add(modelCacheComponent)
     }
 
-    override fun addAnimationComponentToEntity(entity: Entity, modelInstance: ModelInstance): AmbAnimationComponent {
-        val ambAnimationComponent = AmbAnimationComponent(modelInstance)
+    override fun addAnimationComponentToEntity(
+        entity: Entity,
+        loop: Boolean,
+        modelInstance: ModelInstance
+    ): AmbAnimationComponent {
+        val ambAnimationComponent = AmbAnimationComponent(loop, modelInstance)
         entity.add(ambAnimationComponent)
         return ambAnimationComponent
     }

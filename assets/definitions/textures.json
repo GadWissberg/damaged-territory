@@ -624,6 +624,12 @@
     {
       "file_name": "minimap_location",
       "folder": "hud/radar"
+    },
+    {
+      "file_name": "flag_texture_green"
+    },
+    {
+      "file_name": "flag_texture_brown"
     }
   ]
 }

@@ -134,8 +134,8 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             val animationComponent = ComponentsMapper.ambAnimation.get(entity)
             val animationController = animationComponent.animationController
             animationController.update(deltaTime)
-            if (animationComponent.nextPlay < millis) {
-                animationComponent.playRegular()
+            if (!animationComponent.loop && animationComponent.nextPlay < millis) {
+                animationComponent.play()
             }
         }
     }

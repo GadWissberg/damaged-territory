@@ -30,7 +30,7 @@ enum class AmbDefinition(
     val marksNodeAsBlocked: Boolean = true,
     val forceSingleNodeForMarksNodeAsBlocked: Boolean = false,
     val drowningHeight: Float = DROWNING_HEIGHT,
-    val placeable: Boolean = true
+    val placeable: Boolean = true,
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,

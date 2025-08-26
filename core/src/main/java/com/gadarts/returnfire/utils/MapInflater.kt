@@ -329,7 +329,7 @@ class MapInflater(
                 activationState = if (def.collisionFlags == CollisionFlags.CF_KINEMATIC_OBJECT) DISABLE_DEACTIVATION else ISLAND_SLEEPING
             )
         }
-        addAnimationToAmb(def, gameModelInstance, entity)
+        addAnimationToAmb(gameModelInstance, entity)
         if (def == AmbDefinition.PALM_TREE) {
             entityBuilder.addTreeComponentToEntity(entity)
         }
@@ -364,15 +364,16 @@ class MapInflater(
     }
 
     private fun addAnimationToAmb(
-        def: AmbDefinition,
         gameModelInstance: GameModelInstance,
-        entity: Entity
+        entity: Entity,
     ) {
-        if (def == AmbDefinition.PALM_TREE) {
-            val modelInstance = gameModelInstance.modelInstance
-            if (modelInstance.animations.size > 0) {
-                gamePlayManagers.ecs.entityBuilder.addAnimationComponentToEntity(entity, modelInstance)
-            }
+        val modelInstance = gameModelInstance.modelInstance
+        if (modelInstance.animations.size > 0) {
+            gamePlayManagers.ecs.entityBuilder.addAnimationComponentToEntity(
+                entity,
+                gameModelInstance.gameModelInstanceInfo?.getDefinition()?.loopAnimation ?: false,
+                modelInstance
+            )
         }
     }
 

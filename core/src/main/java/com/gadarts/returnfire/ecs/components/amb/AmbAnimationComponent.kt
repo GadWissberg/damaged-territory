@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.TimeUtils
 
-class AmbAnimationComponent(private val modelInstance: ModelInstance) : Component {
+class AmbAnimationComponent(val loop: Boolean, private val modelInstance: ModelInstance) : Component {
     var nextPlay: Long = 0L
         private set
 
@@ -15,16 +15,19 @@ class AmbAnimationComponent(private val modelInstance: ModelInstance) : Componen
     init {
         decideNextTime()
         animationController.allowSameAnimation = true
+        if (loop) {
+            play()
+        }
     }
 
-    fun playRegular() {
+    fun play() {
         play(1F)
     }
 
     private fun play(speed: Float) {
         animationController.setAnimation(
             modelInstance.animations[0].id,
-            1,
+            if (loop) -1 else 1,
             speed,
             object : AnimationController.AnimationListener {
                 override fun onEnd(p0: AnimationController.AnimationDesc?) {
@@ -35,7 +38,9 @@ class AmbAnimationComponent(private val modelInstance: ModelInstance) : Componen
 
             }
         )
-        decideNextTime()
+        if (!loop) {
+            decideNextTime()
+        }
     }
 
 

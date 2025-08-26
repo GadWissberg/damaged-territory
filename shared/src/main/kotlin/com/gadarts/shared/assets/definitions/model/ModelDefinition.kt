@@ -23,7 +23,8 @@ enum class ModelDefinition(
     ),
     val separateModelForShadow: Boolean = false,
     val origin: Vector3 = Vector3.Zero,
-    val decal: String? = null
+    val decal: String? = null,
+    val loopAnimation: Boolean = false
 ) :
     AssetDefinition<Model> {
 
@@ -53,7 +54,7 @@ enum class ModelDefinition(
     ),
     BUILDING_FLAG,
     BUILDING_FLAG_DESTROYED,
-    FLAG,
+    FLAG(loopAnimation = true),
     TURRET_CANNON(
         boundingBoxData = ModelDefinitionBoundingBoxData(Vector3(0.4F, 1F, 1F), Vector3(0.2F, 0F, 0F)),
         separateModelForShadow = true
