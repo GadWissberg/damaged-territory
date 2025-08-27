@@ -302,7 +302,10 @@ class MapInflater(
         }
         position.sub(def.getModelDefinition().origin)
         val gameModelInstance =
-            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(def.getModelDefinition())
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+                def.getModelDefinition(),
+                def.customTexture
+            )
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
             .begin()
             .addModelInstanceComponent(gameModelInstance, position, null, rotation ?: 0F)

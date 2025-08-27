@@ -52,8 +52,6 @@ enum class ModelDefinition(
         fileNames = 2,
         physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.WATCH_TOWER_DESTROYED_PART)
     ),
-    BUILDING_FLAG,
-    BUILDING_FLAG_DESTROYED,
     FLAG(loopAnimation = true),
     TURRET_CANNON(
         boundingBoxData = ModelDefinitionBoundingBoxData(Vector3(0.4F, 1F, 1F), Vector3(0.2F, 0F, 0F)),

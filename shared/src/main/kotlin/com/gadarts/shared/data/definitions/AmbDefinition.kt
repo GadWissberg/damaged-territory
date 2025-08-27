@@ -31,6 +31,7 @@ enum class AmbDefinition(
     val forceSingleNodeForMarksNodeAsBlocked: Boolean = false,
     val drowningHeight: Float = DROWNING_HEIGHT,
     val placeable: Boolean = true,
+    val customTexture: String? = null
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -52,9 +53,8 @@ enum class AmbDefinition(
         corpseCollisionSound = SoundDefinition.ROCKS,
         corpsePartDestroyOnGroundImpact = true,
     ),
-    BUILDING_FLAG(ModelDefinition.BUILDING_FLAG),
-    FLAG_BROWN(ModelDefinition.FLAG, placeable = true),
-    FLAG_GREEN(ModelDefinition.FLAG, placeable = true),
+    FLAG_BROWN(ModelDefinition.FLAG, placeable = true, customTexture = "flag_texture_brown"),
+    FLAG_GREEN(ModelDefinition.FLAG, placeable = true, customTexture = "flag_texture_green"),
     BASE_BROWN(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,

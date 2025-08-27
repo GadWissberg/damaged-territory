@@ -26,7 +26,6 @@ const elementsDefinitions = Object.freeze([
   { name: "PALM_TREE", type: "AMB" },
   { name: "GUARD_HOUSE", type: "AMB" },
   { name: "WATCH_TOWER", type: "AMB" },
-  { name: "BUILDING_FLAG", type: "AMB" },
   { name: "BASE_BROWN", type: "AMB" },
   { name: "BASE_GREEN", type: "AMB" },
   { name: "ROCK_BIG", type: "AMB" },
