@@ -630,6 +630,12 @@
     },
     {
       "file_name": "flag_texture_brown"
+    },
+    {
+      "file_name": "flag_floor_texture_green"
+    },
+    {
+      "file_name": "flag_floor_texture_brown"
     }
   ]
 }

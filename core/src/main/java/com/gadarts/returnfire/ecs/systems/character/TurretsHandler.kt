@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.ecs.components.BrownComponent
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.GreenComponent
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData

@@ -3,7 +3,7 @@ package com.gadarts.returnfire.ecs.components.pit
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 
 class BaseComponent(val color: CharacterColor) : Component {
     var latestCloseTime: Long = 0

@@ -12,7 +12,7 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.StageComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData

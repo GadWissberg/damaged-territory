@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.ecs.systems.EntityBuilder

@@ -8,7 +8,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.pit.BaseComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.definitions.DeployableCharacters

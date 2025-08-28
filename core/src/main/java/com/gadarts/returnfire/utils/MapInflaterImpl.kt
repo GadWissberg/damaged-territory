@@ -36,7 +36,6 @@ import com.gadarts.returnfire.ecs.components.arm.ArmProperties
 import com.gadarts.returnfire.ecs.components.arm.ArmRenderData
 import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
 import com.gadarts.returnfire.ecs.components.pit.BaseComponent
@@ -60,16 +59,18 @@ import com.gadarts.shared.assets.definitions.model.AutomaticShapeCreator
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.assets.map.GameMapTileLayer
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
+import com.gadarts.shared.data.creation.MapInflater
 import com.gadarts.shared.data.definitions.*
 import com.gadarts.shared.data.type.CharacterType
 import com.gadarts.shared.data.type.ElementType
 
-class MapInflater(
+class MapInflaterImpl(
     private val gameSessionData: GameSessionData,
     private val gamePlayManagers: GamePlayManagers,
     private val engine: Engine
-) {
+) : MapInflater {
     private val ambEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(AmbComponent::class.java).get()
@@ -290,50 +291,51 @@ class MapInflater(
         }
     }
 
-    private fun addAmbObject(
+    override fun addAmbObject(
         position: Vector3,
-        def: AmbDefinition,
+        ambDefinition: AmbDefinition,
         exculdedTiles: ArrayList<Pair<Int, Int>>,
         rotation: Float?,
     ) {
-        excludeTilesUnderBase(def, position, exculdedTiles)
-        if (def.placeInMiddleOfCell) {
+        ambDefinition.onCreation?.invoke(this, auxVector3.set(position), ambDefinition, exculdedTiles)
+        excludeTilesUnderBase(ambDefinition, position, exculdedTiles)
+        if (ambDefinition.placeInMiddleOfCell) {
             position.add(0.5F, 0F, 0.5F)
         }
-        position.sub(def.getModelDefinition().origin)
+        position.sub(ambDefinition.getModelDefinition().origin)
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
-                def.getModelDefinition(),
-                def.customTexture
+                ambDefinition.getModelDefinition(),
+                ambDefinition.customTexture
             )
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
             .begin()
             .addModelInstanceComponent(gameModelInstance, position, null, rotation ?: 0F)
             .addDrowningEffectComponent()
             .addAmbComponent(
-                if (def.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
-                def,
-                auxVector1.set(def.getScale(), def.getScale(), def.getScale()),
+                if (ambDefinition.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
+                ambDefinition,
+                auxVector1.set(ambDefinition.getScale(), ambDefinition.getScale(), ambDefinition.getScale()),
             )
-        applyDecalToModel(def, entityBuilder, gameModelInstance)
-        val isGreen = def == AmbDefinition.BASE_GREEN
-        val isBrown = def == AmbDefinition.BASE_BROWN
+        applyDecalToModel(ambDefinition, entityBuilder, gameModelInstance)
+        val isGreen = ambDefinition == AmbDefinition.BASE_GREEN
+        val isBrown = ambDefinition == AmbDefinition.BASE_BROWN
         if (isGreen || isBrown) {
             entityBuilder.addBaseComponent(if (isGreen) CharacterColor.GREEN else CharacterColor.BROWN)
         }
         val entity = entityBuilder.finishAndAddToEngine()
-        if (def.collisionFlags >= 0) {
+        if (ambDefinition.collisionFlags >= 0) {
             addPhysicsToObject(
                 entity,
                 gameModelInstance,
-                def.collisionFlags,
-                if (def.collisionFlags == CollisionFlags.CF_STATIC_OBJECT) 0F else def.mass,
+                ambDefinition.collisionFlags,
+                if (ambDefinition.collisionFlags == CollisionFlags.CF_STATIC_OBJECT) 0F else ambDefinition.mass,
                 4F,
-                activationState = if (def.collisionFlags == CollisionFlags.CF_KINEMATIC_OBJECT) DISABLE_DEACTIVATION else ISLAND_SLEEPING
+                activationState = if (ambDefinition.collisionFlags == CollisionFlags.CF_KINEMATIC_OBJECT) DISABLE_DEACTIVATION else ISLAND_SLEEPING
             )
         }
         addAnimationToAmb(gameModelInstance, entity)
-        if (def == AmbDefinition.PALM_TREE) {
+        if (ambDefinition == AmbDefinition.PALM_TREE) {
             entityBuilder.addTreeComponentToEntity(entity)
         }
     }

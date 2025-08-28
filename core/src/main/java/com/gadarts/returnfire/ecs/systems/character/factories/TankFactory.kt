@@ -9,7 +9,7 @@ import com.gadarts.returnfire.ecs.components.arm.ArmEffectsData
 import com.gadarts.returnfire.ecs.components.arm.ArmProperties
 import com.gadarts.returnfire.ecs.components.arm.ArmRenderData
 import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData

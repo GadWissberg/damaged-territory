@@ -35,17 +35,17 @@
       "rotation": 0.0
     },
     {
-      "definition": "FLAG_BROWN",
+      "definition": "FLAG_FLOOR_BROWN",
       "type": "AMB",
-      "row": 1,
+      "row": 2,
       "column": 4,
       "rotation": 0.0
     },
     {
-      "definition": "FLAG_GREEN",
+      "definition": "FLAG_FLOOR_GREEN",
       "type": "AMB",
       "row": 7,
-      "column": 7,
+      "column": 8,
       "rotation": 0.0
     }
   ],

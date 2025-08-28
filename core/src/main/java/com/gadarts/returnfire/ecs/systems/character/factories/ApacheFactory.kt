@@ -12,7 +12,7 @@ import com.gadarts.returnfire.ecs.components.arm.ArmProperties
 import com.gadarts.returnfire.ecs.components.arm.ArmRenderData
 import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.onboarding.ApacheBoardingAnimation
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.ecs.systems.EntityBuilder

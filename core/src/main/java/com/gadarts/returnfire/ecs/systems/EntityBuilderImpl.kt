@@ -26,7 +26,7 @@ import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 import com.gadarts.returnfire.ecs.components.bullet.BulletComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.effects.*
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent

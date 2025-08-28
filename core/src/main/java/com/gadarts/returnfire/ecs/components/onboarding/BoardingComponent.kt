@@ -2,7 +2,7 @@ package com.gadarts.returnfire.ecs.components.onboarding
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 
 class BoardingComponent(val color: CharacterColor, val boardingAnimation: BoardingAnimation?) : Component {
     fun isBoarding(): Boolean {

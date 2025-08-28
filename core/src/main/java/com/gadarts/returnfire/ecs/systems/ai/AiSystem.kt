@@ -10,14 +10,14 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.ai.GroundCharacterAiComponent
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.ai.logic.AiLogicHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
+import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
@@ -85,9 +85,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                     if (GameDebugSettings.FORCE_ENEMY_HP >= 0) {
                         ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_ENEMY_HP
                     }
-                    if (gameSessionData.gamePlayData.player != null) {
-                        setTargetForAi(entity, gameSessionData.gamePlayData.player!!)
-                    }
+                    setTargetForAi(entity, gameSessionData.gamePlayData.player)
                 } else {
                     aiEntities.forEach {
                         setTargetForAi(it, entity)
@@ -101,7 +99,6 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
     override fun update(deltaTime: Float) {
         if (GameDebugSettings.AI_DISABLED
             || isGamePaused()
-            || gameSessionData.gamePlayData.player == null
             || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()
         ) return
 

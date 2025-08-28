@@ -21,7 +21,7 @@ import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.StageComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.cd.DecalAnimation
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.pit.BaseComponent
 import com.gadarts.returnfire.ecs.components.pit.BaseDoorComponent
@@ -37,7 +37,7 @@ import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnPhysicsCollision
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraphType
-import com.gadarts.returnfire.utils.MapInflater
+import com.gadarts.returnfire.utils.MapInflaterImpl
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.SharedUtils.DROWNING_HEIGHT
@@ -335,7 +335,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun onSystemReady() {
         super.onSystemReady()
-        MapInflater(gameSessionData, gamePlayManagers, engine).inflate()
+        MapInflaterImpl(gameSessionData, gamePlayManagers, engine).inflate()
         bases.forEach {
             initializeBase(it)
         }

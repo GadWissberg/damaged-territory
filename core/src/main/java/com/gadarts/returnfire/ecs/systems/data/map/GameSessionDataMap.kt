@@ -2,7 +2,7 @@ package com.gadarts.returnfire.ecs.systems.data.map
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.map.GameMap

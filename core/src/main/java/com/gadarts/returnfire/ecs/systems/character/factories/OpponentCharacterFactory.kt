@@ -2,7 +2,7 @@ package com.gadarts.returnfire.ecs.systems.character.factories
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.ecs.components.character.CharacterColor
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData

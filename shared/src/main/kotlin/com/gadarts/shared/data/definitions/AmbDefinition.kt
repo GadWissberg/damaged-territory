@@ -4,6 +4,9 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.gadarts.shared.SharedUtils.DROWNING_HEIGHT
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.CharacterColor
+import com.gadarts.shared.data.creation.OnAmbCreation
+import com.gadarts.shared.data.creation.OnFlagFloorCreation
 import com.gadarts.shared.data.type.ElementType
 
 enum class AmbDefinition(
@@ -31,7 +34,8 @@ enum class AmbDefinition(
     val forceSingleNodeForMarksNodeAsBlocked: Boolean = false,
     val drowningHeight: Float = DROWNING_HEIGHT,
     val placeable: Boolean = true,
-    val customTexture: String? = null
+    val customTexture: String? = null,
+    val onCreation: OnAmbCreation? = null
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -53,8 +57,20 @@ enum class AmbDefinition(
         corpseCollisionSound = SoundDefinition.ROCKS,
         corpsePartDestroyOnGroundImpact = true,
     ),
-    FLAG_BROWN(ModelDefinition.FLAG, placeable = true, customTexture = "flag_texture_brown"),
-    FLAG_GREEN(ModelDefinition.FLAG, placeable = true, customTexture = "flag_texture_green"),
+    FLAG_BROWN(modelDefinition = ModelDefinition.FLAG, customTexture = "flag_texture_brown"),
+    FLAG_GREEN(modelDefinition = ModelDefinition.FLAG, customTexture = "flag_texture_green"),
+    FLAG_FLOOR_BROWN(
+        modelDefinition = ModelDefinition.FLAG_FLOOR,
+        placeable = true,
+        customTexture = "flag_floor_texture_brown",
+        onCreation = OnFlagFloorCreation(CharacterColor.BROWN)
+    ),
+    FLAG_FLOOR_GREEN(
+        modelDefinition = ModelDefinition.FLAG_FLOOR,
+        placeable = true,
+        customTexture = "flag_floor_texture_green",
+        onCreation = OnFlagFloorCreation(CharacterColor.GREEN)
+    ),
     BASE_BROWN(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
