@@ -92,7 +92,15 @@ class EntityBuilderImpl : EntityBuilder {
         outlineEffect: Boolean = false
     ) {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position, boundingBox, direction, hidden, texture, outlineEffect)
+        modelInstanceComponent.init(
+            gameModelInstance = model,
+            position = position,
+            boundingBox = boundingBox,
+            direction = direction,
+            hidden = hidden,
+            texture = texture,
+            outlineEffect = outlineEffect
+        )
         entity.add(modelInstanceComponent)
     }
 

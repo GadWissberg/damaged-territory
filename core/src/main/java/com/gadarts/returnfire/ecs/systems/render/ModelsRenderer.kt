@@ -127,7 +127,8 @@ class ModelsRenderer(
     private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean, forShadow: Boolean = false) {
         if (isVisible(entity, forShadow)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
-            renderGameModelInstance(modelInstanceComponent.gameModelInstance, forShadow, applyEnvironment, batch)
+            val gameModelInstance = modelInstanceComponent.gameModelInstance
+            renderGameModelInstance(gameModelInstance, forShadow, applyEnvironment, batch)
             if (!modelInstanceComponent.hidden
                 && modelInstanceComponent.hideAt != -1L
                 && modelInstanceComponent.hideAt <= TimeUtils.millis()
@@ -137,8 +138,8 @@ class ModelsRenderer(
             }
             renderChildModelInstance(entity, forShadow, applyEnvironment, batch)
             renderFrontWheels(entity, forShadow, applyEnvironment, batch)
-            if (!forShadow && modelInstanceComponent.outlineEffect) {
-
+            val outlineEffect = modelInstanceComponent.outlineEffect
+            if (!forShadow && outlineEffect != null) {
             }
         }
     }

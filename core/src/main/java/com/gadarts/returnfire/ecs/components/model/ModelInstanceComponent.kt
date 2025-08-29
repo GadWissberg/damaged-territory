@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Pool
 
 class ModelInstanceComponent : Component, Pool.Poolable {
-    var outlineEffect: Boolean = false
+    var outlineEffect: Boolean? = null
         private set
     var hidden: Boolean = false
     var hideAt: Long = -1
