@@ -310,7 +310,7 @@ class MapInflaterImpl(
             )
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
             .begin()
-            .addModelInstanceComponent(gameModelInstance, position, null, rotation ?: 0F)
+            .addModelInstanceComponent(gameModelInstance, position, null, rotation ?: 0F, ambDefinition.outlineEffect)
             .addDrowningEffectComponent()
             .addAmbComponent(
                 if (ambDefinition.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,

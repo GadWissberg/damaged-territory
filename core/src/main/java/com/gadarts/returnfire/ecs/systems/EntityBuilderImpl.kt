@@ -26,7 +26,6 @@ import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 import com.gadarts.returnfire.ecs.components.bullet.BulletComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.effects.*
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
@@ -49,6 +48,7 @@ import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.AmbDefinition
 import com.gadarts.shared.data.definitions.CharacterDefinition
 
@@ -74,9 +74,10 @@ class EntityBuilderImpl : EntityBuilder {
         boundingBox: BoundingBox?,
         direction: Float,
         hidden: Boolean,
-        texture: Texture?
+        texture: Texture?,
+        outlineEffect: Boolean
     ): EntityBuilderImpl {
-        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture)
+        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture, outlineEffect)
         return this
     }
 
@@ -87,10 +88,11 @@ class EntityBuilderImpl : EntityBuilder {
         boundingBox: BoundingBox?,
         direction: Float,
         hidden: Boolean,
-        texture: Texture?
+        texture: Texture?,
+        outlineEffect: Boolean = false
     ) {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(model, position, boundingBox, direction, hidden, texture)
+        modelInstanceComponent.init(model, position, boundingBox, direction, hidden, texture, outlineEffect)
         entity.add(modelInstanceComponent)
     }
 

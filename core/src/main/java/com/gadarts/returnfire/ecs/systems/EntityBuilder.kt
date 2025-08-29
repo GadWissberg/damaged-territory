@@ -22,7 +22,6 @@ import com.gadarts.returnfire.ecs.components.arm.ArmComponent
 import com.gadarts.returnfire.ecs.components.arm.ArmProperties
 import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.ecs.components.physics.GhostPhysicsComponent
@@ -33,6 +32,7 @@ import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.AmbDefinition
 import com.gadarts.shared.data.definitions.CharacterDefinition
 
@@ -63,7 +63,8 @@ interface EntityBuilder {
         boundingBox: BoundingBox?,
         direction: Float = 0F,
         hidden: Boolean = false,
-        texture: Texture? = null
+        texture: Texture? = null,
+        outlineEffect: Boolean = false
     ): EntityBuilder
 
     fun addModelInstanceComponentToEntity(

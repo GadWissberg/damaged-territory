@@ -137,6 +137,9 @@ class ModelsRenderer(
             }
             renderChildModelInstance(entity, forShadow, applyEnvironment, batch)
             renderFrontWheels(entity, forShadow, applyEnvironment, batch)
+            if (!forShadow && modelInstanceComponent.outlineEffect) {
+
+            }
         }
     }
 

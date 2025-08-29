@@ -132,28 +132,28 @@
       "type": "AMB",
       "row": 22,
       "column": 27,
-      "rotation": 179.99997
+      "rotation": 179.99995
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 23,
       "column": 27,
-      "rotation": 179.99997
+      "rotation": 179.99995
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 24,
       "column": 27,
-      "rotation": 179.99997
+      "rotation": 179.99995
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 25,
       "column": 27,
-      "rotation": 179.99997
+      "rotation": 179.99995
     },
     {
       "definition": "FENCE",
@@ -804,6 +804,20 @@
       "type": "AMB",
       "row": 5,
       "column": 9,
+      "rotation": 0.0
+    },
+    {
+      "definition": "FLAG_FLOOR_GREEN",
+      "type": "AMB",
+      "row": 25,
+      "column": 19,
+      "rotation": 0.0
+    },
+    {
+      "definition": "FLAG_FLOOR_BROWN",
+      "type": "AMB",
+      "row": 5,
+      "column": 12,
       "rotation": 0.0
     }
   ],
