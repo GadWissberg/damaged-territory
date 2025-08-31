@@ -36,7 +36,6 @@ enum class AmbDefinition(
     val placeable: Boolean = true,
     val customTexture: String? = null,
     val onCreation: OnAmbCreation? = null,
-    val outlineEffect: Boolean = false,
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -58,8 +57,8 @@ enum class AmbDefinition(
         corpseCollisionSound = SoundDefinition.ROCKS,
         corpsePartDestroyOnGroundImpact = true,
     ),
-    FLAG_BROWN(modelDefinition = ModelDefinition.FLAG, customTexture = "flag_texture_brown", outlineEffect = true),
-    FLAG_GREEN(modelDefinition = ModelDefinition.FLAG, customTexture = "flag_texture_green", outlineEffect = true),
+    FLAG_BROWN(modelDefinition = ModelDefinition.FLAG, customTexture = "flag_texture_brown"),
+    FLAG_GREEN(modelDefinition = ModelDefinition.FLAG, customTexture = "flag_texture_green"),
     FLAG_FLOOR_BROWN(
         modelDefinition = ModelDefinition.FLAG_FLOOR,
         placeable = true,

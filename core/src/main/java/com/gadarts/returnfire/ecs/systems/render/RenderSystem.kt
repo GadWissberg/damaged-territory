@@ -104,7 +104,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get()),
             engine.getEntitiesFor(Family.all(GroundBlastComponent::class.java).get()),
-            engine.getEntitiesFor(Family.all(AmbAnimationComponent::class.java).get())
+            engine.getEntitiesFor(Family.all(AmbAnimationComponent::class.java).get()),
         )
         modelsRenderer.initializeDirectionalLightAndShadows()
     }

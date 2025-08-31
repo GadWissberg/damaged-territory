@@ -75,9 +75,8 @@ class EntityBuilderImpl : EntityBuilder {
         direction: Float,
         hidden: Boolean,
         texture: Texture?,
-        outlineEffect: Boolean
     ): EntityBuilderImpl {
-        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture, outlineEffect)
+        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture)
         return this
     }
 
@@ -89,7 +88,6 @@ class EntityBuilderImpl : EntityBuilder {
         direction: Float,
         hidden: Boolean,
         texture: Texture?,
-        outlineEffect: Boolean = false
     ) {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
         modelInstanceComponent.init(
@@ -99,7 +97,6 @@ class EntityBuilderImpl : EntityBuilder {
             direction = direction,
             hidden = hidden,
             texture = texture,
-            outlineEffect = outlineEffect
         )
         entity.add(modelInstanceComponent)
     }
@@ -580,6 +577,12 @@ class EntityBuilderImpl : EntityBuilder {
         val turretAutomationComponent = TurretAutomationComponent()
         entity!!.add(turretAutomationComponent)
         return this
+    }
+
+    override fun addFlagComponentToEntity(entity: Entity, color: CharacterColor): FlagComponent {
+        val flagComponent = FlagComponent(color)
+        entity.add(flagComponent)
+        return flagComponent
     }
 
     private fun createParticleEffectComponent(

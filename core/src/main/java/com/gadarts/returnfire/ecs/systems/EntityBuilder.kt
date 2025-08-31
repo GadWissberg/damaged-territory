@@ -9,10 +9,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.ecs.components.ChildModelInstanceComponent
-import com.gadarts.returnfire.ecs.components.DeathSequenceComponent
-import com.gadarts.returnfire.ecs.components.FenceComponent
-import com.gadarts.returnfire.ecs.components.TreeComponent
+import com.gadarts.returnfire.ecs.components.*
 import com.gadarts.returnfire.ecs.components.ai.AiTurretComponent
 import com.gadarts.returnfire.ecs.components.ai.ApacheAiComponent
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
@@ -64,7 +61,6 @@ interface EntityBuilder {
         direction: Float = 0F,
         hidden: Boolean = false,
         texture: Texture? = null,
-        outlineEffect: Boolean = false
     ): EntityBuilder
 
     fun addModelInstanceComponentToEntity(
@@ -208,4 +204,5 @@ interface EntityBuilder {
     fun addBrownComponent(): EntityBuilder
     fun addGreenComponent(): EntityBuilder
     fun addTurretAutomationComponent(): EntityBuilder
+    fun addFlagComponentToEntity(entity: Entity, color: CharacterColor): FlagComponent
 }

@@ -4,31 +4,31 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.factories.SpecialEffectsFactory
-import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.returnfire.factories.SpecialEffectsFactory
+import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 import kotlin.math.max
 
 class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        handleBulletCharacterCollision(
+        handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj0.userData as Entity,
             PhysicsCollisionEventData.colObj1.userData as Entity,
             gamePlayManagers,
-            gameSessionData
-        ) || handleBulletCharacterCollision(
+        ) || handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj1.userData as Entity,
             PhysicsCollisionEventData.colObj0.userData as Entity,
             gamePlayManagers,
-            gameSessionData
-        ) || applyEventForCrashingAircraft(
+        ) || handleBulletCharacter(gamePlayManagers, gameSessionData)
+                || applyEventForCrashingAircraft(
             PhysicsCollisionEventData.colObj0.userData as Entity,
             PhysicsCollisionEventData.colObj1.userData as Entity,
             gamePlayManagers,
@@ -40,6 +40,41 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
             gameSessionData
         )
     }
+
+    private fun handleJeepFlagCollision(
+        entity0: Entity,
+        entity1: Entity,
+        gamePlayManagers: GamePlayManagers,
+    ): Boolean {
+        if (!ComponentsMapper.character.has(entity0) || !ComponentsMapper.modelInstance.has(entity1)) return false
+
+        val characterComponent = ComponentsMapper.character.get(entity0)
+        val isEntity0Jeep = characterComponent.definition == TurretCharacterDefinition.JEEP
+        val flagComponent = ComponentsMapper.flagComponent.get(entity1)
+        val isEntity1Flag = flagComponent != null
+        if (isEntity0Jeep && isEntity1Flag) {
+            if (characterComponent.color != flagComponent.color) {
+                gamePlayManagers.ecs.engine.removeEntity(entity1)
+            }
+            return true
+        }
+        return false
+    }
+
+    private fun handleBulletCharacter(
+        gamePlayManagers: GamePlayManagers,
+        gameSessionData: GameSessionData
+    ) = handleBulletCharacterCollision(
+        PhysicsCollisionEventData.colObj0.userData as Entity,
+        PhysicsCollisionEventData.colObj1.userData as Entity,
+        gamePlayManagers,
+        gameSessionData
+    ) || handleBulletCharacterCollision(
+        PhysicsCollisionEventData.colObj1.userData as Entity,
+        PhysicsCollisionEventData.colObj0.userData as Entity,
+        gamePlayManagers,
+        gameSessionData
+    )
 
     private fun applyEventForCrashingAircraft(
         collider1: Entity,

@@ -43,6 +43,7 @@ class ModelsRenderer(
     }
     private val environment: Environment by lazy { Environment() }
 
+    @Suppress("SimplifyBooleanWithConstants")
     fun renderModels(
         batch: ModelBatch,
         camera: Camera,
@@ -138,9 +139,6 @@ class ModelsRenderer(
             }
             renderChildModelInstance(entity, forShadow, applyEnvironment, batch)
             renderFrontWheels(entity, forShadow, applyEnvironment, batch)
-            val outlineEffect = modelInstanceComponent.outlineEffect
-            if (!forShadow && outlineEffect != null) {
-            }
         }
     }
 
