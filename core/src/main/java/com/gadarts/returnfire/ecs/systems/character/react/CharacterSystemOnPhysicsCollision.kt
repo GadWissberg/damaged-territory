@@ -22,11 +22,9 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj0.userData as Entity,
             PhysicsCollisionEventData.colObj1.userData as Entity,
-            gamePlayManagers,
         ) || handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj1.userData as Entity,
             PhysicsCollisionEventData.colObj0.userData as Entity,
-            gamePlayManagers,
         ) || handleBulletCharacter(gamePlayManagers, gameSessionData)
                 || applyEventForCrashingAircraft(
             PhysicsCollisionEventData.colObj0.userData as Entity,
@@ -44,17 +42,16 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
     private fun handleJeepFlagCollision(
         entity0: Entity,
         entity1: Entity,
-        gamePlayManagers: GamePlayManagers,
     ): Boolean {
         if (!ComponentsMapper.character.has(entity0) || !ComponentsMapper.modelInstance.has(entity1)) return false
 
         val characterComponent = ComponentsMapper.character.get(entity0)
         val isEntity0Jeep = characterComponent.definition == TurretCharacterDefinition.JEEP
-        val flagComponent = ComponentsMapper.flagComponent.get(entity1)
+        val flagComponent = ComponentsMapper.flag.get(entity1)
         val isEntity1Flag = flagComponent != null
-        if (isEntity0Jeep && isEntity1Flag) {
+        if (isEntity0Jeep && isEntity1Flag && flagComponent.follow == null) {
             if (characterComponent.color != flagComponent.color) {
-                gamePlayManagers.ecs.engine.removeEntity(entity1)
+                flagComponent.follow = entity0
             }
             return true
         }

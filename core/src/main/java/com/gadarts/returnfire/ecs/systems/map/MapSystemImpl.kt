@@ -18,10 +18,10 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.FlagComponent
 import com.gadarts.returnfire.ecs.components.StageComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.cd.DecalAnimation
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.pit.BaseComponent
 import com.gadarts.returnfire.ecs.components.pit.BaseDoorComponent
@@ -39,12 +39,14 @@ import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.utils.MapInflaterImpl
 import com.gadarts.returnfire.utils.MapUtils
+import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.SharedUtils.DROWNING_HEIGHT
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.FIRE_LOOP_SMALL
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition.SMOKE_UP_LOOP
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import kotlin.math.max
 import kotlin.math.min
@@ -59,6 +61,13 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         engine.getEntitiesFor(
             Family.all(
                 BaseComponent::class.java,
+            ).get()
+        )
+    }
+    private val flags: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(
+            Family.all(
+                FlagComponent::class.java,
             ).get()
         )
     }
@@ -450,6 +459,15 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         ambEffectsHandlers.treeEffectsHandler.update()
         ambEffectsHandlers.fallingBuildingsHandler.updateFallingBuildings()
         updateDrowns()
+        for (flag in flags) {
+            val follow = ComponentsMapper.flag.get(flag).follow
+            if (follow != null) {
+                val followPosition = ModelUtils.getPositionOfModel(follow)
+                ComponentsMapper.modelInstance.get(flag).gameModelInstance.modelInstance.transform.setTranslation(
+                    auxVector1.set(followPosition).add(0F, 0.25F, 0F)
+                )
+            }
+        }
     }
 
     private fun updateDrowns() {
