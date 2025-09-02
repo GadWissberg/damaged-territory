@@ -61,6 +61,7 @@ interface EntityBuilder {
         direction: Float = 0F,
         hidden: Boolean = false,
         texture: Texture? = null,
+        outlineEffect: Boolean = false,
     ): EntityBuilder
 
     fun addModelInstanceComponentToEntity(
@@ -70,7 +71,8 @@ interface EntityBuilder {
         boundingBox: BoundingBox?,
         direction: Float = 0F,
         hidden: Boolean = false,
-        texture: Texture? = null
+        texture: Texture? = null,
+        outlineEffect: Boolean = false,
     ): EntityBuilder
 
     fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilder

@@ -75,8 +75,9 @@ class EntityBuilderImpl : EntityBuilder {
         direction: Float,
         hidden: Boolean,
         texture: Texture?,
+        outlineEffect: Boolean
     ): EntityBuilderImpl {
-        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture)
+        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture, outlineEffect)
         return this
     }
 
@@ -88,6 +89,7 @@ class EntityBuilderImpl : EntityBuilder {
         direction: Float,
         hidden: Boolean,
         texture: Texture?,
+        outlineEffect: Boolean
     ) {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
         modelInstanceComponent.init(
@@ -97,6 +99,7 @@ class EntityBuilderImpl : EntityBuilder {
             direction = direction,
             hidden = hidden,
             texture = texture,
+            outlineEffect = outlineEffect
         )
         entity.add(modelInstanceComponent)
     }
@@ -108,9 +111,10 @@ class EntityBuilderImpl : EntityBuilder {
         boundingBox: BoundingBox?,
         direction: Float,
         hidden: Boolean,
-        texture: Texture?
+        texture: Texture?,
+        outlineEffect: Boolean
     ): EntityBuilder {
-        addModelInstanceComponent(entity, model, position, boundingBox, direction, hidden, texture)
+        addModelInstanceComponent(entity, model, position, boundingBox, direction, hidden, texture, outlineEffect)
         return this
     }
 

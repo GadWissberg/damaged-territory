@@ -428,7 +428,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
                 0F,
                 false,
-                assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$color")
+                assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$color"),
+                false
             )
         }
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody

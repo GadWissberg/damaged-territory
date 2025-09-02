@@ -30,6 +30,7 @@ class ModelsRenderer(
     private val batches: RenderSystemBatches,
     private val modelCaches: List<ModelCache>
 ) : Disposable {
+    private val outlineRenderer = OutlineRenderer()
     private var axisModelHandler = AxisModelHandler()
     private val shadowLight: DirectionalShadowLight by lazy {
         DirectionalShadowLight(
@@ -43,7 +44,6 @@ class ModelsRenderer(
     }
     private val environment: Environment by lazy { Environment() }
 
-    @Suppress("SimplifyBooleanWithConstants")
     fun renderModels(
         batch: ModelBatch,
         camera: Camera,
@@ -125,10 +125,16 @@ class ModelsRenderer(
     private fun isConsideredCharacter(entity: Entity) =
         (ComponentsMapper.character.has(entity) || ComponentsMapper.turret.has(entity))
 
-    private fun renderModel(entity: Entity, batch: ModelBatch, applyEnvironment: Boolean, forShadow: Boolean = false) {
+    private fun renderModel(
+        entity: Entity,
+        batch: ModelBatch,
+        applyEnvironment: Boolean,
+        forShadow: Boolean = false
+    ) {
         if (isVisible(entity, forShadow)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val gameModelInstance = modelInstanceComponent.gameModelInstance
+
             renderGameModelInstance(gameModelInstance, forShadow, applyEnvironment, batch)
             if (!modelInstanceComponent.hidden
                 && modelInstanceComponent.hideAt != -1L
@@ -139,6 +145,10 @@ class ModelsRenderer(
             }
             renderChildModelInstance(entity, forShadow, applyEnvironment, batch)
             renderFrontWheels(entity, forShadow, applyEnvironment, batch)
+            if (!forShadow && modelInstanceComponent.outlineEffect) {
+                outlineRenderer.renderOutline(
+                )
+            }
         }
     }
 
