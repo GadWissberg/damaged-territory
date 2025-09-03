@@ -18,10 +18,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.ecs.components.CharacterComponent
-import com.gadarts.returnfire.ecs.components.ChildModelInstanceComponent
-import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.StageComponent
+import com.gadarts.returnfire.ecs.components.*
 import com.gadarts.returnfire.ecs.components.StageComponent.Companion.MAX_Y
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent

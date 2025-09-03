@@ -64,7 +64,8 @@ class GamePlayScreen(
             fpsTarget,
             ConsoleImpl(generalManagers.assetsManager, generalManagers.dispatcher),
             selected,
-            autoAim
+            autoAim,
+            engine
         )
     }
     private val engine: PooledEngine by lazy { PooledEngine() }

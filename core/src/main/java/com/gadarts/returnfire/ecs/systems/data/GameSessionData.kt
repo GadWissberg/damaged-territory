@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.ecs.systems.data
 
+import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.ecs.systems.data.hud.GameSessionDataHud
@@ -13,12 +14,13 @@ class GameSessionData(
     val fpsTarget: Int,
     console: ConsoleImpl,
     val selected: CharacterDefinition,
-    val autoAim: Boolean
+    val autoAim: Boolean,
+    engine: PooledEngine
 ) :
     Disposable {
     val profilingData: GameSessionDataProfiling = GameSessionDataProfiling()
     val physicsData = GameSessionDataPhysics()
-    val gamePlayData = GameSessionDataGameplay(assetsManager)
+    val gamePlayData = GameSessionDataGameplay(assetsManager, engine)
     val mapData = GameSessionDataMap(assetsManager)
     val hudData =
         GameSessionDataHud(console, assetsManager, mapData.loadedMap, gamePlayData)

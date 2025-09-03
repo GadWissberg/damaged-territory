@@ -1,12 +1,14 @@
 package com.gadarts.returnfire.ecs.systems.character.react
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
@@ -14,19 +16,26 @@ import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 import kotlin.math.max
 
-class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
+class CharacterSystemOnPhysicsCollision() : HandlerOnEvent {
+
+
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj0.userData as Entity,
             PhysicsCollisionEventData.colObj1.userData as Entity,
+            gameSessionData,
+            gamePlayManagers.dispatcher
         ) || handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj1.userData as Entity,
             PhysicsCollisionEventData.colObj0.userData as Entity,
+            gameSessionData,
+            gamePlayManagers.dispatcher,
         ) || handleBulletCharacter(gamePlayManagers, gameSessionData)
-                || applyEventForCrashingAircraft(
+            || applyEventForCrashingAircraft(
             PhysicsCollisionEventData.colObj0.userData as Entity,
             PhysicsCollisionEventData.colObj1.userData as Entity,
             gamePlayManagers,
@@ -42,6 +51,8 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
     private fun handleJeepFlagCollision(
         entity0: Entity,
         entity1: Entity,
+        gameSessionData: GameSessionData,
+        dispatcher: MessageDispatcher,
     ): Boolean {
         if (!ComponentsMapper.character.has(entity0) || !ComponentsMapper.modelInstance.has(entity1)) return false
 
@@ -50,8 +61,15 @@ class CharacterSystemOnPhysicsCollision : HandlerOnEvent {
         val flagComponent = ComponentsMapper.flag.get(entity1)
         val isEntity1Flag = flagComponent != null
         if (isEntity0Jeep && isEntity1Flag && flagComponent.follow == null) {
-            if (characterComponent.color != flagComponent.color) {
+            val characterColor = characterComponent.color
+            if (characterColor != flagComponent.color) {
                 flagComponent.follow = entity0
+            } else {
+                val rivalColor =
+                    if (characterColor == CharacterColor.GREEN) CharacterColor.BROWN else CharacterColor.GREEN
+                if (ComponentsMapper.flag.get(gameSessionData.gamePlayData.flags[rivalColor]).follow == entity0) {
+                    dispatcher.dispatchMessage(SystemEvents.GAME_OVER.ordinal)
+                }
             }
             return true
         }

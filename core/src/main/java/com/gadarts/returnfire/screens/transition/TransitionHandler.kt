@@ -16,6 +16,8 @@ class TransitionHandler(private val screensManager: ScreensManager) {
     private enum class Phase { IDLE, FADE_OUT, FADE_IN }
 
     fun switch(screen: Screens, duration: Float, screenSwitchParameters: ScreenSwitchParameters?) {
+        if (next != null) return
+
         this.next = screen
         this.transition = FadeTransition(duration)
         this.time = 0f

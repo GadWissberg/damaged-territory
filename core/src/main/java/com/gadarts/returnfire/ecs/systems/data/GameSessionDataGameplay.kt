@@ -1,12 +1,21 @@
 package com.gadarts.returnfire.ecs.systems.data
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.FlagComponent
 import com.gadarts.returnfire.ecs.systems.data.pools.GameSessionDataPools
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.data.CharacterColor
 
-class GameSessionDataGameplay(assetsManager: GameAssetManager) : Disposable {
+class GameSessionDataGameplay(assetsManager: GameAssetManager, engine: PooledEngine) : Disposable {
+    val flags: Map<CharacterColor, Entity> by lazy {
+        engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())
+            .associateBy({ ComponentsMapper.flag.get(it).color }, { it })
+    }
     lateinit var player: Entity
     var sessionFinished: Boolean = false
     lateinit var playerMovementHandler: VehicleMovementHandler

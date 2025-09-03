@@ -115,6 +115,15 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
                     ))
                 }
             }
+        },
+        SystemEvents.GAME_OVER to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                gamePlayManagers.screensManager.setScreenWithFade(Screens.VEHICLE_SELECTION, 2F, null)
+            }
         }
     )
 
