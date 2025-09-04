@@ -17,7 +17,8 @@ enum class TurretCharacterDefinition(
     private val fuelConsumptionPace: Float = 0.0F,
     private val placeable: Boolean = false,
     private val linearDamping: Float = 0.0F,
-    private val angularDamping: Float = 0.0F
+    private val angularDamping: Float = 0.0F,
+    val separateTextureForDeadTurret: Boolean = false,
 ) : CharacterDefinition {
     TURRET_CANNON(
         hp = 75F,
@@ -52,6 +53,7 @@ enum class TurretCharacterDefinition(
         fuelConsumptionPace = 0.1F,
         linearDamping = 0.9F,
         angularDamping = 0.99F,
+        separateTextureForDeadTurret = true
     ),
     JEEP(
         hp = 65F,

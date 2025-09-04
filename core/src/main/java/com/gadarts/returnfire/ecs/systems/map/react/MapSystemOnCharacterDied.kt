@@ -1,0 +1,26 @@
+package com.gadarts.returnfire.ecs.systems.map.react
+
+import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.ai.msg.Telegram
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.shared.data.CharacterColor
+import com.gadarts.shared.data.definitions.TurretCharacterDefinition
+
+class MapSystemOnCharacterDied : HandlerOnEvent {
+    override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+        val character = msg.extraInfo as Entity
+        val characterComponent = ComponentsMapper.character.get(character)
+        if (characterComponent.definition == TurretCharacterDefinition.JEEP) {
+            val rivalColor =
+                if (characterComponent.color == CharacterColor.BROWN) CharacterColor.GREEN else CharacterColor.BROWN
+            val rivalFlag = ComponentsMapper.flag.get(gameSessionData.gamePlayData.flags[rivalColor])
+            if (rivalFlag.follow == character) {
+                rivalFlag.follow = null
+            }
+        }
+    }
+
+}

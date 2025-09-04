@@ -24,7 +24,7 @@ class DeathSequenceUpdater(private val gamePlayManagers: GamePlayManagers) {
             val deathSequenceComponent = ComponentsMapper.deathSequence.get(entity)
             if (deathSequenceComponent.deathSequenceDuration <= 0) {
                 gamePlayManagers.dispatcher.dispatchMessage(
-                    SystemEvents.DEATH_SEQUENCE_FINISHED.ordinal,
+                    SystemEvents.CHARACTER_DEATH_SEQUENCE_FINISHED.ordinal,
                     entity
                 )
                 entity.remove(DeathSequenceComponent::class.java)

@@ -30,10 +30,7 @@ import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.map.handlers.amb.AmbEffectsHandlers
-import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnCharacterBoarding
-import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnCharacterOnboardingAnimationDone
-import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnExplosionPushBack
-import com.gadarts.returnfire.ecs.systems.map.react.MapSystemOnPhysicsCollision
+import com.gadarts.returnfire.ecs.systems.map.react.*
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraphType
@@ -94,7 +91,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             SystemEvents.CHARACTER_ONBOARDING_ANIMATION_DONE to MapSystemOnCharacterOnboardingAnimationDone(this),
             SystemEvents.CHARACTER_ONBOARDING_BEGIN to MapSystemOnCharacterBoarding(this),
             SystemEvents.EXPLOSION_PUSH_BACK to MapSystemOnExplosionPushBack(mapSystemRelatedEntities),
-            SystemEvents.DEATH_SEQUENCE_FINISHED to object : HandlerOnEvent {
+            SystemEvents.CHARACTER_DEATH_SEQUENCE_FINISHED to object : HandlerOnEvent {
                 override fun react(
                     msg: Telegram,
                     gameSessionData: GameSessionData,
@@ -109,7 +106,9 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                         gamePlayManagers
                     )
                 }
-            })
+            },
+            SystemEvents.CHARACTER_DIED to MapSystemOnCharacterDied()
+        )
 
 
     object TreeExplosionPushBackEffect : ExplosionPushBackEffect {

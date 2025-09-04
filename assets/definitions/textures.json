@@ -515,13 +515,13 @@
       "file_name": "jeep_texture_brown"
     },
     {
-      "file_name": "jeep_texture_destroyed_brown"
+      "file_name": "jeep_texture_dead_brown"
     },
     {
       "file_name": "jeep_texture_green"
     },
     {
-      "file_name": "jeep_texture_destroyed_green"
+      "file_name": "jeep_texture_dead_green"
     },
     {
       "file_name": "bullet_hole_small_0"
