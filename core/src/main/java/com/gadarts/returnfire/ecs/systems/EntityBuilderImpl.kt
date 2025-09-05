@@ -75,9 +75,9 @@ class EntityBuilderImpl : EntityBuilder {
         direction: Float,
         hidden: Boolean,
         texture: Texture?,
-        outlineEffect: Boolean
+        haloEffect: Boolean
     ): EntityBuilderImpl {
-        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture, outlineEffect)
+        addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture, haloEffect)
         return this
     }
 
@@ -89,7 +89,7 @@ class EntityBuilderImpl : EntityBuilder {
         direction: Float,
         hidden: Boolean,
         texture: Texture?,
-        outlineEffect: Boolean
+        haloEffect: Boolean
     ) {
         val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
         modelInstanceComponent.init(
@@ -99,7 +99,7 @@ class EntityBuilderImpl : EntityBuilder {
             direction = direction,
             hidden = hidden,
             texture = texture,
-            outlineEffect = outlineEffect
+            haloEffect = if (haloEffect) factories.specialEffectsFactory.generateHaloEffect() else null,
         )
         entity.add(modelInstanceComponent)
     }
@@ -112,9 +112,9 @@ class EntityBuilderImpl : EntityBuilder {
         direction: Float,
         hidden: Boolean,
         texture: Texture?,
-        outlineEffect: Boolean
+        haloEffect: Boolean
     ): EntityBuilder {
-        addModelInstanceComponent(entity, model, position, boundingBox, direction, hidden, texture, outlineEffect)
+        addModelInstanceComponent(entity, model, position, boundingBox, direction, hidden, texture, haloEffect)
         return this
     }
 

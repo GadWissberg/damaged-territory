@@ -2,6 +2,7 @@ package com.gadarts.returnfire.factories
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.MathUtils
@@ -12,6 +13,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
+import com.gadarts.returnfire.ecs.components.model.HaloEffect
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.managers.EcsManager
@@ -327,6 +329,10 @@ class SpecialEffectsFactory(
                 character
             ).turret else character
         generateExplosion(entity, addBiasToPosition)
+    }
+
+    fun generateHaloEffect(): HaloEffect {
+        return HaloEffect(ModelInstance(gameSessionData.renderData.haloModel))
     }
 
     companion object {

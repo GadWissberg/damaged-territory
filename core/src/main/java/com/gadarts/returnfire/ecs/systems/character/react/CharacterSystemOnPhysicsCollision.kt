@@ -64,6 +64,7 @@ class CharacterSystemOnPhysicsCollision() : HandlerOnEvent {
             val characterColor = characterComponent.color
             if (characterColor != flagComponent.color) {
                 flagComponent.follow = entity0
+                dispatcher.dispatchMessage(SystemEvents.FLAG_TAKEN.ordinal, entity1)
             } else {
                 val rivalColor =
                     if (characterColor == CharacterColor.GREEN) CharacterColor.BROWN else CharacterColor.GREEN

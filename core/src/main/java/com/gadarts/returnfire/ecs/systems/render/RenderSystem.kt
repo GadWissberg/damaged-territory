@@ -31,6 +31,7 @@ import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.render.renderers.ModelsRenderer
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.GeneralUtils
 
@@ -112,16 +113,17 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     override fun update(deltaTime: Float) {
         if (gameSessionData.gamePlayData.sessionFinished) return
 
-        modelsRenderer.renderShadows()
+        modelsRenderer.renderShadows(deltaTime)
         GeneralUtils.clearScreen()
         modelsRenderer.renderModels(
             batch = batches.modelBatch,
             camera = gameSessionData.renderData.camera,
             applyEnvironment = true,
             renderParticleEffects = true,
-            forShadow = false
+            forShadow = false,
+            deltaTime = deltaTime
         )
-        modelsRenderer.renderWaterWaves()
+        modelsRenderer.renderWaterWaves(deltaTime)
         renderCollisionShapes()
         renderDecals(deltaTime)
         if (!GameDebugSettings.AVOID_PARTICLE_EFFECTS_DRAWING) {

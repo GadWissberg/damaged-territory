@@ -315,7 +315,7 @@ class MapInflaterImpl(
                 position = position,
                 boundingBox = null,
                 direction = rotation ?: 0F,
-                outlineEffect = ambDefinition.outlineEffect
+                haloEffect = ambDefinition.outlineEffect
             )
             .addDrowningEffectComponent()
             .addAmbComponent(

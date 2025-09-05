@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
@@ -16,9 +17,11 @@ class MapSystemOnCharacterDied : HandlerOnEvent {
         if (characterComponent.definition == TurretCharacterDefinition.JEEP) {
             val rivalColor =
                 if (characterComponent.color == CharacterColor.BROWN) CharacterColor.GREEN else CharacterColor.BROWN
-            val rivalFlag = ComponentsMapper.flag.get(gameSessionData.gamePlayData.flags[rivalColor])
-            if (rivalFlag.follow == character) {
-                rivalFlag.follow = null
+            val rivalFlag = gameSessionData.gamePlayData.flags[rivalColor]
+            val rivalFlagComponent = ComponentsMapper.flag.get(rivalFlag)
+            if (rivalFlagComponent.follow == character) {
+                rivalFlagComponent.follow = null
+                gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.FLAG_DROPPED.ordinal, rivalFlagComponent)
             }
         }
     }

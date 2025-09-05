@@ -429,7 +429,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 0F,
                 false,
                 assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$color"),
-                false
+                null
             )
         }
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody

@@ -15,11 +15,12 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.effects.ParticleEffectComponent
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.effects.react.EffectsSystemOnFlagTakenOrDropped
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.managers.GamePlayManagers
 
 
 class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
@@ -35,7 +36,9 @@ class EffectsSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                     updatePositionToParent(particleEffectComponent)
                     playParticleEffect(particleEffectComponent.effect)
                 }
-            }
+            },
+            SystemEvents.FLAG_TAKEN to EffectsSystemOnFlagTakenOrDropped(false),
+            SystemEvents.FLAG_DROPPED to EffectsSystemOnFlagTakenOrDropped(true),
         )
 
     private val particleEffectsEntities: ImmutableArray<Entity> by lazy {

@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Pool
 
 class ModelInstanceComponent : Component, Pool.Poolable {
-    var outlineEffect: Boolean = false
+    var haloEffect: HaloEffect? = null
         private set
     var hidden: Boolean = false
     var hideAt: Long = -1
@@ -21,7 +21,7 @@ class ModelInstanceComponent : Component, Pool.Poolable {
         direction: Float,
         hidden: Boolean,
         texture: Texture?,
-        outlineEffect: Boolean
+        haloEffect: HaloEffect?
     ) {
         gameModelInstance.modelInstance.transform.idt()
         this.gameModelInstance = gameModelInstance
@@ -41,7 +41,7 @@ class ModelInstanceComponent : Component, Pool.Poolable {
             this.gameModelInstance.setBoundingSphere(boundingBox)
         }
         this.hidden = hidden
-        this.outlineEffect = outlineEffect
+        this.haloEffect = haloEffect
     }
 
 
