@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.shared.data.CharacterColor
 
-class BaseComponent(val color: CharacterColor) : Component {
+class ElevatorComponent(val color: CharacterColor) : Component {
     var latestCloseTime: Long = 0
         private set
 
@@ -20,6 +20,10 @@ class BaseComponent(val color: CharacterColor) : Component {
     fun close() {
         doorMoveState = -1
         latestCloseTime = TimeUtils.millis()
+    }
+
+    fun open() {
+        doorMoveState = 1
     }
 
     fun isIdle(): Boolean {

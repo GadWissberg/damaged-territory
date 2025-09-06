@@ -39,7 +39,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     private val ui: Table by lazy { addUiTable() }
     private val radar: com.gadarts.returnfire.ecs.systems.hud.radar.Radar by lazy {
         com.gadarts.returnfire.ecs.systems.hud.radar.Radar(
-            gameSessionData.gamePlayData.player,
+            gameSessionData.gamePlayData,
             engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get()),
             gamePlayManagers.assetsManager,
             gameSessionData.mapData.groundBitMap

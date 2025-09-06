@@ -76,7 +76,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         SystemEvents.PHYSICS_COLLISION to CharacterSystemOnPhysicsCollision(),
         SystemEvents.CHARACTER_REQUEST_BOARDING to CharacterSystemOnCharacterRequestBoarding(),
         SystemEvents.AMB_SOUND_COMPONENT_ADDED to CharacterSystemOnAmbSoundComponentAdded(this),
-        SystemEvents.MAP_LOADED to CharacterSystemOnMapLoaded(gamePlayManagers.ecs.engine),
+        SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN to CharacterSystemOnOpponentEnteredGamePlayScreen(
+            gamePlayManagers.ecs.engine
+        ),
         SystemEvents.MAP_SYSTEM_READY to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
@@ -87,7 +89,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
                 gameSessionData.mapData.elevators =
                     stageEntities.associateBy(
-                        { ComponentsMapper.hangar.get(ComponentsMapper.hangarStage.get(it).base).color },
+                        { ComponentsMapper.elevator.get(ComponentsMapper.hangarStage.get(it).base).color },
                         { it })
             }
         },
@@ -154,6 +156,15 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
 
             override fun entityRemoved(entity: Entity) {
+                val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
+                if (turretBaseComponent != null) {
+                    engine.removeEntity(turretBaseComponent.turret)
+                } else {
+                    val turretComponent = ComponentsMapper.turret.get(entity)
+                    if (turretComponent != null) {
+                        engine.removeEntity(turretComponent.cannon)
+                    }
+                }
             }
 
         })

@@ -41,8 +41,6 @@ class GamePlayScreen(
     runsOnMobile: Boolean,
     fpsTarget: Int,
     private val generalManagers: GeneralManagers,
-    private val selected: CharacterDefinition,
-    autoAim: Boolean,
 ) : Screen, Telegraph {
 
     init {
@@ -54,6 +52,9 @@ class GamePlayScreen(
         generalManagers.assetsManager.finishLoading()
     }
 
+    private var initialized: Boolean = false
+    private var autoAim: Boolean = true
+    private lateinit var selectedCharacter: CharacterDefinition
     private val entitiesToRemove = mutableListOf<Entity>()
     private lateinit var factories: Factories
     private var pauseTime: Long = 0
@@ -63,33 +64,13 @@ class GamePlayScreen(
             runsOnMobile,
             fpsTarget,
             ConsoleImpl(generalManagers.assetsManager, generalManagers.dispatcher),
-            selected,
+            selectedCharacter,
             autoAim,
             engine
         )
     }
     private val engine: PooledEngine by lazy { PooledEngine() }
     private lateinit var systems: List<GameEntitySystem>
-
-    override fun show() {
-        val entityBuilderImpl = EntityBuilderImpl()
-        val ecs = EcsManager(engine, entityBuilderImpl)
-        createFactories(entityBuilderImpl, ecs)
-        generalManagers.soundManager.sessionInitialize(gameSessionData.renderData.camera)
-        entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
-        val gamePlayManagers = GamePlayManagers(
-            generalManagers.soundManager,
-            generalManagers.assetsManager,
-            generalManagers.dispatcher,
-            factories,
-            generalManagers.screensManagers,
-            ecs,
-            StainsHandler(generalManagers.assetsManager),
-            MapPathFinder(gameSessionData.mapData, PathHeuristic()),
-        )
-        generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_ENTITY.ordinal)
-        initializeSystems(gamePlayManagers)
-    }
 
     private fun createFactories(
         entityBuilderImpl: EntityBuilderImpl,
@@ -174,7 +155,7 @@ class GamePlayScreen(
     }
 
     override fun hide() {
-        generalManagers.assetsManager.unload(GameDebugSettings.MAP.getPaths()[0])
+        pauseTime = TimeUtils.millis()
     }
 
     override fun dispose() {
@@ -183,12 +164,42 @@ class GamePlayScreen(
         factories.dispose()
     }
 
+    override fun show() {
+
+    }
+
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
 
         entitiesToRemove.add(msg.extraInfo as Entity)
 
         return true
+    }
+
+    fun initialize(selectedCharacter: CharacterDefinition, autoAim: Boolean) {
+        this.selectedCharacter = selectedCharacter
+        this.autoAim = autoAim
+        gameSessionData.selectedCharacter = selectedCharacter
+        if (!initialized) {
+            val entityBuilderImpl = EntityBuilderImpl()
+            val ecs = EcsManager(engine, entityBuilderImpl)
+            createFactories(entityBuilderImpl, ecs)
+            generalManagers.soundManager.sessionInitialize(gameSessionData.renderData.camera)
+            entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
+            val gamePlayManagers = GamePlayManagers(
+                generalManagers.soundManager,
+                generalManagers.assetsManager,
+                generalManagers.dispatcher,
+                factories,
+                generalManagers.screensManagers,
+                ecs,
+                StainsHandler(generalManagers.assetsManager),
+                MapPathFinder(gameSessionData.mapData, PathHeuristic()),
+            )
+            generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_ENTITY.ordinal)
+            initializeSystems(gamePlayManagers)
+            initialized = true
+        }
     }
 
 

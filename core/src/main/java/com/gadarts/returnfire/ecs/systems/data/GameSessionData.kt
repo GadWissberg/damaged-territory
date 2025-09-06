@@ -13,7 +13,7 @@ class GameSessionData(
     val runsOnMobile: Boolean,
     val fpsTarget: Int,
     console: ConsoleImpl,
-    val selected: CharacterDefinition,
+    var selectedCharacter: CharacterDefinition,
     val autoAim: Boolean,
     engine: PooledEngine
 ) :

@@ -85,7 +85,10 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                     if (GameDebugSettings.FORCE_ENEMY_HP >= 0) {
                         ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_ENEMY_HP
                     }
-                    setTargetForAi(entity, gameSessionData.gamePlayData.player)
+                    val player = gameSessionData.gamePlayData.player
+                    if (player != null) {
+                        setTargetForAi(entity, player)
+                    }
                 } else {
                     aiEntities.forEach {
                         setTargetForAi(it, entity)
@@ -95,11 +98,19 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         },
     )
 
+    override fun onSystemReady() {
+        gamePlayManagers.dispatcher.dispatchMessage(
+            SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN.ordinal,
+            CharacterColor.GREEN
+        )
+    }
+
     @Suppress("SimplifyBooleanWithConstants")
     override fun update(deltaTime: Float) {
+        val player = gameSessionData.gamePlayData.player ?: return
         if (GameDebugSettings.AI_DISABLED
             || isGamePaused()
-            || ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()
+            || ComponentsMapper.boarding.get(player).isBoarding()
         ) return
 
         aiLogicHandler.update(deltaTime)

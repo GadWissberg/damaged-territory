@@ -166,7 +166,7 @@ interface EntityBuilder {
     fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder
     fun addStageComponent(base: Entity): EntityBuilder
     fun addAutoAimComponent(): EntityBuilder
-    fun addBaseComponent(color: CharacterColor): EntityBuilder
+    fun addElevatorComponent(color: CharacterColor): EntityBuilder
     fun addCrashSoundEmitterComponent(soundToStop: Sound, soundToStopId: Long): EntityBuilder
     fun addCrashSoundEmitterComponentToEntity(entity: Entity, soundToStop: Sound, soundToStopId: Long): EntityBuilder
     fun addLimitedVelocityComponent(maxValue: Float): EntityBuilder

@@ -50,5 +50,7 @@ class DamagedTerritoryEditor(private val dispatcher: MessageDispatcher) : Applic
     override fun dispose() {
         super.dispose()
         sharedData.dispose()
+        gameAssetsManager.dispose()
+        sceneRenderer.dispose()
     }
 }

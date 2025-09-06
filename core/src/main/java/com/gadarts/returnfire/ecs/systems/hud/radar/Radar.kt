@@ -8,13 +8,14 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.returnfire.ecs.systems.data.GameSessionDataGameplay
 import com.gadarts.returnfire.ecs.systems.hud.radar.RadarC.RADAR_SIZE
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 
 class Radar(
-    private val player: Entity,
+    private val gameSessionDataGameplay: GameSessionDataGameplay,
     private val enemies: ImmutableArray<Entity>,
     private val assetsManager: GameAssetManager,
     private val bitMap: Array<Array<Int>>,
@@ -44,7 +45,6 @@ class Radar(
     }
 
 
-
     override fun act(delta: Float) {
         super.act(delta)
         scanlineOffset = (scanlineOffset + 15 * delta) % radarRelatedTextures.scanLines.height
@@ -56,6 +56,8 @@ class Radar(
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
+        val player = gameSessionDataGameplay.player ?: return
+
         batch.color = auxColor.set(color).also { it.a *= parentAlpha }
         val positionOfModel = ModelUtils.getPositionOfModel(player)
         val topLeftX = x + (width - RADAR_SIZE) / 2
@@ -66,11 +68,12 @@ class Radar(
                 val tileZ = positionOfModel.z.toInt() + dz
                 val dotX = topLeftX + (dx + RADIUS) * cellSize
                 val dotY = topLeftY + (RADIUS - dz) * cellSize
-                val signature = if (tileZ < 0 || tileZ > bitMap.size - 1 || tileX < 0 || tileX > bitMap[0].size - 1) {
-                    0
-                } else {
-                    radarTileMap[tileZ][tileX]
-                }
+                val signature =
+                    if (tileZ < 0 || tileZ > bitMap.size - 1 || tileX < 0 || tileX > bitMap[0].size - 1) {
+                        0
+                    } else {
+                        radarTileMap[tileZ][tileX]
+                    }
                 batch.draw(radarRelatedTextures.signatures[signature], dotX, dotY, cellSize, cellSize)
             }
         }
@@ -138,7 +141,10 @@ class Radar(
     private fun drawCharacters(
         batch: Batch,
     ) {
-        val positionOfModel = ModelUtils.getPositionOfModel(player,
+        val player = gameSessionDataGameplay.player ?: return
+
+        val positionOfModel = ModelUtils.getPositionOfModel(
+            player,
             auxVector1
         )
         val topLeftX = x + (width - RADAR_SIZE) / 2
@@ -148,7 +154,8 @@ class Radar(
         batch.draw(radarRelatedTextures.playerDot, playerDotX, playerDotY)
         for (i in 0 until enemies.size()) {
             val enemy = enemies[i]
-            val enemyPos = ModelUtils.getPositionOfModel(enemy,
+            val enemyPos = ModelUtils.getPositionOfModel(
+                enemy,
                 auxVector2
             )
             val dx = enemyPos.x.toInt() - positionOfModel.x.toInt()

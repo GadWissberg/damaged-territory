@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.onboarding.BoardingAnimation
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
@@ -17,7 +16,7 @@ import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
-import com.gadarts.shared.assets.map.GameMapPlacedObject
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.definitions.CharacterDefinition
 
@@ -27,7 +26,7 @@ abstract class CharacterFactory(
     private val assetsManager: GameAssetManager,
 ) : Disposable {
 
-    abstract fun create(base: GameMapPlacedObject, color: CharacterColor): Entity
+    abstract fun create(position: Vector3, color: CharacterColor): Entity
 
     protected fun addSpark(
         machineGunSparkModel: Model,
@@ -48,7 +47,7 @@ abstract class CharacterFactory(
     }
 
     protected fun addCharacterBaseComponents(
-        base: GameMapPlacedObject,
+        position: Vector3,
         characterDefinition: CharacterDefinition,
         primarySpark: Entity,
         secondarySpark: Entity?,
@@ -63,9 +62,9 @@ abstract class CharacterFactory(
         entityBuilder.addModelInstanceComponent(
             gameModelInstance,
             auxVector3_1.set(
-                base.column.toFloat() + 1F,
+                position.x + 1F,
                 -3.3F + assetsManager.getCachedBoundingBox(modelDefinition).height,
-                base.row.toFloat() + 1F
+                position.z + 1F
             ),
             null,
         )

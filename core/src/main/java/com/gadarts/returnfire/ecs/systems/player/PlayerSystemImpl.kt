@@ -12,7 +12,6 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.StageComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
@@ -31,6 +30,7 @@ import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMove
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.touchpad.MovementTouchPadListener
 import com.gadarts.returnfire.ecs.systems.player.react.*
 import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.CharacterDefinition
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
@@ -60,7 +60,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         engine.getEntitiesFor(
             Family.all(StageComponent::class.java).get()
         )
-            .find { ComponentsMapper.hangar.get(ComponentsMapper.hangarStage.get(it).base).color == CharacterColor.BROWN }!!
+            .find { ComponentsMapper.elevator.get(ComponentsMapper.hangarStage.get(it).base).color == CharacterColor.BROWN }!!
     }
     private val autoAim by lazy {
         if (gameSessionData.autoAim) {
@@ -97,8 +97,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
+                val player = gameSessionData.gamePlayData.player ?: return
+
                 gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonPressed(
-                    gameSessionData.gamePlayData.player
+                    player
                 )
             }
         },
@@ -108,8 +110,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
+                val player = gameSessionData.gamePlayData.player ?: return
+
                 gameSessionData.gamePlayData.playerMovementHandler.onReverseScreenButtonReleased(
-                    gameSessionData.gamePlayData.player
+                    player
                 )
             }
         },
@@ -154,6 +158,8 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gamePlayManagers: GamePlayManagers
             ) {
                 if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
+                    engine.removeEntity(gameSessionData.gamePlayData.player)
+                    gameSessionData.gamePlayData.player = null
                     gamePlayManagers.screensManager.goToHangarScreen()
                 }
             }
@@ -173,7 +179,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
         val player = gameSessionData.gamePlayData.player
         gameSessionData.gamePlayData.playerMovementHandler.update(
-            player,
+            player!!,
             deltaTime
         )
         val turretBaseComponent = ComponentsMapper.turretBase.get(player)
@@ -198,6 +204,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (isGamePaused()
+            || player == null
             || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
             .isBoarding())
             || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
@@ -205,7 +212,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
     override fun keyDown(keycode: Int): Boolean {
         val player = gameSessionData.gamePlayData.player
-        if (ComponentsMapper.boarding.get(player).isBoarding()) return false
+        if (player == null || ComponentsMapper.boarding.get(player).isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP -> {
@@ -257,12 +264,13 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (ComponentsMapper.boarding.get(gameSessionData.gamePlayData.player).isBoarding()) return false
+        val player = gameSessionData.gamePlayData.player
+        if (player == null || ComponentsMapper.boarding.get(player).isBoarding()) return false
 
         when (keycode) {
             Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT -> {
                 gameSessionData.gamePlayData.playerMovementHandler.onMovementTouchUp(
-                    gameSessionData.gamePlayData.player,
+                    player,
                     keycode,
                 )
             }
@@ -276,7 +284,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             }
 
             Input.Keys.ALT_LEFT -> {
-                gameSessionData.gamePlayData.playerMovementHandler.releasedAlt(gameSessionData.gamePlayData.player)
+                gameSessionData.gamePlayData.playerMovementHandler.releasedAlt(player)
             }
 
         }
@@ -312,8 +320,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun initInputMethod() {
+        val player = gameSessionData.gamePlayData.player ?: return
+
         if (gameSessionData.runsOnMobile) {
-            val player = gameSessionData.gamePlayData.player
             gameSessionData.hudData.movementTouchpad.addListener(
                 MovementTouchPadListener(
                     gameSessionData.gamePlayData.playerMovementHandler,

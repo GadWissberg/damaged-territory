@@ -16,7 +16,7 @@ class GameSessionDataGameplay(assetsManager: GameAssetManager, engine: PooledEng
         engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())
             .associateBy({ ComponentsMapper.flag.get(it).color }, { it })
     }
-    lateinit var player: Entity
+    var player: Entity? = null
     var sessionFinished: Boolean = false
     lateinit var playerMovementHandler: VehicleMovementHandler
     val pools by lazy { GameSessionDataPools(assetsManager) }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.physics.bullet.Bullet
+import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.ScreenSwitchParameters
@@ -17,10 +18,19 @@ import com.gadarts.returnfire.screens.types.gameplay.GamePlayScreenSwitchParamet
 import com.gadarts.returnfire.screens.types.hangar.HangarScreenImpl
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.MusicDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.CharacterDefinition
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
+    private val gamePlayScreen: GamePlayScreen by lazy {
+        val screen = GamePlayScreen(
+            runsOnMobile,
+            fpsTarget,
+            GeneralManagers(assetsManager, soundManager, dispatcher, this),
+        )
+        screen
+    }
     private val transitionHandler = TransitionHandler(this)
     private val dispatcher = MessageDispatcher()
     private val soundManager: SoundManager by lazy { SoundManager(assetsManager, runsOnMobile) }
@@ -57,7 +67,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             Bullet.init()
         }
         if (GameDebugSettings.SELECTED_VEHICLE != null) {
-            goToWarScreen(
+            goToGameplayScreen(
                 GameDebugSettings.SELECTED_VEHICLE,
                 GameDebugSettings.FORCE_AIM > 0
             )
@@ -80,26 +90,20 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             goToHangarScreen()
         } else {
             val parameters = param as GamePlayScreenSwitchParameters
-            goToWarScreen(parameters.selectedVehicle, parameters.autoAim)
+            goToGameplayScreen(parameters.selectedVehicle, parameters.autoAim)
         }
     }
 
-    override fun goToWarScreen(characterDefinition: CharacterDefinition, autoAim: Boolean) {
+    override fun goToGameplayScreen(selectedCharacter: CharacterDefinition, autoAim: Boolean) {
         setScreen(
-            GamePlayScreen(
-                runsOnMobile,
-                fpsTarget,
-                GeneralManagers(assetsManager, soundManager, dispatcher, this),
-                characterDefinition,
-                autoAim
-            )
+            gamePlayScreen
         )
+        gamePlayScreen.initialize(selectedCharacter, autoAim)
+        dispatcher.dispatchMessage(SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN.ordinal, CharacterColor.BROWN)
     }
 
     override fun goToHangarScreen() {
-        dispatcher.clearListeners()
         soundManager.stopAll(assetsManager)
-        screen.dispose()
         setScreen(hangarScreenImpl)
     }
 

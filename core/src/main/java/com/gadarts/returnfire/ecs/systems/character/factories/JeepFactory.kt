@@ -16,7 +16,6 @@ import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
-import com.gadarts.shared.assets.map.GameMapPlacedObject
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
 class JeepFactory(
@@ -25,14 +24,14 @@ class JeepFactory(
     private val entityBuilder: EntityBuilder,
     gameModelInstanceFactory: GameModelInstanceFactory,
 ) : CharacterFactory(gameModelInstanceFactory, entityBuilder, assetsManager) {
-    override fun create(base: GameMapPlacedObject, color: CharacterColor): Entity {
+    override fun create(position: Vector3, color: CharacterColor): Entity {
         val primarySpark = addSpark(
             assetsManager.getAssetByDefinition(ModelDefinition.MACHINE_GUN_SPARK),
             jeepPrimaryRelativePositionCalculator
         )
         val entityBuilder = entityBuilder.begin()
         addCharacterBaseComponents(
-            base,
+            position,
             TurretCharacterDefinition.JEEP,
             primarySpark,
             null,

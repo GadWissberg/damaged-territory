@@ -23,8 +23,8 @@ import com.gadarts.returnfire.ecs.components.StageComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.cd.DecalAnimation
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
-import com.gadarts.returnfire.ecs.components.pit.BaseComponent
-import com.gadarts.returnfire.ecs.components.pit.BaseDoorComponent
+import com.gadarts.returnfire.ecs.components.pit.ElevatorComponent
+import com.gadarts.returnfire.ecs.components.pit.ElevatorDoorComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
@@ -54,10 +54,10 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     private val ambEffectsHandlers = AmbEffectsHandlers(gamePlayManagers, this, mapSystemRelatedEntities)
     private val landingMark: ChildDecal by lazy { createLandingMark() }
 
-    private val bases: ImmutableArray<Entity> by lazy {
+    private val elevators: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(
-                BaseComponent::class.java,
+                ElevatorComponent::class.java,
             ).get()
         )
     }
@@ -298,11 +298,11 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     override fun findBase(entity: Entity): Entity {
         val characterColor = ComponentsMapper.character.get(entity).color
-        return bases.find { ComponentsMapper.hangar.get(it).color == characterColor }!!
+        return elevators.find { ComponentsMapper.elevator.get(it).color == characterColor }!!
     }
 
     override fun closeDoors(base: Entity) {
-        val baseComponent = ComponentsMapper.hangar.get(base)
+        val baseComponent = ComponentsMapper.elevator.get(base)
         baseComponent.close()
         baseComponent.baseDoorSoundId =
             gamePlayManagers.soundManager.play(
@@ -344,7 +344,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     override fun onSystemReady() {
         super.onSystemReady()
         MapInflaterImpl(gameSessionData, gamePlayManagers, engine).inflate()
-        bases.forEach {
+        elevators.forEach {
             initializeBase(it)
         }
         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.MAP_SYSTEM_READY.ordinal)
@@ -352,7 +352,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     private fun initializeBase(base: Entity) {
         addElevator(base)
-        val baseComponent = ComponentsMapper.hangar.get(base)
+        val baseComponent = ComponentsMapper.elevator.get(base)
         baseComponent.init(
             addBaseDoor(base, 0F, -1F),
             addBaseDoor(base, 180F, 1F)
@@ -386,7 +386,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             .addBaseDoorComponent(basePosition.x, basePosition.x + relativeTargetX)
             .finishAndAddToEngine()
         doorModelInstance.modelInstance.transform.rotate(Vector3.Y, rotationAroundY)
-        val baseComponent = ComponentsMapper.hangar.get(base)
+        val baseComponent = ComponentsMapper.elevator.get(base)
         val color =
             if (baseComponent.color == CharacterColor.BROWN) "pit_door_texture_brown" else "pit_door_texture_green"
         val textureAttribute =
@@ -400,7 +400,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
 
     private fun addElevator(base: Entity): Entity {
         val color =
-            if (ComponentsMapper.hangar.get(base).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
+            if (ComponentsMapper.elevator.get(base).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
         val texture =
             gamePlayManagers.assetsManager.getTexture(color)
         return gamePlayManagers.ecs.entityBuilder.begin()
@@ -448,8 +448,8 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     override fun update(deltaTime: Float) {
         if (isGamePaused()) return
 
-        for (base in bases) {
-            updateBaseDoors(base, deltaTime)
+        for (elevator in elevators) {
+            updateElevatorDoors(elevator, deltaTime)
         }
         ambEffectsHandlers.ambSoundsHandler.update(gamePlayManagers)
         ambEffectsHandlers.groundTextureAnimationHandler.update(deltaTime)
@@ -506,44 +506,44 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
 
-    private fun updateBaseDoors(base: Entity, deltaTime: Float) {
-        val baseComponent = ComponentsMapper.hangar.get(base)
-        if (baseComponent.isIdle()) return
+    private fun updateElevatorDoors(elevator: Entity, deltaTime: Float) {
+        val elevatorComponent = ComponentsMapper.elevator.get(elevator)
+        if (elevatorComponent.isIdle()) return
 
         val westDoorTransform =
-            ComponentsMapper.modelInstance.get(baseComponent.westDoor).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(elevatorComponent.westDoor).gameModelInstance.modelInstance.transform
         val eastDoorTransform =
-            ComponentsMapper.modelInstance.get(baseComponent.eastDoor).gameModelInstance.modelInstance.transform
-        val stepSize = deltaTime * baseComponent.doorMoveState
-        val westDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.westDoor)
-        val eastDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(baseComponent.eastDoor)
-        updateWestDoor(baseComponent, westDoorBaseDoorComponent, westDoorTransform, stepSize)
-        updateEastDoor(baseComponent, eastDoorBaseDoorComponent, eastDoorTransform, stepSize)
+            ComponentsMapper.modelInstance.get(elevatorComponent.eastDoor).gameModelInstance.modelInstance.transform
+        val stepSize = deltaTime * elevatorComponent.doorMoveState
+        val westDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(elevatorComponent.westDoor)
+        val eastDoorBaseDoorComponent = ComponentsMapper.baseDoor.get(elevatorComponent.eastDoor)
+        updateWestDoor(elevatorComponent, westDoorBaseDoorComponent, westDoorTransform, stepSize)
+        updateEastDoor(elevatorComponent, eastDoorBaseDoorComponent, eastDoorTransform, stepSize)
     }
 
     private fun updateEastDoor(
-        baseComponent: BaseComponent,
-        eastDoorBaseDoorComponent: BaseDoorComponent,
+        elevatorComponent: ElevatorComponent,
+        eastDoorElevatorDoorComponent: ElevatorDoorComponent,
         eastDoorTransform: Matrix4,
         stepSize: Float,
     ) {
-        if (TimeUtils.timeSinceMillis(baseComponent.latestCloseTime) < DOORS_DELAY) return
+        if (TimeUtils.timeSinceMillis(elevatorComponent.latestCloseTime) < DOORS_DELAY) return
 
         val eastDoorX = eastDoorTransform.getTranslation(auxVector2).x
-        val isOpening = baseComponent.doorMoveState > 0
-        val isClosing = baseComponent.doorMoveState < 0
-        if ((isOpening && eastDoorX < eastDoorBaseDoorComponent.targetX)
-            || (isClosing && eastDoorX > eastDoorBaseDoorComponent.initialX)
+        val isOpening = elevatorComponent.doorMoveState > 0
+        val isClosing = elevatorComponent.doorMoveState < 0
+        if ((isOpening && eastDoorX < eastDoorElevatorDoorComponent.targetX)
+            || (isClosing && eastDoorX > eastDoorElevatorDoorComponent.initialX)
         ) {
             eastDoorTransform.trn(stepSize, 0F, 0F).getTranslation(auxVector1)
-            auxVector1.x = max(eastDoorBaseDoorComponent.initialX, auxVector1.x)
-            auxVector1.x = min(eastDoorBaseDoorComponent.targetX, auxVector1.x)
+            auxVector1.x = max(eastDoorElevatorDoorComponent.initialX, auxVector1.x)
+            auxVector1.x = min(eastDoorElevatorDoorComponent.targetX, auxVector1.x)
             eastDoorTransform.setTranslation(auxVector1)
         } else {
-            baseComponent.setIdle()
+            elevatorComponent.setIdle()
             gamePlayManagers.soundManager.stop(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_MOVE),
-                baseComponent.baseDoorSoundId
+                elevatorComponent.baseDoorSoundId
             )
             gamePlayManagers.soundManager.play(
                 gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.BASE_DOOR_DONE),
@@ -553,22 +553,22 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
     private fun updateWestDoor(
-        baseComponent: BaseComponent,
-        westDoorBaseDoorComponent: BaseDoorComponent,
+        elevatorComponent: ElevatorComponent,
+        westDoorElevatorDoorComponent: ElevatorDoorComponent,
         westDoorTransform: Matrix4,
         stepSize: Float
     ) {
-        if (TimeUtils.timeSinceMillis(baseComponent.latestCloseTime) < DOORS_DELAY) return
+        if (TimeUtils.timeSinceMillis(elevatorComponent.latestCloseTime) < DOORS_DELAY) return
 
-        val isOpening = baseComponent.doorMoveState > 0
-        val isClosing = baseComponent.doorMoveState < 0
+        val isOpening = elevatorComponent.doorMoveState > 0
+        val isClosing = elevatorComponent.doorMoveState < 0
         val westDoorX = westDoorTransform.getTranslation(auxVector1).x
-        if ((isOpening && westDoorX > westDoorBaseDoorComponent.targetX)
-            || (isClosing && westDoorX < westDoorBaseDoorComponent.initialX)
+        if ((isOpening && westDoorX > westDoorElevatorDoorComponent.targetX)
+            || (isClosing && westDoorX < westDoorElevatorDoorComponent.initialX)
         ) {
             westDoorTransform.trn(-stepSize, 0F, 0F).getTranslation(auxVector1)
-            auxVector1.x = max(westDoorBaseDoorComponent.targetX, auxVector1.x)
-            auxVector1.x = min(westDoorBaseDoorComponent.initialX, auxVector1.x)
+            auxVector1.x = max(westDoorElevatorDoorComponent.targetX, auxVector1.x)
+            auxVector1.x = min(westDoorElevatorDoorComponent.initialX, auxVector1.x)
             westDoorTransform.setTranslation(auxVector1)
         }
     }
