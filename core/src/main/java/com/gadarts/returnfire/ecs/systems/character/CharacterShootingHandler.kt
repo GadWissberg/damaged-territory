@@ -195,9 +195,9 @@ open class CharacterShootingHandler(
         priShooting = false
     }
 
-    fun startSecondaryShooting(player: Entity?) {
+    fun startSecondaryShooting(character: Entity?) {
         secShooting = true
-        playDepletedSoundIfNeeded(player)
+        playDepletedSoundIfNeeded(character)
     }
 
     fun stopSecondaryShooting() {

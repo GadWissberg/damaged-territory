@@ -58,8 +58,18 @@ enum class AmbDefinition(
         corpseCollisionSound = SoundDefinition.ROCKS,
         corpsePartDestroyOnGroundImpact = true,
     ),
-    FLAG_BROWN(modelDefinition = ModelDefinition.FLAG, customTexture = "flag_texture_brown", outlineEffect = true),
-    FLAG_GREEN(modelDefinition = ModelDefinition.FLAG, customTexture = "flag_texture_green", outlineEffect = true),
+    FLAG_BROWN(
+        modelDefinition = ModelDefinition.FLAG,
+        customTexture = "flag_texture_brown",
+        outlineEffect = true,
+        placeable = false
+    ),
+    FLAG_GREEN(
+        modelDefinition = ModelDefinition.FLAG,
+        customTexture = "flag_texture_green",
+        outlineEffect = true,
+        placeable = false
+    ),
     FLAG_FLOOR_BROWN(
         modelDefinition = ModelDefinition.FLAG_FLOOR,
         placeable = true,

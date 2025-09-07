@@ -4,17 +4,18 @@ package com.gadarts.returnfire.ecs.systems.ai
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
-import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.ai.GroundCharacterAiComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.ai.logic.AiLogicHandler
+import com.gadarts.returnfire.ecs.systems.ai.logic.AiCharacterLogicHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
@@ -23,6 +24,7 @@ import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
 
 class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
+
     private val aiComponentInitializers = mapOf(
         SimpleCharacterDefinition.APACHE to { entity: Entity ->
             gamePlayManagers.ecs.entityBuilder.addApacheAiComponentToEntity(
@@ -52,12 +54,12 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         )
     }
 
-    private val aiLogicHandler: AiLogicHandler by lazy {
-        AiLogicHandler(
-            gameSessionData, gamePlayManagers, autoAim, engine.getEntitiesFor(
+    private val aiCharacterLogicHandler: AiCharacterLogicHandler by lazy {
+        AiCharacterLogicHandler(
+            gameSessionData, engine.getEntitiesFor(
                 Family.all(BaseAiComponent::class.java)
                     .get()
-            ),
+            ), gamePlayManagers, autoAim,
             engine
         )
     }
@@ -85,23 +87,19 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                     if (GameDebugSettings.FORCE_ENEMY_HP >= 0) {
                         ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_ENEMY_HP
                     }
-                    val player = gameSessionData.gamePlayData.player
-                    if (player != null) {
-                        setTargetForAi(entity, player)
-                    }
-                } else {
-                    aiEntities.forEach {
-                        setTargetForAi(it, entity)
-                    }
+                    aiCharacterLogicHandler.onCharacterCreated(entity)
                 }
             }
         },
     )
 
     override fun onSystemReady() {
+        OpponentEnteredGameplayScreenEventData.set(
+            CharacterColor.GREEN,
+            if (MathUtils.randomBoolean()) SimpleCharacterDefinition.APACHE else TurretCharacterDefinition.TANK
+        )
         gamePlayManagers.dispatcher.dispatchMessage(
             SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN.ordinal,
-            CharacterColor.GREEN
         )
     }
 
@@ -113,7 +111,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
             || ComponentsMapper.boarding.get(player).isBoarding()
         ) return
 
-        aiLogicHandler.update(deltaTime)
+        aiCharacterLogicHandler.update(deltaTime)
     }
 
 
@@ -122,20 +120,10 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
     override fun dispose() {
         autoAim.dispose()
-        aiLogicHandler.dispose()
+        aiCharacterLogicHandler.dispose()
     }
 
 
-    private fun setTargetForAi(character: Entity, target: Entity) {
-        ComponentsMapper.ai.get(character).target = target
-        if (ComponentsMapper.aiTurret.has(character)) {
-            ComponentsMapper.aiTurret.get(character).target = target
-        }
-    }
 
-
-    private val aiEntities: ImmutableArray<Entity> by lazy {
-        engine.getEntitiesFor(Family.all(BaseAiComponent::class.java).get())
-    }
 
 }

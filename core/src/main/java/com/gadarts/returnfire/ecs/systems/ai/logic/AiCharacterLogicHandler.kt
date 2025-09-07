@@ -9,18 +9,22 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
-import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.returnfire.ecs.systems.ai.AiGoals
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.managers.GamePlayManagers
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
-class AiLogicHandler(
-    gameSessionData: GameSessionData,
+class AiCharacterLogicHandler(
+    private val gameSessionData: GameSessionData,
+    private val aiCharacterEntities: ImmutableArray<Entity>,
     gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject,
-    private val aiCharacterEntities: ImmutableArray<Entity>,
     engine: Engine
 ) : Disposable {
+    private var goal: AiGoals = AiGoals.CLEAR_WAY_TO_RIVAL_FLAG
+
     private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(Family.all(TurretComponent::class.java, BaseAiComponent::class.java).get())
     }
@@ -84,6 +88,20 @@ class AiLogicHandler(
     override fun dispose() {
         logics.forEach { (_, aiLogic) ->
             aiLogic.dispose()
+        }
+    }
+
+    fun onCharacterCreated(character: Entity) {
+        if (goal == AiGoals.CLEAR_WAY_TO_RIVAL_FLAG) {
+            val rivalFlag = gameSessionData.gamePlayData.flags[CharacterColor.BROWN]
+            val baseAiComponent = ComponentsMapper.ai.get(character)
+            if (rivalFlag != null) {
+                baseAiComponent.target = rivalFlag
+                if (ComponentsMapper.aiTurret.has(character)) {
+                    ComponentsMapper.aiTurret.get(character).target = rivalFlag
+                }
+            }
+            baseAiComponent.goal = AiGoals.CLEAR_WAY_TO_RIVAL_FLAG
         }
     }
 }

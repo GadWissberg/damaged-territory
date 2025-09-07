@@ -10,6 +10,8 @@ import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
+import com.gadarts.returnfire.ecs.systems.ai.AiGoals
 import com.gadarts.returnfire.ecs.systems.ai.AiStatus
 import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
@@ -71,13 +73,13 @@ class AiApacheLogic(
     private fun getPositionOfCurrentTarget(
         character: Entity,
     ): Vector3 {
-        val playerModelInstance =
-            ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
         val aiComponent = ComponentsMapper.ai.get(character)
+        val targetModelInstance =
+            ComponentsMapper.modelInstance.get(aiComponent.target).gameModelInstance.modelInstance
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
         val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
         return if (!returningToBase && apacheAiComponent.runAway.isZero) {
-            playerModelInstance.transform.getTranslation(
+            targetModelInstance.transform.getTranslation(
                 auxVector4
             )
         } else if (!apacheAiComponent.runAway.isZero) {
@@ -97,28 +99,36 @@ class AiApacheLogic(
         characterPosition.y = 0F
         targetPosition.y = 0F
         val distance = decideMovement(characterPosition, targetPosition, character)
-        val player = gameSessionData.gamePlayData.player
+        val aiComponent = ComponentsMapper.ai.get(character)
+        val target = aiComponent.target
         if (distance < MAX_DISTANCE_TO_THRUST_TO_TARGET
             && !GameDebugSettings.AI_ATTACK_DISABLED
-            && player != null
-            && !ComponentsMapper.character.get(
-                player
+            && target != null
+            && (!ComponentsMapper.character.has(target) || !ComponentsMapper.character.get(
+                target
             ).dead
+                )
         ) {
-            shootingHandler.startPrimaryShooting(null)
-            shootingHandler.startSecondaryShooting(gameSessionData.gamePlayData.player)
+            when (aiComponent.goal) {
+                AiGoals.CLEAR_WAY_TO_RIVAL_FLAG -> {
+                    goBackToBase(aiComponent, character)
+                }
+
+                AiGoals.GO_BACK_TO_BASE -> {
+                }
+
+                else -> {
+                    shootingHandler.startPrimaryShooting(null)
+                    shootingHandler.startSecondaryShooting(null)
+                }
+            }
         } else {
             stopAttack()
         }
         val characterComponent = ComponentsMapper.character.get(character)
-        val aiComponent = ComponentsMapper.ai.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
-        if (shouldReturnToBase(character)) {
-            aiComponent.state = AiStatus.MOVING
-            aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(
-                character
-            ).color]
-            stopAttack()
+        if (shouldReturnToBase(character) && aiComponent.goal != AiGoals.GO_BACK_TO_BASE) {
+            goBackToBase(aiComponent, character)
         } else if (apacheAiComponent.runAway.isZero) {
             val lastHpCheck = apacheAiComponent.lastHpCheck
             if (characterComponent.hp <= lastHpCheck - characterComponent.definition.getHP() / 4F) {
@@ -135,6 +145,18 @@ class AiApacheLogic(
                 stopAttack()
             }
         }
+    }
+
+    private fun goBackToBase(
+        aiComponent: BaseAiComponent,
+        character: Entity
+    ) {
+        aiComponent.goal = AiGoals.GO_BACK_TO_BASE
+        aiComponent.state = AiStatus.MOVING
+        aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(
+            character
+        ).color]
+        stopAttack()
     }
 
     private fun stopAttack() {

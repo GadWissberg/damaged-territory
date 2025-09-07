@@ -5,15 +5,14 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.pit.ElevatorComponent
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.definitions.DeployableCharacters
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.CharacterDefinition
@@ -26,7 +25,7 @@ class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOn
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val map = gamePlayManagers.assetsManager.getAssetByDefinition(GameDebugSettings.MAP)
-        val colorInMessage = msg.extraInfo as CharacterColor
+        val colorInMessage = OpponentEnteredGameplayScreenEventData.characterColor
         val selectedElevator = elevatorEntities.first {
             val base =
                 map.objects.find { placedObject ->
@@ -60,7 +59,7 @@ class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOn
     ): CharacterDefinition {
         return if (characterColor == CharacterColor.GREEN) {
             GameDebugSettings.SELECTED_VEHICLE_AI
-                ?: DeployableCharacters.list[MathUtils.random(DeployableCharacters.list.size - 1)]
+                ?: OpponentEnteredGameplayScreenEventData.selectedCharacter
         } else gameSessionData.selectedCharacter
     }
 

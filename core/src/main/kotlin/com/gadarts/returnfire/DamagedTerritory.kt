@@ -7,6 +7,7 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.physics.bullet.Bullet
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.ScreenSwitchParameters
@@ -99,6 +100,10 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             gamePlayScreen
         )
         gamePlayScreen.initialize(selectedCharacter, autoAim)
+        OpponentEnteredGameplayScreenEventData.set(
+            CharacterColor.BROWN,
+            selectedCharacter
+        )
         dispatcher.dispatchMessage(SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN.ordinal, CharacterColor.BROWN)
     }
 
