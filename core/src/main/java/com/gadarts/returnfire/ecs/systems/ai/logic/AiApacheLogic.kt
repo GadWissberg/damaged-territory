@@ -1,7 +1,6 @@
 package com.gadarts.returnfire.ecs.systems.ai.logic
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -10,27 +9,22 @@ import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
-import com.gadarts.returnfire.ecs.systems.ai.AiGoals
 import com.gadarts.returnfire.ecs.systems.ai.AiStatus
 import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
-import com.gadarts.returnfire.managers.SoundManager
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.ModelUtils
-import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
 
 class AiApacheLogic(
     private val gameSessionData: GameSessionData,
-    dispatcher: MessageDispatcher,
-    soundManager: SoundManager,
-    assetsManager: GameAssetManager,
+    gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject
-) : AiCharacterLogic(dispatcher) {
+) : AiCharacterLogic(gamePlayManagers.dispatcher, gameSessionData) {
     private var nextStrafeActivation: Long = 0
     private val shootingHandler = CharacterShootingHandler(
-        soundManager, assetsManager.getAssetByDefinition(
+        gamePlayManagers.soundManager, gamePlayManagers.assetsManager.getAssetByDefinition(
             SoundDefinition.EMPTY
         )
     )
@@ -73,13 +67,13 @@ class AiApacheLogic(
     private fun getPositionOfCurrentTarget(
         character: Entity,
     ): Vector3 {
+        val playerModelInstance =
+            ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
         val aiComponent = ComponentsMapper.ai.get(character)
-        val targetModelInstance =
-            ComponentsMapper.modelInstance.get(aiComponent.target).gameModelInstance.modelInstance
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
         val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
         return if (!returningToBase && apacheAiComponent.runAway.isZero) {
-            targetModelInstance.transform.getTranslation(
+            playerModelInstance.transform.getTranslation(
                 auxVector4
             )
         } else if (!apacheAiComponent.runAway.isZero) {
@@ -99,36 +93,28 @@ class AiApacheLogic(
         characterPosition.y = 0F
         targetPosition.y = 0F
         val distance = decideMovement(characterPosition, targetPosition, character)
-        val aiComponent = ComponentsMapper.ai.get(character)
-        val target = aiComponent.target
+        val player = gameSessionData.gamePlayData.player
         if (distance < MAX_DISTANCE_TO_THRUST_TO_TARGET
             && !GameDebugSettings.AI_ATTACK_DISABLED
-            && target != null
-            && (!ComponentsMapper.character.has(target) || !ComponentsMapper.character.get(
-                target
+            && player != null
+            && !ComponentsMapper.character.get(
+                player
             ).dead
-                )
         ) {
-            when (aiComponent.goal) {
-                AiGoals.CLEAR_WAY_TO_RIVAL_FLAG -> {
-                    goBackToBase(aiComponent, character)
-                }
-
-                AiGoals.GO_BACK_TO_BASE -> {
-                }
-
-                else -> {
-                    shootingHandler.startPrimaryShooting(null)
-                    shootingHandler.startSecondaryShooting(null)
-                }
-            }
+            shootingHandler.startPrimaryShooting(null)
+            shootingHandler.startSecondaryShooting(gameSessionData.gamePlayData.player)
         } else {
             stopAttack()
         }
         val characterComponent = ComponentsMapper.character.get(character)
+        val aiComponent = ComponentsMapper.ai.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
-        if (shouldReturnToBase(character) && aiComponent.goal != AiGoals.GO_BACK_TO_BASE) {
-            goBackToBase(aiComponent, character)
+        if (shouldReturnToBase(character)) {
+            aiComponent.state = AiStatus.MOVING
+            aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(
+                character
+            ).color]
+            stopAttack()
         } else if (apacheAiComponent.runAway.isZero) {
             val lastHpCheck = apacheAiComponent.lastHpCheck
             if (characterComponent.hp <= lastHpCheck - characterComponent.definition.getHP() / 4F) {
@@ -145,18 +131,6 @@ class AiApacheLogic(
                 stopAttack()
             }
         }
-    }
-
-    private fun goBackToBase(
-        aiComponent: BaseAiComponent,
-        character: Entity
-    ) {
-        aiComponent.goal = AiGoals.GO_BACK_TO_BASE
-        aiComponent.state = AiStatus.MOVING
-        aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(
-            character
-        ).color]
-        stopAttack()
     }
 
     private fun stopAttack() {

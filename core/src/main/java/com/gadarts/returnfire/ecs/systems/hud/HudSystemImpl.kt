@@ -16,10 +16,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.FlagComponent
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.hud.Minimap
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.JOYSTICK_PADDING
 import com.gadarts.returnfire.ecs.systems.hud.osii.OnScreenInputInitializerApache
@@ -35,7 +37,15 @@ import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     GameEntitySystem(gamePlayManagers) {
 
-    private val hudInputProcessor by lazy { HudInputProcessor(gameSessionData) }
+    private val minimap by lazy {
+        Minimap(
+            gameSessionData.mapData.loadedMap,
+            gamePlayManagers.assetsManager,
+            gameSessionData.gamePlayData,
+            gamePlayManagers.ecs.engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())
+        )
+    }
+    private val hudInputProcessor by lazy { HudInputProcessor(minimap, gameSessionData.gamePlayData) }
     private val ui: Table by lazy { addUiTable() }
     private val radar: com.gadarts.returnfire.ecs.systems.hud.radar.Radar by lazy {
         com.gadarts.returnfire.ecs.systems.hud.radar.Radar(
@@ -133,7 +143,6 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
         val console = gameSessionData.hudData.console
         val stage = gameSessionData.hudData.stage
         stage.addActor(console)
-        val minimap = gameSessionData.hudData.minimap
         minimap.isVisible = false
         stage.addActor(minimap)
         val minimapSize = Gdx.graphics.width / 2F

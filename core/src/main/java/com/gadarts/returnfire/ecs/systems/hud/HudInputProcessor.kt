@@ -2,14 +2,17 @@ package com.gadarts.returnfire.ecs.systems.hud
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputProcessor
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.GameSessionDataGameplay
+import com.gadarts.returnfire.ecs.systems.data.SessionState
+import com.gadarts.returnfire.ecs.systems.data.hud.Minimap
 
-class HudInputProcessor(private val gameSessionData: GameSessionData) : InputProcessor {
+class HudInputProcessor(private val minimap: Minimap, private val gameSessionDataGameplay: GameSessionDataGameplay) :
+    InputProcessor {
 
     override fun keyDown(keycode: Int): Boolean {
         if (keycode == Input.Keys.TAB) {
-            val minimap = gameSessionData.hudData.minimap
             minimap.isVisible = !minimap.isVisible
+            gameSessionDataGameplay.sessionState = if (minimap.isVisible) SessionState.PAUSED else SessionState.PLAYING
             return true
         }
         return false

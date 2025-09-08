@@ -1,10 +1,14 @@
 package com.gadarts.returnfire.ecs.systems.data.hud
 
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.data.GameSessionDataGameplay
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.returnfire.utils.ModelUtils
@@ -16,10 +20,12 @@ import com.gadarts.shared.assets.map.GameMap
 class Minimap(
     private val gameMap: GameMap,
     private val assetsManager: GameAssetManager,
-    private val gamePlayData: GameSessionDataGameplay
+    private val gamePlayData: GameSessionDataGameplay,
+    private val flags: ImmutableArray<Entity>
 ) : Actor() {
     private val texturesCache = mutableMapOf<TextureDefinition, Texture>()
     private val locationIndicatorTexture by lazy { assetsManager.getTexture("minimap_location") }
+    private val flagIndicatorTexture by lazy { assetsManager.getTexture("minimap_flag") }
     private var flickerTime = 0f
     override fun act(delta: Float) {
         super.act(delta)
@@ -34,7 +40,9 @@ class Minimap(
         }
 
         drawPlayer(batch)
+        drawFlags(batch)
     }
+
 
     private fun drawLayer(
         batch: Batch,
@@ -69,29 +77,53 @@ class Minimap(
     }
 
     private fun drawPlayer(batch: Batch) {
-        val cols = gameMap.width
-        val rows = gameMap.depth
-        val scaleX = width / cols
-        val scaleY = height / rows
         val player = gamePlayData.player
         if (player != null) {
             val position: Vector3 = ModelUtils.getPositionOfModel(player)
             val playerX = position.x.toInt()
             val playerY = position.z.toInt()
-            if (playerY >= 0 && playerX >= 0 && playerY < gameMap.depth && playerX < gameMap.width) {
-                val drawPlayerX = playerX * scaleX + x
-                val drawPlayerY = height - (playerY + 1) * scaleY + y
-                val alpha = 0.5f + 0.5f * MathUtils.sin(flickerTime * 5f)
-                val indicatorSize = locationIndicatorTexture.width
-
-                batch.setColor(1f, 1f, 1f, alpha)
-                batch.draw(
-                    locationIndicatorTexture,
-                    drawPlayerX + (scaleX - indicatorSize) / 2f,
-                    drawPlayerY + (scaleY - indicatorSize) / 2f,
-                )
-                batch.setColor(1f, 1f, 1f, 1f)
-            }
+            drawIcon(playerX, playerY, batch, locationIndicatorTexture, auxColor.set(Color.WHITE))
         }
+    }
+
+    private fun drawFlags(batch: Batch) {
+        for (flag in flags) {
+            val position: Vector3 = ModelUtils.getPositionOfModel(flag)
+            val flagX = position.x.toInt()
+            val flagY = position.z.toInt()
+            val color = ComponentsMapper.flag.get(flag).color
+            drawIcon(flagX, flagY, batch, flagIndicatorTexture, auxColor.set(color.color))
+        }
+    }
+
+    private fun drawIcon(
+        iconX: Int,
+        iconY: Int,
+        batch: Batch,
+        texture: Texture,
+        color: Color,
+    ) {
+        if (iconY >= 0 && iconX >= 0 && iconY < gameMap.depth && iconX < gameMap.width) {
+            val cols = gameMap.width
+            val rows = gameMap.depth
+            val scaleX = width / cols
+            val scaleY = height / rows
+            val drawIconX = iconX * scaleX + x
+            val drawIconY = height - (iconY + 1) * scaleY + y
+            val alpha = 0.5f + 0.5f * MathUtils.sin(flickerTime * 5f)
+            val indicatorSize = texture.width
+
+            batch.setColor(color.r, color.g, color.b, alpha)
+            batch.draw(
+                texture,
+                drawIconX + (scaleX - indicatorSize) / 2f,
+                drawIconY + (scaleY - indicatorSize) / 2f,
+            )
+            batch.setColor(1f, 1f, 1f, 1f)
+        }
+    }
+
+    companion object {
+        private val auxColor = Color()
     }
 }

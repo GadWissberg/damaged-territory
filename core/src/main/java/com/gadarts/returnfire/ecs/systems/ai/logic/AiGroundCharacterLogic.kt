@@ -38,7 +38,7 @@ class AiGroundCharacterLogic(
     private val gameSessionData: GameSessionData,
     autoAim: btPairCachingGhostObject,
     private val gamePlayManagers: GamePlayManagers,
-) : AiCharacterLogic(gamePlayManagers.dispatcher), Disposable {
+) : AiCharacterLogic(gamePlayManagers.dispatcher, gameSessionData), Disposable {
     private val movementHandler: TankMovementHandlerDesktop by lazy {
         val movementHandler = TankMovementHandlerDesktop()
         movementHandler

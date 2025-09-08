@@ -6,9 +6,15 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ComponentsMapper.ai
+import com.gadarts.returnfire.ecs.systems.ai.AiGoals
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.shared.data.CharacterColor
 
-abstract class AiCharacterLogic(protected val dispatcher: MessageDispatcher) : Disposable {
+abstract class AiCharacterLogic(
+    protected val dispatcher: MessageDispatcher,
+    private val gameSessionData: GameSessionData
+) : Disposable {
     abstract fun preUpdate(character: Entity, deltaTime: Float)
     abstract fun update(character: Entity, deltaTime: Float)
     fun onboard(character: Entity, epsilon: Float) {
@@ -49,6 +55,23 @@ abstract class AiCharacterLogic(protected val dispatcher: MessageDispatcher) : D
     override fun dispose() {
 
     }
+
+    fun onCharacterCreated(character: Entity) {
+        targetPlayerFlag(character)
+    }
+
+    protected fun targetPlayerFlag(character: Entity) {
+        val rivalFlag = gameSessionData.gamePlayData.flags[CharacterColor.BROWN]
+        val baseAiComponent = ai.get(character)
+        if (rivalFlag != null) {
+            baseAiComponent.target = rivalFlag
+            if (ComponentsMapper.aiTurret.has(character)) {
+                ComponentsMapper.aiTurret.get(character).target = rivalFlag
+            }
+        }
+        baseAiComponent.goal = AiGoals.CLEAR_WAY_TO_RIVAL_FLAG
+    }
+
     companion object {
         val auxVector1 = Vector3()
         val auxVector2 = Vector3()

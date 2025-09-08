@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.SessionState
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.managers.GamePlayManagers
 
@@ -42,7 +43,6 @@ abstract class GameEntitySystem(protected val gamePlayManagers: GamePlayManagers
     fun isGamePaused(): Boolean {
         val hudData = gameSessionData.hudData
         return hudData.console.isActive()
-                || hudData.minimap.isVisible
-                || gameSessionData.gamePlayData.sessionFinished
+            || gameSessionData.gamePlayData.sessionState != SessionState.PLAYING
     }
 }

@@ -12,11 +12,10 @@ import com.gadarts.returnfire.ecs.components.turret.TurretComponent
 import com.gadarts.returnfire.ecs.systems.ai.AiGoals
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 
-class AiCharacterLogicHandler(
+class AiLogicHandler(
     private val gameSessionData: GameSessionData,
     private val aiCharacterEntities: ImmutableArray<Entity>,
     gamePlayManagers: GamePlayManagers,
@@ -33,9 +32,7 @@ class AiCharacterLogicHandler(
     private val logics = mapOf(
         SimpleCharacterDefinition.APACHE to AiApacheLogic(
             gameSessionData,
-            gamePlayManagers.dispatcher,
-            gamePlayManagers.soundManager,
-            gamePlayManagers.assetsManager,
+            gamePlayManagers,
             autoAim
         ),
         TurretCharacterDefinition.TANK to AiGroundCharacterLogic(
@@ -93,15 +90,8 @@ class AiCharacterLogicHandler(
 
     fun onCharacterCreated(character: Entity) {
         if (goal == AiGoals.CLEAR_WAY_TO_RIVAL_FLAG) {
-            val rivalFlag = gameSessionData.gamePlayData.flags[CharacterColor.BROWN]
-            val baseAiComponent = ComponentsMapper.ai.get(character)
-            if (rivalFlag != null) {
-                baseAiComponent.target = rivalFlag
-                if (ComponentsMapper.aiTurret.has(character)) {
-                    ComponentsMapper.aiTurret.get(character).target = rivalFlag
-                }
-            }
-            baseAiComponent.goal = AiGoals.CLEAR_WAY_TO_RIVAL_FLAG
+            val logic = logics[ComponentsMapper.character.get(character).definition]
+            logic?.onCharacterCreated(character)
         }
     }
 }

@@ -118,6 +118,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         gamePlayManagers: GamePlayManagers
     ) {
         val character = msg.extraInfo as Entity
+        if (ComponentsMapper.boarding.has(character) && ComponentsMapper.boarding.get(character).isBoarding()) return
+
         val characterComponent = ComponentsMapper.character.get(character)
         characterComponent.dead = true
         if (ComponentsMapper.ambSound.has(character)) {

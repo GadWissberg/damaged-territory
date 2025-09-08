@@ -23,7 +23,7 @@ class GameSessionData(
     val gamePlayData = GameSessionDataGameplay(assetsManager, engine)
     val mapData = GameSessionDataMap(assetsManager)
     val hudData =
-        GameSessionDataHud(console, assetsManager, mapData.loadedMap, gamePlayData)
+        GameSessionDataHud(console, assetsManager)
     val renderData = GameSessionDataRender()
 
 
@@ -41,7 +41,7 @@ class GameSessionData(
     }
 
     fun finishSession() {
-        gamePlayData.sessionFinished = true
+        gamePlayData.sessionState = SessionState.GAME_OVER
         dispose()
     }
 }

@@ -15,5 +15,5 @@ data class GamePlayManagers(
     val screensManager: ScreensManager,
     val ecs: EcsManager,
     val stainsHandler: StainsHandler,
-    val pathFinder: MapPathFinder
+    val pathFinder: MapPathFinder,
 )

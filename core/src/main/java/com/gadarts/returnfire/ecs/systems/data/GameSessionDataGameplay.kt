@@ -12,12 +12,12 @@ import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.data.CharacterColor
 
 class GameSessionDataGameplay(assetsManager: GameAssetManager, engine: PooledEngine) : Disposable {
+    var sessionState: SessionState = SessionState.PLAYING
     val flags: Map<CharacterColor, Entity> by lazy {
         engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())
             .associateBy({ ComponentsMapper.flag.get(it).color }, { it })
     }
     var player: Entity? = null
-    var sessionFinished: Boolean = false
     lateinit var playerMovementHandler: VehicleMovementHandler
     val pools by lazy { GameSessionDataPools(assetsManager) }
     override fun dispose() {

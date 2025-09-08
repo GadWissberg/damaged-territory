@@ -30,6 +30,7 @@ import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.SessionState
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.render.renderers.ModelsRenderer
 import com.gadarts.returnfire.managers.GamePlayManagers
@@ -111,7 +112,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     override fun update(deltaTime: Float) {
-        if (gameSessionData.gamePlayData.sessionFinished) return
+        if (gameSessionData.gamePlayData.sessionState == SessionState.GAME_OVER) return
 
         modelsRenderer.renderShadows(deltaTime)
         GeneralUtils.clearScreen()

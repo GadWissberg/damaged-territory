@@ -1,5 +1,7 @@
 package com.gadarts.shared.data
 
-enum class CharacterColor {
-    BROWN, GREEN
+import com.badlogic.gdx.graphics.Color
+
+enum class CharacterColor(val color: Color) {
+    BROWN(Color.BROWN), GREEN(Color.GREEN),
 }

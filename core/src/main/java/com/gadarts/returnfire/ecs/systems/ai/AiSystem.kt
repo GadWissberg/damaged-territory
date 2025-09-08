@@ -12,7 +12,7 @@ import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.ai.GroundCharacterAiComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.ai.logic.AiCharacterLogicHandler
+import com.gadarts.returnfire.ecs.systems.ai.logic.AiLogicHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
@@ -54,8 +54,8 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
         )
     }
 
-    private val aiCharacterLogicHandler: AiCharacterLogicHandler by lazy {
-        AiCharacterLogicHandler(
+    private val aiLogicHandler: AiLogicHandler by lazy {
+        AiLogicHandler(
             gameSessionData, engine.getEntitiesFor(
                 Family.all(BaseAiComponent::class.java)
                     .get()
@@ -87,7 +87,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
                     if (GameDebugSettings.FORCE_ENEMY_HP >= 0) {
                         ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_ENEMY_HP
                     }
-                    aiCharacterLogicHandler.onCharacterCreated(entity)
+                    aiLogicHandler.onCharacterCreated(entity)
                 }
             }
         },
@@ -111,7 +111,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
             || ComponentsMapper.boarding.get(player).isBoarding()
         ) return
 
-        aiCharacterLogicHandler.update(deltaTime)
+        aiLogicHandler.update(deltaTime)
     }
 
 
@@ -120,7 +120,7 @@ class AiSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayMa
 
     override fun dispose() {
         autoAim.dispose()
-        aiCharacterLogicHandler.dispose()
+        aiLogicHandler.dispose()
     }
 
 
