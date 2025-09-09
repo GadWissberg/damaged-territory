@@ -62,25 +62,29 @@ enum class AmbDefinition(
         modelDefinition = ModelDefinition.FLAG,
         customTexture = "flag_texture_brown",
         outlineEffect = true,
-        placeable = false
+        placeable = false,
+        marksNodeAsBlocked = false
     ),
     FLAG_GREEN(
         modelDefinition = ModelDefinition.FLAG,
         customTexture = "flag_texture_green",
         outlineEffect = true,
-        placeable = false
+        placeable = false,
+        marksNodeAsBlocked = false
     ),
     FLAG_FLOOR_BROWN(
         modelDefinition = ModelDefinition.FLAG_FLOOR,
         placeable = true,
         customTexture = "flag_floor_texture_brown",
-        onCreation = OnFlagFloorCreation(CharacterColor.BROWN)
+        onCreation = OnFlagFloorCreation(CharacterColor.BROWN),
+        marksNodeAsBlocked = false
     ),
     FLAG_FLOOR_GREEN(
         modelDefinition = ModelDefinition.FLAG_FLOOR,
         placeable = true,
         customTexture = "flag_floor_texture_green",
-        onCreation = OnFlagFloorCreation(CharacterColor.GREEN)
+        onCreation = OnFlagFloorCreation(CharacterColor.GREEN),
+        marksNodeAsBlocked = false
     ),
     BASE_BROWN(
         modelDefinition = ModelDefinition.PIT,

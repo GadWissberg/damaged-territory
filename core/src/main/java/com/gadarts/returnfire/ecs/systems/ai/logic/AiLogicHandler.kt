@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
-import com.gadarts.returnfire.ecs.systems.ai.AiGoals
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
@@ -22,7 +21,6 @@ class AiLogicHandler(
     autoAim: btPairCachingGhostObject,
     engine: Engine
 ) : Disposable {
-    private var goal: AiGoals = AiGoals.CLEAR_WAY_TO_RIVAL_FLAG
 
     private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(Family.all(TurretComponent::class.java, BaseAiComponent::class.java).get())
@@ -40,10 +38,10 @@ class AiLogicHandler(
             autoAim,
             gamePlayManagers
         ),
-        TurretCharacterDefinition.JEEP to AiGroundCharacterLogic(
+        TurretCharacterDefinition.JEEP to AiJeepCharacterLogic(
             gameSessionData,
+            gamePlayManagers,
             autoAim,
-            gamePlayManagers
         )
     )
 
@@ -89,9 +87,7 @@ class AiLogicHandler(
     }
 
     fun onCharacterCreated(character: Entity) {
-        if (goal == AiGoals.CLEAR_WAY_TO_RIVAL_FLAG) {
-            val logic = logics[ComponentsMapper.character.get(character).definition]
-            logic?.onCharacterCreated(character)
-        }
+        val logic = logics[ComponentsMapper.character.get(character).definition]
+        logic?.onCharacterCreated(character)
     }
 }

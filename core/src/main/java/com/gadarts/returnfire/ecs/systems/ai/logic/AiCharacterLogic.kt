@@ -5,7 +5,7 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.ComponentsMapper.ai
+import com.gadarts.returnfire.ecs.components.ComponentsMapper.baseAi
 import com.gadarts.returnfire.ecs.systems.ai.AiGoals
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
@@ -23,7 +23,7 @@ abstract class AiCharacterLogic(
                 auxVector1
             )
         val hangarStageTransform =
-            ComponentsMapper.modelInstance.get(ai.get(character).target).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(baseAi.get(character).target).gameModelInstance.modelInstance.transform
         val hangarStagePosition =
             hangarStageTransform.getTranslation(
                 auxVector2
@@ -45,7 +45,7 @@ abstract class AiCharacterLogic(
     protected fun shouldReturnToBase(
         character: Entity,
     ): Boolean {
-        val aiComponent = ai.get(character)
+        val aiComponent = baseAi.get(character)
         val characterComponent = ComponentsMapper.character.get(character)
         val target = aiComponent.target
         val initialHp = characterComponent.definition.getHP()
@@ -60,16 +60,16 @@ abstract class AiCharacterLogic(
         targetPlayerFlag(character)
     }
 
-    protected fun targetPlayerFlag(character: Entity) {
+    private fun targetPlayerFlag(character: Entity) {
         val rivalFlag = gameSessionData.gamePlayData.flags[CharacterColor.BROWN]
-        val baseAiComponent = ai.get(character)
+        val baseAiComponent = baseAi.get(character)
         if (rivalFlag != null) {
             baseAiComponent.target = rivalFlag
             if (ComponentsMapper.aiTurret.has(character)) {
                 ComponentsMapper.aiTurret.get(character).target = rivalFlag
             }
         }
-        baseAiComponent.goal = AiGoals.CLEAR_WAY_TO_RIVAL_FLAG
+        baseAiComponent.goal = AiGoals.GET_THE_RIVAL_FLAG
     }
 
     companion object {

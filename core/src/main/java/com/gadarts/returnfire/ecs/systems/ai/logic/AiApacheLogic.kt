@@ -38,7 +38,7 @@ class AiApacheLogic(
     }
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
-        val aiComponent = ComponentsMapper.ai.get(character)
+        val aiComponent = ComponentsMapper.baseAi.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
         val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
         val targetPosition = getPositionOfCurrentTarget(character)
@@ -69,7 +69,7 @@ class AiApacheLogic(
     ): Vector3 {
         val playerModelInstance =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
-        val aiComponent = ComponentsMapper.ai.get(character)
+        val aiComponent = ComponentsMapper.baseAi.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
         val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
         return if (!returningToBase && apacheAiComponent.runAway.isZero) {
@@ -107,7 +107,7 @@ class AiApacheLogic(
             stopAttack()
         }
         val characterComponent = ComponentsMapper.character.get(character)
-        val aiComponent = ComponentsMapper.ai.get(character)
+        val aiComponent = ComponentsMapper.baseAi.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
         if (shouldReturnToBase(character)) {
             aiComponent.state = AiStatus.MOVING

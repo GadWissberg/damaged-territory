@@ -78,7 +78,7 @@ class BulletEngineHandler(
                     COLLISION_GROUP_PLAYER,
                     mask
                 )
-            } else if (ComponentsMapper.ai.has(entity)) {
+            } else if (ComponentsMapper.baseAi.has(entity)) {
                 collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_AI,
