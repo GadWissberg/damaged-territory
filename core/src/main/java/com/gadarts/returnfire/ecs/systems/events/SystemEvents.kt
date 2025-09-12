@@ -38,5 +38,6 @@ enum class SystemEvents {
     REMOVE_ENTITY,
     GAME_OVER,
     FLAG_TAKEN,
-    FLAG_DROPPED
+    FLAG_DROPPED,
+    FLAG_RETURNED
 }

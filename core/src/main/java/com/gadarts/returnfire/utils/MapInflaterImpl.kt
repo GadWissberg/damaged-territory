@@ -343,6 +343,8 @@ class MapInflaterImpl(
             entityBuilder.addTreeComponentToEntity(entity)
         } else if (ambDefinition.getModelDefinition() == ModelDefinition.FLAG) {
             entityBuilder.addFlagComponentToEntity(entity, ambDefinitionToColor(ambDefinition))
+        } else if (ambDefinition.getModelDefinition() == ModelDefinition.FLAG_FLOOR) {
+            entityBuilder.addFlagFloorComponentToEntity(entity, ambDefinitionToColor(ambDefinition))
         }
     }
 
@@ -350,6 +352,8 @@ class MapInflaterImpl(
         return when (ambDefinition) {
             AmbDefinition.FLAG_BROWN -> CharacterColor.BROWN
             AmbDefinition.FLAG_GREEN -> CharacterColor.GREEN
+            AmbDefinition.FLAG_FLOOR_BROWN -> CharacterColor.BROWN
+            AmbDefinition.FLAG_FLOOR_GREEN -> CharacterColor.GREEN
             else -> throw IllegalArgumentException("Amb definition $ambDefinition is not a flag!")
         }
     }
@@ -640,8 +644,8 @@ class MapInflaterImpl(
                 def.getName().lowercase() == definition
             }
             it.type == ElementType.CHARACTER
-                    && elementDefinition != SimpleCharacterDefinition.APACHE
-                    && elementDefinition != TurretCharacterDefinition.TANK
+                && elementDefinition != SimpleCharacterDefinition.APACHE
+                && elementDefinition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 val elementDefinition = stringToDefinition(it.definition, ElementType.CHARACTER)
@@ -763,7 +767,7 @@ class MapInflaterImpl(
                     )
                     if (groundBitMap[row][col] == 0
                         && (!textureDefinition.fileName.contains("water")
-                                || exculdedTiles.contains(Pair(col, row)))
+                            || exculdedTiles.contains(Pair(col, row)))
                     ) {
                         groundBitMap[row][col] = 1
                     }
@@ -866,12 +870,12 @@ class MapInflaterImpl(
         z: Int,
         tilesEntities: Array<Array<Entity?>>,
     ) = (x > 0
-            && z > 0
-            && x < tilesEntities[0].size
-            && z < tilesEntities.size
-            && tilesEntities[z][x] != null
-            && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
-            && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.gameModelInstanceInfo?.modelDefinition == ModelDefinition.TILE_BUMPY)
+        && z > 0
+        && x < tilesEntities[0].size
+        && z < tilesEntities.size
+        && tilesEntities[z][x] != null
+        && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
+        && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.gameModelInstanceInfo?.modelDefinition == ModelDefinition.TILE_BUMPY)
 
     private fun flatAllTilesBelow(
         index: Int,
@@ -1030,9 +1034,9 @@ class MapInflaterImpl(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-            && col >= 0
-            && row < gameSessionData.mapData.loadedMap.depth
-            && col < gameSessionData.mapData.loadedMap.width)
+        && col >= 0
+        && row < gameSessionData.mapData.loadedMap.depth
+        && col < gameSessionData.mapData.loadedMap.width)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

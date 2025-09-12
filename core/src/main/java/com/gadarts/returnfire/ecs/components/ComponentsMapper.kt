@@ -108,4 +108,6 @@ object ComponentsMapper {
         ComponentMapper.getFor(TurretAutomationComponent::class.java)
     val flag: ComponentMapper<FlagComponent> =
         ComponentMapper.getFor(FlagComponent::class.java)
+    val flagFloor: ComponentMapper<FlagFloorComponent> =
+        ComponentMapper.getFor(FlagFloorComponent::class.java)
 }

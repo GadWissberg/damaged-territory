@@ -21,7 +21,7 @@ class MapSystemOnCharacterDied : HandlerOnEvent {
             val rivalFlagComponent = ComponentsMapper.flag.get(rivalFlag)
             if (rivalFlagComponent.follow == character) {
                 rivalFlagComponent.follow = null
-                gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.FLAG_DROPPED.ordinal, rivalFlagComponent)
+                gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.FLAG_DROPPED.ordinal, rivalFlag)
             }
         }
     }

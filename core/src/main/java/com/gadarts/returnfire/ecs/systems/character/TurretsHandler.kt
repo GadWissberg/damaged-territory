@@ -9,12 +9,12 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.ecs.components.BrownComponent
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.GreenComponent
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.data.CharacterColor
 import kotlin.math.max
 import kotlin.math.sqrt
 
@@ -51,14 +51,14 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
     private fun updateTurret(turret: Entity, deltaTime: Float) {
         val turretComponent = ComponentsMapper.turret.get(turret)
         val base = turretComponent.base
-        val turretTransform =
-            ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
-        if (turretComponent.followBaseRotation && ComponentsMapper.modelInstance.has(base)) {
-            updateTurretTransform(base, turret)
-        }
+        if (ComponentsMapper.character.get(base).dead) return
+
+        val turretTransform = ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
         if (turretComponent.followBasePosition) {
-            val baseTransform =
-                ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
+            if (ComponentsMapper.modelInstance.has(base)) {
+                updateTurretTransform(base, turret)
+            }
+            val baseTransform = ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
             baseTransform.getTranslation(auxVector1)
             turretTransform.setTranslation(auxVector1).translate(auxVector2.set(0F, turretComponent.relativeHeight, 0F))
         }

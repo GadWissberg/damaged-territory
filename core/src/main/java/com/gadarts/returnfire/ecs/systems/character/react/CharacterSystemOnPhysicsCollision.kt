@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.ecs.systems.character.react
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
@@ -20,8 +21,7 @@ import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
 import kotlin.math.max
 
-class CharacterSystemOnPhysicsCollision() : HandlerOnEvent {
-
+class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<Entity>) : HandlerOnEvent {
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         handleJeepFlagCollision(
@@ -49,27 +49,38 @@ class CharacterSystemOnPhysicsCollision() : HandlerOnEvent {
     }
 
     private fun handleJeepFlagCollision(
-        entity0: Entity,
-        entity1: Entity,
+        jeep: Entity,
+        flag: Entity,
         gameSessionData: GameSessionData,
         dispatcher: MessageDispatcher,
     ): Boolean {
-        if (!ComponentsMapper.character.has(entity0) || !ComponentsMapper.modelInstance.has(entity1)) return false
+        if (!ComponentsMapper.character.has(jeep) || !ComponentsMapper.modelInstance.has(flag)) return false
 
-        val characterComponent = ComponentsMapper.character.get(entity0)
+        val characterComponent = ComponentsMapper.character.get(jeep)
         val isEntity0Jeep = characterComponent.definition == TurretCharacterDefinition.JEEP
-        val flagComponent = ComponentsMapper.flag.get(entity1)
+        val flagComponent = ComponentsMapper.flag.get(flag)
         val isEntity1Flag = flagComponent != null
-        if (isEntity0Jeep && isEntity1Flag && flagComponent.follow == null) {
+        if (isEntity0Jeep && isEntity1Flag) {
             val characterColor = characterComponent.color
             if (characterColor != flagComponent.color) {
-                flagComponent.follow = entity0
-                dispatcher.dispatchMessage(SystemEvents.FLAG_TAKEN.ordinal, entity1)
+                if (flagComponent.follow == null || ComponentsMapper.flagFloor.has(
+                        flagComponent.follow
+                    )
+                ) {
+                    flagComponent.follow = jeep
+                    dispatcher.dispatchMessage(SystemEvents.FLAG_TAKEN.ordinal, flag)
+                }
             } else {
-                val rivalColor =
-                    if (characterColor == CharacterColor.GREEN) CharacterColor.BROWN else CharacterColor.GREEN
-                if (ComponentsMapper.flag.get(gameSessionData.gamePlayData.flags[rivalColor]).follow == entity0) {
-                    dispatcher.dispatchMessage(SystemEvents.GAME_OVER.ordinal)
+                if (flagComponent.follow == null) {
+                    val flagFloor = flagFloors.first { ComponentsMapper.flagFloor.get(it).color == characterColor }
+                    flagComponent.follow = flagFloor
+                    dispatcher.dispatchMessage(SystemEvents.FLAG_RETURNED.ordinal, flag)
+                } else {
+                    val rivalColor =
+                        if (characterColor == CharacterColor.GREEN) CharacterColor.BROWN else CharacterColor.GREEN
+                    if (ComponentsMapper.flag.get(gameSessionData.gamePlayData.flags[rivalColor]).follow == jeep) {
+                        dispatcher.dispatchMessage(SystemEvents.GAME_OVER.ordinal)
+                    }
                 }
             }
             return true

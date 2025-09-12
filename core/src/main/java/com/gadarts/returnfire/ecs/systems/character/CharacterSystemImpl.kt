@@ -18,10 +18,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
-import com.gadarts.returnfire.ecs.components.CharacterComponent
-import com.gadarts.returnfire.ecs.components.ChildModelInstanceComponent
-import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.StageComponent
+import com.gadarts.returnfire.ecs.components.*
 import com.gadarts.returnfire.ecs.components.StageComponent.Companion.MAX_Y
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
@@ -59,59 +56,79 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         Family.all(CharacterComponent::class.java).get()
     )
 
-    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
-        SystemEvents.PHYSICS_DROWNED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                val entity = msg.extraInfo as Entity
-                if (ComponentsMapper.character.has(entity)) {
-                    gamePlayManagers.dispatcher.dispatchMessage(
-                        SystemEvents.CHARACTER_DIED.ordinal,
-                        entity
-                    )
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> by lazy {
+        mapOf(
+            SystemEvents.PHYSICS_DROWNED to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    val entity = msg.extraInfo as Entity
+                    if (ComponentsMapper.character.has(entity)) {
+                        gamePlayManagers.dispatcher.dispatchMessage(
+                            SystemEvents.CHARACTER_DIED.ordinal,
+                            entity
+                        )
+                    }
                 }
-            }
-        },
-        SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
-        SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(this),
-        SystemEvents.PHYSICS_COLLISION to CharacterSystemOnPhysicsCollision(),
-        SystemEvents.CHARACTER_REQUEST_BOARDING to CharacterSystemOnCharacterRequestBoarding(),
-        SystemEvents.AMB_SOUND_COMPONENT_ADDED to CharacterSystemOnAmbSoundComponentAdded(this),
-        SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN to CharacterSystemOnOpponentEnteredGamePlayScreen(
-            gamePlayManagers.ecs.engine
-        ),
-        SystemEvents.MAP_SYSTEM_READY to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
-                val stageEntities =
-                    engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
-                gameSessionData.mapData.elevators =
-                    stageEntities.associateBy(
-                        { ComponentsMapper.elevator.get(ComponentsMapper.hangarStage.get(it).base).color },
-                        { it })
-            }
-        },
-        SystemEvents.CHARACTER_DEATH_SEQUENCE_FINISHED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                if (!ComponentsMapper.character.has(msg.extraInfo as Entity)) return
-
-                destroyCharacter(msg, gamePlayManagers)
-            }
-        },
-        SystemEvents.CHARACTER_ONBOARDING_BEGIN to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-                val character = msg.extraInfo as Entity
-                val turretBaseComponent = ComponentsMapper.turretBase.get(character) ?: return
-
-                val turretAutomationComponent =
-                    ComponentsMapper.turretAutomationComponent.get(turretBaseComponent.turret)
-                if (turretAutomationComponent != null) {
-                    turretAutomationComponent.enabled = false
+            },
+            SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
+            SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(this),
+            SystemEvents.PHYSICS_COLLISION to CharacterSystemOnPhysicsCollision(
+                engine.getEntitiesFor(
+                    Family.all(
+                        FlagFloorComponent::class.java
+                    ).get()
+                )
+            ),
+            SystemEvents.CHARACTER_REQUEST_BOARDING to CharacterSystemOnCharacterRequestBoarding(),
+            SystemEvents.AMB_SOUND_COMPONENT_ADDED to CharacterSystemOnAmbSoundComponentAdded(this),
+            SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN to CharacterSystemOnOpponentEnteredGamePlayScreen(
+                gamePlayManagers.ecs.engine
+            ),
+            SystemEvents.MAP_SYSTEM_READY to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    val stageEntities =
+                        engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
+                    gameSessionData.mapData.elevators =
+                        stageEntities.associateBy(
+                            { ComponentsMapper.elevator.get(ComponentsMapper.hangarStage.get(it).base).color },
+                            { it })
                 }
-            }
-        })
+            },
+            SystemEvents.CHARACTER_DEATH_SEQUENCE_FINISHED to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    if (!ComponentsMapper.character.has(msg.extraInfo as Entity)) return
+
+                    destroyCharacter(msg, gamePlayManagers)
+                }
+            },
+            SystemEvents.CHARACTER_ONBOARDING_BEGIN to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    val character = msg.extraInfo as Entity
+                    val turretBaseComponent = ComponentsMapper.turretBase.get(character) ?: return
+
+                    val turretAutomationComponent =
+                        ComponentsMapper.turretAutomationComponent.get(turretBaseComponent.turret)
+                    if (turretAutomationComponent != null) {
+                        turretAutomationComponent.enabled = false
+                    }
+                }
+            })
+    }
 
     private fun destroyCharacter(
         msg: Telegram,

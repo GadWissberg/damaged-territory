@@ -207,4 +207,5 @@ interface EntityBuilder {
     fun addGreenComponent(): EntityBuilder
     fun addTurretAutomationComponent(): EntityBuilder
     fun addFlagComponentToEntity(entity: Entity, color: CharacterColor): FlagComponent
+    fun addFlagFloorComponentToEntity(entity: Entity, color: CharacterColor): FlagFloorComponent
 }

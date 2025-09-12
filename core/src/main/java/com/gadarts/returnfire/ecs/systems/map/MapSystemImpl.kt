@@ -338,6 +338,13 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             }
 
         })
+        val flagFloors = engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())
+        flags.forEach {
+            val flagComponent = ComponentsMapper.flag.get(it)
+            val flagFloor =
+                flagFloors.first { floor -> ComponentsMapper.flagFloor.get(floor).color == flagComponent.color }
+            flagComponent.follow = flagFloor
+        }
     }
 
 

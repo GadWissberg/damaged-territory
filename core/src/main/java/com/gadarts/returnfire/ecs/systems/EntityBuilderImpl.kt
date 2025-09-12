@@ -589,6 +589,15 @@ class EntityBuilderImpl : EntityBuilder {
         return flagComponent
     }
 
+    override fun addFlagFloorComponentToEntity(
+        entity: Entity,
+        color: CharacterColor
+    ): FlagFloorComponent {
+        val flagFloorComponent = FlagFloorComponent(color)
+        entity.add(flagFloorComponent)
+        return flagFloorComponent
+    }
+
     private fun createParticleEffectComponent(
         pool: GameParticleEffectPool,
         rotationAroundY: Float = 0F,

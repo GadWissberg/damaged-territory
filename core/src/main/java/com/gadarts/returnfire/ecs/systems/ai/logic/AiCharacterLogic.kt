@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ComponentsMapper.baseAi
 import com.gadarts.returnfire.ecs.systems.ai.AiGoals
@@ -45,6 +46,8 @@ abstract class AiCharacterLogic(
     protected fun shouldReturnToBase(
         character: Entity,
     ): Boolean {
+        if (GameDebugSettings.AI_AVOID_GOING_BACK_TO_BASE) return false
+
         val aiComponent = baseAi.get(character)
         val characterComponent = ComponentsMapper.character.get(character)
         val target = aiComponent.target
