@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.shared.data.CharacterColor
 
-class ElevatorComponent(val color: CharacterColor) : Component {
+class HangarComponent(val color: CharacterColor) : Component {
     var latestCloseTime: Long = 0
         private set
 

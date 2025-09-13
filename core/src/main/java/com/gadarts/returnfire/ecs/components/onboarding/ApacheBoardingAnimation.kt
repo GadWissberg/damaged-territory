@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.StageComponent.Companion.MAX_Y
+import com.gadarts.returnfire.ecs.components.ElevatorComponent.Companion.MAX_Y
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.shared.GameAssetManager

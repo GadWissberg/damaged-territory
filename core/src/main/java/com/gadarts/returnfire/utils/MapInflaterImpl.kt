@@ -38,7 +38,7 @@ import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
-import com.gadarts.returnfire.ecs.components.pit.ElevatorComponent
+import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
@@ -160,7 +160,7 @@ class MapInflaterImpl(
         val mapGraph = MapGraph(width, depth)
         val occupiedTiles = mutableSetOf<Pair<Int, Int>>()
         engine.getEntitiesFor(
-            Family.one(AmbComponent::class.java, TurretBaseComponent::class.java).exclude(ElevatorComponent::class.java)
+            Family.one(AmbComponent::class.java, TurretBaseComponent::class.java).exclude(HangarComponent::class.java)
                 .get()
         ).forEach {
             if (MapUtils.isEntityMarksNodeAsBlocked(it)) {
@@ -325,7 +325,7 @@ class MapInflaterImpl(
         val isGreen = ambDefinition == AmbDefinition.BASE_GREEN
         val isBrown = ambDefinition == AmbDefinition.BASE_BROWN
         if (isGreen || isBrown) {
-            entityBuilder.addElevatorComponent(if (isGreen) CharacterColor.GREEN else CharacterColor.BROWN)
+            entityBuilder.addHangarComponent(if (isGreen) CharacterColor.GREEN else CharacterColor.BROWN)
         }
         val entity = entityBuilder.finishAndAddToEngine()
         if (ambDefinition.collisionFlags >= 0) {

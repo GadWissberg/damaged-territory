@@ -15,7 +15,7 @@ import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.ecs.components.onboarding.BoardingComponent
 import com.gadarts.returnfire.ecs.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
-import com.gadarts.returnfire.ecs.components.pit.ElevatorComponent
+import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.components.pit.ElevatorDoorComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretCannonComponent
@@ -64,12 +64,12 @@ object ComponentsMapper {
         ComponentMapper.getFor(TurretBaseComponent::class.java)
     val boarding: ComponentMapper<BoardingComponent> =
         ComponentMapper.getFor(BoardingComponent::class.java)
-    val baseDoor: ComponentMapper<ElevatorDoorComponent> =
+    val elevatorDoor: ComponentMapper<ElevatorDoorComponent> =
         ComponentMapper.getFor(ElevatorDoorComponent::class.java)
+    val hangar: ComponentMapper<HangarComponent> =
+        ComponentMapper.getFor(HangarComponent::class.java)
     val elevator: ComponentMapper<ElevatorComponent> =
         ComponentMapper.getFor(ElevatorComponent::class.java)
-    val hangarStage: ComponentMapper<StageComponent> =
-        ComponentMapper.getFor(StageComponent::class.java)
     val childModelInstance: ComponentMapper<ChildModelInstanceComponent> =
         ComponentMapper.getFor(ChildModelInstanceComponent::class.java)
     val autoAim: ComponentMapper<AutoAimComponent> =

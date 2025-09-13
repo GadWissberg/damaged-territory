@@ -7,7 +7,7 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.pit.ElevatorComponent
+import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
@@ -19,7 +19,7 @@ import com.gadarts.shared.data.definitions.CharacterDefinition
 
 class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOnEvent {
     private val elevatorEntities: ImmutableArray<Entity> = engine.getEntitiesFor(
-        Family.all(ElevatorComponent::class.java).get()
+        Family.all(HangarComponent::class.java).get()
     )
 
 
@@ -33,10 +33,10 @@ class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOn
                         it
                     ).def.name.lowercase()
                 }
-            val characterColor = ComponentsMapper.elevator.get(it).color
+            val characterColor = ComponentsMapper.hangar.get(it).color
             characterColor == colorInMessage && base != null
         }
-        ComponentsMapper.elevator.get(selectedElevator).open()
+        ComponentsMapper.hangar.get(selectedElevator).open()
         val opponent =
             gamePlayManagers.factories.opponentCharacterFactory.create(
                 ModelUtils.getPositionOfModel(

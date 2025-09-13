@@ -3,7 +3,7 @@ package com.gadarts.returnfire.managers
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.screens.ScreensManager
-import com.gadarts.returnfire.ecs.systems.ai.MapPathFinder
+import com.gadarts.returnfire.ecs.systems.ai.logic.path.MapPathFinder
 import com.gadarts.returnfire.ecs.systems.data.StainsHandler
 import com.gadarts.shared.GameAssetManager
 

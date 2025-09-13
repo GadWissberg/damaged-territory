@@ -13,9 +13,9 @@ import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.ecs.systems.EntityBuilderImpl
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.ProfilingSystem
-import com.gadarts.returnfire.ecs.systems.ai.AiSystem
-import com.gadarts.returnfire.ecs.systems.ai.MapPathFinder
-import com.gadarts.returnfire.ecs.systems.ai.logic.PathHeuristic
+import com.gadarts.returnfire.ecs.systems.ai.AiSystemImpl
+import com.gadarts.returnfire.ecs.systems.ai.logic.path.MapPathFinder
+import com.gadarts.returnfire.ecs.systems.ai.logic.path.PathHeuristic
 import com.gadarts.returnfire.ecs.systems.bullet.BulletSystem
 import com.gadarts.returnfire.ecs.systems.camera.CameraSystem
 import com.gadarts.returnfire.ecs.systems.character.CharacterSystemImpl
@@ -60,12 +60,12 @@ class GamePlayScreen(
     private var pauseTime: Long = 0
     private val gameSessionData: GameSessionData by lazy {
         GameSessionData(
-            generalManagers.assetsManager,
             runsOnMobile,
             fpsTarget,
-            ConsoleImpl(generalManagers.assetsManager, generalManagers.dispatcher),
             selectedCharacter,
             autoAim,
+            generalManagers.assetsManager,
+            ConsoleImpl(generalManagers.assetsManager, generalManagers.dispatcher),
             engine
         )
     }
@@ -112,7 +112,7 @@ class GamePlayScreen(
             HudSystemImpl(gamePlayManagers),
             ProfilingSystem(gamePlayManagers),
             MapSystemImpl(gamePlayManagers),
-            AiSystem(gamePlayManagers),
+            AiSystemImpl(gamePlayManagers),
             BulletSystem(gamePlayManagers),
         )
         systems.forEach {

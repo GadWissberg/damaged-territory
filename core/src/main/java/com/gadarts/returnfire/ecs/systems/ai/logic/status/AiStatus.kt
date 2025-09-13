@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.ecs.systems.ai
+package com.gadarts.returnfire.ecs.systems.ai.logic.status
 
 enum class AiStatus {
     PLANNING,

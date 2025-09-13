@@ -19,7 +19,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.*
-import com.gadarts.returnfire.ecs.components.StageComponent.Companion.MAX_Y
+import com.gadarts.returnfire.ecs.components.ElevatorComponent.Companion.MAX_Y
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
@@ -35,10 +35,12 @@ import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.render.RenderSystem
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.CharacterPhysicsInitializer
+import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
@@ -55,6 +57,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     private val charactersEntities: ImmutableArray<Entity> = gamePlayManagers.ecs.engine.getEntitiesFor(
         Family.all(CharacterComponent::class.java).get()
     )
+    private val elevators: ImmutableArray<Entity> by lazy {
+        gamePlayManagers.ecs.engine.getEntitiesFor(
+            Family.all(ElevatorComponent::class.java).get()
+        )
+    }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> by lazy {
         mapOf(
@@ -94,10 +101,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     gamePlayManagers: GamePlayManagers
                 ) {
                     val stageEntities =
-                        engine.getEntitiesFor(Family.all(StageComponent::class.java).get())
+                        engine.getEntitiesFor(Family.all(ElevatorComponent::class.java).get())
                     gameSessionData.mapData.elevators =
                         stageEntities.associateBy(
-                            { ComponentsMapper.elevator.get(ComponentsMapper.hangarStage.get(it).base).color },
+                            { ComponentsMapper.hangar.get(ComponentsMapper.elevator.get(it).hangar).color },
                             { it })
                 }
             },
@@ -109,7 +116,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 ) {
                     if (!ComponentsMapper.character.has(msg.extraInfo as Entity)) return
 
-                    destroyCharacter(msg, gamePlayManagers)
+                    killCharacter(character = msg.extraInfo as Entity)
                 }
             },
             SystemEvents.CHARACTER_ONBOARDING_BEGIN to object : HandlerOnEvent {
@@ -127,15 +134,29 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         turretAutomationComponent.enabled = false
                     }
                 }
+            },
+            SystemEvents.ELEVATOR_EMPTY_ONBOARD_REQUESTED to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    gamePlayManagers: GamePlayManagers
+                ) {
+                    val color = msg.extraInfo as CharacterColor
+                    val elevator = gameSessionData.mapData.elevators[color] ?: return
+
+                    val elevatorComponent = ComponentsMapper.elevator.get(elevator)
+                    ComponentsMapper.hangar.get(elevatorComponent.hangar).close()
+                    elevatorComponent.emptyOnboard = true
+                }
             })
     }
 
-    private fun destroyCharacter(
-        msg: Telegram,
-        gamePlayManagers: GamePlayManagers
+    private fun killCharacter(
+        character: Entity,
     ) {
-        val character = msg.extraInfo as Entity
-        if (ComponentsMapper.boarding.has(character) && ComponentsMapper.boarding.get(character).isBoarding()) return
+        if (ComponentsMapper.boarding.has(character) && ComponentsMapper.boarding.get(character)
+                .isBoarding()
+        ) return
 
         val characterComponent = ComponentsMapper.character.get(character)
         characterComponent.dead = true
@@ -249,8 +270,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     boardingComponent.creationTime
                 ) > 1000F
             ) {
+                val elevator = gameSessionData.mapData.elevators[boardingComponent.color]
                 val elevatorTransform =
-                    ComponentsMapper.modelInstance.get(gameSessionData.mapData.elevators[boardingComponent.color]).gameModelInstance.modelInstance.transform
+                    ComponentsMapper.modelInstance.get(elevator).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isDeploying()) {
                     if (elevatorTransform.getTranslation(auxVector1).y < MAX_Y) {
                         takeStepForElevatorWithCharacter(elevatorTransform, character, MAX_Y, deltaTime)
@@ -279,16 +301,23 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         character.remove(PhysicsComponent::class.java)
                     }
                     if (animationDone) {
-                        if (elevatorTransform.getTranslation(auxVector1).y <= StageComponent.BOTTOM_EDGE_Y) {
+                        val elevatorPosition = elevatorTransform.getTranslation(auxVector1)
+                        if (elevatorPosition.y <= ElevatorComponent.BOTTOM_EDGE_Y) {
                             gamePlayManagers.dispatcher.dispatchMessage(
                                 SystemEvents.CHARACTER_ONBOARDING_FINISHED.ordinal,
                                 character
                             )
+                            elevatorTransform.setTranslation(
+                                elevatorPosition.x,
+                                ElevatorComponent.BOTTOM_EDGE_Y,
+                                elevatorPosition.z
+                            )
+                            gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, character)
                         } else {
                             takeStepForElevatorWithCharacter(
                                 elevatorTransform,
                                 character,
-                                StageComponent.BOTTOM_EDGE_Y,
+                                ElevatorComponent.BOTTOM_EDGE_Y,
                                 deltaTime
                             )
                         }
@@ -330,6 +359,20 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         ComponentsMapper.particleEffect.get(smoke).followEntity = character
                         characterComponent.smokeEmission = smoke
                     }
+                }
+            }
+        }
+        for (elevator in elevators) {
+            val elevatorComponent = ComponentsMapper.elevator.get(elevator)
+            if (elevatorComponent.emptyOnboard) {
+                takeStepForElevator(
+                    ComponentsMapper.modelInstance.get(elevator).gameModelInstance.modelInstance.transform,
+                    ElevatorComponent.BOTTOM_EDGE_Y,
+                    deltaTime
+                )
+                if (ModelUtils.getPositionOfModel(elevator).y <= ElevatorComponent.BOTTOM_EDGE_Y) {
+                    elevatorComponent.emptyOnboard = false
+                    gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.ELEVATOR_EMPTY_ONBOARD.ordinal, elevator)
                 }
             }
         }
@@ -565,8 +608,23 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         targetY: Float,
         deltaTime: Float
     ) {
+        val deltaMovement = takeStepForElevator(elevatorTransform, targetY, deltaTime)
+
+        // Move character along with elevator
+        ComponentsMapper.modelInstance.get(character)
+            .gameModelInstance.modelInstance.transform.trn(0f, deltaMovement, 0f)
+    }
+
+    private fun takeStepForElevator(
+        elevatorTransform: Matrix4,
+        targetY: Float,
+        deltaTime: Float
+    ): Float {
         val currentPosition = elevatorTransform.getTranslation(auxVector3)
-        val distance = targetY - currentPosition.y
+        val y = currentPosition.y
+        if ((y <= targetY && targetY == ElevatorComponent.BOTTOM_EDGE_Y) || (y >= MAX_Y && targetY == MAX_Y)) return 0f
+
+        val distance = targetY - y
         val direction = distance.sign
         val absDistance = abs(distance)
 
@@ -592,10 +650,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val deltaMovement = movementThisFrame * direction
         currentPosition.y += deltaMovement
         elevatorTransform.setTranslation(currentPosition)
-
-        // Move character along with elevator
-        ComponentsMapper.modelInstance.get(character)
-            .gameModelInstance.modelInstance.transform.trn(0f, deltaMovement, 0f)
+        return deltaMovement
     }
 
     private fun updateBoardingAnimation(

@@ -3,18 +3,19 @@ package com.gadarts.returnfire.ecs.systems.data
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
 import com.gadarts.returnfire.ecs.systems.data.hud.GameSessionDataHud
 import com.gadarts.returnfire.ecs.systems.data.map.GameSessionDataMap
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.data.definitions.CharacterDefinition
 
 class GameSessionData(
-    assetsManager: GameAssetManager,
     val runsOnMobile: Boolean,
     val fpsTarget: Int,
-    console: ConsoleImpl,
     var selectedCharacter: CharacterDefinition,
     val autoAim: Boolean,
+    assetsManager: GameAssetManager,
+    console: ConsoleImpl,
     engine: PooledEngine
 ) :
     Disposable {
@@ -25,6 +26,7 @@ class GameSessionData(
     val hudData =
         GameSessionDataHud(console, assetsManager)
     val renderData = GameSessionDataRender()
+    var aiOpponentGoal: AiOpponentGoal? = null
 
 
     companion object {

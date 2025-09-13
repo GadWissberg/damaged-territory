@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.ecs.systems.ai.logic
+package com.gadarts.returnfire.ecs.systems.ai.logic.path
 
 import com.badlogic.gdx.ai.pfa.Heuristic
 import com.badlogic.gdx.math.Vector2

@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.systems.ai.AiStatus
+import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
 import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
@@ -40,25 +40,27 @@ class AiApacheLogic(
     override fun preUpdate(character: Entity, deltaTime: Float) {
         val aiComponent = ComponentsMapper.baseAi.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
-        val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
+        val returningToBase = ComponentsMapper.elevator.has(aiComponent.target)
         val targetPosition = getPositionOfCurrentTarget(character)
         val characterTransform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
         if (returningToBase) {
             movementHandler.thrust(character)
             onboard(character, 0.8F)
-        } else if (!apacheAiComponent.runAway.isZero) {
-            val characterPosition =
-                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector1
-                )
-            val distance = characterPosition.set(characterPosition.x, 0F, characterPosition.z)
-                .dst2(auxVector5.set(apacheAiComponent.runAway.x, 0F, apacheAiComponent.runAway.z))
-            if (distance < 10F) {
-                apacheAiComponent.runAway.setZero()
-            }
-            movementHandler.thrust(character)
         } else {
-            applyMainLogic(characterTransform, targetPosition, character)
+            if (!apacheAiComponent.runAway.isZero) {
+                val characterPosition =
+                    ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                        auxVector1
+                    )
+                val distance = characterPosition.set(characterPosition.x, 0F, characterPosition.z)
+                    .dst2(auxVector5.set(apacheAiComponent.runAway.x, 0F, apacheAiComponent.runAway.z))
+                if (distance < 10F) {
+                    apacheAiComponent.runAway.setZero()
+                }
+                movementHandler.thrust(character)
+            } else {
+                applyMainLogic(characterTransform, targetPosition, character)
+            }
         }
         handleRotation(targetPosition, characterTransform, character)
         update(character, deltaTime)
@@ -71,7 +73,7 @@ class AiApacheLogic(
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
         val aiComponent = ComponentsMapper.baseAi.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
-        val returningToBase = ComponentsMapper.hangarStage.has(aiComponent.target)
+        val returningToBase = ComponentsMapper.elevator.has(aiComponent.target)
         return if (!returningToBase && apacheAiComponent.runAway.isZero) {
             playerModelInstance.transform.getTranslation(
                 auxVector4
@@ -107,14 +109,9 @@ class AiApacheLogic(
             stopAttack()
         }
         val characterComponent = ComponentsMapper.character.get(character)
-        val aiComponent = ComponentsMapper.baseAi.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
         if (shouldReturnToBase(character)) {
-            aiComponent.state = AiStatus.MOVING
-            aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(
-                character
-            ).color]
-            stopAttack()
+            goBackToBase(character)
         } else if (apacheAiComponent.runAway.isZero) {
             val lastHpCheck = apacheAiComponent.lastHpCheck
             if (characterComponent.hp <= lastHpCheck - characterComponent.definition.getHP() / 4F) {
@@ -131,6 +128,17 @@ class AiApacheLogic(
                 stopAttack()
             }
         }
+    }
+
+    private fun goBackToBase(
+        character: Entity
+    ) {
+        val aiComponent = ComponentsMapper.baseAi.get(character)
+        aiComponent.state = AiStatus.MOVING
+        aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(
+            character
+        ).color]
+        stopAttack()
     }
 
     private fun stopAttack() {

@@ -10,7 +10,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.StageComponent
+import com.gadarts.returnfire.ecs.components.ElevatorComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
@@ -58,9 +58,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
 
     private val playerStage: Entity by lazy {
         engine.getEntitiesFor(
-            Family.all(StageComponent::class.java).get()
+            Family.all(ElevatorComponent::class.java).get()
         )
-            .find { ComponentsMapper.elevator.get(ComponentsMapper.hangarStage.get(it).base).color == CharacterColor.BROWN }!!
+            .find { ComponentsMapper.hangar.get(ComponentsMapper.elevator.get(it).hangar).color == CharacterColor.BROWN }!!
     }
     private val autoAim by lazy {
         if (gameSessionData.autoAim) {

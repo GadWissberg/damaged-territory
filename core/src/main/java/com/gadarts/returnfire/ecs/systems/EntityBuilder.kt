@@ -164,9 +164,9 @@ interface EntityBuilder {
     ): PhysicsComponent
 
     fun addBaseDoorComponent(initialX: Float, targetX: Float): EntityBuilder
-    fun addStageComponent(base: Entity): EntityBuilder
+    fun addElevatorComponent(base: Entity): EntityBuilder
     fun addAutoAimComponent(): EntityBuilder
-    fun addElevatorComponent(color: CharacterColor): EntityBuilder
+    fun addHangarComponent(color: CharacterColor): EntityBuilder
     fun addCrashSoundEmitterComponent(soundToStop: Sound, soundToStopId: Long): EntityBuilder
     fun addCrashSoundEmitterComponentToEntity(entity: Entity, soundToStop: Sound, soundToStopId: Long): EntityBuilder
     fun addLimitedVelocityComponent(maxValue: Float): EntityBuilder

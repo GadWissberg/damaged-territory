@@ -14,8 +14,8 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ComponentsMapper.baseAi
-import com.gadarts.returnfire.ecs.systems.ai.AiStatus
-import com.gadarts.returnfire.ecs.systems.ai.AiTurretStatus
+import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
+import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiTurretStatus
 import com.gadarts.returnfire.ecs.systems.ai.logic.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
 import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
@@ -355,7 +355,7 @@ open class AiGroundCharacterLogic(
             targetTransform.getTranslation(
                 auxVector3_1
             )
-        val returningToBase = ComponentsMapper.hangarStage.has(target)
+        val returningToBase = ComponentsMapper.elevator.has(target)
         val emptyPath = pathNodes.size == 0
         if (tankAiComponent.roamingEndTime == null && target != null && ComponentsMapper.character.has(target) && auxVector3_2.set(
                 targetPosition.x,

@@ -35,7 +35,7 @@ import com.gadarts.returnfire.ecs.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.ecs.components.physics.MotionState
 import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
 import com.gadarts.returnfire.ecs.components.physics.RigidBody
-import com.gadarts.returnfire.ecs.components.pit.ElevatorComponent
+import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.components.pit.ElevatorDoorComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretCannonComponent
@@ -301,9 +301,9 @@ class EntityBuilderImpl : EntityBuilder {
         return baseAiComponent
     }
 
-    override fun addStageComponent(base: Entity): EntityBuilder {
-        val stageComponent = StageComponent(base)
-        entity!!.add(stageComponent)
+    override fun addElevatorComponent(base: Entity): EntityBuilder {
+        val elevatorComponent = ElevatorComponent(base)
+        entity!!.add(elevatorComponent)
         return this
     }
 
@@ -313,9 +313,9 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addElevatorComponent(color: CharacterColor): EntityBuilder {
-        val elevatorComponent = ElevatorComponent(color)
-        entity!!.add(elevatorComponent)
+    override fun addHangarComponent(color: CharacterColor): EntityBuilder {
+        val hangarComponent = HangarComponent(color)
+        entity!!.add(hangarComponent)
         return this
     }
 
