@@ -36,7 +36,7 @@ enum class SystemEvents {
     MAP_SYSTEM_READY,
     EXPLOSION_PUSH_BACK,
     REMOVE_ENTITY,
-    GAME_OVER,
+    FLAG_POINT,
     FLAG_TAKEN,
     FLAG_DROPPED,
     FLAG_RETURNED,

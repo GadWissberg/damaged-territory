@@ -43,7 +43,6 @@ class GameSessionData(
     }
 
     fun finishSession() {
-        gamePlayData.sessionState = SessionState.GAME_OVER
         dispose()
     }
 }

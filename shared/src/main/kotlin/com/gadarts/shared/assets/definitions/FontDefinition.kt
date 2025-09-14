@@ -5,15 +5,20 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader
 
-enum class FontDefinition(private val size: Int) :
+enum class FontDefinition(private val size: Int, private val fileName: String? = null) :
     AssetDefinition<BitmapFont> {
-    WOK_STENCIL(32),
+    WOK_STENCIL_32(32, "wok_stencil"),
+    WOK_STENCIL_256(256, "wok_stencil"),
     CONSOLA(15);
 
     private val paths = ArrayList<String>()
 
     init {
-        initializePaths("fonts/%s.ttf", output = getPaths())
+        initializePaths(pathFormat = "fonts/%s.ttf", output = getPaths(), customDefinitionName = fileName)
+    }
+
+    override fun getAssetManagerKey(): String? {
+        return "${getDefinitionName()}.ttf"
     }
 
     override fun getParameters(): AssetLoaderParameters<BitmapFont>? {
@@ -29,7 +34,7 @@ enum class FontDefinition(private val size: Int) :
     }
 
     override fun getDefinitionName(): String {
-        return name
+        return name.lowercase()
     }
 
     private fun createFontParameters(
@@ -45,4 +50,5 @@ enum class FontDefinition(private val size: Int) :
         params.fontParameters.kerning = true
         return params
     }
+
 }

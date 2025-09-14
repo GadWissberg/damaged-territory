@@ -4,13 +4,11 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
-import com.badlogic.gdx.scenes.scene2d.ui.Cell
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
-import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
@@ -21,6 +19,7 @@ import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.SessionState
 import com.gadarts.returnfire.ecs.systems.data.hud.Minimap
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.JOYSTICK_PADDING
@@ -30,6 +29,8 @@ import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnLandingIndicatorV
 import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnPlayerAimSky
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.screens.Screens
+import com.gadarts.shared.assets.definitions.FontDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.CharacterDefinition
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.TurretCharacterDefinition
@@ -111,31 +112,57 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
             ) {
                 val entity = msg.extraInfo as? com.badlogic.ashley.core.Entity ?: return
                 if (entity == gameSessionData.gamePlayData.player) {
-                    gameSessionData.hudData.stage.addAction(Actions.addAction(
-                        Actions.sequence(
-                            DelayAction(5F),
-                            Actions.run {
-                                gamePlayManagers.screensManager.setScreenWithFade(
-                                    Screens.VEHICLE_SELECTION,
-                                    2F,
-                                    null
-                                )
-                            }
-                        )
-                    ))
+                    fadeToVehicleSelection()
                 }
             }
         },
-        SystemEvents.GAME_OVER to object : HandlerOnEvent {
+        SystemEvents.FLAG_POINT to object : HandlerOnEvent {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                gamePlayManagers.screensManager.setScreenWithFade(Screens.VEHICLE_SELECTION, 2F, null)
+                if (gameSessionData.gamePlayData.sessionState == SessionState.GAME_OVER) return
+
+                val color = msg.extraInfo as CharacterColor
+                gameOver(color)
             }
         }
     )
+
+    private fun gameOver(
+        winner: CharacterColor,
+    ) {
+        gameSessionData.gamePlayData.sessionState = SessionState.GAME_OVER
+        val label = Label(
+            "${winner.name.uppercase()} WINS!",
+            Label.LabelStyle(
+                gamePlayManagers.assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL_256),
+                winner.color
+            )
+        )
+        gameSessionData.hudData.stage.addActor(label)
+        label.setPosition(
+            Gdx.graphics.width / 2F - label.width / 2F,
+            Gdx.graphics.height / 2F - label.height / 2F
+        )
+        fadeToVehicleSelection()
+    }
+
+    private fun fadeToVehicleSelection(
+    ) {
+        gameSessionData.hudData.stage.addAction(Actions.sequence(
+            DelayAction(5F),
+            Actions.run {
+                gamePlayManagers.screensManager.setScreenWithFade(
+                    Screens.VEHICLE_SELECTION,
+                    2F,
+                    null
+                )
+            }
+        )
+        )
+    }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)

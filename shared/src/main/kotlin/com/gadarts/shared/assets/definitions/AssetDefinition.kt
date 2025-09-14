@@ -8,8 +8,14 @@ interface AssetDefinition<T> {
     fun getDefinitionName(): String
     fun getClazz(): Class<T>
     fun getParameters(): AssetLoaderParameters<T>?
-    fun initializePaths(pathFormat: String, output: ArrayList<String>, fileNames: Int = 1, suffix: String? = null) {
-        val definitionName = getDefinitionName()
+    fun initializePaths(
+        pathFormat: String,
+        output: ArrayList<String>,
+        fileNames: Int = 1,
+        suffix: String? = null,
+        customDefinitionName: String? = null
+    ) {
+        val definitionName = customDefinitionName ?: getDefinitionName()
         if (fileNames == 1) {
             output.add(pathFormat.format(definitionName.lowercase(Locale.ROOT) + (suffix ?: "")))
         } else {
@@ -18,5 +24,10 @@ interface AssetDefinition<T> {
             }
         }
     }
+
+    fun getAssetManagerKey(): String? {
+        return null
+    }
+
 
 }

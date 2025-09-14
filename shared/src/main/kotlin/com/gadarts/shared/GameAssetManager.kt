@@ -162,7 +162,7 @@ open class GameAssetManager : AssetManager() {
 
     private fun loadFont(asset: AssetDefinition<*>) {
         load(
-            asset.getPaths().first(),
+            asset.getAssetManagerKey() ?: asset.getDefinitionName(),
             BitmapFont::class.java,
             (asset.getParameters() as FreetypeFontLoader.FreeTypeFontLoaderParameter)
         )
@@ -251,7 +251,8 @@ open class GameAssetManager : AssetManager() {
 
     inline fun <reified T> getAssetByDefinition(definition: AssetDefinition<T>, index: Int = -1): T {
         val paths = definition.getPaths()
-        return get(paths[if (index == -1) MathUtils.random(paths.size - 1) else index], T::class.java)
+        val fileName = paths[if (index == -1) MathUtils.random(paths.size - 1) else index]
+        return get(definition.getAssetManagerKey() ?: fileName, T::class.java)
     }
 
     inline fun <reified T> getAllAssetsByDefinition(definition: AssetDefinition<T>): List<T> {

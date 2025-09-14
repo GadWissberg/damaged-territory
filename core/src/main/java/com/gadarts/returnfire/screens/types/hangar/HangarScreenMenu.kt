@@ -31,7 +31,7 @@ class HangarScreenMenu(
             Label(
                 DamagedTerritory.VERSION,
                 Label.LabelStyle(
-                    assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL),
+                    assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL_32),
                     Color.WHITE
                 )
             )
@@ -75,7 +75,7 @@ class HangarScreenMenu(
                 TextureRegionDrawable(assetsManager.getTexture("button_up")),
                 TextureRegionDrawable(assetsManager.getTexture("button_down")),
                 TextureRegionDrawable(assetsManager.getTexture("button_checked")),
-                assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL)
+                assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL_32)
             )
         )
         val cell = buttonsTable.add(button).top().left().size(100F, 100F).pad(10F)
@@ -118,7 +118,7 @@ class HangarScreenMenu(
                 TextureRegionDrawable(assetsManager.getTexture("button_up")),
                 TextureRegionDrawable(assetsManager.getTexture("button_down")),
                 null,
-                assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL)
+                assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL_32)
             )
         )
         textButton.addListener(object : ClickListener() {

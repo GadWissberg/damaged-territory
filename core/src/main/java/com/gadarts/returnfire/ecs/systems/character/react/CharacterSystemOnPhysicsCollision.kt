@@ -79,7 +79,7 @@ class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<E
                     val rivalColor =
                         if (characterColor == CharacterColor.GREEN) CharacterColor.BROWN else CharacterColor.GREEN
                     if (ComponentsMapper.flag.get(gameSessionData.gamePlayData.flags[rivalColor]).follow == jeep) {
-                        dispatcher.dispatchMessage(SystemEvents.GAME_OVER.ordinal)
+                        dispatcher.dispatchMessage(SystemEvents.FLAG_POINT.ordinal, characterColor)
                     }
                 }
             }
