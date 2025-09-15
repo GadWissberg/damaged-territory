@@ -77,14 +77,16 @@ enum class AmbDefinition(
         placeable = true,
         customTexture = "flag_floor_texture_brown",
         onCreation = OnFlagFloorCreation(CharacterColor.BROWN),
-        marksNodeAsBlocked = false
+        marksNodeAsBlocked = false,
+        collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE
     ),
     FLAG_FLOOR_GREEN(
         modelDefinition = ModelDefinition.FLAG_FLOOR,
         placeable = true,
         customTexture = "flag_floor_texture_green",
         onCreation = OnFlagFloorCreation(CharacterColor.GREEN),
-        marksNodeAsBlocked = false
+        marksNodeAsBlocked = false,
+        collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE
     ),
     BASE_BROWN(
         modelDefinition = ModelDefinition.PIT,

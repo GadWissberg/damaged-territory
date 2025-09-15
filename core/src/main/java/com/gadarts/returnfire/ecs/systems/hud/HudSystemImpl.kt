@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.DelayAction
@@ -30,6 +29,7 @@ import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnPlayerAimSky
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.screens.Screens
 import com.gadarts.shared.assets.definitions.FontDefinition
+import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.CharacterDefinition
 import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
@@ -133,6 +133,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     private fun gameOver(
         winner: CharacterColor,
     ) {
+        gamePlayManagers.soundManager.play(if (winner == CharacterColor.BROWN) SoundDefinition.GAME_WIN else SoundDefinition.GAME_OVER)
         gameSessionData.gamePlayData.sessionState = SessionState.GAME_OVER
         val label = Label(
             "${winner.name.uppercase()} WINS!",

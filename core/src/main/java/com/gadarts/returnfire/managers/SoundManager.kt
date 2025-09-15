@@ -24,7 +24,11 @@ class SoundManager(private val assetsManager: GameAssetManager, private val runs
         return sound.loop(1F, 1F, 0F)
     }
 
-    fun play(sound: Sound, sourcePosition: Vector3? = null): Long {
+    fun play(sound: SoundDefinition): Long {
+        return play(assetsManager.getAssetByDefinition(sound), null, false)
+    }
+
+    fun play(sound: Sound, sourcePosition: Vector3? = null, randomPitch: Boolean = true): Long {
         if (!GameDebugSettings.SFX) return -1
 
         val affectedByPosition =
@@ -32,7 +36,7 @@ class SoundManager(private val assetsManager: GameAssetManager, private val runs
         val volume = MathUtils.random(RANDOM_VOLUME_MIN, 1F) * affectedByPosition
         return sound.play(
             volume,
-            MathUtils.random(PITCH_MIN, PITCH_MAX),
+            if (randomPitch) MathUtils.random(PITCH_MIN, PITCH_MAX) else 1F,
             0F
         )
     }

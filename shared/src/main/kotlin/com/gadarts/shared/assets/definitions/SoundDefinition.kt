@@ -39,7 +39,11 @@ enum class SoundDefinition(fileNames: Int = 1) : AssetDefinition<Sound> {
     METAL_CRASH,
     METAL_LIGHT,
     FENCE_BREAK,
-    EMPTY;
+    EMPTY,
+    FLAG_TAKEN,
+    FLAG_RETURNED,
+    GAME_WIN,
+    GAME_OVER;
 
     private val paths = ArrayList<String>()
 

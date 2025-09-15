@@ -28,12 +28,14 @@ class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<E
             PhysicsCollisionEventData.colObj0.userData as Entity,
             PhysicsCollisionEventData.colObj1.userData as Entity,
             gameSessionData,
-            gamePlayManagers.dispatcher
+            gamePlayManagers.dispatcher,
+            gamePlayManagers.soundManager
         ) || handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj1.userData as Entity,
             PhysicsCollisionEventData.colObj0.userData as Entity,
             gameSessionData,
             gamePlayManagers.dispatcher,
+            gamePlayManagers.soundManager,
         ) || handleBulletCharacter(gamePlayManagers, gameSessionData)
             || applyEventForCrashingAircraft(
             PhysicsCollisionEventData.colObj0.userData as Entity,
@@ -53,6 +55,7 @@ class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<E
         flag: Entity,
         gameSessionData: GameSessionData,
         dispatcher: MessageDispatcher,
+        soundManager: SoundManager,
     ): Boolean {
         if (!ComponentsMapper.character.has(jeep) || !ComponentsMapper.modelInstance.has(flag)) return false
 
@@ -68,12 +71,14 @@ class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<E
                     )
                 ) {
                     flagComponent.follow = jeep
+                    soundManager.play(SoundDefinition.FLAG_TAKEN)
                     dispatcher.dispatchMessage(SystemEvents.FLAG_TAKEN.ordinal, flag)
                 }
             } else {
                 if (flagComponent.follow == null) {
                     val flagFloor = flagFloors.first { ComponentsMapper.flagFloor.get(it).color == characterColor }
                     flagComponent.follow = flagFloor
+                    soundManager.play(SoundDefinition.FLAG_RETURNED)
                     dispatcher.dispatchMessage(SystemEvents.FLAG_RETURNED.ordinal, flag)
                 } else {
                     val rivalColor =
