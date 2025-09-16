@@ -160,7 +160,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
                     engine.removeEntity(gameSessionData.gamePlayData.player)
                     gameSessionData.gamePlayData.player = null
-                    gamePlayManagers.screensManager.goToHangarScreen()
                 }
             }
         },

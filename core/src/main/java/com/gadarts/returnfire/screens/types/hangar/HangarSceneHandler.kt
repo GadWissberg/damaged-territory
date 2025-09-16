@@ -15,7 +15,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.Screens
 import com.gadarts.returnfire.screens.ScreensManager
-import com.gadarts.returnfire.screens.types.gameplay.GamePlayScreenSwitchParameters
+import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.data.definitions.CharacterDefinition
@@ -51,7 +51,7 @@ class HangarSceneHandler(
                 if (deployingState > 0) {
                     screenManager.switchScreen(
                         Screens.GAME_PLAY,
-                        GamePlayScreenSwitchParameters(
+                        ToGamePlayScreenSwitchParameters(
                             selected!!.characterDefinition,
                             hangarScreenMenu.isAutoAimSelected()
                         )

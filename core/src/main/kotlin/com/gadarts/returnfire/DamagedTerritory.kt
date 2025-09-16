@@ -15,7 +15,8 @@ import com.gadarts.returnfire.screens.Screens
 import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.screens.transition.TransitionHandler
 import com.gadarts.returnfire.screens.types.gameplay.GamePlayScreen
-import com.gadarts.returnfire.screens.types.gameplay.GamePlayScreenSwitchParameters
+import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
+import com.gadarts.returnfire.screens.types.gameplay.ToHangarScreenSwitchParameters
 import com.gadarts.returnfire.screens.types.hangar.HangarScreenImpl
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.MusicDefinition
@@ -24,14 +25,7 @@ import com.gadarts.shared.data.definitions.CharacterDefinition
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
-    private val gamePlayScreen: GamePlayScreen by lazy {
-        val screen = GamePlayScreen(
-            runsOnMobile,
-            fpsTarget,
-            GeneralManagers(assetsManager, soundManager, dispatcher, this),
-        )
-        screen
-    }
+    private var gamePlayScreen: GamePlayScreen? = null
     private val transitionHandler = TransitionHandler(this)
     private val dispatcher = MessageDispatcher()
     private val soundManager: SoundManager by lazy { SoundManager(assetsManager, runsOnMobile) }
@@ -70,7 +64,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         if (GameDebugSettings.SELECTED_VEHICLE != null) {
             goToGameplayScreen(
                 GameDebugSettings.SELECTED_VEHICLE,
-                GameDebugSettings.FORCE_AIM > 0
+                GameDebugSettings.FORCE_AIM > 0,
             )
         } else {
             setScreen(hangarScreenImpl)
@@ -82,24 +76,28 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         transitionHandler.render(Gdx.graphics.deltaTime)
     }
 
-    override fun setScreenWithFade(screen: Screens, durationInSeconds: Float, param: ScreenSwitchParameters?) {
-        transitionHandler.switch(screen, durationInSeconds, param)
-    }
-
     override fun switchScreen(screen: Screens, param: ScreenSwitchParameters?) {
         if (screen == Screens.VEHICLE_SELECTION) {
-            goToHangarScreen()
+            val parameters = param as ToHangarScreenSwitchParameters
+            goToHangarScreen(parameters.disposeCurrentGame)
         } else {
-            val parameters = param as GamePlayScreenSwitchParameters
+            val parameters = param as ToGamePlayScreenSwitchParameters
             goToGameplayScreen(parameters.selectedVehicle, parameters.autoAim)
         }
     }
 
-    override fun goToGameplayScreen(selectedCharacter: CharacterDefinition, autoAim: Boolean) {
+    private fun goToGameplayScreen(selectedCharacter: CharacterDefinition, autoAim: Boolean) {
+        if (gamePlayScreen == null) {
+            gamePlayScreen = GamePlayScreen(
+                runsOnMobile,
+                fpsTarget,
+                GeneralManagers(assetsManager, soundManager, dispatcher, this),
+            )
+        }
         setScreen(
             gamePlayScreen
         )
-        gamePlayScreen.initialize(selectedCharacter, autoAim)
+        gamePlayScreen!!.initialize(selectedCharacter, autoAim)
         OpponentEnteredGameplayScreenEventData.set(
             CharacterColor.BROWN,
             selectedCharacter
@@ -107,9 +105,22 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         dispatcher.dispatchMessage(SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN.ordinal, CharacterColor.BROWN)
     }
 
-    override fun goToHangarScreen() {
+    private fun goToHangarScreen(disposeScreen: Boolean) {
         soundManager.stopAll(assetsManager)
         setScreen(hangarScreenImpl)
+        if (disposeScreen) {
+            gamePlayScreen?.dispose()
+            gamePlayScreen = null
+        }
+    }
+
+
+    override fun setScreenWithFade(
+        screen: Screens,
+        durationInSeconds: Float,
+        param: ScreenSwitchParameters?
+    ) {
+        transitionHandler.switch(screen, durationInSeconds, param)
     }
 
     companion object {

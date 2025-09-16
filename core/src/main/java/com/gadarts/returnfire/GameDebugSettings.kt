@@ -14,14 +14,14 @@ object GameDebugSettings {
     const val SHOW_HEAP_SIZE = false
     const val DEBUG_INPUT = false
     const val UI_DEBUG = false
-    const val SFX = true
+    const val SFX = false
     const val DISABLE_MUSIC = true
     const val DISABLE_AMB_SOUNDS = false
     const val HIDE_PLAYER = false
     const val HIDE_FLOOR = false
     const val HIDE_ENEMIES = false
     const val FORCE_PLAYER_HP: Float = 10000F
-    const val FORCE_ENEMY_HP: Float = -1F
+    const val FORCE_ENEMY_HP: Float = 1F
     const val FORCE_AMMO: Int = -1
     const val FORCE_INITIAL_FUEL: Float = -1F
     const val AVOID_PARTICLE_EFFECTS_DRAWING = false

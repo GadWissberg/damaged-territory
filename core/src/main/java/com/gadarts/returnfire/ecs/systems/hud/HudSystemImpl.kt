@@ -1,7 +1,9 @@
 package com.gadarts.returnfire.ecs.systems.hud
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
@@ -28,6 +30,7 @@ import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnLandingIndicatorV
 import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnPlayerAimSky
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.screens.Screens
+import com.gadarts.returnfire.screens.types.gameplay.ToHangarScreenSwitchParameters
 import com.gadarts.shared.assets.definitions.FontDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.data.CharacterColor
@@ -110,9 +113,9 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                val entity = msg.extraInfo as? com.badlogic.ashley.core.Entity ?: return
+                val entity = msg.extraInfo as? Entity ?: return
                 if (entity == gameSessionData.gamePlayData.player) {
-                    fadeToVehicleSelection()
+                    fadeToVehicleSelection(disposeScreen = false, delay = true)
                 }
             }
         },
@@ -126,6 +129,17 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
 
                 val color = msg.extraInfo as CharacterColor
                 gameOver(color)
+            }
+        },
+        SystemEvents.CHARACTER_ONBOARDING_FINISHED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                if (!ComponentsMapper.player.has(msg.extraInfo as Entity)) return
+
+                fadeToVehicleSelection(disposeScreen = false, delay = false)
             }
         }
     )
@@ -147,18 +161,20 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
             Gdx.graphics.width / 2F - label.width / 2F,
             Gdx.graphics.height / 2F - label.height / 2F
         )
-        fadeToVehicleSelection()
+        fadeToVehicleSelection(disposeScreen = true, delay = true)
     }
 
     private fun fadeToVehicleSelection(
+        disposeScreen: Boolean,
+        delay: Boolean
     ) {
         gameSessionData.hudData.stage.addAction(Actions.sequence(
-            DelayAction(5F),
+            DelayAction(if (delay) 5F else 0F),
             Actions.run {
                 gamePlayManagers.screensManager.setScreenWithFade(
                     Screens.VEHICLE_SELECTION,
                     2F,
-                    null
+                    ToHangarScreenSwitchParameters(disposeScreen)
                 )
             }
         )
@@ -196,6 +212,10 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
         if (!GameDebugSettings.DISABLE_HUD) {
             gameSessionData.hudData.stage.act(deltaTime)
             gameSessionData.hudData.stage.draw()
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.BACK)) {
+            fadeToVehicleSelection(disposeScreen = true, delay = false)
         }
     }
 

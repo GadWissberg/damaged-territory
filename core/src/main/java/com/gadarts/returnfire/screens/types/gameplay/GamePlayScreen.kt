@@ -2,8 +2,6 @@ package com.gadarts.returnfire.screens.types.gameplay
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
@@ -137,9 +135,6 @@ class GamePlayScreen(
             engine.removeEntity(it)
         }
         entitiesToRemove.clear()
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) || Gdx.input.isKeyPressed(Input.Keys.BACK)) {
-            generalManagers.screensManagers.goToHangarScreen()
-        }
     }
 
     override fun resize(width: Int, height: Int) {
@@ -162,6 +157,7 @@ class GamePlayScreen(
         gameSessionData.finishSession()
         engine.systems.forEach { (it as GameEntitySystem).dispose() }
         factories.dispose()
+        generalManagers.dispatcher.clear()
     }
 
     override fun show() {
