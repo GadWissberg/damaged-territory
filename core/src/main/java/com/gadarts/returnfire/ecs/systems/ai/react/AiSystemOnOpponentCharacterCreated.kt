@@ -14,7 +14,7 @@ class AiSystemOnOpponentCharacterCreated(
     private val aiSystem: AiSystem
 ) :
     HandlerOnEvent {
-    @Suppress("KotlinConstantConditions")
+    @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val entity = msg.extraInfo as Entity
         val characterComponent = ComponentsMapper.character.get(entity)
@@ -28,7 +28,6 @@ class AiSystemOnOpponentCharacterCreated(
             if (GameDebugSettings.FORCE_ENEMY_HP >= 0) {
                 ComponentsMapper.character.get(entity).hp = GameDebugSettings.FORCE_ENEMY_HP
             }
-            aiSystem.getAiLogicHandler().onCharacterCreated(entity)
         }
     }
 

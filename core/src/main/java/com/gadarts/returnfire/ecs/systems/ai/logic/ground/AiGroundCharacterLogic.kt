@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.ecs.systems.ai.logic
+package com.gadarts.returnfire.ecs.systems.ai.logic.ground
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
@@ -13,15 +13,13 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.ComponentsMapper.baseAi
+import com.gadarts.returnfire.ecs.systems.ai.logic.AiCharacterLogic
+import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiTurretStatus
-import com.gadarts.returnfire.ecs.systems.ai.logic.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
 import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
-import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_AI
-import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GENERAL
-import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_PLAYER
+import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraph
@@ -33,8 +31,7 @@ import com.gadarts.shared.assets.definitions.SoundDefinition
 import kotlin.math.abs
 import kotlin.math.atan2
 
-
-open class AiGroundCharacterLogic(
+abstract class AiGroundCharacterLogic(
     private val gameSessionData: GameSessionData,
     autoAim: btPairCachingGhostObject,
     private val gamePlayManagers: GamePlayManagers,
@@ -56,8 +53,8 @@ open class AiGroundCharacterLogic(
     private val closestRayResultCallback = ClosestRayResultCallback(rayFrom, rayTo)
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
-        val aiComponent = baseAi.get(character)
-        if (aiComponent.target == null) return
+        super.preUpdate(character, deltaTime)
+        val aiComponent = ComponentsMapper.baseAi.get(character)
 
         val groundCharacterAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
         val roamingEndTime = groundCharacterAiComponent.roamingEndTime
@@ -139,9 +136,10 @@ open class AiGroundCharacterLogic(
         }
     }
 
+
     private fun deactivateRoamingIfNeeded(character: Entity) {
         val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
-        val baseAiComponent = baseAi.get(character)
+        val baseAiComponent = ComponentsMapper.baseAi.get(character)
         val roamingEndTime = tankAiComponent.roamingEndTime
         if (roamingEndTime == null || roamingEndTime < TimeUtils.millis()) {
             tankAiComponent.roamingEndTime = null
@@ -153,7 +151,7 @@ open class AiGroundCharacterLogic(
 
     private fun activateRoaming(tank: Entity) {
         val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(tank)
-        val baseAiComponent = baseAi.get(tank)
+        val baseAiComponent = ComponentsMapper.baseAi.get(tank)
         baseAiComponent.state = AiStatus.ROAMING
         tankAiComponent.roamingEndTime = System.currentTimeMillis() + 10000L
     }
@@ -334,7 +332,7 @@ open class AiGroundCharacterLogic(
     private fun goBackToBase(
         character: Entity
     ) {
-        val aiComponent = baseAi.get(character)
+        val aiComponent = ComponentsMapper.baseAi.get(character)
         aiComponent.state = AiStatus.PLANNING
         ComponentsMapper.groundCharacterAiComponent.get(character).roamingEndTime = 0
         aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(character).color]
@@ -345,7 +343,7 @@ open class AiGroundCharacterLogic(
         vehicle: Entity,
         deltaTime: Float
     ) {
-        val baseAiComponent = baseAi.get(vehicle)
+        val baseAiComponent = ComponentsMapper.baseAi.get(vehicle)
         val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(vehicle)
         val pathNodes = tankAiComponent.path.nodes
         val target = baseAiComponent.target
@@ -446,7 +444,7 @@ open class AiGroundCharacterLogic(
             rayLength: Float
         ) {
             if (checkIfSideIsBlocked(character, callback, gameSessionData.physicsData.collisionWorld, -90F)) {
-                baseAi.get(character).state = AiStatus.REVERSE
+                ComponentsMapper.baseAi.get(character).state = AiStatus.REVERSE
                 return
             }
 
@@ -469,7 +467,7 @@ open class AiGroundCharacterLogic(
             rayLength: Float
         ) {
             if (checkIfSideIsBlocked(character, callback, gameSessionData.physicsData.collisionWorld, 90F)) {
-                baseAi.get(character).state = AiStatus.REVERSE
+                ComponentsMapper.baseAi.get(character).state = AiStatus.REVERSE
                 return
             }
 
@@ -510,7 +508,7 @@ open class AiGroundCharacterLogic(
                     val collisionObjectEntity = callback.collisionObject.userData as Entity
                     val colliderModelInstanceComponent =
                         ComponentsMapper.modelInstance.get(collisionObjectEntity)
-                    val aiComponent = baseAi.get(character)
+                    val aiComponent = ComponentsMapper.baseAi.get(character)
                     val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
                     if (colliderModelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector3_1
@@ -552,7 +550,7 @@ open class AiGroundCharacterLogic(
                 gameSessionData.mapData.mapGraph,
                 tileCollector
             )
-            val aiComponent = baseAi.get(character)
+            val aiComponent = ComponentsMapper.baseAi.get(character)
             val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
             aiComponent.state =
                 if (tankAiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
@@ -669,8 +667,9 @@ open class AiGroundCharacterLogic(
                 return true
             }
 
-            callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
-            callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL
+            callback.collisionFilterGroup = BulletEngineHandler.COLLISION_GROUP_GENERAL
+            callback.collisionFilterMask =
+                BulletEngineHandler.COLLISION_GROUP_PLAYER or BulletEngineHandler.COLLISION_GROUP_AI or BulletEngineHandler.COLLISION_GROUP_GENERAL
             val collided = rayTest(
                 position,
                 direction,
@@ -679,14 +678,14 @@ open class AiGroundCharacterLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                rayTest(
-                    position,
-                    direction,
-                    collisionWorld,
-                    callback,
-                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                    MAX_LOOKING_AHEAD
-                ) || rayTest(
+                    rayTest(
+                        position,
+                        direction,
+                        collisionWorld,
+                        callback,
+                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                        MAX_LOOKING_AHEAD
+                    ) || rayTest(
                 position,
                 direction,
                 collisionWorld,
@@ -712,8 +711,9 @@ open class AiGroundCharacterLogic(
                     auxVector3_2
                 )
             val direction = auxVector3_1.set(Vector3.X).rot(transform).rotate(Vector3.Y, rotationAroundY).nor()
-            callback.collisionFilterGroup = COLLISION_GROUP_GENERAL
-            callback.collisionFilterMask = COLLISION_GROUP_PLAYER or COLLISION_GROUP_GENERAL
+            callback.collisionFilterGroup = BulletEngineHandler.COLLISION_GROUP_GENERAL
+            callback.collisionFilterMask =
+                BulletEngineHandler.COLLISION_GROUP_PLAYER or BulletEngineHandler.COLLISION_GROUP_GENERAL
             val collided = rayTest(
                 position,
                 direction,

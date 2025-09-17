@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiCharacterGoals
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
 import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
@@ -34,10 +35,12 @@ class AiApacheLogic(
     }
 
     init {
+        goal = AiCharacterGoals.ATTACK_PLAYER
         shootingHandler.initialize(dispatcher, gameSessionData, autoAim)
     }
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
+        super.preUpdate(character, deltaTime)
         val aiComponent = ComponentsMapper.baseAi.get(character)
         val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
         val returningToBase = ComponentsMapper.elevator.has(aiComponent.target)

@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.ecs.systems.ai.logic
+package com.gadarts.returnfire.ecs.systems.ai.logic.ground
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
@@ -9,14 +9,14 @@ import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
 
-
 class AiJeepCharacterLogic(
     private val gameSessionData: GameSessionData,
     gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject,
 ) : AiGroundCharacterLogic(gameSessionData, autoAim, gamePlayManagers), Disposable {
-
-
+    init {
+        goal = AiCharacterGoals.GET_THE_RIVAL_FLAG
+    }
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
         super.preUpdate(character, deltaTime)
@@ -30,4 +30,5 @@ class AiJeepCharacterLogic(
     override fun getMaxDistanceForTargetReached(target: Entity): Float {
         return if (ComponentsMapper.flag.has(target)) 0F else super.getMaxDistanceForTargetReached(target)
     }
+
 }

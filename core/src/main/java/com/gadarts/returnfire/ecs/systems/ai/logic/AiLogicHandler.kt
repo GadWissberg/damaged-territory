@@ -12,6 +12,8 @@ import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
+import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiJeepCharacterLogic
+import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiTankCharacterLogic
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
@@ -42,7 +44,7 @@ class AiLogicHandler(
             gamePlayManagers,
             autoAim
         ),
-        TurretCharacterDefinition.TANK to AiGroundCharacterLogic(
+        TurretCharacterDefinition.TANK to AiTankCharacterLogic(
             gameSessionData,
             autoAim,
             gamePlayManagers
@@ -100,11 +102,6 @@ class AiLogicHandler(
         logics.forEach { (_, aiLogic) ->
             aiLogic.dispose()
         }
-    }
-
-    fun onCharacterCreated(character: Entity) {
-        val logic = logics[ComponentsMapper.character.get(character).definition]
-        logic?.onCharacterCreated(character)
     }
 
     fun begin() {
