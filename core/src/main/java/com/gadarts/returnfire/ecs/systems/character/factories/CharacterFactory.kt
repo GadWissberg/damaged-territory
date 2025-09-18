@@ -18,7 +18,7 @@ import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
-import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 abstract class CharacterFactory(
     protected val gameModelInstanceFactory: GameModelInstanceFactory,

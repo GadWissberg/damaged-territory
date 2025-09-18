@@ -50,7 +50,7 @@ import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.AmbDefinition
-import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class EntityBuilderImpl : EntityBuilder {
     private lateinit var messageDispatcher: MessageDispatcher

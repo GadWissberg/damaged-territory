@@ -15,7 +15,7 @@ import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScr
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.data.CharacterColor
-import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOnEvent {
     private val elevatorEntities: ImmutableArray<Entity> = engine.getEntitiesFor(

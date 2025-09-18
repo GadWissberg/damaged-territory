@@ -34,9 +34,9 @@ import com.gadarts.returnfire.screens.types.gameplay.ToHangarScreenSwitchParamet
 import com.gadarts.shared.assets.definitions.FontDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.data.CharacterColor
-import com.gadarts.shared.data.definitions.CharacterDefinition
-import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.data.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 
 class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     GameEntitySystem(gamePlayManagers) {

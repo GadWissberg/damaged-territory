@@ -21,7 +21,7 @@ import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
-import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
 
 class ApacheFactory(
     private val assetsManager: GameAssetManager,

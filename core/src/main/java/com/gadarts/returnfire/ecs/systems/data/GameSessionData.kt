@@ -7,7 +7,7 @@ import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
 import com.gadarts.returnfire.ecs.systems.data.hud.GameSessionDataHud
 import com.gadarts.returnfire.ecs.systems.data.map.GameSessionDataMap
 import com.gadarts.shared.GameAssetManager
-import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class GameSessionData(
     val runsOnMobile: Boolean,

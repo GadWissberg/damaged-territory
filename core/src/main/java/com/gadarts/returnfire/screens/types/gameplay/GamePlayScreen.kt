@@ -33,7 +33,7 @@ import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.shared.assets.map.GameMap
-import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class GamePlayScreen(
     runsOnMobile: Boolean,

@@ -8,9 +8,9 @@ import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.shared.GameAssetManager
-import com.gadarts.shared.data.definitions.CharacterDefinition
-import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.data.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 
 class OpponentCharacterFactory(
     assetsManager: GameAssetManager,

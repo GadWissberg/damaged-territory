@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.shared.data.CharacterColor
-import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class CharacterComponent(val definition: CharacterDefinition, val color: CharacterColor) : Component {
     var idleFuelConsumptionTimer: Float = 0.0f

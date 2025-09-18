@@ -8,7 +8,7 @@ import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
-import com.gadarts.shared.data.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 
 class MapSystemOnCharacterDied : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {

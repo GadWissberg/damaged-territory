@@ -1,4 +1,4 @@
-package com.gadarts.shared.data.definitions
+package com.gadarts.shared.data.definitions.characters
 
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
@@ -127,5 +127,9 @@ enum class SimpleCharacterDefinition(
 
     override fun getMass(): Float {
         return 10F
+    }
+
+    override fun isDeployable(): Boolean {
+        return true
     }
 }

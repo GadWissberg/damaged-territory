@@ -42,8 +42,8 @@ import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
-import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.data.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 import com.gadarts.shared.data.type.CharacterType
 import kotlin.math.abs
 import kotlin.math.sign

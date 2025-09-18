@@ -1,24 +1,25 @@
-package com.gadarts.shared.data.definitions
+package com.gadarts.shared.data.definitions.characters
 
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.data.type.CharacterType
 
 enum class TurretCharacterDefinition(
+    val turretCorpseModelDefinitions: List<ModelDefinition>,
+    val separateTextureForDeadTurret: Boolean = false,
     private val hp: Float,
     private val baseModelDefinition: ModelDefinition,
     private val smokeEmissionRelativePosition: Vector3,
     private val gravity: Vector3,
     private val linearFactor: Vector3,
     private val corpseModelDefinitions: List<ModelDefinition>,
-    val turretCorpseModelDefinitions: List<ModelDefinition>,
     private val isNonMoving: Boolean,
     private val mass: Float,
     private val fuelConsumptionPace: Float = 0.0F,
     private val placeable: Boolean = false,
     private val linearDamping: Float = 0.0F,
     private val angularDamping: Float = 0.0F,
-    val separateTextureForDeadTurret: Boolean = false,
+    private val deployable: Boolean,
 ) : CharacterDefinition {
     TURRET_CANNON(
         hp = 75F,
@@ -36,7 +37,8 @@ enum class TurretCharacterDefinition(
         ),
         isNonMoving = true,
         mass = 0F,
-        placeable = true
+        placeable = true,
+        deployable = false
     ),
     TANK(
         hp = 275F,
@@ -44,8 +46,8 @@ enum class TurretCharacterDefinition(
         smokeEmissionRelativePosition = Vector3.Zero,
         gravity = Vector3(0F, -10F, 0F),
         linearFactor = Vector3(1F, 1F, 1F),
-        listOf(ModelDefinition.TANK_BODY_DESTROYED),
-        listOf(
+        corpseModelDefinitions = listOf(ModelDefinition.TANK_BODY_DESTROYED),
+        turretCorpseModelDefinitions = listOf(
             ModelDefinition.TANK_TURRET_DESTROYED,
         ),
         isNonMoving = false,
@@ -53,7 +55,9 @@ enum class TurretCharacterDefinition(
         fuelConsumptionPace = 0.1F,
         linearDamping = 0.9F,
         angularDamping = 0.99F,
-        separateTextureForDeadTurret = true
+        separateTextureForDeadTurret = true,
+        placeable = true,
+        deployable = true
     ),
     JEEP(
         hp = 65F,
@@ -71,6 +75,7 @@ enum class TurretCharacterDefinition(
         placeable = false,
         linearDamping = 0.8F,
         angularDamping = 0.999F,
+        deployable = true
     );
 
     override fun isUseSeparateTransformObjectForPhysics(): Boolean {
@@ -163,5 +168,9 @@ enum class TurretCharacterDefinition(
 
     override fun getMass(): Float {
         return mass
+    }
+
+    override fun isDeployable(): Boolean {
+        return deployable
     }
 }

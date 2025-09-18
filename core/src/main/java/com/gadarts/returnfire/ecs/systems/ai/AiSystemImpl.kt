@@ -18,9 +18,9 @@ import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
-import com.gadarts.shared.data.definitions.CharacterDefinition
-import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.data.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 
 
 class AiSystemImpl(gamePlayManagers: GamePlayManagers) : AiSystem, GameEntitySystem(gamePlayManagers) {
@@ -108,7 +108,7 @@ class AiSystemImpl(gamePlayManagers: GamePlayManagers) : AiSystem, GameEntitySys
                 ) {
                     val character = msg.extraInfo as Entity
                     val characterComponent = ComponentsMapper.character.get(character)
-                    if (characterComponent.color == CharacterColor.GREEN && ComponentsMapper.baseAi.has(character)) {
+                    if (characterComponent.color == CharacterColor.GREEN && characterComponent.definition.isDeployable()) {
                         logicHandler.onCharacterDied()
                     }
                 }

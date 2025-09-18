@@ -2,7 +2,7 @@ package com.gadarts.returnfire.screens.types.hangar
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class VehicleStage(
     val modelInstance: ModelInstance,

@@ -1,7 +1,8 @@
-package com.gadarts.shared.data.definitions
+package com.gadarts.shared.data.definitions.characters
 
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.definitions.ElementDefinition
 import com.gadarts.shared.data.type.CharacterType
 import com.gadarts.shared.data.type.ElementType
 
@@ -28,6 +29,7 @@ interface CharacterDefinition : ElementDefinition {
     fun getAngularDamping(): Float
     fun getFriction(): Float
     fun getMass(): Float
+    fun isDeployable(): Boolean
 
     companion object {
         const val FLYER_HEIGHT = 3.9F

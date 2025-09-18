@@ -54,6 +54,11 @@ abstract class AiGroundCharacterLogic(
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
         super.preUpdate(character, deltaTime)
+        if (GameDebugSettings.AI_FORCE_THRUST) {
+            movementHandler.thrust(character)
+            return
+        }
+
         val aiComponent = ComponentsMapper.baseAi.get(character)
 
         val groundCharacterAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
@@ -678,14 +683,14 @@ abstract class AiGroundCharacterLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                    rayTest(
-                        position,
-                        direction,
-                        collisionWorld,
-                        callback,
-                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                        MAX_LOOKING_AHEAD
-                    ) || rayTest(
+                rayTest(
+                    position,
+                    direction,
+                    collisionWorld,
+                    callback,
+                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                    MAX_LOOKING_AHEAD
+                ) || rayTest(
                 position,
                 direction,
                 collisionWorld,

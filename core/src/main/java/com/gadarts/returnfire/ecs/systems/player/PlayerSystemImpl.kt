@@ -31,9 +31,9 @@ import com.gadarts.returnfire.ecs.systems.player.handlers.movement.touchpad.Move
 import com.gadarts.returnfire.ecs.systems.player.react.*
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
-import com.gadarts.shared.data.definitions.CharacterDefinition
-import com.gadarts.shared.data.definitions.SimpleCharacterDefinition
-import com.gadarts.shared.data.definitions.TurretCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 
 @Suppress("KotlinConstantConditions")
 class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers),

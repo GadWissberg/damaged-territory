@@ -18,7 +18,7 @@ import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
-import com.gadarts.shared.data.definitions.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class HangarSceneHandler(
     private val soundManager: SoundManager,

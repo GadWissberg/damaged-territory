@@ -62,6 +62,9 @@ import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.creation.MapInflater
 import com.gadarts.shared.data.definitions.*
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
+import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
+import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 import com.gadarts.shared.data.type.CharacterType
 import com.gadarts.shared.data.type.ElementType
 
