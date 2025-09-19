@@ -71,12 +71,13 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
-                    val entity = msg.extraInfo as Entity
-                    if (ComponentsMapper.character.has(entity)) {
+                    val character = msg.extraInfo as Entity
+                    if (ComponentsMapper.character.has(character)) {
                         gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.CHARACTER_DIED.ordinal,
-                            entity
+                            character
                         )
+                        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, character)
                     }
                 }
             },
@@ -100,10 +101,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     gameSessionData: GameSessionData,
                     gamePlayManagers: GamePlayManagers
                 ) {
-                    val stageEntities =
+                    val elevatorEntities =
                         engine.getEntitiesFor(Family.all(ElevatorComponent::class.java).get())
                     gameSessionData.mapData.elevators =
-                        stageEntities.associateBy(
+                        elevatorEntities.associateBy(
                             { ComponentsMapper.hangar.get(ComponentsMapper.elevator.get(it).hangar).color },
                             { it })
                 }
@@ -270,9 +271,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     boardingComponent.creationTime
                 ) > 1000F
             ) {
-                val elevator = gameSessionData.mapData.elevators[boardingComponent.color]
+                val hangar = gameSessionData.mapData.elevators[boardingComponent.color]
                 val elevatorTransform =
-                    ComponentsMapper.modelInstance.get(elevator).gameModelInstance.modelInstance.transform
+                    ComponentsMapper.modelInstance.get(hangar).gameModelInstance.modelInstance.transform
                 if (boardingComponent.isDeploying()) {
                     if (elevatorTransform.getTranslation(auxVector1).y < MAX_Y) {
                         takeStepForElevatorWithCharacter(elevatorTransform, character, MAX_Y, deltaTime)

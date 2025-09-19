@@ -18,13 +18,13 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.components.FlagComponent
 import com.gadarts.returnfire.ecs.components.ElevatorComponent
+import com.gadarts.returnfire.ecs.components.FlagComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.cd.DecalAnimation
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
-import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.components.pit.ElevatorDoorComponent
+import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
@@ -54,7 +54,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     private val ambEffectsHandlers = AmbEffectsHandlers(gamePlayManagers, this, mapSystemRelatedEntities)
     private val landingMark: ChildDecal by lazy { createLandingMark() }
 
-    private val elevators: ImmutableArray<Entity> by lazy {
+    private val hangars: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(
             Family.all(
                 HangarComponent::class.java,
@@ -107,7 +107,8 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                     )
                 }
             },
-            SystemEvents.CHARACTER_DIED to MapSystemOnCharacterDied()
+            SystemEvents.CHARACTER_DIED to MapSystemOnCharacterDied(),
+            SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN to MapSystemOnOpponentEnteredGamePlayScreen(this)
         )
 
 
@@ -296,9 +297,9 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
 
-    override fun findBase(entity: Entity): Entity {
+    override fun findHangar(entity: Entity): Entity {
         val characterColor = ComponentsMapper.character.get(entity).color
-        return elevators.find { ComponentsMapper.hangar.get(it).color == characterColor }!!
+        return hangars.find { ComponentsMapper.hangar.get(it).color == characterColor }!!
     }
 
     override fun closeDoors(base: Entity) {
@@ -351,21 +352,21 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     override fun onSystemReady() {
         super.onSystemReady()
         MapInflaterImpl(gameSessionData, gamePlayManagers, engine).inflate()
-        elevators.forEach {
-            initializeBase(it)
+        hangars.forEach {
+            initializeHangar(it)
         }
         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.MAP_SYSTEM_READY.ordinal)
     }
 
-    private fun initializeBase(base: Entity) {
-        addElevator(base)
-        val baseComponent = ComponentsMapper.hangar.get(base)
+    private fun initializeHangar(hangar: Entity) {
+        addElevator(hangar)
+        val baseComponent = ComponentsMapper.hangar.get(hangar)
         baseComponent.init(
-            addBaseDoor(base, 0F, -1F),
-            addBaseDoor(base, 180F, 1F)
+            addBaseDoor(hangar, 0F, -1F),
+            addBaseDoor(hangar, 180F, 1F)
         )
         val sourcePosition =
-            ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
+            ComponentsMapper.modelInstance.get(hangar).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
 
@@ -405,9 +406,9 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         return door
     }
 
-    private fun addElevator(base: Entity): Entity {
+    private fun addElevator(hangar: Entity): Entity {
         val color =
-            if (ComponentsMapper.hangar.get(base).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
+            if (ComponentsMapper.hangar.get(hangar).color == CharacterColor.BROWN) "stage_texture_brown" else "stage_texture_green"
         val texture =
             gamePlayManagers.assetsManager.getTexture(color)
         return gamePlayManagers.ecs.entityBuilder.begin()
@@ -416,16 +417,14 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                     ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(ModelDefinition.STAGE)),
                     ImmutableGameModelInstanceInfo(ModelDefinition.STAGE),
                 ),
-                position = ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector1
-                ).add(1F, ElevatorComponent.BOTTOM_EDGE_Y, 1F),
+                position = ModelUtils.getPositionOfModel(hangar).add(1F, ElevatorComponent.BOTTOM_EDGE_Y, 1F),
                 boundingBox = null,
                 texture = texture
             )
             .addChildDecalComponent(
                 listOf(landingMark), false
             )
-            .addElevatorComponent(base)
+            .addElevatorComponent(hangar)
             .finishAndAddToEngine()
     }
 
@@ -455,8 +454,8 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     override fun update(deltaTime: Float) {
         if (isGamePaused()) return
 
-        for (elevator in elevators) {
-            updateElevatorDoors(elevator, deltaTime)
+        for (hangar in hangars) {
+            updateElevatorDoors(hangar, deltaTime)
         }
         ambEffectsHandlers.ambSoundsHandler.update(gamePlayManagers)
         ambEffectsHandlers.groundTextureAnimationHandler.update(deltaTime)
@@ -513,19 +512,19 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
     }
 
 
-    private fun updateElevatorDoors(elevator: Entity, deltaTime: Float) {
-        val elevatorComponent = ComponentsMapper.hangar.get(elevator)
-        if (elevatorComponent.isIdle()) return
+    private fun updateElevatorDoors(hangar: Entity, deltaTime: Float) {
+        val hangarComponent = ComponentsMapper.hangar.get(hangar)
+        if (hangarComponent.isIdle()) return
 
         val westDoorTransform =
-            ComponentsMapper.modelInstance.get(elevatorComponent.westDoor).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(hangarComponent.westDoor).gameModelInstance.modelInstance.transform
         val eastDoorTransform =
-            ComponentsMapper.modelInstance.get(elevatorComponent.eastDoor).gameModelInstance.modelInstance.transform
-        val stepSize = deltaTime * elevatorComponent.doorMoveState
-        val westDoorBaseDoorComponent = ComponentsMapper.elevatorDoor.get(elevatorComponent.westDoor)
-        val eastDoorBaseDoorComponent = ComponentsMapper.elevatorDoor.get(elevatorComponent.eastDoor)
-        updateWestDoor(elevatorComponent, westDoorBaseDoorComponent, westDoorTransform, stepSize)
-        updateEastDoor(elevatorComponent, eastDoorBaseDoorComponent, eastDoorTransform, stepSize)
+            ComponentsMapper.modelInstance.get(hangarComponent.eastDoor).gameModelInstance.modelInstance.transform
+        val stepSize = deltaTime * hangarComponent.doorMoveState
+        val westDoorBaseDoorComponent = ComponentsMapper.elevatorDoor.get(hangarComponent.westDoor)
+        val eastDoorBaseDoorComponent = ComponentsMapper.elevatorDoor.get(hangarComponent.eastDoor)
+        updateWestDoor(hangarComponent, westDoorBaseDoorComponent, westDoorTransform, stepSize)
+        updateEastDoor(hangarComponent, eastDoorBaseDoorComponent, eastDoorTransform, stepSize)
     }
 
     private fun updateEastDoor(

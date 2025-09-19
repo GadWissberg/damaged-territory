@@ -102,7 +102,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             CharacterColor.BROWN,
             selectedCharacter
         )
-        dispatcher.dispatchMessage(SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN.ordinal, CharacterColor.BROWN)
+        dispatcher.dispatchMessage(SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN.ordinal)
     }
 
     private fun goToHangarScreen(disposeScreen: Boolean) {

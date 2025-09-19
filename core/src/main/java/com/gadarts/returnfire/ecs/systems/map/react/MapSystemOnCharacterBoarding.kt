@@ -13,7 +13,7 @@ class MapSystemOnCharacterBoarding(private val mapSystem: MapSystem) : HandlerOn
         val character = msg.extraInfo as Entity
         val boardingComponent = ComponentsMapper.boarding.get(character)
         if (boardingComponent.boardingAnimation == null && boardingComponent.isOnboarding()) {
-            val base = mapSystem.findBase(character)
+            val base = mapSystem.findHangar(character)
             mapSystem.closeDoors(base)
         }
     }

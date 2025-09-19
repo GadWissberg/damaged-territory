@@ -11,7 +11,7 @@ interface MapSystem {
         decorateWithSmokeAndFire: Boolean
     )
 
-    fun findBase(entity: Entity): Entity
+    fun findHangar(entity: Entity): Entity
     fun closeDoors(base: Entity)
     fun hideLandingMark()
     fun blowAmbToParts(

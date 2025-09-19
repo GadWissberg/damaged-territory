@@ -17,6 +17,7 @@ import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents.*
+import com.gadarts.returnfire.ecs.systems.events.data.RemoveComponentEventData
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.ecs.systems.player.handlers.PlayerShootingHandler
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.GroundVehicleMovementHandlerMobile
@@ -117,7 +118,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 )
             }
         },
-        CHARACTER_DEPLOYED to PlayerSystemOnCharacterOffBoarded(this),
+        CHARACTER_DEPLOYED to PlayerSystemOnCharacterDeployed(this),
         BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
             @Suppress("SimplifyBooleanWithConstants", "RedundantSuppression")
@@ -158,11 +159,27 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 gamePlayManagers: GamePlayManagers
             ) {
                 if (ComponentsMapper.player.has(msg.extraInfo as Entity)) {
-                    engine.removeEntity(gameSessionData.gamePlayData.player)
+                    gamePlayManagers.dispatcher.dispatchMessage(
+                        REMOVE_ENTITY.ordinal,
+                        gameSessionData.gamePlayData.player
+                    )
                     gameSessionData.gamePlayData.player = null
                 }
             }
         },
+        CHARACTER_DIED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                val player = msg.extraInfo as Entity
+                if (!ComponentsMapper.player.has(player)) return
+
+                RemoveComponentEventData.set(player, ComponentsMapper.player.get(player))
+                gamePlayManagers.dispatcher.dispatchMessage(REMOVE_COMPONENT.ordinal)
+            }
+        }
     )
 
     override fun resume(delta: Long) {

@@ -1,5 +1,6 @@
 package com.gadarts.returnfire.screens.types.gameplay
 
+import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Screen
@@ -23,6 +24,7 @@ import com.gadarts.returnfire.ecs.systems.data.StainsHandler
 import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.ecs.systems.effects.EffectsSystem
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.ecs.systems.events.data.RemoveComponentEventData
 import com.gadarts.returnfire.ecs.systems.hud.HudSystemImpl
 import com.gadarts.returnfire.ecs.systems.map.MapSystemImpl
 import com.gadarts.returnfire.ecs.systems.physics.PhysicsSystem
@@ -54,6 +56,8 @@ class GamePlayScreen(
     private var autoAim: Boolean = true
     private lateinit var selectedCharacter: CharacterDefinition
     private val entitiesToRemove = mutableListOf<Entity>()
+    private val componentsToRemove = mutableListOf<Component>()
+    private val entitiesToRemoveComponentsFrom = mutableListOf<Entity>()
     private lateinit var factories: Factories
     private var pauseTime: Long = 0
     private val gameSessionData: GameSessionData by lazy {
@@ -134,7 +138,12 @@ class GamePlayScreen(
         entitiesToRemove.forEach {
             engine.removeEntity(it)
         }
+        entitiesToRemoveComponentsFrom.forEachIndexed { index, entity ->
+            entity.remove(componentsToRemove[index]::class.java)
+        }
         entitiesToRemove.clear()
+        entitiesToRemoveComponentsFrom.clear()
+        componentsToRemove.clear()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -167,7 +176,13 @@ class GamePlayScreen(
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
 
-        entitiesToRemove.add(msg.extraInfo as Entity)
+        val message = msg.message
+        if (message == SystemEvents.REMOVE_ENTITY.ordinal) {
+            entitiesToRemove.add(msg.extraInfo as Entity)
+        } else if (message == SystemEvents.REMOVE_COMPONENT.ordinal) {
+            entitiesToRemoveComponentsFrom.add(RemoveComponentEventData.entity)
+            componentsToRemove.add(RemoveComponentEventData.component)
+        }
 
         return true
     }
@@ -193,6 +208,7 @@ class GamePlayScreen(
                 MapPathFinder(gameSessionData.mapData, PathHeuristic()),
             )
             generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_ENTITY.ordinal)
+            generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_COMPONENT.ordinal)
             initializeSystems(gamePlayManagers)
             initialized = true
         }

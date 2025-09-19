@@ -138,7 +138,6 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
     private fun followPlayer(deltaTime: Float) {
         val renderData = gameSessionData.renderData
         val player = gameSessionData.gamePlayData.player ?: return
-
         val mapping =
             cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition]
                 ?: return

@@ -9,7 +9,7 @@ import com.gadarts.returnfire.ecs.systems.map.MapSystem
 
 class MapSystemOnCharacterOnboardingAnimationDone(private val mapSystem: MapSystem) : HandlerOnEvent {
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        val base = mapSystem.findBase(msg.extraInfo as Entity)
+        val base = mapSystem.findHangar(msg.extraInfo as Entity)
         mapSystem.closeDoors(base)
         mapSystem.hideLandingMark()
     }
