@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ElevatorComponent
 import com.gadarts.returnfire.ecs.components.FlagComponent
+import com.gadarts.returnfire.ecs.components.FlagFloorComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.cd.DecalAnimation
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
@@ -339,13 +340,6 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
             }
 
         })
-        val flagFloors = engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())
-        flags.forEach {
-            val flagComponent = ComponentsMapper.flag.get(it)
-            val flagFloor =
-                flagFloors.first { floor -> ComponentsMapper.flagFloor.get(floor).color == flagComponent.color }
-            flagComponent.follow = flagFloor
-        }
     }
 
 
@@ -354,6 +348,13 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
         MapInflaterImpl(gameSessionData, gamePlayManagers, engine).inflate()
         hangars.forEach {
             initializeHangar(it)
+        }
+        val flagFloors = engine.getEntitiesFor(Family.all(FlagFloorComponent::class.java).get())
+        flags.forEach {
+            val flagComponent = ComponentsMapper.flag.get(it)
+            val flagFloor =
+                flagFloors.first { floor -> ComponentsMapper.flagFloor.get(floor).color == flagComponent.color }
+            flagComponent.follow = flagFloor
         }
         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.MAP_SYSTEM_READY.ordinal)
     }
