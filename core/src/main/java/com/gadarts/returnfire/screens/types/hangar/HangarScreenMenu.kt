@@ -3,11 +3,16 @@ package com.gadarts.returnfire.screens.types.hangar
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.GameDebugSettings
+import com.gadarts.returnfire.screens.Screens
+import com.gadarts.returnfire.screens.ScreensManager
+import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
+import com.gadarts.returnfire.screens.types.hangar.scene.HangarSceneHandler
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.FontDefinition
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
@@ -18,7 +23,8 @@ class HangarScreenMenu(
     private val runsOnMobile: Boolean,
     private val assetsManager: GameAssetManager,
     private val stage: Stage,
-    private val hangarSceneHandler: HangarSceneHandler
+    private val hangarSceneHandler: HangarSceneHandler,
+    private val screenManager: ScreensManager
 ) {
     fun init() {
         characterButtons.forEach {
@@ -38,7 +44,7 @@ class HangarScreenMenu(
         ).top().left().row()
         val desktopText =
             "Arrows - Movement,\nCTRL - Primary attack,\nSHIFT - Secondary attack/return to base,\n" +
-                    "ALT + LEFT/RIGHT - Rotate turret/strafe,\nENTER - Switch ground/air aim,\n'~' - Open console"
+                "ALT + LEFT/RIGHT - Rotate turret/strafe,\nENTER - Switch ground/air aim,\n'~' - Open console"
         val androidText =
             "An on-screen game-pad will appear in-game"
         addDescription(if (runsOnMobile) androidText else desktopText)
@@ -128,6 +134,20 @@ class HangarScreenMenu(
             }
         })
         return textButton
+    }
+
+    fun switchToGameplayScreen(toGamePlayScreenSwitchParameters: ToGamePlayScreenSwitchParameters) {
+        stage.addAction(
+            Actions.sequence(
+                Actions.run {
+                    screenManager.setScreenWithFade(
+                        Screens.GAME_PLAY,
+                        2F,
+                        toGamePlayScreenSwitchParameters
+                    )
+                }
+            )
+        )
     }
 
     private val characterButtons: List<TextButton> by lazy {

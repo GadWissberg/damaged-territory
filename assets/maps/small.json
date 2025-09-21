@@ -44,15 +44,8 @@
     {
       "definition": "BASE_GREEN",
       "type": "AMB",
-      "row": 1,
-      "column": 6,
-      "rotation": 0.0
-    },
-    {
-      "definition": "TURRET_CANNON",
-      "type": "CHARACTER",
-      "row": 5,
-      "column": 6,
+      "row": 8,
+      "column": 11,
       "rotation": 0.0
     }
   ],

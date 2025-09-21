@@ -4,8 +4,8 @@ import com.gadarts.returnfire.ecs.systems.player.handlers.movement.GroundVehicle
 
 class JeepMovementHandlerParams : GroundVehicleMovementHandlerParams(
     2F,
-    35F,
+    40F,
     15F,
-    7F,
+    8F,
     2F
 )

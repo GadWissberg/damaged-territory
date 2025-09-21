@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.screens.types.hangar
+package com.gadarts.returnfire.screens.types.hangar.scene
 
 import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch

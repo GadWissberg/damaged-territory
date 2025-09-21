@@ -607,6 +607,6 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         private val auxVector3 = Vector3()
         private val auxMatrix = Matrix4()
         private val auxGameModelInstanceInfo = MutableGameModelInstanceInfo()
-        private const val SPEED_THRESHOLD = 6
+        private const val SPEED_THRESHOLD = 7
     }
 }

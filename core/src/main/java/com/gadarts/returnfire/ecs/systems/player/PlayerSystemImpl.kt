@@ -118,7 +118,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 )
             }
         },
-        CHARACTER_DEPLOYED to PlayerSystemOnCharacterDeployed(this),
+        CHARACTER_DEPLOYMENT_DONE to PlayerSystemOnCharacterDeployed(this),
         BUTTON_ONBOARD_PRESSED to PlayerSystemOnButtonOnboardPressed(),
         OPPONENT_CHARACTER_CREATED to object : HandlerOnEvent {
             @Suppress("SimplifyBooleanWithConstants", "RedundantSuppression")

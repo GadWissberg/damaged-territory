@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.screens.types.hangar
+package com.gadarts.returnfire.screens.types.hangar.scene
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Matrix4
@@ -70,12 +70,12 @@ class HangarCharacterModels(private val assetsManager: GameAssetManager, private
         modelDefinition: ModelDefinition,
         relativeHeight: Float,
         yaw: Float,
-        vehicleStage: VehicleStage
+        vehicleElevator: VehicleElevator
     ): SelectableVehicle {
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(modelDefinition))
         val vehicle = SelectableVehicle(
-            modelInstance, vehicleStage.modelInstance, relativeHeight,
+            modelInstance, vehicleElevator.modelInstance, relativeHeight,
             yaw
         )
         return vehicle

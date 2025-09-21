@@ -24,7 +24,7 @@ class CameraSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                     cameraMovementHandler.init()
                 }
             },
-            SystemEvents.CHARACTER_DEPLOYED to object : HandlerOnEvent {
+            SystemEvents.CHARACTER_DEPLOYMENT_DONE to object : HandlerOnEvent {
                 override fun react(
                     msg: Telegram,
                     gameSessionData: GameSessionData,

@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.screens.types.hangar
+package com.gadarts.returnfire.screens.types.hangar.scene
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -13,9 +13,8 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.screens.Screens
-import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
+import com.gadarts.returnfire.screens.types.hangar.HangarScreenMenu
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
@@ -23,7 +22,6 @@ import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 class HangarSceneHandler(
     private val soundManager: SoundManager,
     private val assetsManager: GameAssetManager,
-    private val screenManager: ScreensManager
 ) :
     Disposable {
     private var elevatorSoundMoveSoundId: Long = -1
@@ -31,7 +29,7 @@ class HangarSceneHandler(
     private val sceneModels = HangarSceneModelsData(assetsManager)
     private val hangarSceneLightingData = HangarSceneLightingData()
     private var deployingState = 0
-    private var selected: VehicleStage? = null
+    private var selected: VehicleElevator? = null
     private var swingTime: Float = 0.0f
 
     fun render(delta: Float) {
@@ -49,17 +47,16 @@ class HangarSceneHandler(
                     )
                 }
                 if (deployingState > 0) {
-                    screenManager.switchScreen(
-                        Screens.GAME_PLAY,
+                    hangarScreenMenu.switchToGameplayScreen(
                         ToGamePlayScreenSwitchParameters(
                             selected!!.characterDefinition,
                             hangarScreenMenu.isAutoAimSelected()
                         )
                     )
                 } else {
-                    selected = null
                     hangarScreenMenu.show()
                 }
+                selected = null
             }
         }
         animateHook(delta)

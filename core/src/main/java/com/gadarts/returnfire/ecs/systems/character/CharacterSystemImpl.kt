@@ -686,7 +686,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         }
         gamePlayManagers.dispatcher.dispatchMessage(
-            SystemEvents.CHARACTER_DEPLOYED.ordinal,
+            SystemEvents.CHARACTER_DEPLOYMENT_DONE.ordinal,
             character
         )
     }

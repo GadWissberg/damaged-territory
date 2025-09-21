@@ -1,10 +1,10 @@
-package com.gadarts.returnfire.screens.types.hangar
+package com.gadarts.returnfire.screens.types.hangar.scene
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
-class VehicleStage(
+class VehicleElevator(
     val modelInstance: ModelInstance,
     val characterDefinition: CharacterDefinition,
     private val initialPosition: Vector3

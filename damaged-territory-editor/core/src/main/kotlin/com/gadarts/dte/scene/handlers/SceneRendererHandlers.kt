@@ -29,7 +29,6 @@ data class SceneRendererHandlers(
 
     override fun dispose() {
         handlers.forEach { it.dispose() }
-        auxiliaryModels.dispose()
     }
 
     fun update(parent: Table) {
