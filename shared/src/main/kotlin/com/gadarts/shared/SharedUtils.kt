@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.VertexAttributes
 import com.badlogic.gdx.graphics.g3d.Material
+import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
@@ -115,6 +116,16 @@ object SharedUtils {
         }
 
         return compoundShape
+    }
+
+    fun applyCustomTextureToModelInstance(
+        assetsManager: GameAssetManager,
+        modelInstance: ModelInstance,
+        customTexture: String
+    ) {
+        val textureAttribute: TextureAttribute =
+            modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute
+        textureAttribute.textureDescription.texture = assetsManager.getTexture(customTexture)
     }
 
 }

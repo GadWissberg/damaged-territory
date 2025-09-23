@@ -582,7 +582,7 @@ class MapSystemOnPhysicsCollision(private val mapSystem: MapSystem) : HandlerOnE
         val beforeHp = ambComponent.hp
         applyDamageToAmb(ambComponent)
         val newHp = ambComponent.hp
-        createFlyingPartsForAmb(amb, Vector3.Zero, gamePlayManagers, true)
+        createFlyingPartsForAmb(amb, auxVector2.set(0F, 0.1F, 0F), gamePlayManagers, true)
         if (newHp <= 0) {
             initiateAmbDestruction(amb, position, gameSessionData, gamePlayManagers)
         } else {

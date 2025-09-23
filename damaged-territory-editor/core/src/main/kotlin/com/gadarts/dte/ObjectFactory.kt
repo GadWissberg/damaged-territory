@@ -6,6 +6,8 @@ import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
 import com.gadarts.dte.scene.handlers.render.EditorModelInstanceProps
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.SharedUtils
+import com.gadarts.shared.data.definitions.AmbDefinition
 import com.gadarts.shared.data.definitions.ElementDefinition
 
 class ObjectFactory(private val sharedData: SharedData, private val gameAssetsManager: GameAssetManager) {
@@ -34,6 +36,16 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
                 modelInstance
             )
         )
+        if (elementDefinition is AmbDefinition) {
+            val customTexture = elementDefinition.customTexture
+            if (customTexture != null) {
+                SharedUtils.applyCustomTextureToModelInstance(
+                    gameAssetsManager,
+                    modelInstance,
+                    customTexture
+                )
+            }
+        }
         return true
     }
 
