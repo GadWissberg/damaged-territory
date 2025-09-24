@@ -18,13 +18,13 @@ import com.gadarts.returnfire.ecs.components.arm.ArmProperties
 import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 import com.gadarts.returnfire.ecs.components.bullet.BulletComponent
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
+import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.GeneralUtils
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
@@ -120,7 +120,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             }
             destroyBullet = destroyBullet or bulletLogic.update(bullet, deltaTime)
             destroyBullet = destroyBullet or (position.x <= 0F || position.x >= tilesMapping.depth
-                    || position.z <= 0F || position.z >= tilesMapping.width)
+                || position.z <= 0F || position.z >= tilesMapping.width)
             if (destroyBullet) {
                 destroyBullet(bullet)
             }
@@ -135,7 +135,8 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     private fun createBullet() {
         val sparkParent = ComponentsMapper.spark.get(BulletCreationRequestEventData.armComponent.spark).parent
-        val parent = resolveParent(sparkParent)
+        val parent = resolveParent(sparkParent) ?: return
+
         val position = ModelUtils.getPositionOfModel(parent, auxVector1)
         gamePlayManagers.soundManager.play(
             BulletCreationRequestEventData.armComponent.armProperties.shootingSound,

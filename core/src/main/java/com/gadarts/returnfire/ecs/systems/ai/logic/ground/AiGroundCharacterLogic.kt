@@ -186,7 +186,9 @@ abstract class AiGroundCharacterLogic(
                 .dst2(characterPosition.set(characterPosition.x, 0F, characterPosition.z)) > 88F
         ) {
             stopAttack()
-            movementHandler.applyTurretRotation(0, turret)
+            if (turret != null) {
+                movementHandler.applyTurretRotation(0, turret)
+            }
             return true
         }
 
@@ -200,11 +202,11 @@ abstract class AiGroundCharacterLogic(
 
     private fun handleTurret(character: Entity, deltaTime: Float) {
         if (shouldSkipHandlingTurret(character)) return
+        val turret = ComponentsMapper.turretBase.get(character).turret ?: return
 
         val playerTransform =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
         val destinationPosition = playerTransform.getTranslation(auxVector3_1)
-        val turret = ComponentsMapper.turretBase.get(character).turret
         val aiTurretComponent = ComponentsMapper.aiTurret.get(turret)
         if (aiTurretComponent.state == AiTurretStatus.ATTACK) {
             rotateAndEngageTurret(

@@ -147,6 +147,7 @@ enum class ModelDefinition(
         origin = Vector3(0F, -0.63F, 0F)
     ),
     JEEP,
+    JEEP_DESTROYED,
     JEEP_GUN,
     JEEP_TURRET_BASE,
     JEEP_WHEEL;

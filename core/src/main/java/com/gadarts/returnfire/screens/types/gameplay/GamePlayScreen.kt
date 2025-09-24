@@ -178,7 +178,10 @@ class GamePlayScreen(
 
         val message = msg.message
         if (message == SystemEvents.REMOVE_ENTITY.ordinal) {
-            entitiesToRemove.add(msg.extraInfo as Entity)
+            val extraInfo = msg.extraInfo
+            if (extraInfo != null) {
+                entitiesToRemove.add(extraInfo as Entity)
+            }
         } else if (message == SystemEvents.REMOVE_COMPONENT.ordinal) {
             entitiesToRemoveComponentsFrom.add(RemoveComponentEventData.entity)
             componentsToRemove.add(RemoveComponentEventData.component)

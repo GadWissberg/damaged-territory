@@ -119,7 +119,9 @@ class TankMovementHandlerDesktop :
         }
     }
 
-    fun applyTurretRotation(side: Int, turret: Entity) {
+    fun applyTurretRotation(side: Int, turret: Entity?) {
+        if (turret == null) return
+
         ComponentsMapper.turret.get(turret).turretRotating = side
     }
 

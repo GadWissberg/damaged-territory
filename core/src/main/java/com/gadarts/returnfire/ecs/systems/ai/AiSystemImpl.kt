@@ -44,9 +44,10 @@ class AiSystemImpl(gamePlayManagers: GamePlayManagers) : AiSystem, GameEntitySys
         gamePlayManagers: GamePlayManagers
     ): GroundCharacterAiComponent {
         val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
-        if (turretBaseComponent != null) {
+        val turret = turretBaseComponent.turret
+        if (turretBaseComponent != null && turret != null) {
             gamePlayManagers.ecs.entityBuilder.addAiTurretComponentToEntity(
-                turretBaseComponent.turret,
+                turret,
             )
         }
         return gamePlayManagers.ecs.entityBuilder.addGroundCharacterAiComponentToEntity(

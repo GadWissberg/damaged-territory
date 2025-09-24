@@ -328,6 +328,8 @@ class SpecialEffectsFactory(
             if (ComponentsMapper.turretBase.has(character)) ComponentsMapper.turretBase.get(
                 character
             ).turret else character
+        if (entity == null) return
+
         generateExplosion(entity, addBiasToPosition)
     }
 

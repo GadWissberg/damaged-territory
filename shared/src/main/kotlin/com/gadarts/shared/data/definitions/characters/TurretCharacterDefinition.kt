@@ -60,15 +60,13 @@ enum class TurretCharacterDefinition(
         deployable = true
     ),
     JEEP(
-        hp = 65F,
+        hp = 60F,
         baseModelDefinition = ModelDefinition.JEEP,
         smokeEmissionRelativePosition = Vector3.Zero,
         gravity = Vector3(0F, -10F, 0F),
         linearFactor = Vector3(1F, 1F, 1F),
-        corpseModelDefinitions = listOf(ModelDefinition.TANK_BODY_DESTROYED),
-        turretCorpseModelDefinitions = listOf(
-            ModelDefinition.TANK_TURRET_DESTROYED,
-        ),
+        corpseModelDefinitions = listOf(ModelDefinition.JEEP_DESTROYED),
+        turretCorpseModelDefinitions = listOf(),
         isNonMoving = false,
         mass = 10F,
         fuelConsumptionPace = 0.1F,
