@@ -1,7 +1,7 @@
 package com.gadarts.returnfire.ecs.systems.player.handlers
 
 import com.badlogic.gdx.math.Vector2
-import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
+import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterShootingHandler
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.shared.GameAssetManager

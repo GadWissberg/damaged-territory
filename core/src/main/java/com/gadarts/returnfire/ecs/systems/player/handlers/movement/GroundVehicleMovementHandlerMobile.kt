@@ -118,15 +118,15 @@ class GroundVehicleMovementHandlerMobile(params: GroundVehicleMovementHandlerPar
         var angleDifference = targetAngle - currentYaw
         angleDifference = (angleDifference + 360F) % 360F
         ComponentsMapper.turret.get(turret).turretRotating = when {
-            angleDifference < ROTATION_EPSILON || angleDifference > 360 - ROTATION_EPSILON -> 0
-            angleDifference > 180 -> -1
-            else -> 1
+            angleDifference < ROTATION_EPSILON || angleDifference > 360 - ROTATION_EPSILON -> 0F
+            angleDifference > 180 -> -1F
+            else -> 1F
         }
     }
 
     override fun onTurretTouchPadTouchUp(character: Entity) {
         ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRotating =
-            0
+            0F
     }
 
 

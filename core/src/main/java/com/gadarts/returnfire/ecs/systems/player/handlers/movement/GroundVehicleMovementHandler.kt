@@ -38,13 +38,14 @@ abstract class GroundVehicleMovementHandler(private val params: GroundVehicleMov
     override fun update(character: Entity, deltaTime: Float) {
         super.update(character, deltaTime)
         if (!ComponentsMapper.turretBase.has(character)) return
+        val turret = ComponentsMapper.turretBase.get(character).turret ?: return
 
         val turretRotating =
-            ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRotating
-        if (turretRotating != 0) {
+            ComponentsMapper.turret.get(turret).turretRotating
+        if (turretRotating != 0F) {
             val turretRelativeRotation =
-                ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRelativeRotation
-            ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret).turretRelativeRotation =
+                ComponentsMapper.turret.get(turret).turretRelativeRotation
+            ComponentsMapper.turret.get(turret).turretRelativeRotation =
                 (turretRelativeRotation + turretRotating * 0.75F * deltaTime * 60F) % 360F
         }
     }

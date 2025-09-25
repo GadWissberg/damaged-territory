@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.ecs.systems.character
+package com.gadarts.returnfire.ecs.systems.character.handlers
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher

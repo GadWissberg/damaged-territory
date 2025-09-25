@@ -52,7 +52,7 @@ class TankMovementHandlerDesktop :
     private fun stopFunctionForSideKey(rotationCheck: Boolean, character: Entity) {
         if (turretRotationEnabled) {
             val turretComponent = ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret)
-            turretComponent.turretRotating = 0
+            turretComponent.turretRotating = 0F
         } else if (rotationCheck) {
             rotation = 0
             val rigidBody = ComponentsMapper.physics.get(character).rigidBody
@@ -98,14 +98,14 @@ class TankMovementHandlerDesktop :
         turretRotationEnabled = true
         if (rotation != 0) {
             val turretComponent = ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret)
-            turretComponent.turretRotating = rotation
+            turretComponent.turretRotating = rotation.toFloat()
             applyRotation(0, character)
         }
     }
 
     override fun pressedLeft(character: Entity) {
         if (turretRotationEnabled) {
-            applyTurretRotation(1, ComponentsMapper.turretBase.get(character).turret)
+            applyTurretRotation(1F, ComponentsMapper.turretBase.get(character).turret)
         } else {
             applyRotation(1, character)
         }
@@ -113,26 +113,26 @@ class TankMovementHandlerDesktop :
 
     override fun pressedRight(character: Entity) {
         if (turretRotationEnabled) {
-            applyTurretRotation(-1, ComponentsMapper.turretBase.get(character).turret)
+            applyTurretRotation(-1F, ComponentsMapper.turretBase.get(character).turret)
         } else {
             applyRotation(-1, character)
         }
     }
 
-    fun applyTurretRotation(side: Int, turret: Entity?) {
+    fun applyTurretRotation(amount: Float, turret: Entity?) {
         if (turret == null) return
 
-        ComponentsMapper.turret.get(turret).turretRotating = side
+        ComponentsMapper.turret.get(turret).turretRotating = amount
     }
 
     override fun releasedAlt(character: Entity) {
         turretRotationEnabled = false
         val turretComponent = ComponentsMapper.turret.get(ComponentsMapper.turretBase.get(character).turret)
         val turretRotating = turretComponent.turretRotating
-        if (turretRotating != 0) {
-            applyRotation(turretRotating, character)
+        if (turretRotating != 0F) {
+            applyRotation(turretRotating.toInt(), character)
         }
-        turretComponent.turretRotating = 0
+        turretComponent.turretRotating = 0F
     }
 
     override fun isThrusting(character: Entity): Boolean {

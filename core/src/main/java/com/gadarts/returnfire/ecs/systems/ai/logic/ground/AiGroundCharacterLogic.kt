@@ -17,7 +17,7 @@ import com.gadarts.returnfire.ecs.systems.ai.logic.AiCharacterLogic
 import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiTurretStatus
-import com.gadarts.returnfire.ecs.systems.character.CharacterShootingHandler
+import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterShootingHandler
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
@@ -187,7 +187,7 @@ abstract class AiGroundCharacterLogic(
         ) {
             stopAttack()
             if (turret != null) {
-                movementHandler.applyTurretRotation(0, turret)
+                movementHandler.applyTurretRotation(0F, turret)
             }
             return true
         }
@@ -264,7 +264,7 @@ abstract class AiGroundCharacterLogic(
             rayLength: Float
         ) {
             val facingDirection = getFacingDirection(character)
-            movementHandler.applyTurretRotation(if (facingDirection > angleToTarget) 1 else -1, character)
+            movementHandler.applyTurretRotation(if (facingDirection > angleToTarget) 1F else -1F, character)
         }
 
     }
@@ -281,7 +281,7 @@ abstract class AiGroundCharacterLogic(
             rayLength: Float
         ) {
             val facingDirection = getFacingDirection(character)
-            movementHandler.applyTurretRotation(if (facingDirection > angleToTarget) -1 else 1, character)
+            movementHandler.applyTurretRotation(if (facingDirection > angleToTarget) -1F else 1F, character)
         }
 
     }
@@ -297,7 +297,7 @@ abstract class AiGroundCharacterLogic(
             callback: ClosestRayResultCallback,
             rayLength: Float
         ) {
-            movementHandler.applyTurretRotation(0, character)
+            movementHandler.applyTurretRotation(0F, character)
             val target = ComponentsMapper.aiTurret.get(character).target ?: return
 
             if (ComponentsMapper.character.get(target).definition.isFlyer()) {

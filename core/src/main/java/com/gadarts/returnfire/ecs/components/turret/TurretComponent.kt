@@ -16,7 +16,7 @@ class TurretComponent(
     var baseOffsetApplied = false
     private var currentShootingArm: Int = 1
     var turretRelativeRotation: Float = 0F
-    var turretRotating: Int = 0
+    var turretRotating: Float = 0F
 
 
     fun updateCurrentShootingArm(): Int {

@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.ecs.systems.character
+package com.gadarts.returnfire.ecs.systems.character.handlers
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
@@ -108,6 +108,7 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
             ) {
                 turretComponent.followBaseRotation = true
                 turretAutomationComponent.target = null
+                ComponentsMapper.turret.get(turret).turretRotating = 0F
             } else {
                 val aimedHorizontally = rotateAutomatedTurret(turret, deltaTime)
                 if (aimedHorizontally) {
@@ -185,8 +186,7 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
             val signedAngleDeg = if (cross.y >= 0f) angleDeg else -angleDeg
             val maxTurnDegPerFrame = 90f * deltaTime
             val clampedDeg = MathUtils.clamp(signedAngleDeg, -maxTurnDegPerFrame, maxTurnDegPerFrame)
-            val rotationQuat = auxQuat1.set(Vector3.Y, clampedDeg)
-            turretTransform.rotate(rotationQuat)
+            ComponentsMapper.turret.get(turret).turretRotating = clampedDeg
             return false
         }
         return true
@@ -196,6 +196,8 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
         base: Entity,
         turret: Entity?,
     ) {
+        if (turret == null) return
+
         val turretComponent = ComponentsMapper.turret.get(turret)
         val baseTransform =
             ComponentsMapper.modelInstance.get(base).gameModelInstance.modelInstance.transform
