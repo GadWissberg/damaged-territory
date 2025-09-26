@@ -1,8 +1,6 @@
 package com.gadarts.returnfire.ecs.systems.character
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.*
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
@@ -24,12 +22,12 @@ import com.gadarts.returnfire.ecs.components.ElevatorComponent
 import com.gadarts.returnfire.ecs.components.ElevatorComponent.Companion.MAX_Y
 import com.gadarts.returnfire.ecs.components.FlagFloorComponent
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
-import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.MutableGameModelInstanceInfo
 import com.gadarts.returnfire.ecs.components.physics.MotionState
 import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
 import com.gadarts.returnfire.ecs.components.physics.RigidBody
+import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterAmbSoundHandler
@@ -66,6 +64,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     private val elevators: ImmutableArray<Entity> by lazy {
         gamePlayManagers.ecs.engine.getEntitiesFor(
             Family.all(ElevatorComponent::class.java).get()
+        )
+    }
+    private val hangars: ImmutableArray<Entity> by lazy {
+        gamePlayManagers.ecs.engine.getEntitiesFor(
+            Family.all(HangarComponent::class.java).get()
         )
     }
 
@@ -123,7 +126,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 ) {
                     if (!ComponentsMapper.character.has(msg.extraInfo as Entity)) return
 
-                    killCharacter(character = msg.extraInfo as Entity)
+                    destroyCharacter(character = msg.extraInfo as Entity)
                 }
             },
             SystemEvents.CHARACTER_ONBOARDING_BEGIN to object : HandlerOnEvent {
@@ -158,12 +161,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             })
     }
 
-    private fun killCharacter(
+    private fun destroyCharacter(
         character: Entity,
     ) {
-        if (ComponentsMapper.boarding.has(character) && ComponentsMapper.boarding.get(character)
-                .isBoarding()
-        ) return
+        if (ComponentsMapper.boarding.has(character) && ComponentsMapper.boarding.get(character).isBoarding()) return
 
         val characterComponent = ComponentsMapper.character.get(character)
         characterComponent.dead = true
@@ -193,6 +194,19 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             SystemEvents.CHARACTER_DIED.ordinal,
             character
         )
+        removeCharacterIfOnHangar(character)
+    }
+
+    private fun removeCharacterIfOnHangar(character: Entity) {
+        ComponentsMapper.modelInstance.get(character).gameModelInstance.getBoundingBox(auxBoundingBox2)
+        for (hangar in hangars) {
+            val modelInstance = ComponentsMapper.modelInstance.get(hangar)
+            val hangarBoundingBox = modelInstance.gameModelInstance.getBoundingBox(auxBoundingBox1)
+            if (hangarBoundingBox.intersects(auxBoundingBox2)) {
+                gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, character)
+                break
+            }
+        }
     }
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
@@ -539,7 +553,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 planeCrashSoundId
             )
         }
-        character.remove(ChildDecalComponent::class.java)
+        removeComponent(character, ComponentsMapper.childDecal)
         addFire(position, character)
         addSmokeUpToCharacter(character)
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
@@ -547,12 +561,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             val turretBaseComponent = ComponentsMapper.turretBase.get(character)
             val turret = turretBaseComponent.turret
             if (turret != null) {
-                val childModelInstanceComponent = ComponentsMapper.childModelInstance.get(turret)
                 val dispatcher = gamePlayManagers.dispatcher
-                if (childModelInstanceComponent != null) {
-                    RemoveComponentEventData.set(turret, childModelInstanceComponent)
-                    dispatcher.dispatchMessage(SystemEvents.REMOVE_COMPONENT.ordinal)
-                }
+                removeComponent(turret, ComponentsMapper.childModelInstance)
                 val turretModelInstanceComponent =
                     ComponentsMapper.modelInstance.get(turret)
                 val turretCorpseModelDefinitions = turretCharacterDefinition.turretCorpseModelDefinitions
@@ -603,6 +613,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 }
             }
         }
+    }
+
+    private fun removeComponent(
+        entity: Entity,
+        componentMapper: ComponentMapper<out Component>,
+    ) {
+        val component = componentMapper.get(entity) ?: return
+
+        RemoveComponentEventData.set(entity, component)
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_COMPONENT.ordinal)
     }
 
     private fun addSmokeUpToCharacter(
@@ -714,13 +734,15 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
 
     companion object {
+        const val ROT_STEP = 1600F
         private val auxMatrix = Matrix4()
         private val auxQuat = Quaternion()
         private val auxVector1 = Vector3()
         private val auxVector2 = Vector3()
         private val auxVector3 = Vector3()
-        const val ROT_STEP = 1600F
         private val auxGameModelInstanceInfo = MutableGameModelInstanceInfo()
+        private val auxBoundingBox1 = BoundingBox()
+        private val auxBoundingBox2 = BoundingBox()
     }
 
 }

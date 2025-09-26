@@ -22,7 +22,7 @@ object GameDebugSettings {
     const val HIDE_FLOOR = false
     const val HIDE_ENEMIES = false
     const val FORCE_PLAYER_HP: Float = -1F
-    const val FORCE_ENEMY_HP: Float = -1F
+    const val FORCE_ENEMY_HP: Float = 1F
     const val FORCE_AMMO: Int = -1
     const val FORCE_INITIAL_FUEL: Float = -1F
     const val AVOID_PARTICLE_EFFECTS_DRAWING = false
@@ -30,8 +30,8 @@ object GameDebugSettings {
     const val DISABLE_HUD = false
     val SELECTED_VEHICLE: CharacterDefinition? = SimpleCharacterDefinition.APACHE
     val SELECTED_VEHICLE_AI: CharacterDefinition? = TurretCharacterDefinition.TANK
-    const val FORCE_AIM = 1
-    const val AI_DISABLED = false
+    const val FORCE_AIM = 1 // DON'T FORGET TO TURN IT OFF
+    const val AI_DISABLED = true
     const val AI_ATTACK_DISABLED = false
     const val AI_AVOID_GOING_BACK_TO_BASE = false
     const val AI_FORCE_THRUST: Boolean = false
