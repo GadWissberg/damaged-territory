@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
@@ -58,21 +59,23 @@ class AiLogicHandler(
 
     fun update(deltaTime: Float) {
         updateEnemyTurrets(deltaTime)
-        for (i in 0 until aiCharacterEntities.size()) {
-            val character = aiCharacterEntities[i]
-            val boardingComponent = ComponentsMapper.boarding.get(character)
-            val characterComponent = ComponentsMapper.character.get(
-                character
-            )
+        if (!GameDebugSettings.AI_VEHICLE_DISABLED) {
+            for (i in 0 until aiCharacterEntities.size()) {
+                val character = aiCharacterEntities[i]
+                val boardingComponent = ComponentsMapper.boarding.get(character)
+                val characterComponent = ComponentsMapper.character.get(
+                    character
+                )
 
-            if ((boardingComponent != null && boardingComponent.isBoarding())
-                || characterComponent == null
-                || characterComponent.dead
-            ) continue
+                if ((boardingComponent != null && boardingComponent.isBoarding())
+                    || characterComponent == null
+                    || characterComponent.dead
+                ) continue
 
-            val logic = logics[characterComponent.definition]
-            if (logic != null) {
-                updateLogic(character, deltaTime, logic)
+                val logic = logics[characterComponent.definition]
+                if (logic != null) {
+                    updateLogic(character, deltaTime, logic)
+                }
             }
         }
         val currentIsFighter = lastDeployedCharacter != TurretCharacterDefinition.JEEP

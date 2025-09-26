@@ -8,10 +8,10 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.GameDebugSettings.AI_ATTACK_DISABLED
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.CharacterWeaponShotEventData
+import com.gadarts.returnfire.managers.GamePlayManagers
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -29,13 +29,13 @@ class AiEnemyTurretLogic(private val gameSessionData: GameSessionData, private v
             modelInstanceComponent.gameModelInstance.modelInstance.transform
         val position = transform.getTranslation(auxVector3_2)
         val player = gameSessionData.gamePlayData.player
-        val playerPosition =
+        val targetPosition =
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_1
             )
-        if (position.dst2(playerPosition) > 90F) return
+        if (position.dst2(targetPosition) > 90F) return
 
-        val directionToPlayer = auxVector3_3.set(playerPosition).sub(position).nor()
+        val directionToPlayer = auxVector3_3.set(targetPosition).sub(position).nor()
         val currentRotation = transform.getRotation(auxQuat1)
 
         val forwardDirection =

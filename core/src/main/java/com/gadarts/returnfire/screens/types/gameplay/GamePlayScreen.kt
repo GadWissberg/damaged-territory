@@ -56,6 +56,7 @@ class GamePlayScreen(
     private var autoAim: Boolean = true
     private lateinit var selectedCharacter: CharacterDefinition
     private val entitiesToRemove = mutableListOf<Entity>()
+    private val entitiesPendingToRemove = mutableListOf<Entity>()
     private val componentsToRemove = mutableListOf<Component>()
     private val entitiesToRemoveComponentsFrom = mutableListOf<Entity>()
     private lateinit var factories: Factories
@@ -135,13 +136,17 @@ class GamePlayScreen(
 
     override fun render(delta: Float) {
         engine.update(delta)
-        entitiesToRemove.forEach {
-            engine.removeEntity(it)
+        if (entitiesPendingToRemove.isNotEmpty()) {
+            entitiesToRemove.addAll(entitiesPendingToRemove)
+            entitiesPendingToRemove.clear()
+            entitiesToRemove.forEach {
+                engine.removeEntity(it)
+            }
+            entitiesToRemove.clear()
         }
         entitiesToRemoveComponentsFrom.forEachIndexed { index, entity ->
             entity.remove(componentsToRemove[index]::class.java)
         }
-        entitiesToRemove.clear()
         entitiesToRemoveComponentsFrom.clear()
         componentsToRemove.clear()
     }
@@ -180,7 +185,7 @@ class GamePlayScreen(
         if (message == SystemEvents.REMOVE_ENTITY.ordinal) {
             val extraInfo = msg.extraInfo
             if (extraInfo != null) {
-                entitiesToRemove.add(extraInfo as Entity)
+                entitiesPendingToRemove.add(extraInfo as Entity)
             }
         } else if (message == SystemEvents.REMOVE_COMPONENT.ordinal) {
             entitiesToRemoveComponentsFrom.add(RemoveComponentEventData.entity)

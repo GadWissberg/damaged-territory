@@ -218,12 +218,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
             override fun entityRemoved(entity: Entity) {
                 val turretBaseComponent = ComponentsMapper.turretBase.get(entity)
+                val dispatcher = gamePlayManagers.dispatcher
                 if (turretBaseComponent != null) {
-                    engine.removeEntity(turretBaseComponent.turret)
+                    val turret = turretBaseComponent.turret
+                    if (turret != null) {
+                        dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, turret)
+                    }
                 } else {
                     val turretComponent = ComponentsMapper.turret.get(entity)
                     if (turretComponent != null) {
-                        engine.removeEntity(turretComponent.cannon)
+                        dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, turretComponent.cannon)
                     }
                 }
             }

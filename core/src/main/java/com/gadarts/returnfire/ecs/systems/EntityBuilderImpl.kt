@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
+import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.*
 import com.gadarts.returnfire.ecs.components.ai.*
 import com.gadarts.returnfire.ecs.components.amb.AmbAnimationComponent
@@ -35,8 +36,8 @@ import com.gadarts.returnfire.ecs.components.physics.GhostPhysicsComponent
 import com.gadarts.returnfire.ecs.components.physics.MotionState
 import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
 import com.gadarts.returnfire.ecs.components.physics.RigidBody
-import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.components.pit.ElevatorDoorComponent
+import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretCannonComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
@@ -145,8 +146,13 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
+    @Suppress("KotlinConstantConditions")
     override fun addCharacterComponent(characterDefinition: CharacterDefinition, color: CharacterColor): EntityBuilder {
-        val characterComponent = CharacterComponent(characterDefinition, color)
+        val characterComponent = CharacterComponent(
+            characterDefinition,
+            color,
+            if (GameDebugSettings.FORCE_ENEMY_HP >= 0 && color == CharacterColor.GREEN) GameDebugSettings.FORCE_ENEMY_HP else characterDefinition.getHP()
+        )
         entity!!.add(characterComponent)
         return this
     }

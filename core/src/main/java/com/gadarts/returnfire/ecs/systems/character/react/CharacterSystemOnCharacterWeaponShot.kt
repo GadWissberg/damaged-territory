@@ -6,12 +6,12 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.character.CharacterSystem
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.BulletCreationRequestEventData
 import com.gadarts.returnfire.ecs.systems.events.data.CharacterWeaponShotEventData
+import com.gadarts.returnfire.managers.GamePlayManagers
 
 abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem: CharacterSystem) :
     HandlerOnEvent {
@@ -72,7 +72,8 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
             val directionToTarget =
                 targetGameModelInstance.modelInstance.transform.getTranslation(
                     auxVector3
-                ).add(targetGameModelInstance.gameModelInstanceInfo?.modelDefinition?.physicsData?.centerOfMass)
+                ).add(0F, 0.1F, 0F)
+                    .add(targetGameModelInstance.gameModelInstanceInfo?.modelDefinition?.physicsData?.centerOfMass)
                     .sub(shooterPosition.add(relativePosition)).nor()
             auxMatrix.set(
                 auxQuat.setFromCross(

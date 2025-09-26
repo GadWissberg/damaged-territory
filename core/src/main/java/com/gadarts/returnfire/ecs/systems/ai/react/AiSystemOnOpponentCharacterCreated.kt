@@ -14,7 +14,7 @@ class AiSystemOnOpponentCharacterCreated(
     private val aiSystem: AiSystem
 ) :
     HandlerOnEvent {
-    @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
+    @Suppress("KotlinConstantConditions")
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val entity = msg.extraInfo as Entity
         val characterComponent = ComponentsMapper.character.get(entity)
