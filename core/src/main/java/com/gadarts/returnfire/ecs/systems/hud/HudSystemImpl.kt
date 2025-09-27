@@ -23,7 +23,8 @@ import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.SessionState
 import com.gadarts.returnfire.ecs.systems.data.hud.Minimap
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
-import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.JOYSTICK_PADDING
+import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.HUD_ELEMENT_PADDING_BOTTOM
+import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.JOYSTICK_PADDING_HORIZONTAL
 import com.gadarts.returnfire.ecs.systems.hud.osii.OnScreenInputInitializerApache
 import com.gadarts.returnfire.ecs.systems.hud.osii.OnScreenInputInitializerGroundCharacter
 import com.gadarts.returnfire.ecs.systems.hud.react.HudSystemOnLandingIndicatorVisibilityChanged
@@ -49,8 +50,12 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
             gamePlayManagers.ecs.engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())
         )
     }
-    private val hudInputProcessor by lazy { HudInputProcessor(minimap, gameSessionData.gamePlayData) }
-    private val ui: Table by lazy { addUiTable() }
+    private val hudInputProcessor by lazy {
+        HudInputProcessor(
+            minimap,
+            gameSessionData.gamePlayData
+        )
+    }
     private val radar: com.gadarts.returnfire.ecs.systems.hud.radar.Radar by lazy {
         com.gadarts.returnfire.ecs.systems.hud.radar.Radar(
             gameSessionData.gamePlayData,
@@ -92,19 +97,26 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
+                gameSessionData.hudData.ui = createUiTable()
+                gameSessionData.hudData.movementTouchpad = createTouchpad()
+                gameSessionData.hudData.turretTouchpad = createTouchpad()
                 if (gameSessionData.runsOnMobile) {
-                    val hudTable = Table()
-                    val topRowTable = Table()
-                    hudTable.setDebug(GameDebugSettings.UI_DEBUG, true)
-                    topRowTable.setDebug(GameDebugSettings.UI_DEBUG, true)
-                    addBoardingButton(topRowTable)
-                    ui.add(topRowTable).expandX().growX()
-                    ui.row()
-                    ui.add(hudTable).bottom().growX().expandY()
-                    addOnScreenInput(gameSessionData, hudTable)
+                    val table = Table()
+                    table.setSize(
+                        Gdx.graphics.backBufferWidth.toFloat(),
+                        Gdx.graphics.backBufferHeight.toFloat()
+                    )
+                    table.setFillParent(true)
+                    table.setDebug(GameDebugSettings.UI_DEBUG, true)
+                    gameSessionData.hudData.ui.add(table).bottom().growX().expandY()
+                    addBoardingButton(table)
+                    table.row()
+                    addOnScreenInput(gameSessionData, table)
                 } else {
-                    ui.add(radar).size(RADAR_SIZE, RADAR_SIZE).expand().right().bottom().pad(40F)
+                    gameSessionData.hudData.ui.add(radar).size(RADAR_SIZE, RADAR_SIZE).expand()
+                        .right().bottom().pad(40F)
                 }
+                gameSessionData.hudData.stage.addActor(gameSessionData.hudData.ui)
             }
         },
         SystemEvents.CHARACTER_DIED to object : HandlerOnEvent {
@@ -141,8 +153,36 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
 
                 fadeToVehicleSelection(disposeScreen = false, delay = false)
             }
+        },
+        SystemEvents.REMOVE_ENTITY to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                val entity = msg.extraInfo as? Entity ?: return
+                if (!ComponentsMapper.player.has(entity)) return
+
+                val hudData = gameSessionData.hudData
+                hudData.ui.remove()
+            }
         }
     )
+
+    private fun createTouchpad(): Touchpad {
+        val assetsManager = gamePlayManagers.assetsManager
+        return Touchpad(
+            15F,
+            Touchpad.TouchpadStyle(
+                TextureRegionDrawable(
+                    assetsManager.getTexture(assetsManager.getTexturesDefinitions().definitions["joystick"]!!)
+                ),
+                TextureRegionDrawable(
+                    assetsManager.getTexture(assetsManager.getTexturesDefinitions().definitions["joystick_center"]!!),
+                )
+            )
+        )
+    }
 
     private fun gameOver(
         winner: CharacterColor,
@@ -168,16 +208,17 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
         disposeScreen: Boolean,
         delay: Boolean
     ) {
-        gameSessionData.hudData.stage.addAction(Actions.sequence(
-            DelayAction(if (delay) 5F else 0F),
-            Actions.run {
-                gamePlayManagers.screensManager.setScreenWithFade(
-                    Screens.VEHICLE_SELECTION,
-                    2F,
-                    ToHangarScreenSwitchParameters(disposeScreen)
-                )
-            }
-        )
+        gameSessionData.hudData.stage.addAction(
+            Actions.sequence(
+                DelayAction(if (delay) 5F else 0F),
+                Actions.run {
+                    gamePlayManagers.screensManager.setScreenWithFade(
+                        Screens.VEHICLE_SELECTION,
+                        2F,
+                        ToHangarScreenSwitchParameters(disposeScreen)
+                    )
+                }
+            )
         )
     }
 
@@ -229,7 +270,8 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     ) {
         val movementPad =
             addTouchpad(ui, this.gameSessionData.hudData.movementTouchpad)
-                .pad(0F, JOYSTICK_PADDING, 32F, 0F).bottom()
+                .pad(0F, JOYSTICK_PADDING_HORIZONTAL, HUD_ELEMENT_PADDING_BOTTOM, 0F).bottom()
+                .left()
         val definition =
             ComponentsMapper.character.get(gameSessionData.gamePlayData.player).definition
         onScreenInputInitializers[definition]?.invoke(ui, movementPad)
@@ -263,7 +305,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     override fun addTouchpad(ui: Table, touchpad: Touchpad): Cell<Touchpad> {
         val joystickTexture = gamePlayManagers.assetsManager.getTexture("joystick")
         return ui.add(touchpad)
-            .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat())
+            .size(joystickTexture.width.toFloat(), joystickTexture.height.toFloat()).fill().bottom()
     }
 
     override fun addRadar(table: Table): Cell<com.gadarts.returnfire.ecs.systems.hud.radar.Radar> {
@@ -294,15 +336,13 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
         }
     }
 
-
-    private fun addUiTable(): Table {
+    private fun createUiTable(): Table {
         val uiTable = Table()
         uiTable.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)
         uiTable.name = GameSessionData.UI_TABLE_NAME
         uiTable.setFillParent(true)
         val stage = gameSessionData.hudData.stage
         uiTable.setSize(stage.width, stage.height)
-        stage.addActor(uiTable)
         return uiTable
     }
 

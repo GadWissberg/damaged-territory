@@ -9,7 +9,6 @@ import com.gadarts.returnfire.ecs.components.arm.ArmEffectsData
 import com.gadarts.returnfire.ecs.components.arm.ArmProperties
 import com.gadarts.returnfire.ecs.components.arm.ArmRenderData
 import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
@@ -18,6 +17,7 @@ import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 
@@ -71,18 +71,23 @@ class TankFactory(
         color: CharacterColor
     ) {
         entityBuilder.begin()
+        val modelDefinition = ModelDefinition.TANK_TURRET
         entityBuilder.addModelInstanceComponent(
             GameModelInstance(
-                ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
-                ImmutableGameModelInstanceInfo(ModelDefinition.TANK_TURRET),
+                ModelInstance(assetsManager.getAssetByDefinition(modelDefinition)),
+                ImmutableGameModelInstanceInfo(modelDefinition),
             ),
             ComponentsMapper.modelInstance.get(player).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector3_1
             ),
             null
-        )
-        entityBuilder.addTurretComponent(player, true, true, 0.2F, cannon)
-        entityBuilder.addChildModelInstanceComponent(
+        ).addTurretComponent(
+            base = player,
+            followBasePosition = true,
+            followBaseRotation = true,
+            relativeY = 0.2F,
+            cannon = cannon
+        ).addChildModelInstanceComponent(
             gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TANK_MISSILE_LAUNCHER),
             true,
             Vector3(-0.1F, 0.1F, -0.05F)

@@ -139,7 +139,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         val renderData = gameSessionData.renderData
         val player = gameSessionData.gamePlayData.player ?: return
         val mapping =
-            cameraRelativeValuesMapper.mapping[ComponentsMapper.character.get(player).definition]
+            cameraRelativeValuesMapper.mapping[gameSessionData.selectedCharacter]
                 ?: return
 
         moveCameraToTargetPosition(deltaTime)

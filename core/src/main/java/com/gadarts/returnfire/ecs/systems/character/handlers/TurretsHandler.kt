@@ -51,7 +51,8 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
     private fun updateTurret(turret: Entity, deltaTime: Float) {
         val turretComponent = ComponentsMapper.turret.get(turret)
         val base = turretComponent.base
-        if (ComponentsMapper.character.get(base).dead) return
+        val characterComponent = ComponentsMapper.character.get(base) ?: return
+        if (characterComponent.dead) return
 
         val turretTransform = ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance.transform
         if (turretComponent.followBasePosition) {

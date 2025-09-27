@@ -76,13 +76,6 @@ interface EntityBuilder {
     ): EntityBuilder
 
     fun addGroundBlastComponent(scalePace: Float, duration: Int, fadeOutPace: Float): EntityBuilder
-    fun addPhysicsComponent(
-        shape: btCollisionShape,
-        collisionFlag: Int,
-        transform: Matrix4,
-        gravityScalar: Float,
-        mass: Float = 1F
-    ): EntityBuilder
 
     fun addSparkComponent(relativePositionCalculator: ArmComponent.RelativePositionCalculator): EntityBuilder
     fun addCharacterComponent(characterDefinition: CharacterDefinition, color: CharacterColor): EntityBuilder
@@ -134,6 +127,14 @@ interface EntityBuilder {
     fun addAmbComponent(rotation: Float, def: AmbDefinition, scale: Vector3): EntityBuilder
     fun addBaseAiComponent(initialHp: Float, target: Entity? = null): EntityBuilder
     fun addBaseAiComponentToEntity(entity: Entity, initialHp: Float, target: Entity? = null): BaseAiComponent
+    fun addPhysicsComponent(
+        shape: btCollisionShape,
+        collisionFlag: Int,
+        transform: Matrix4,
+        gravityScalar: Float,
+        mass: Float = 1F
+    ): EntityBuilder
+
     fun addPhysicsComponentToEntity(
         entity: Entity,
         shape: btCollisionShape,

@@ -28,7 +28,7 @@ class OnScreenInputInitializerApache(
             ui,
             "icon_missiles",
             hudButtons.secWeaponButtonClickListener,
-            HudSystem.JOYSTICK_PADDING,
+            HudSystem.JOYSTICK_PADDING_HORIZONTAL,
         )
         addManualAimButton(ui)
     }

@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.systems.hud.HudButtons
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem
+import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.HUD_ELEMENT_PADDING_BOTTOM
+import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.JOYSTICK_PADDING_HORIZONTAL
 
 class OnScreenInputInitializerGroundCharacter(
     private val hudSystem: HudSystem,
@@ -15,13 +17,15 @@ class OnScreenInputInitializerGroundCharacter(
 ) :
         (Table, Cell<Touchpad>) -> Unit {
     override fun invoke(ui: Table, movementPad: Cell<Touchpad>) {
-        val imageButtonCell = hudSystem.addButton(
+        val reverseButton = hudSystem.addButton(
             ui,
             "icon_reverse",
             hudButtons.reverseButtonClickListener
         )
-        imageButtonCell.grow().left().bottom().padBottom(32F)
-        hudSystem.addRadar(ui).pad(0F, RADAR_PADDING_HORIZONTAL, 0F, RADAR_PADDING_HORIZONTAL)
+        reverseButton.grow().left().bottom().padBottom(32F)
+        hudSystem.addRadar(ui)
+            .pad(0F, RADAR_PADDING_HORIZONTAL, HUD_ELEMENT_PADDING_BOTTOM, RADAR_PADDING_HORIZONTAL)
+            .bottom()
         if (!hideAttackButtons) {
             val attackButtonsTable = Table()
             attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
@@ -30,11 +34,12 @@ class OnScreenInputInitializerGroundCharacter(
                 "icon_missiles",
                 hudButtons.secWeaponButtonClickListener,
             ).center().row()
-            ui.add(attackButtonsTable).right()
+            ui.add(attackButtonsTable).right().bottom()
+                .pad(0F, 0F, HUD_ELEMENT_PADDING_BOTTOM, 0F).bottom()
         }
         if (turretTouchpad != null) {
-            hudSystem.addTouchpad(ui, turretTouchpad).pad(0F, 0F, 0F, HudSystem.JOYSTICK_PADDING)
-                .top()
+            hudSystem.addTouchpad(ui, turretTouchpad)
+                .pad(0F, 0F, HUD_ELEMENT_PADDING_BOTTOM, JOYSTICK_PADDING_HORIZONTAL).bottom()
         }
     }
 

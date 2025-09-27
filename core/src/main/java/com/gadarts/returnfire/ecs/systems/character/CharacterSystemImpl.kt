@@ -55,7 +55,7 @@ import kotlin.math.sign
 class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     GameEntitySystem(gamePlayManagers) {
     private val turretsHandler by lazy { TurretsHandler(gamePlayManagers, gameSessionData) }
-    private val characterPhysicsInitializer = CharacterPhysicsInitializer()
+    private val characterPhysicsInitializer = CharacterPhysicsInitializer(gamePlayManagers.assetsManager)
     private val characterAmbSoundHandler =
         CharacterAmbSoundHandler(gamePlayManagers.soundManager, gamePlayManagers.ecs.engine)
     private val charactersEntities: ImmutableArray<Entity> = gamePlayManagers.ecs.engine.getEntitiesFor(
@@ -198,10 +198,13 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
     private fun removeCharacterIfOnHangar(character: Entity) {
-        ComponentsMapper.modelInstance.get(character).gameModelInstance.getBoundingBox(auxBoundingBox2)
+        val characterGameModelInstance = ComponentsMapper.modelInstance.get(character).gameModelInstance
+        characterGameModelInstance.getBoundingBox(auxBoundingBox2)
+            .mul(characterGameModelInstance.modelInstance.transform)
         for (hangar in hangars) {
             val modelInstance = ComponentsMapper.modelInstance.get(hangar)
             val hangarBoundingBox = modelInstance.gameModelInstance.getBoundingBox(auxBoundingBox1)
+                .mul(modelInstance.gameModelInstance.modelInstance.transform)
             if (hangarBoundingBox.intersects(auxBoundingBox2)) {
                 gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, character)
                 break
@@ -721,7 +724,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         characterPhysicsInitializer.initialize(
             gamePlayManagers.ecs.entityBuilder,
             character,
-            gamePlayManagers.assetsManager
         )
         val turretBaseComponent = ComponentsMapper.turretBase.get(character)
         if (turretBaseComponent != null) {

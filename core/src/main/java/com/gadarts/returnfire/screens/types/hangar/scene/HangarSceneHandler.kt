@@ -54,9 +54,9 @@ class HangarSceneHandler(
                         )
                     )
                 } else {
+                    selected = null
                     hangarScreenMenu.show()
                 }
-                selected = null
             }
         }
         animateHook(delta)

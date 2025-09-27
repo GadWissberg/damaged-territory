@@ -163,7 +163,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                         REMOVE_ENTITY.ordinal,
                         gameSessionData.gamePlayData.player
                     )
-                    gameSessionData.gamePlayData.player = null
+                    playerRemoved()
                 }
             }
         },
@@ -179,7 +179,19 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 RemoveComponentEventData.set(player, ComponentsMapper.player.get(player))
                 gamePlayManagers.dispatcher.dispatchMessage(REMOVE_COMPONENT.ordinal)
             }
-        }
+        },
+        REMOVE_ENTITY to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                val entity = msg.extraInfo as Entity
+                if (!ComponentsMapper.player.has(entity)) return
+
+                playerRemoved()
+            }
+        },
     )
 
     override fun resume(delta: Long) {
@@ -394,6 +406,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                 newValue
             )
         }
+    }
+
+    private fun playerRemoved() {
+        gameSessionData.gamePlayData.player = null
     }
 
     companion object {

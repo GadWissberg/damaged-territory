@@ -323,7 +323,7 @@ abstract class AiGroundCharacterLogic(
             val aiTurretComponent = ComponentsMapper.aiTurret.get(character)
             aiTurretComponent.state = AiTurretStatus.ATTACK
             aiTurretComponent.target = gameSessionData.gamePlayData.player
-            aiTurretComponent.nextLookingAroundTime = System.currentTimeMillis() + MathUtils.random(12000L)
+            aiTurretComponent.nextLookingAroundTime = System.currentTimeMillis() + MathUtils.random(6000L)
         }
 
     }

@@ -19,6 +19,7 @@ interface HudSystem {
     fun addRadar(table: Table): Cell<com.gadarts.returnfire.ecs.systems.hud.radar.Radar>
 
     companion object {
-        const val JOYSTICK_PADDING = 64F
+        const val JOYSTICK_PADDING_HORIZONTAL = 64F
+        const val HUD_ELEMENT_PADDING_BOTTOM = 32F
     }
 }

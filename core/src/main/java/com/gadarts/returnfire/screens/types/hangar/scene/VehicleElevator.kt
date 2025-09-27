@@ -1,6 +1,7 @@
 package com.gadarts.returnfire.screens.types.hangar.scene
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
@@ -24,10 +25,10 @@ class VehicleElevator(
                     return true
                 }
             } else if (deployingState < 0) {
-                modelInstance.transform.trn(STAGE_STEP_SIZE * delta * (if (initialOnTheRight) 1 else -1), 0F, 0F)
+                modelInstance.transform.trn(ELEVATOR_STEP_SIZE * delta * (if (initialOnTheRight) 1 else -1), 0F, 0F)
             }
         } else if (position.x < 0) {
-            modelInstance.transform.trn(STAGE_STEP_SIZE * delta * deployingState, 0f, 0f)
+            modelInstance.transform.trn(ELEVATOR_STEP_SIZE * delta * deployingState, 0f, 0f)
             val newPosition = modelInstance.transform.getTranslation(auxVector)
             if (deployingState > 0) {
                 if (newPosition.x > 0) {
@@ -37,7 +38,7 @@ class VehicleElevator(
                 if (isReachedInitialPosition(initialOnTheRight, newPosition)) return true
             }
         } else if (position.x > 0) {
-            modelInstance.transform.trn(-STAGE_STEP_SIZE * delta * deployingState, 0f, 0f)
+            modelInstance.transform.trn(-ELEVATOR_STEP_SIZE * delta * deployingState, 0f, 0f)
             val newPosition = modelInstance.transform.getTranslation(auxVector)
             if (deployingState > 0) {
                 if (newPosition.x < 0) {
@@ -59,22 +60,28 @@ class VehicleElevator(
     }
 
     private fun takeStepForY(delta: Float, deployingState: Int): Boolean {
-        modelInstance.transform.trn(0f, STAGE_STEP_SIZE * delta * deployingState, 0F)
-        val newPosition = modelInstance.transform.getTranslation(auxVector)
+        val transform = modelInstance.transform
+        val currentPosition = transform.getTranslation(auxVector)
+        transform.setTranslation(
+            currentPosition.x,
+            MathUtils.clamp(currentPosition.y + ELEVATOR_STEP_SIZE * delta * deployingState, 0F, ELEVATOR_Y_TOP),
+            currentPosition.z
+        )
+        val newPosition = transform.getTranslation(auxVector)
         if (deployingState > 0) {
-            if (newPosition.y >= 4F) {
+            if (newPosition.y >= ELEVATOR_Y_TOP) {
                 return true
             }
         }
         if (newPosition.y <= 0F) {
-            modelInstance.transform.setTranslation(newPosition.x, 0F, newPosition.z)
+            transform.setTranslation(newPosition.x, 0F, newPosition.z)
             applyMovementForZ = true
         }
         return false
     }
 
     private fun takeStepForZ(delta: Float, deployingState: Int, position: Vector3) {
-        modelInstance.transform.trn(0f, 0F, -STAGE_STEP_SIZE * delta * deployingState)
+        modelInstance.transform.trn(0f, 0F, -ELEVATOR_STEP_SIZE * delta * deployingState)
         if ((position.z <= 0 && deployingState > 0) || (position.z >= initialPosition.z && deployingState < 0)) {
             applyMovementForZ = false
         }
@@ -88,6 +95,7 @@ class VehicleElevator(
 
     companion object {
         private val auxVector = Vector3()
-        private const val STAGE_STEP_SIZE = 3F
+        private const val ELEVATOR_STEP_SIZE = 3F
+        private const val ELEVATOR_Y_TOP = 4F
     }
 }

@@ -24,7 +24,7 @@ class GameSessionData(
     val gamePlayData = GameSessionDataGameplay(assetsManager, engine)
     val mapData = GameSessionDataMap(assetsManager)
     val hudData =
-        GameSessionDataHud(console, assetsManager)
+        GameSessionDataHud(console)
     val renderData = GameSessionDataRender()
     var aiOpponentGoal: AiOpponentGoal? = null
 
