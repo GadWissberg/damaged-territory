@@ -1,16 +1,14 @@
 package com.gadarts.returnfire.ecs.systems.player.handlers.movement.touchpad
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.ecs.systems.player.handlers.movement.VehicleMovementHandler
+import com.gadarts.returnfire.ecs.systems.data.GameSessionDataGameplay
 
 class MovementTouchPadListener(
-    private val movementHandler: VehicleMovementHandler,
-    private val player: Entity
+    private val gameplayData: GameSessionDataGameplay,
 ) : ClickListener() {
     private var lastTouchDown: Long = 0
 
@@ -29,7 +27,9 @@ class MovementTouchPadListener(
     private fun touchPadTouched(actor: Actor) {
         val deltaX = (actor as Touchpad).knobPercentX
         val deltaY = actor.knobPercentY
-        movementHandler.thrust(player, deltaX, deltaY)
+        val player = gameplayData.player ?: return
+
+        gameplayData.playerMovementHandler.thrust(player, deltaX, deltaY)
     }
 
     override fun touchDragged(event: InputEvent?, x: Float, y: Float, pointer: Int) {
@@ -44,7 +44,9 @@ class MovementTouchPadListener(
         pointer: Int,
         button: Int
     ) {
-        movementHandler.onMovementTouchUp(player)
+        val player = gameplayData.player ?: return
+
+        gameplayData.playerMovementHandler.onMovementTouchUp(player)
         super.touchUp(event, x, y, pointer, button)
     }
 }

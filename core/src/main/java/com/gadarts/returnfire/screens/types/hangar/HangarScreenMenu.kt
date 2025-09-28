@@ -44,7 +44,8 @@ class HangarScreenMenu(
         ).top().left().row()
         val desktopText =
             "Arrows - Movement,\nCTRL - Primary attack,\nSHIFT - Secondary attack/return to base,\n" +
-                "ALT + LEFT/RIGHT - Rotate turret/strafe,\nENTER - Switch ground/air aim,\n'~' - Open console"
+                    "ALT + LEFT/RIGHT - Rotate turret/strafe,\nENTER - Switch ground/air aim,\n" +
+                    "TAB - Open minimap,\n'~' - Open console"
         val androidText =
             "An on-screen game-pad will appear in-game"
         addDescription(if (runsOnMobile) androidText else desktopText)

@@ -29,6 +29,7 @@ import com.gadarts.returnfire.ecs.systems.player.handlers.movement.jeep.JeepMove
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerParams
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.touchpad.MovementTouchPadListener
+import com.gadarts.returnfire.ecs.systems.player.handlers.movement.touchpad.TurretTouchPadListener
 import com.gadarts.returnfire.ecs.systems.player.react.*
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
@@ -232,10 +233,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (isGamePaused()
-            || player == null
-            || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
+                || player == null
+                || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
             .isBoarding())
-            || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
+                || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -353,15 +354,13 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
         if (gameSessionData.runsOnMobile) {
             gameSessionData.hudData.movementTouchpad.addListener(
                 MovementTouchPadListener(
-                    gameSessionData.gamePlayData.playerMovementHandler,
-                    player,
+                    gameSessionData.gamePlayData
                 )
             )
             gameSessionData.hudData.turretTouchpad.addListener(
-                com.gadarts.returnfire.ecs.systems.player.handlers.movement.touchpad.TurretTouchPadListener(
-                    gameSessionData.gamePlayData.playerMovementHandler,
-                    playerShootingHandler,
-                    player
+                TurretTouchPadListener(
+                    gameSessionData.gamePlayData,
+                    playerShootingHandler
                 )
             )
         } else {
@@ -396,9 +395,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-            && position.x >= stagePosition.x - LANDING_OK_OFFSET
-            && position.z <= stagePosition.z + LANDING_OK_OFFSET
-            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+                && position.x >= stagePosition.x - LANDING_OK_OFFSET
+                && position.z <= stagePosition.z + LANDING_OK_OFFSET
+                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(

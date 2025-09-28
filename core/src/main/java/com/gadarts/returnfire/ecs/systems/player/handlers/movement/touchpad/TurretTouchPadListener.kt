@@ -1,18 +1,16 @@
 package com.gadarts.returnfire.ecs.systems.player.handlers.movement.touchpad
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
+import com.gadarts.returnfire.ecs.systems.data.GameSessionDataGameplay
 import com.gadarts.returnfire.ecs.systems.player.handlers.PlayerShootingHandler
-import com.gadarts.returnfire.ecs.systems.player.handlers.movement.VehicleMovementHandler
 
 class TurretTouchPadListener(
-    private val movementHandler: VehicleMovementHandler,
-    private val shootingHandler: PlayerShootingHandler,
-    private val player: Entity,
+    private val gameplayData: GameSessionDataGameplay,
+    private val playerShootingHandler: PlayerShootingHandler,
 ) : ClickListener() {
     private var lastTouchDown: Long = 0
 
@@ -40,15 +38,19 @@ class TurretTouchPadListener(
         pointer: Int,
         button: Int
     ) {
-        movementHandler.onTurretTouchPadTouchUp(player)
-        shootingHandler.onTurretTouchPadTouchUp()
+        val player = gameplayData.player ?: return
+
+        gameplayData.playerMovementHandler.onTurretTouchPadTouchUp(player)
+        playerShootingHandler.onTurretTouchPadTouchUp()
         super.touchUp(event, x, y, pointer, button)
     }
 
     private fun touchPadTouched(actor: Actor) {
         val deltaX = (actor as Touchpad).knobPercentX
         val deltaY = actor.knobPercentY
-        movementHandler.onTurretTouchPadTouchDown(deltaX, deltaY, player)
-        shootingHandler.onTurretTouchPadTouchDown(actor.knobPercentX, actor.knobPercentY)
+        val player = gameplayData.player ?: return
+
+        gameplayData.playerMovementHandler.onTurretTouchPadTouchDown(deltaX, deltaY, player)
+        playerShootingHandler.onTurretTouchPadTouchDown(actor.knobPercentX, actor.knobPercentY)
     }
 }
