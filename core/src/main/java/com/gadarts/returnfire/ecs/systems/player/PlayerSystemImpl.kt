@@ -130,8 +130,15 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             ) {
                 val entity = msg.extraInfo as Entity
                 if (ComponentsMapper.character.get(entity).color == CharacterColor.BROWN) {
+                    val oldPlayer = gameSessionData.gamePlayData.player
+                    if (oldPlayer != null) {
+                        RemoveComponentEventData.set(
+                            oldPlayer,
+                            ComponentsMapper.player.get(gameSessionData.gamePlayData.player)
+                        )
+                        gamePlayManagers.dispatcher.dispatchMessage(REMOVE_COMPONENT.ordinal)
+                    }
                     gameSessionData.gamePlayData.player = entity
-                    @Suppress("KotlinConstantConditions")
                     if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {
                         ComponentsMapper.character.get(entity).hp =
                             GameDebugSettings.FORCE_PLAYER_HP
@@ -166,19 +173,6 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                     )
                     playerRemoved()
                 }
-            }
-        },
-        CHARACTER_DIED to object : HandlerOnEvent {
-            override fun react(
-                msg: Telegram,
-                gameSessionData: GameSessionData,
-                gamePlayManagers: GamePlayManagers
-            ) {
-                val player = msg.extraInfo as Entity
-                if (!ComponentsMapper.player.has(player)) return
-
-                RemoveComponentEventData.set(player, ComponentsMapper.player.get(player))
-                gamePlayManagers.dispatcher.dispatchMessage(REMOVE_COMPONENT.ordinal)
             }
         },
         REMOVE_ENTITY to object : HandlerOnEvent {
@@ -233,10 +227,10 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private fun shouldSkipUpdate(): Boolean {
         val player = gameSessionData.gamePlayData.player
         return (isGamePaused()
-                || player == null
-                || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
+            || player == null
+            || (!ComponentsMapper.boarding.has(player) || ComponentsMapper.boarding.get(player)
             .isBoarding())
-                || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
+            || (!ComponentsMapper.character.has(player) || ComponentsMapper.character.get(player).dead))
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -349,7 +343,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     }
 
     override fun initInputMethod() {
-        val player = gameSessionData.gamePlayData.player ?: return
+        if (gameSessionData.gamePlayData.player == null) return
 
         if (gameSessionData.runsOnMobile) {
             gameSessionData.hudData.movementTouchpad.addListener(
@@ -395,9 +389,9 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     ) {
         val oldValue = childDecalComponent.visible
         val newValue = (position.x <= stagePosition.x + LANDING_OK_OFFSET
-                && position.x >= stagePosition.x - LANDING_OK_OFFSET
-                && position.z <= stagePosition.z + LANDING_OK_OFFSET
-                && position.z >= stagePosition.z - LANDING_OK_OFFSET)
+            && position.x >= stagePosition.x - LANDING_OK_OFFSET
+            && position.z <= stagePosition.z + LANDING_OK_OFFSET
+            && position.z >= stagePosition.z - LANDING_OK_OFFSET)
         childDecalComponent.visible = newValue
         if (oldValue != newValue) {
             gamePlayManagers.dispatcher.dispatchMessage(

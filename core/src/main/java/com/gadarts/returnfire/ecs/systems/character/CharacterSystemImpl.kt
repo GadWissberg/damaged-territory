@@ -81,13 +81,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     gamePlayManagers: GamePlayManagers
                 ) {
                     val character = msg.extraInfo as Entity
-                    if (ComponentsMapper.character.has(character)) {
+                    val characterComponent = ComponentsMapper.character.get(character) ?: return
+
+                    if (!characterComponent.dead) {
                         gamePlayManagers.dispatcher.dispatchMessage(
                             SystemEvents.CHARACTER_DIED.ordinal,
                             character
                         )
-                        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, character)
                     }
+
+                    gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, character)
                 }
             },
             SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
@@ -185,15 +188,15 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 )
             )
         }
+        gamePlayManagers.dispatcher.dispatchMessage(
+            SystemEvents.CHARACTER_DIED.ordinal,
+            character
+        )
         if (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F) {
             turnCharacterToCorpse(character, planeCrashSoundId)
         } else {
             gibCharacter(character, planeCrashSoundId)
         }
-        gamePlayManagers.dispatcher.dispatchMessage(
-            SystemEvents.CHARACTER_DIED.ordinal,
-            character
-        )
         removeCharacterIfOnHangar(character)
     }
 
@@ -456,7 +459,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             ),
             planeCrashSoundId
         )
-        engine.removeEntity(character)
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, character)
     }
 
     private fun addCharacterGiblet(

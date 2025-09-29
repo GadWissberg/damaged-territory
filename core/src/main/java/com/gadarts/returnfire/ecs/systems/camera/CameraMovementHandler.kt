@@ -136,12 +136,10 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
     }
 
     private fun followPlayer(deltaTime: Float) {
-        val renderData = gameSessionData.renderData
         val player = gameSessionData.gamePlayData.player ?: return
-        val mapping =
-            cameraRelativeValuesMapper.mapping[gameSessionData.selectedCharacter]
-                ?: return
+        val mapping = cameraRelativeValuesMapper.mapping[gameSessionData.selectedCharacter] ?: return
 
+        val renderData = gameSessionData.renderData
         moveCameraToTargetPosition(deltaTime)
         if (renderData.cameraState == CameraState.PLAYER_DEAD_FOCUS) {
             renderData.cameraRelativeTargetPosition.set(
