@@ -48,3 +48,48 @@
 # These two lines are used with mapping files; see https://developer.android.com/build/shrink-code#retracing
 -keepattributes LineNumberTable,SourceFile
 -renamesourcefileattribute SourceFile
+
+# Asset loaders - these use reflection and MUST NOT be obfuscated
+-keep class com.badlogic.gdx.assets.loaders.** { *; }
+-keep class * extends com.badlogic.gdx.assets.loaders.AsynchronousAssetLoader { *; }
+-keep class * extends com.badlogic.gdx.assets.loaders.SynchronousAssetLoader { *; }
+-keep class com.badlogic.gdx.assets.AssetManager { *; }
+
+# Your game package - prevents obfuscation of your game classes
+-keep class com.gadarts.returnfire.** { *; }
+
+-keep class kotlin.** { *; }
+-keep class kotlin.jvm.** { *; }
+-keep class kotlin.jvm.internal.** { *; }
+-keepclassmembers class kotlin.jvm.internal.** { *; }
+
+# Keep all asset loader constructors
+-keepclassmembers class * extends com.badlogic.gdx.assets.loaders.AssetLoader {
+    <init>(...);
+}
+
+# If using JSON serialization
+-keepclassmembers class * {
+    @com.badlogic.gdx.utils.Json$* *;
+}
+
+# Keep Kotlin metadata
+-keep class kotlin.Metadata { *; }
+
+# GSON - Don't obfuscate classes used for JSON deserialization
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.google.gson.** { *; }
+
+# Keep all your map data classes and their fields
+-keep class com.gadarts.shared.assets.map.** { *; }
+-keepclassmembers class com.gadarts.shared.assets.map.** {
+    <fields>;
+    <init>(...);
+}
+
+# Keep all data classes in shared module
+-keep class com.gadarts.shared.** { *; }
+-keepclassmembers class com.gadarts.shared.** {
+    <fields>;
+}

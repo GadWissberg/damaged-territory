@@ -28,6 +28,7 @@ class MapLoader(resolver: FileHandleResolver) :
     ) {
     }
 
+    @Suppress("SENSELESS_COMPARISON")
     override fun loadSync(
         manager: AssetManager?,
         fileName: String?,
@@ -40,6 +41,9 @@ class MapLoader(resolver: FileHandleResolver) :
             .create()
         val json = file!!.readString("UTF-8")
         val gameMap = gson.fromJson(json, GameMap::class.java)
+
+        require(gameMap.layers != null) { "Failed to load map layers from $fileName" }
+
         return gameMap.copy(
             layers = listOf(GameMapTileLayer("Deep Water", "")) + gameMap.layers
         )
