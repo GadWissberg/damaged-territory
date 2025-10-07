@@ -160,7 +160,12 @@ class ModelsRenderer(
         }
     }
 
-    private fun renderFrontWheels(entity: Entity, forShadow: Boolean, applyEnvironment: Boolean, batch: ModelBatch) {
+    private fun renderFrontWheels(
+        entity: Entity,
+        forShadow: Boolean,
+        applyEnvironment: Boolean,
+        batch: ModelBatch
+    ) {
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
         val frontWheelComponent = ComponentsMapper.frontWheelsComponent.get(entity)
         if (frontWheelComponent != null) {
@@ -220,9 +225,10 @@ class ModelsRenderer(
         if (childModelInstanceComponent != null && childModelInstanceComponent.visible) {
             val childGameModelInstance = childModelInstanceComponent.gameModelInstance
             val childModelInstance = childGameModelInstance.modelInstance
-            val modelInstancePosition = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
-                RenderSystem.auxVector3_1
-            )
+            val modelInstancePosition =
+                modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
+                    RenderSystem.auxVector3_1
+                )
             childModelInstance.transform.setTranslation(
                 modelInstancePosition
             )
@@ -233,7 +239,11 @@ class ModelsRenderer(
                     )
                 ).trn(modelInstancePosition)
             }
-            childModelInstance.transform.translate(RenderSystem.auxVector3_2.set(childModelInstanceComponent.relativePosition))
+            childModelInstance.transform.translate(
+                RenderSystem.auxVector3_2.set(
+                    childModelInstanceComponent.relativePosition
+                )
+            )
             renderGameModelInstance(
                 childGameModelInstance,
                 forShadow,
@@ -250,7 +260,8 @@ class ModelsRenderer(
         batch: ModelBatch
     ) {
         val isShadow = forShadow && gameModelInstance.shadow != null
-        val modelInstance = if (isShadow) gameModelInstance.shadow else gameModelInstance.modelInstance
+        val modelInstance =
+            if (isShadow) gameModelInstance.shadow else gameModelInstance.modelInstance
         if (applyEnvironment) {
             batch.render(modelInstance, environment)
         } else {
@@ -263,6 +274,7 @@ class ModelsRenderer(
         val gameModelInstance = modelInsComp.gameModelInstance
         val boundingBox = gameModelInstance.getBoundingBox(RenderSystem.auxBox)
         val dims: Vector3 = boundingBox.getDimensions(RenderSystem.auxVector3_2)
+        if (GameDebugSettings.HIDE_AMB_OBJECTS && ComponentsMapper.amb.has(entity)) return false
         if (modelInsComp.hidden) return false
         if (dims.isZero) return false
         if (!renderFlags.renderCharacters && (isConsideredCharacter(entity))) return false

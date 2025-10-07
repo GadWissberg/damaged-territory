@@ -36,7 +36,8 @@ import com.gadarts.returnfire.ecs.systems.render.renderers.ModelsRenderer
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.GeneralUtils
 
-class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers), Disposable {
+class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers),
+    Disposable {
 
     private val renderFlags = RenderFlags()
     private lateinit var relatedEntities: RenderSystemRelatedEntities
@@ -62,7 +63,11 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> = mapOf(
         SystemEvents.CONSOLE_COMMAND_EXECUTED to object : HandlerOnEvent {
-            override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
                 val command = msg.extraInfo as ExecutedCommand
                 if (command.command == CommandList.SKIP_DRAWING) {
                     val parameters = command.parameters
@@ -79,9 +84,14 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                                 }
                             }
 
-                            SkipDrawingCommand.GroundParameter.alias -> renderFlags.renderGround = renderEnabled
-                            SkipDrawingCommand.CharactersParameter.alias -> renderFlags.renderCharacters = renderEnabled
-                            SkipDrawingCommand.EnvironmentParameter.alias -> renderFlags.renderAmbient = renderEnabled
+                            SkipDrawingCommand.GroundParameter.alias -> renderFlags.renderGround =
+                                renderEnabled
+
+                            SkipDrawingCommand.CharactersParameter.alias -> renderFlags.renderCharacters =
+                                renderEnabled
+
+                            SkipDrawingCommand.EnvironmentParameter.alias -> renderFlags.renderAmbient =
+                                renderEnabled
                         }
                     }
 
@@ -146,7 +156,8 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     private fun renderCollisionShapes() {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
 
-        val debugDrawingMethod: CollisionShapesDebugDrawing? = gameSessionData.physicsData.debugDrawingMethod
+        val debugDrawingMethod: CollisionShapesDebugDrawing? =
+            gameSessionData.physicsData.debugDrawingMethod
         debugDrawingMethod?.drawCollisionShapes(gameSessionData.renderData.camera)
     }
 
@@ -170,10 +181,12 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         }
         renderIndependentDecals()
         gameSessionData.profilingData.holesRendered = 0
-        for (hole in gamePlayManagers.stainsHandler.holes) {
-            if (isDecalVisible(hole)) {
-                batches.decalBatch.add(hole)
-                gameSessionData.profilingData.holesRendered++
+        if (!GameDebugSettings.HIDE_BULLET_HOLES) {
+            for (hole in gamePlayManagers.stainsHandler.holes) {
+                if (isDecalVisible(hole)) {
+                    batches.decalBatch.add(hole)
+                    gameSessionData.profilingData.holesRendered++
+                }
             }
         }
         batches.decalBatch.flush()

@@ -124,7 +124,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     }
 
     companion object {
-        const val VERSION: String = "0.10.1"
+        const val VERSION: String = "0.11"
         const val MAX_RESOLUTION_WIDTH = 1920
         const val MAX_RESOLUTION_HEIGHT = 1080
 

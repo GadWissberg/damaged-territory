@@ -24,9 +24,9 @@ class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOn
 
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
-        val map = gamePlayManagers.assetsManager.getAssetByDefinition(GameDebugSettings.MAP)
         val colorInMessage = OpponentEnteredGameplayScreenEventData.characterColor
-        val selectedElevator = elevatorEntities.first {
+        val selectedElevator = elevatorEntities.firstOrNull {
+            val map = gamePlayManagers.assetsManager.getAssetByDefinition(GameDebugSettings.MAP)
             val base =
                 map.objects.find { placedObject ->
                     placedObject.definition.lowercase() == ComponentsMapper.amb.get(
@@ -35,7 +35,8 @@ class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOn
                 }
             val characterColor = ComponentsMapper.hangar.get(it).color
             characterColor == colorInMessage && base != null
-        }
+        } ?: return
+
         ComponentsMapper.hangar.get(selectedElevator).open()
         val opponent =
             gamePlayManagers.factories.opponentCharacterFactory.create(
