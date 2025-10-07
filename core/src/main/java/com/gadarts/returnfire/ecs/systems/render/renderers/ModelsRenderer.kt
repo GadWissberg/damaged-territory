@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.ModelCache
+import com.badlogic.gdx.graphics.g3d.RenderableProvider
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
 import com.badlogic.gdx.math.Matrix4
@@ -43,7 +44,6 @@ class ModelsRenderer(
     }
     private val environment: Environment by lazy { Environment() }
 
-    @Suppress("SimplifyBooleanWithConstants")
     fun renderModels(
         batch: ModelBatch,
         camera: Camera,
@@ -58,11 +58,11 @@ class ModelsRenderer(
             renderModel(entity, batch, applyEnvironment, deltaTime, forShadow)
         }
         if (!GameDebugSettings.HIDE_FLOOR && renderFlags.renderGround) {
-            modelCaches.forEach {
-                if (applyEnvironment) {
-                    batch.render(it, environment)
-                } else {
-                    batch.render(it)
+            if (GameDebugSettings.RENDER_ONLY_FIRST_FLOOR_LAYER) {
+                renderRenderableProvider(modelCaches[0], applyEnvironment, batch)
+            } else {
+                modelCaches.forEach {
+                    renderRenderableProvider(it, applyEnvironment, batch)
                 }
             }
         }
@@ -138,7 +138,7 @@ class ModelsRenderer(
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val gameModelInstance = modelInstanceComponent.gameModelInstance
 
-            renderGameModelInstance(gameModelInstance, forShadow, applyEnvironment, batch)
+            renderRenderableProvider(gameModelInstance, forShadow, applyEnvironment, batch)
             if (!modelInstanceComponent.hidden
                 && modelInstanceComponent.hideAt != -1L
                 && modelInstanceComponent.hideAt <= TimeUtils.millis()
@@ -206,7 +206,7 @@ class ModelsRenderer(
             relativeTransform
         )
         transform.rotate(Vector3.Y, steeringRotation)
-        renderGameModelInstance(
+        renderRenderableProvider(
             wheelGameModelInstance,
             forShadow,
             applyEnvironment,
@@ -244,7 +244,7 @@ class ModelsRenderer(
                     childModelInstanceComponent.relativePosition
                 )
             )
-            renderGameModelInstance(
+            renderRenderableProvider(
                 childGameModelInstance,
                 forShadow,
                 applyEnvironment,
@@ -253,7 +253,7 @@ class ModelsRenderer(
         }
     }
 
-    private fun renderGameModelInstance(
+    private fun renderRenderableProvider(
         gameModelInstance: GameModelInstance,
         forShadow: Boolean,
         applyEnvironment: Boolean,
@@ -261,11 +261,20 @@ class ModelsRenderer(
     ) {
         val isShadow = forShadow && gameModelInstance.shadow != null
         val modelInstance =
-            if (isShadow) gameModelInstance.shadow else gameModelInstance.modelInstance
+            (if (isShadow) gameModelInstance.shadow else gameModelInstance.modelInstance) ?: return
+
+        renderRenderableProvider(modelInstance, applyEnvironment, batch)
+    }
+
+    private fun renderRenderableProvider(
+        renderableProvider: RenderableProvider,
+        applyEnvironment: Boolean,
+        batch: ModelBatch,
+    ) {
         if (applyEnvironment) {
-            batch.render(modelInstance, environment)
+            batch.render(renderableProvider, environment)
         } else {
-            batch.render(modelInstance)
+            batch.render(renderableProvider)
         }
     }
 

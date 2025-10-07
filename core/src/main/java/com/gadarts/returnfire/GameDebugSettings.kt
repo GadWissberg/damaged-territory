@@ -6,7 +6,7 @@ import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
 
 @Suppress("RedundantNullableReturnType", "RedundantSuppression")
 object GameDebugSettings {
-    val MAP = MapDefinition.SMALL
+    val MAP = MapDefinition.MAP_0
     const val PRINT_BIT_MAP: Boolean = false
     const val SHOW_OBJECT_POOL_PROFILING = false
     const val SHOW_COLLISION_SHAPES = false
@@ -21,12 +21,13 @@ object GameDebugSettings {
     const val HIDE_FLOOR = false
     const val HIDE_ENEMIES = false
     const val HIDE_AMB_OBJECTS = false
-    const val HIDE_BULLET_HOLES = true
+    const val HIDE_BULLET_HOLES = false
+    const val RENDER_ONLY_FIRST_FLOOR_LAYER = true
     const val FORCE_PLAYER_HP: Float = -1F
     const val FORCE_ENEMY_HP: Float = -1F
     const val FORCE_AMMO: Int = -1
     const val FORCE_INITIAL_FUEL: Float = -1F
-    const val AVOID_PARTICLE_EFFECTS_DRAWING = true
+    const val AVOID_PARTICLE_EFFECTS_DRAWING = false
     const val ENABLE_PROFILER = true
     const val DISABLE_HUD = false
     val SELECTED_VEHICLE: CharacterDefinition? = SimpleCharacterDefinition.APACHE
