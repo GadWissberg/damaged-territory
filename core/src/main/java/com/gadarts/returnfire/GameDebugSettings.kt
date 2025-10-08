@@ -22,7 +22,7 @@ object GameDebugSettings {
     const val HIDE_ENEMIES = false
     const val HIDE_AMB_OBJECTS = false
     const val HIDE_BULLET_HOLES = false
-    const val RENDER_ONLY_FIRST_FLOOR_LAYER = true
+    const val RENDER_ONLY_FIRST_FLOOR_LAYER = false
     const val FORCE_PLAYER_HP: Float = -1F
     const val FORCE_ENEMY_HP: Float = -1F
     const val FORCE_AMMO: Int = -1

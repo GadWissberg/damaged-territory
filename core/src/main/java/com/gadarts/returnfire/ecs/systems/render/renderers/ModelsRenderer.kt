@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
-import com.badlogic.gdx.graphics.g3d.ModelCache
 import com.badlogic.gdx.graphics.g3d.RenderableProvider
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
@@ -19,17 +18,18 @@ import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionDataRender
+import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion
 import com.gadarts.returnfire.ecs.systems.render.*
 import com.gadarts.returnfire.utils.ModelUtils
 
 class ModelsRenderer(
     private val relatedEntities: RenderSystemRelatedEntities,
     private val renderFlags: RenderFlags,
-    private val renderData: GameSessionDataRender,
+    private val gameSessionData: GameSessionData,
     private val batches: RenderSystemBatches,
-    private val modelCaches: List<ModelCache>
 ) : Disposable {
+    private val layersModelCaches by lazy { gameSessionData.mapData.tilesEntitiesByLayers.map { it.layerRegions } }
     private val haloRenderer = HaloRenderer()
     private var axisModelHandler = AxisModelHandler()
     private val shadowLight: DirectionalShadowLight by lazy {
@@ -59,23 +59,61 @@ class ModelsRenderer(
         }
         if (!GameDebugSettings.HIDE_FLOOR && renderFlags.renderGround) {
             if (GameDebugSettings.RENDER_ONLY_FIRST_FLOOR_LAYER) {
-                renderRenderableProvider(modelCaches[0], applyEnvironment, batch)
+                renderLayerRegions(layersModelCaches[0], applyEnvironment, batch)
             } else {
-                modelCaches.forEach {
-                    renderRenderableProvider(it, applyEnvironment, batch)
+                var count = 0
+                layersModelCaches.forEach {
+                    count += renderLayerRegions(it, applyEnvironment, batch)
+                }
+                Gdx.app.log("ModelRenderer", "Rendered $count layer regions.")
+            }
+            var count = 0
+            gameSessionData.mapData.externalSeaRegions.forEach { seaRegion ->
+                if (isLayerRegionVisible(seaRegion)) {
+                    count++
+                    renderRenderableProvider(seaRegion, applyEnvironment, batch)
                 }
             }
+            Gdx.app.log("ModelRenderer", "Rendered $count external sea regions.")
         }
         batch.end()
         if (renderParticleEffects) {
             batch.begin(camera)
-            batches.modelBatch.render(renderData.particleSystem, environment)
+            batches.modelBatch.render(gameSessionData.renderData.particleSystem, environment)
             batch.end()
         }
     }
 
+    private fun renderLayerRegions(
+        layerRegions: Array<Array<LayerRegion?>>,
+        applyEnvironment: Boolean,
+        batch: ModelBatch
+    ): Int {
+        var count = 0
+        layerRegions.forEach { row ->
+            row.forEach { layerRegion ->
+                if (isLayerRegionVisible(layerRegion)) {
+                    count++
+                    renderRenderableProvider(
+                        layerRegion!!,
+                        applyEnvironment,
+                        batch
+                    )
+                }
+            }
+        }
+        return count
+    }
+
+    private fun isLayerRegionVisible(layerRegion: LayerRegion?): Boolean {
+        if (layerRegion == null) return false
+        val frustum = gameSessionData.renderData.camera.frustum
+
+        return frustum.boundsInFrustum(layerRegion.boundingBox)
+    }
+
     fun renderWaterWaves(deltaTime: Float) {
-        batches.modelBatch.begin(renderData.camera)
+        batches.modelBatch.begin(gameSessionData.renderData.camera)
         Gdx.gl.glDepthMask(false)
         for (entity in relatedEntities.waterWaveEntities) {
             renderModel(entity, batches.modelBatch, true, deltaTime)
@@ -86,7 +124,7 @@ class ModelsRenderer(
 
     fun renderShadows(deltaTime: Float) {
         if (renderFlags.renderShadows) {
-            val camera = renderData.camera
+            val camera = gameSessionData.renderData.camera
             shadowLight.begin(
                 RenderSystem.auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
                 camera.direction
@@ -134,7 +172,7 @@ class ModelsRenderer(
         deltaTime: Float,
         forShadow: Boolean = false,
     ) {
-        if (isVisible(entity, forShadow)) {
+        if (isEntityVisible(entity, forShadow)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val gameModelInstance = modelInstanceComponent.gameModelInstance
 
@@ -278,7 +316,7 @@ class ModelsRenderer(
         }
     }
 
-    private fun isVisible(entity: Entity, extendBoundingBoxSize: Boolean): Boolean {
+    private fun isEntityVisible(entity: Entity, extendBoundingBoxSize: Boolean): Boolean {
         val modelInsComp = ComponentsMapper.modelInstance[entity]
         val gameModelInstance = modelInsComp.gameModelInstance
         val boundingBox = gameModelInstance.getBoundingBox(RenderSystem.auxBox)
@@ -294,7 +332,7 @@ class ModelsRenderer(
             gameModelInstance.modelInstance.transform.getTranslation(RenderSystem.auxVector3_1)
         dims.scl(if (extendBoundingBoxSize) 16.6F else 1.3F)
 
-        val frustum = renderData.camera.frustum
+        val frustum = gameSessionData.renderData.camera.frustum
         val isInFrustum = if (gameModelInstance.sphere) frustum.sphereInFrustum(
             gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector

@@ -55,9 +55,8 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         ModelsRenderer(
             relatedEntities,
             renderFlags,
-            gameSessionData.renderData,
+            gameSessionData,
             batches,
-            gameSessionData.mapData.tilesEntitiesByLayers.map { it.modelCache },
         )
     }
 

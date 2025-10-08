@@ -43,6 +43,8 @@ import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.map.InGameTilesLayer
+import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion
+import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion.Companion.LAYER_REGION_SIZE
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.model.MapGraph
 import com.gadarts.returnfire.model.MapGraphCost
@@ -61,7 +63,8 @@ import com.gadarts.shared.assets.map.GameMapTileLayer
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 import com.gadarts.shared.data.creation.MapInflater
-import com.gadarts.shared.data.definitions.*
+import com.gadarts.shared.data.definitions.AmbDefinition
+import com.gadarts.shared.data.definitions.ElementDefinition
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
@@ -130,30 +133,44 @@ class MapInflaterImpl(
         currentMap.layers.forEachIndexed { index, layer ->
             addFloorLayer(exculdedTiles, layer, index)
         }
-        gameSessionData.mapData.tilesEntitiesByLayers.forEachIndexed { index, layer ->
-            addFloorModelsToCache(layer, index)
+        gameSessionData.mapData.tilesEntitiesByLayers.forEach { layer ->
+            addFloorModelsToCache(layer)
         }
+        addAllExternalSea(currentMap.width, currentMap.depth)
     }
 
-    private fun addFloorModelsToCache(layer: InGameTilesLayer, index: Int) {
-        val modelCache = layer.modelCache
-        modelCache.begin()
+    private fun addFloorModelsToCache(layer: InGameTilesLayer) {
+        val layerRegions = layer.layerRegions
         val tilesEntities = layer.tilesEntities
-        tilesEntities.forEach { row ->
-            row.forEach { tileEntity ->
-                if (tileEntity != null) {
-                    val tileModelInstance = ComponentsMapper.modelInstance.get(tileEntity)
-                    if (tileModelInstance != null) {
-                        modelCache.add(tileModelInstance.gameModelInstance.modelInstance)
-                        gamePlayManagers.ecs.entityBuilder.addModelCacheComponentToEntity(tileEntity)
+
+        for (chunkRow in layerRegions.indices) {
+            for (chunkCol in layerRegions[chunkRow].indices) {
+                var layerRegion = layerRegions[chunkRow][chunkCol]
+                val startRow = chunkRow * LAYER_REGION_SIZE
+                val startCol = chunkCol * LAYER_REGION_SIZE
+                if (layerRegion == null) {
+                    layerRegion =
+                        LayerRegion(startCol.toFloat(), startRow.toFloat(), LAYER_REGION_SIZE, LAYER_REGION_SIZE)
+                    layerRegions[chunkRow][chunkCol] = layerRegion
+                }
+                layerRegion.begin()
+                val endRow = minOf(startRow + LAYER_REGION_SIZE, tilesEntities.size)
+                val endCol = minOf(startCol + LAYER_REGION_SIZE, tilesEntities[0].size)
+                for (row in startRow until endRow) {
+                    for (col in startCol until endCol) {
+                        val tileEntity = tilesEntities[row][col]
+                        if (tileEntity != null) {
+                            val tileModelInstance = ComponentsMapper.modelInstance.get(tileEntity)
+                            if (tileModelInstance != null) {
+                                layerRegion.add(tileModelInstance.gameModelInstance.modelInstance)
+                                gamePlayManagers.ecs.entityBuilder.addModelCacheComponentToEntity(tileEntity)
+                            }
+                        }
                     }
                 }
+                layerRegion.end()
             }
         }
-        if (index == 0) {
-            addAllExternalSea(tilesEntities[0].size, tilesEntities.size)
-        }
-        modelCache.end()
     }
 
     private fun createGraph() {
@@ -988,7 +1005,11 @@ class MapInflaterImpl(
             modelInstance.modelInstance.materials.first()
                 .get(TextureAttribute.Diffuse) as TextureAttribute
         initializeExternalSeaTextureAttribute(textureAttribute, width, depth)
-        gameSessionData.mapData.tilesEntitiesByLayers[0].modelCache.add(modelInstance.modelInstance)
+        val layerRegion = LayerRegion(x.toInt() - width / 2F, z.toInt() - depth / 2F, width, depth)
+        layerRegion.begin()
+        layerRegion.add(modelInstance.modelInstance)
+        layerRegion.end()
+        gameSessionData.mapData.externalSeaRegions.add(layerRegion)
         val texturesDefinitions = assetsManager.getTexturesDefinitions()
         applyAnimatedTextureComponentToFloor(
             texturesDefinitions.definitions["tile_water"]!!,
