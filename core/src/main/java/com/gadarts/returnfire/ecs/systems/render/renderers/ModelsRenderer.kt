@@ -61,20 +61,13 @@ class ModelsRenderer(
             if (GameDebugSettings.RENDER_ONLY_FIRST_FLOOR_LAYER) {
                 renderLayerRegions(layersModelCaches[0], applyEnvironment, batch)
             } else {
-                var count = 0
                 layersModelCaches.forEach {
-                    count += renderLayerRegions(it, applyEnvironment, batch)
+                    renderLayerRegions(it, applyEnvironment, batch)
                 }
-                Gdx.app.log("ModelRenderer", "Rendered $count layer regions.")
             }
-            var count = 0
             gameSessionData.mapData.externalSeaRegions.forEach { seaRegion ->
-                if (isLayerRegionVisible(seaRegion)) {
-                    count++
-                    renderRenderableProvider(seaRegion, applyEnvironment, batch)
-                }
+                renderLayerRegion(seaRegion, applyEnvironment, batch)
             }
-            Gdx.app.log("ModelRenderer", "Rendered $count external sea regions.")
         }
         batch.end()
         if (renderParticleEffects) {
@@ -88,21 +81,26 @@ class ModelsRenderer(
         layerRegions: Array<Array<LayerRegion?>>,
         applyEnvironment: Boolean,
         batch: ModelBatch
-    ): Int {
-        var count = 0
+    ) {
         layerRegions.forEach { row ->
             row.forEach { layerRegion ->
-                if (isLayerRegionVisible(layerRegion)) {
-                    count++
-                    renderRenderableProvider(
-                        layerRegion!!,
-                        applyEnvironment,
-                        batch
-                    )
-                }
+                renderLayerRegion(layerRegion, applyEnvironment, batch)
             }
         }
-        return count
+    }
+
+    private fun renderLayerRegion(
+        layerRegion: LayerRegion?,
+        applyEnvironment: Boolean,
+        batch: ModelBatch
+    ) {
+        if (isLayerRegionVisible(layerRegion)) {
+            renderRenderableProvider(
+                layerRegion!!,
+                applyEnvironment,
+                batch
+            )
+        }
     }
 
     private fun isLayerRegionVisible(layerRegion: LayerRegion?): Boolean {

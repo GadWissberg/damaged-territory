@@ -16,7 +16,7 @@ class LayerRegion(private val x: Float, private val z: Float, private val width:
     }
 
     companion object {
-        const val LAYER_REGION_SIZE = 8
+        const val LAYER_REGION_SIZE = 16
     }
 
 }
