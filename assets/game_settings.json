@@ -1,0 +1,42 @@
+{
+  "development": {
+    "map": "map_0",
+    "print_bit_map": false,
+    "show_object_pool_profiling": false,
+    "show_collision_shapes": false,
+    "show_gl_profiling": true,
+    "show_heap_size": false,
+    "debug_input": false,
+    "ui_debug": false,
+    "sfx": false,
+    "disable_music": false,
+    "disable_amb_sounds": false,
+    "hide_player": false,
+    "hide_floor": false,
+    "hide_enemies": false,
+    "hide_amb_objects": false,
+    "hide_bullet_holes": false,
+    "render_only_first_floor_layer": false,
+    "force_player_hp": -1.0,
+    "force_enemy_hp": -1.0,
+    "force_ammo": -1,
+    "force_initial_fuel": -1.0,
+    "avoid_particle_effects_drawing": false,
+    "enable_profiler": true,
+    "disable_hud": false,
+    "selected_vehicle": "apache",
+    "selected_vehicle_ai": null,
+    "force_aim": 1,
+    "ai_disabled": true,
+    "ai_vehicle_disabled": true,
+    "ai_attack_disabled": false,
+    "ai_avoid_going_back_to_base": false,
+    "ai_force_thrust": false,
+    "use_debug_dll": false
+  },
+  "production": {
+    "map": "map_0",
+    "show_gl_profiling": true,
+    "sfx": true
+  }
+}

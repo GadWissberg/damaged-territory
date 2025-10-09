@@ -21,6 +21,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Array
 import com.gadarts.shared.assets.AssetsTypes
 import com.gadarts.shared.assets.definitions.AssetDefinition
+import com.gadarts.shared.assets.definitions.MapDefinition
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.external.ExternalDefinitions
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
@@ -28,13 +29,35 @@ import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.assets.loaders.DefinitionLoader
 import com.gadarts.shared.assets.loaders.MapLoader
 import com.gadarts.shared.assets.map.GameMap
+import com.gadarts.shared.assets.settings.CharacterDefinitionTypeAdapter
+import com.gadarts.shared.assets.settings.GameSettings
+import com.gadarts.shared.assets.settings.MapDefinitionTypeAdapter
 import com.gadarts.shared.assets.utils.CollisionShapeInfo
 import com.gadarts.shared.assets.utils.ModelCollisionShapeInfo
 import com.gadarts.shared.data.GameModelInstanceInfo
+import com.gadarts.shared.data.definitions.characters.CharacterDefinition
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
 import java.io.File
 import java.util.*
 
 open class GameAssetManager : AssetManager() {
+    val gameSettings: GameSettings by lazy {
+        readGameSettings(
+            "development"
+        )
+    }
+
+    private fun readGameSettings(env: String): GameSettings {
+        val gson = GsonBuilder()
+            .registerTypeAdapter(MapDefinition::class.java, MapDefinitionTypeAdapter())
+            .registerTypeAdapter(CharacterDefinition::class.java, CharacterDefinitionTypeAdapter())
+            .create()
+
+        val json = Gdx.files.internal("game_settings.json").readString()
+        val settingsObj = JsonParser.parseString(json).asJsonObject[env].asJsonObject
+        return gson.fromJson(settingsObj, GameSettings::class.java)
+    }
 
     fun loadAssets() {
         initializeCustomLoaders()

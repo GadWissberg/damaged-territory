@@ -35,17 +35,13 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             runsOnMobile,
             assetsManager,
             this,
-            soundManager
+            soundManager,
         )
     }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val customDesktopLib: String =
         "C:\\Users\\gadw1\\StudioProjects\\libgdx\\extensions\\gdx-bullet\\jni\\vs\\gdxBullet\\x64\\Debug\\gdxBullet.dll"
 
-    @Suppress(
-        "KotlinConstantConditions",
-        "UnsafeDynamicallyLoadedCode"
-    )
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
         val screenHeight = Gdx.graphics.displayMode.height
