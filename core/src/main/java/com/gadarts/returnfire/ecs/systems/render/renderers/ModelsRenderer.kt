@@ -14,7 +14,6 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
@@ -22,12 +21,14 @@ import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion
 import com.gadarts.returnfire.ecs.systems.render.*
 import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.assets.settings.GameSettings
 
 class ModelsRenderer(
     private val relatedEntities: RenderSystemRelatedEntities,
     private val renderFlags: RenderFlags,
     private val gameSessionData: GameSessionData,
     private val batches: RenderSystemBatches,
+    private val gameSettings: GameSettings,
 ) : Disposable {
     private val layersModelCaches by lazy { gameSessionData.mapData.tilesEntitiesByLayers.map { it.layerRegions } }
     private val haloRenderer = HaloRenderer()
@@ -57,8 +58,8 @@ class ModelsRenderer(
         for (entity in relatedEntities.modelInstanceEntities) {
             renderModel(entity, batch, applyEnvironment, deltaTime, forShadow)
         }
-        if (!GameDebugSettings.HIDE_FLOOR && renderFlags.renderGround) {
-            if (GameDebugSettings.RENDER_ONLY_FIRST_FLOOR_LAYER) {
+        if (!gameSettings.hideFloor && renderFlags.renderGround) {
+            if (gameSettings.renderOnlyFirstFloorLayer) {
                 renderLayerRegions(layersModelCaches[0], applyEnvironment, batch)
             } else {
                 layersModelCaches.forEach {
@@ -319,7 +320,7 @@ class ModelsRenderer(
         val gameModelInstance = modelInsComp.gameModelInstance
         val boundingBox = gameModelInstance.getBoundingBox(RenderSystem.auxBox)
         val dims: Vector3 = boundingBox.getDimensions(RenderSystem.auxVector3_2)
-        if (GameDebugSettings.HIDE_AMB_OBJECTS && ComponentsMapper.amb.has(entity)) return false
+        if (gameSettings.hideAmbObjects && ComponentsMapper.amb.has(entity)) return false
         if (modelInsComp.hidden) return false
         if (dims.isZero) return false
         if (!renderFlags.renderCharacters && (isConsideredCharacter(entity))) return false

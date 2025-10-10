@@ -13,7 +13,7 @@ class AiJeepCharacterLogic(
     private val gameSessionData: GameSessionData,
     gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject,
-) : AiGroundCharacterLogic(gameSessionData, autoAim, gamePlayManagers), Disposable {
+) : AiGroundCharacterLogic(gameSessionData, gamePlayManagers, autoAim), Disposable {
     init {
         goal = AiCharacterGoals.GET_THE_RIVAL_FLAG
     }

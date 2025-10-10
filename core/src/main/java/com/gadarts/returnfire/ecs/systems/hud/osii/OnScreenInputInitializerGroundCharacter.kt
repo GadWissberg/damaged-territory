@@ -3,17 +3,18 @@ package com.gadarts.returnfire.ecs.systems.hud.osii
 import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.systems.hud.HudButtons
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.HUD_ELEMENT_PADDING_BOTTOM
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.JOYSTICK_PADDING_HORIZONTAL
+import com.gadarts.shared.assets.settings.GameSettings
 
 class OnScreenInputInitializerGroundCharacter(
     private val hudSystem: HudSystem,
     private val hudButtons: HudButtons,
     private val turretTouchpad: Touchpad?,
-    private val hideAttackButtons: Boolean = false,
+    private val hideAttackButtons: Boolean,
+    private val gameSettings: GameSettings,
 ) :
         (Table, Cell<Touchpad>) -> Unit {
     override fun invoke(ui: Table, movementPad: Cell<Touchpad>) {
@@ -28,7 +29,7 @@ class OnScreenInputInitializerGroundCharacter(
             .bottom()
         if (!hideAttackButtons) {
             val attackButtonsTable = Table()
-            attackButtonsTable.setDebug(GameDebugSettings.UI_DEBUG, true)
+            attackButtonsTable.setDebug(gameSettings.uiDebug, true)
             hudSystem.addButton(
                 attackButtonsTable,
                 "icon_missiles",

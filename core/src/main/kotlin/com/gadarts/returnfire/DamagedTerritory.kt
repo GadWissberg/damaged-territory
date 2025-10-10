@@ -52,15 +52,17 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         assetsManager.loadAssets()
         soundManager.play(assetsManager.getAssetByDefinition(MusicDefinition.TEST))
         Gdx.input.inputProcessor = InputMultiplexer()
-        if (GameDebugSettings.USE_DEBUG_DLL) {
+        val gameSettings = assetsManager.gameSettings
+        if (gameSettings.useDebugDll) {
             System.load(customDesktopLib)
         } else {
             Bullet.init()
         }
-        if (GameDebugSettings.SELECTED_VEHICLE != null) {
+        val selectedVehicle = gameSettings.selectedVehicle
+        if (selectedVehicle != null) {
             goToGameplayScreen(
-                GameDebugSettings.SELECTED_VEHICLE,
-                GameDebugSettings.FORCE_AIM > 0,
+                selectedVehicle,
+                gameSettings.forceAim > 0,
             )
         } else {
             setScreen(hangarScreenImpl)
@@ -85,9 +87,9 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private fun goToGameplayScreen(selectedCharacter: CharacterDefinition, autoAim: Boolean) {
         if (gamePlayScreen == null) {
             gamePlayScreen = GamePlayScreen(
+                GeneralManagers(assetsManager, soundManager, dispatcher, this),
                 runsOnMobile,
                 fpsTarget,
-                GeneralManagers(assetsManager, soundManager, dispatcher, this),
             )
         }
         setScreen(

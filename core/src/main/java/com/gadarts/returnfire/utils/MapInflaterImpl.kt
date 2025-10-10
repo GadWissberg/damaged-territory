@@ -26,7 +26,6 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.AnimatedTextureComponent
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.amb.AmbComponent
@@ -93,7 +92,7 @@ class MapInflaterImpl(
         ) { Array(width) { 0 } }
         addFloor(currentMap, exculdedTiles)
         val groundBitMap = gameSessionData.mapData.groundBitMap
-        if (GameDebugSettings.PRINT_BIT_MAP) {
+        if (gamePlayManagers.assetsManager.gameSettings.printBitMap) {
             for (y in 0 until depth) {
                 for (x in 0 until width) {
                     print("${groundBitMap[y][x]} ")
@@ -447,7 +446,7 @@ class MapInflaterImpl(
                 position,
                 null,
                 0F,
-                GameDebugSettings.HIDE_ENEMIES
+                gamePlayManagers.assetsManager.gameSettings.hideEnemies
             )
             .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON, CharacterColor.GREEN)
         GeneralUtils.addColorComponent(

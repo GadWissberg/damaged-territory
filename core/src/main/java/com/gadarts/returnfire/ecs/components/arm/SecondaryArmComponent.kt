@@ -4,9 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 
 class SecondaryArmComponent(
-    armProperties: ArmProperties, spark: Entity, bulletBehavior: BulletBehavior
+    armProperties: ArmProperties, spark: Entity, bulletBehavior: BulletBehavior,ammo:Int
 ) : ArmComponent(
-    armProperties, spark, bulletBehavior
+    armProperties, spark, bulletBehavior,ammo
 ) {
     fun flipCreationSide() {
         creationSide *= -1

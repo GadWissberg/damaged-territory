@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.DamagedTerritory
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.console.ConsoleConstants.INPUT_FIELD_NAME
 import com.gadarts.returnfire.console.commands.ExecutedCommand
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
@@ -32,7 +31,7 @@ class ConsoleImpl(assetsManager: GameAssetManager, private val dispatcher: Messa
     private var active = false
 
     init {
-        debug(if (GameDebugSettings.UI_DEBUG) Debug.all else Debug.none)
+        debug(if (assetsManager.gameSettings.uiDebug) Debug.all else Debug.none)
     }
 
     private fun calculateHeight(): Int {

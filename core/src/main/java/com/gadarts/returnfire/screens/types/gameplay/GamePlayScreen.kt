@@ -7,7 +7,6 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.ecs.systems.EntityBuilderImpl
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
@@ -38,13 +37,13 @@ import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class GamePlayScreen(
+    private val generalManagers: GeneralManagers,
     runsOnMobile: Boolean,
     fpsTarget: Int,
-    private val generalManagers: GeneralManagers,
 ) : Screen, Telegraph {
 
     init {
-        val fileName = GameDebugSettings.MAP.getPaths()[0]
+        val fileName = generalManagers.assetsManager.gameSettings.map.getPaths()[0]
         generalManagers.assetsManager.load(
             fileName,
             GameMap::class.java
@@ -203,8 +202,13 @@ class GamePlayScreen(
             val entityBuilderImpl = EntityBuilderImpl()
             val ecs = EcsManager(engine, entityBuilderImpl)
             createFactories(entityBuilderImpl, ecs)
+            entityBuilderImpl.initialize(
+                engine,
+                factories,
+                generalManagers.dispatcher,
+                generalManagers.assetsManager.gameSettings
+            )
             generalManagers.soundManager.sessionInitialize(gameSessionData.renderData.camera)
-            entityBuilderImpl.init(engine, factories, generalManagers.dispatcher)
             val gamePlayManagers = GamePlayManagers(
                 generalManagers.soundManager,
                 generalManagers.assetsManager,

@@ -12,7 +12,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.*
 import com.gadarts.returnfire.ecs.components.ai.*
 import com.gadarts.returnfire.ecs.components.amb.AmbAnimationComponent
@@ -49,20 +48,17 @@ import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.assets.settings.GameSettings
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.AmbDefinition
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class EntityBuilderImpl : EntityBuilder {
-    private lateinit var messageDispatcher: MessageDispatcher
+
+    private lateinit var gameSettings: GameSettings
+    private lateinit var dispatcher: MessageDispatcher
     private lateinit var factories: Factories
     private lateinit var engine: PooledEngine
-
-    fun init(engine: PooledEngine, factories: Factories, messageDispatcher: MessageDispatcher) {
-        this.engine = engine
-        this.factories = factories
-        this.messageDispatcher = messageDispatcher
-    }
 
     override fun begin(): EntityBuilderImpl {
         entity = engine.createEntity()
@@ -146,12 +142,12 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    @Suppress("KotlinConstantConditions")
     override fun addCharacterComponent(characterDefinition: CharacterDefinition, color: CharacterColor): EntityBuilder {
         val characterComponent = CharacterComponent(
             characterDefinition,
             color,
-            if (GameDebugSettings.FORCE_ENEMY_HP >= 0 && color == CharacterColor.GREEN) GameDebugSettings.FORCE_ENEMY_HP else characterDefinition.getHP()
+            if (gameSettings.forceInitialFuel < 0) 100F else gameSettings.forceInitialFuel,
+            if (gameSettings.forceEnemyHp >= 0 && color == CharacterColor.GREEN) gameSettings.forceEnemyHp else characterDefinition.getHP()
         )
         entity!!.add(characterComponent)
         return this
@@ -182,7 +178,12 @@ class EntityBuilderImpl : EntityBuilder {
         bulletBehavior: BulletBehavior
     ): EntityBuilder {
         ComponentsMapper.spark.get(spark).parent = entity!!
-        val armComponent = PrimaryArmComponent(armProperties, spark, bulletBehavior)
+        val armComponent = PrimaryArmComponent(
+            armProperties,
+            spark,
+            bulletBehavior,
+            if (gameSettings.forceAmmo < 0) armProperties.ammo else gameSettings.forceAmmo
+        )
         entity!!.add(armComponent)
         return this
     }
@@ -194,7 +195,10 @@ class EntityBuilderImpl : EntityBuilder {
         bulletBehavior: BulletBehavior
     ): EntityBuilder {
         ComponentsMapper.spark.get(spark).parent = entity!!
-        val armComponent = SecondaryArmComponent(armProperties, spark, bulletBehavior)
+        val armComponent = SecondaryArmComponent(
+            armProperties, spark, bulletBehavior,
+            if (gameSettings.forceAmmo < 0) armProperties.ammo else gameSettings.forceAmmo
+        )
         entity!!.add(armComponent)
         return this
     }
@@ -263,7 +267,7 @@ class EntityBuilderImpl : EntityBuilder {
             ttlForComponentOnly = ttlForComponentOnly,
         )
         entity.add(component)
-        messageDispatcher.dispatchMessage(
+        dispatcher.dispatchMessage(
             SystemEvents.PARTICLE_EFFECTS_COMPONENTS_ADDED_MANUALLY.ordinal,
             entity
         )
@@ -477,7 +481,7 @@ class EntityBuilderImpl : EntityBuilder {
         val ghostPhysicsComponent = GhostPhysicsComponent(ghost)
         entity.add(ghostPhysicsComponent)
         ghost.userData = entity
-        messageDispatcher.dispatchMessage(
+        dispatcher.dispatchMessage(
             SystemEvents.PHYSICS_GHOST_COMPONENT_ADDED_MANUALLY.ordinal,
             entity
         )
@@ -653,7 +657,7 @@ class EntityBuilderImpl : EntityBuilder {
         physicsComponent.init(rigidBody)
         physicsComponent.rigidBody.userData = entity
         entity.add(physicsComponent)
-        messageDispatcher.dispatchMessage(
+        dispatcher.dispatchMessage(
             SystemEvents.PHYSICS_COMPONENT_ADDED_MANUALLY.ordinal,
             entity
         )
@@ -693,11 +697,23 @@ class EntityBuilderImpl : EntityBuilder {
     private fun addAmbSoundComponent(entity: Entity, sound: Sound): Entity {
         val ambSoundComponent = AmbSoundComponent(sound)
         entity.add(ambSoundComponent)
-        messageDispatcher.dispatchMessage(
+        dispatcher.dispatchMessage(
             SystemEvents.AMB_SOUND_COMPONENT_ADDED.ordinal,
             entity
         )
         return entity
+    }
+
+    fun initialize(
+        engine: PooledEngine,
+        factories: Factories,
+        dispatcher: MessageDispatcher,
+        gameSettings: GameSettings
+    ) {
+        this.engine = engine
+        this.factories = factories
+        this.dispatcher = dispatcher
+        this.gameSettings = gameSettings
     }
 
     companion object {

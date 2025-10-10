@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
@@ -59,7 +58,7 @@ class AiLogicHandler(
 
     fun update(deltaTime: Float) {
         updateEnemyTurrets(deltaTime)
-        if (!GameDebugSettings.AI_VEHICLE_DISABLED) {
+        if (!gamePlayManagers.assetsManager.gameSettings.aiVehicleDisabled) {
             for (i in 0 until aiCharacterEntities.size()) {
                 val character = aiCharacterEntities[i]
                 val boardingComponent = ComponentsMapper.boarding.get(character)

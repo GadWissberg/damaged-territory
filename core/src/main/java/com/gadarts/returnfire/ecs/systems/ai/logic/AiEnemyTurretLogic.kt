@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings.AI_ATTACK_DISABLED
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
@@ -22,7 +21,7 @@ class AiEnemyTurretLogic(private val gameSessionData: GameSessionData, private v
         deltaTime: Float,
         turret: Entity
     ) {
-        if (AI_ATTACK_DISABLED) return
+        if (gamePlayManagers.assetsManager.gameSettings.aiAttackDisabled) return
 
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(turret)
         val transform =

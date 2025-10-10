@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
@@ -14,10 +13,12 @@ import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.ModelUtils
+import com.gadarts.shared.assets.settings.GameSettings
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
-class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOnEvent {
+class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) :
+    HandlerOnEvent {
     private val elevatorEntities: ImmutableArray<Entity> = engine.getEntitiesFor(
         Family.all(HangarComponent::class.java).get()
     )
@@ -26,7 +27,8 @@ class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOn
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         val colorInMessage = OpponentEnteredGameplayScreenEventData.characterColor
         val selectedElevator = elevatorEntities.firstOrNull {
-            val map = gamePlayManagers.assetsManager.getAssetByDefinition(GameDebugSettings.MAP)
+            val map =
+                gamePlayManagers.assetsManager.getAssetByDefinition(gamePlayManagers.assetsManager.gameSettings.map)
             val base =
                 map.objects.find { placedObject ->
                     placedObject.definition.lowercase() == ComponentsMapper.amb.get(
@@ -44,7 +46,7 @@ class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOn
                     selectedElevator,
                     aux
                 ),
-                getSelectedCharacter(colorInMessage, gameSessionData),
+                getSelectedCharacter(colorInMessage, gameSessionData, gamePlayManagers.assetsManager.gameSettings),
                 colorInMessage
             )
         gamePlayManagers.ecs.engine.addEntity(opponent)
@@ -56,10 +58,11 @@ class CharacterSystemOnOpponentEnteredGamePlayScreen(engine: Engine) : HandlerOn
 
     private fun getSelectedCharacter(
         characterColor: CharacterColor,
-        gameSessionData: GameSessionData
+        gameSessionData: GameSessionData,
+        gameSettings: GameSettings
     ): CharacterDefinition {
         return if (characterColor == CharacterColor.GREEN) {
-            GameDebugSettings.SELECTED_VEHICLE_AI
+            gameSettings.selectedVehicleAi
                 ?: OpponentEnteredGameplayScreenEventData.selectedCharacter
         } else gameSessionData.selectedCharacter
     }

@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.console.CommandList
 import com.gadarts.returnfire.console.commands.ExecutedCommand
 import com.gadarts.returnfire.console.commands.SkipDrawingCommand
@@ -57,6 +56,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             renderFlags,
             gameSessionData,
             batches,
+            gamePlayManagers.assetsManager.gameSettings
         )
     }
 
@@ -136,7 +136,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         modelsRenderer.renderWaterWaves(deltaTime)
         renderCollisionShapes()
         renderDecals(deltaTime)
-        if (!GameDebugSettings.AVOID_PARTICLE_EFFECTS_DRAWING) {
+        if (!gamePlayManagers.assetsManager.gameSettings.avoidParticleEffectsDrawing) {
             gameSessionData.renderData.particleSystem.begin()
             gameSessionData.renderData.particleSystem.draw()
             gameSessionData.renderData.particleSystem.end()
@@ -153,7 +153,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     }
 
     private fun renderCollisionShapes() {
-        if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
+        if (!gamePlayManagers.assetsManager.gameSettings.showCollisionShapes) return
 
         val debugDrawingMethod: CollisionShapesDebugDrawing? =
             gameSessionData.physicsData.debugDrawingMethod
@@ -180,7 +180,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         }
         renderIndependentDecals()
         gameSessionData.profilingData.holesRendered = 0
-        if (!GameDebugSettings.HIDE_BULLET_HOLES) {
+        if (!gamePlayManagers.assetsManager.gameSettings.hideBulletHoles) {
             for (hole in gamePlayManagers.stainsHandler.holes) {
                 if (isDecalVisible(hole)) {
                     batches.decalBatch.add(hole)

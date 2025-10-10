@@ -11,7 +11,6 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.ai.logic.AiCharacterLogic
 import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
@@ -33,9 +32,10 @@ import kotlin.math.atan2
 
 abstract class AiGroundCharacterLogic(
     private val gameSessionData: GameSessionData,
-    autoAim: btPairCachingGhostObject,
     private val gamePlayManagers: GamePlayManagers,
-) : AiCharacterLogic(gamePlayManagers.dispatcher, gameSessionData), Disposable {
+    autoAim: btPairCachingGhostObject,
+) : AiCharacterLogic(gamePlayManagers.dispatcher, gameSessionData, gamePlayManagers.assetsManager.gameSettings),
+    Disposable {
     private val movementHandler: TankMovementHandlerDesktop by lazy {
         val movementHandler = TankMovementHandlerDesktop()
         movementHandler
@@ -54,7 +54,7 @@ abstract class AiGroundCharacterLogic(
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
         super.preUpdate(character, deltaTime)
-        if (GameDebugSettings.AI_FORCE_THRUST) {
+        if (gamePlayManagers.assetsManager.gameSettings.aiForceThrust) {
             movementHandler.thrust(character)
             return
         }
@@ -172,7 +172,7 @@ abstract class AiGroundCharacterLogic(
 
 
     private fun shouldSkipHandlingTurret(baseTurret: Entity): Boolean {
-        if (GameDebugSettings.AI_ATTACK_DISABLED) return true
+        if (gamePlayManagers.assetsManager.gameSettings.aiAttackDisabled) return true
 
         val playerTransform =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform

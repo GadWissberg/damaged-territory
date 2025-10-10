@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.DamagedTerritory
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.screens.Screens
 import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
@@ -57,7 +56,7 @@ class HangarScreenMenu(
     private fun createTable(): Table {
         val table = Table()
         table.setFillParent(true)
-        table.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)
+        table.debug(if (assetsManager.gameSettings.uiDebug) Table.Debug.all else Table.Debug.none)
         return table
     }
 

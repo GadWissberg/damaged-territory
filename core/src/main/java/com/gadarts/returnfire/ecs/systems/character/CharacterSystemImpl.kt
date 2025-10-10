@@ -15,7 +15,6 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlag
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.CharacterComponent
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ElevatorComponent
@@ -105,7 +104,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             SystemEvents.CHARACTER_REQUEST_BOARDING to CharacterSystemOnCharacterRequestBoarding(),
             SystemEvents.AMB_SOUND_COMPONENT_ADDED to CharacterSystemOnAmbSoundComponentAdded(this),
             SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN to CharacterSystemOnOpponentEnteredGamePlayScreen(
-                gamePlayManagers.ecs.engine
+                gamePlayManagers.ecs.engine,
             ),
             SystemEvents.MAP_SYSTEM_READY to object : HandlerOnEvent {
                 override fun react(
@@ -270,7 +269,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
 
 
     override fun playAmbSound(entity: Entity, gamePlayManagers: GamePlayManagers) {
-        if (!GameDebugSettings.DISABLE_AMB_SOUNDS && ComponentsMapper.ambSound.has(entity)) {
+        if (!gamePlayManagers.assetsManager.gameSettings.disableAmbSounds && ComponentsMapper.ambSound.has(entity)) {
             val ambSoundComponent = ComponentsMapper.ambSound.get(entity)
             if (ambSoundComponent.soundId == -1L) {
                 val id = gamePlayManagers.soundManager.loopSound(ambSoundComponent.sound)

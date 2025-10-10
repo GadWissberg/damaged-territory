@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiCharacterGoals
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
@@ -20,9 +19,9 @@ import com.gadarts.shared.assets.definitions.SoundDefinition
 
 class AiApacheLogic(
     private val gameSessionData: GameSessionData,
-    gamePlayManagers: GamePlayManagers,
+    private val gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject
-) : AiCharacterLogic(gamePlayManagers.dispatcher, gameSessionData) {
+) : AiCharacterLogic(gamePlayManagers.dispatcher, gameSessionData, gamePlayManagers.assetsManager.gameSettings) {
     private var nextStrafeActivation: Long = 0
     private val shootingHandler = CharacterShootingHandler(
         gamePlayManagers.soundManager, gamePlayManagers.assetsManager.getAssetByDefinition(
@@ -100,7 +99,7 @@ class AiApacheLogic(
         val distance = decideMovement(characterPosition, targetPosition, character)
         val player = gameSessionData.gamePlayData.player
         if (distance < MAX_DISTANCE_TO_THRUST_TO_TARGET
-            && !GameDebugSettings.AI_ATTACK_DISABLED
+            && !gamePlayManagers.assetsManager.gameSettings.aiAttackDisabled
             && player != null
             && !ComponentsMapper.character.get(
                 player

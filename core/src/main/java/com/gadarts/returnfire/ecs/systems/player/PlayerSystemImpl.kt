@@ -8,7 +8,6 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ElevatorComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
@@ -37,7 +36,6 @@ import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 
-@Suppress("KotlinConstantConditions")
 class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers),
     PlayerSystem,
     InputProcessor {
@@ -139,12 +137,12 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
                         gamePlayManagers.dispatcher.dispatchMessage(REMOVE_COMPONENT.ordinal)
                     }
                     gameSessionData.gamePlayData.player = entity
-                    if (GameDebugSettings.FORCE_PLAYER_HP >= 0) {
+                    if (gamePlayManagers.assetsManager.gameSettings.forcePlayerHp >= 0) {
                         ComponentsMapper.character.get(entity).hp =
-                            GameDebugSettings.FORCE_PLAYER_HP
+                            gamePlayManagers.assetsManager.gameSettings.forcePlayerHp
                     }
                     val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
-                    modelInstanceComponent.hidden = GameDebugSettings.HIDE_PLAYER
+                    modelInstanceComponent.hidden = gamePlayManagers.assetsManager.gameSettings.hidePlayer
                     gamePlayManagers.ecs.entityBuilder.addPlayerComponentToEntity(entity)
                     initializePlayerHandlers()
                     gamePlayManagers.dispatcher.dispatchMessage(PLAYER_ADDED.ordinal)

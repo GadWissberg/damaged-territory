@@ -5,7 +5,6 @@ package com.gadarts.returnfire.ecs.systems.ai
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.ai.msg.Telegram
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.ai.GroundCharacterAiComponent
@@ -124,7 +123,7 @@ class AiSystemImpl(gamePlayManagers: GamePlayManagers) : AiSystem, GameEntitySys
     @Suppress("SimplifyBooleanWithConstants")
     override fun update(deltaTime: Float) {
         val player = gameSessionData.gamePlayData.player ?: return
-        if (GameDebugSettings.AI_DISABLED
+        if (gamePlayManagers.assetsManager.gameSettings.aiDisabled
             || isGamePaused()
             || ComponentsMapper.boarding.get(player).isBoarding()
         ) return

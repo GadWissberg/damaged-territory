@@ -4,18 +4,19 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ComponentsMapper.baseAi
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiCharacterGoals
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.shared.assets.settings.GameSettings
 import com.gadarts.shared.data.CharacterColor
 
 abstract class AiCharacterLogic(
     protected val dispatcher: MessageDispatcher,
-    private val gameSessionData: GameSessionData
+    private val gameSessionData: GameSessionData,
+    private val gameSettings: GameSettings
 ) : Disposable {
     protected var goal: AiCharacterGoals = AiCharacterGoals.GET_THE_RIVAL_FLAG
 
@@ -73,7 +74,7 @@ abstract class AiCharacterLogic(
     protected fun shouldReturnToBase(
         character: Entity,
     ): Boolean {
-        if (GameDebugSettings.AI_AVOID_GOING_BACK_TO_BASE) return false
+        if (gameSettings.aiAvoidGoingBackToBase) return false
         if (gameSessionData.aiOpponentGoal == AiOpponentGoal.BRING_BACK_CHARACTER) return true
 
         val aiComponent = baseAi.get(character)

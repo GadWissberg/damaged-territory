@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.gadarts.returnfire.DamagedTerritory
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
@@ -33,7 +32,7 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
     }
 
     override fun update(delta: Float) {
-        if (GameDebugSettings.ENABLE_PROFILER && glProfiler.isEnabled) {
+        if (gamePlayManagers.assetsManager.gameSettings.enableProfiler && glProfiler.isEnabled) {
             stringBuilder.setLength(0)
             displayLine(
                 label = LABEL_FPS,
@@ -45,7 +44,7 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
             displayGlProfiling()
             displayBatchCalls()
             displayLine("Version: ", DamagedTerritory.VERSION)
-            if (GameDebugSettings.SHOW_OBJECT_POOL_PROFILING) {
+            if (gamePlayManagers.assetsManager.gameSettings.showObjectPoolProfiling) {
                 displayLine("Ground blast pool:", "${gameSessionData.gamePlayData.pools.groundBlastPool.free}")
                 gameSessionData.gamePlayData.pools.gameModelInstancePools.forEach { pair ->
                     displayLine("GameModelInstance ${pair.key} pool:", "${pair.value.free}")
@@ -76,14 +75,14 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
     }
 
     private fun setGlProfiler() {
-        if (GameDebugSettings.SHOW_GL_PROFILING) {
+        if (gamePlayManagers.assetsManager.gameSettings.showGlProfiling) {
             @Suppress("GDXKotlinProfilingCode")
             glProfiler.enable()
         }
     }
 
     private fun displayHeapSize() {
-        if (GameDebugSettings.SHOW_HEAP_SIZE) {
+        if (gamePlayManagers.assetsManager.gameSettings.showHeapSize) {
             displayLine(
                 "Java heap usage: ",
                 Gdx.app.javaHeap / (1024L * 1024L),

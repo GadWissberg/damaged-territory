@@ -6,7 +6,6 @@ import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
@@ -20,7 +19,7 @@ class SoundManager(private val assetsManager: GameAssetManager, private val runs
     }
 
     fun loopSound(sound: Sound): Long {
-        if (!GameDebugSettings.SFX) return -1
+        if (!assetsManager.gameSettings.sfx) return -1
         return sound.loop(1F, 1F, 0F)
     }
 
@@ -29,7 +28,7 @@ class SoundManager(private val assetsManager: GameAssetManager, private val runs
     }
 
     fun play(sound: Sound, sourcePosition: Vector3? = null, randomPitch: Boolean = true): Long {
-        if (!GameDebugSettings.SFX) return -1
+        if (!assetsManager.gameSettings.sfx) return -1
 
         val affectedByPosition =
             if (sourcePosition != null) calculateVolumeBasedOnPosition(sourcePosition) else 1F
@@ -54,7 +53,7 @@ class SoundManager(private val assetsManager: GameAssetManager, private val runs
     }
 
     fun play(music: Music) {
-        if (!GameDebugSettings.SFX || GameDebugSettings.DISABLE_MUSIC) return
+        if (!assetsManager.gameSettings.sfx || assetsManager.gameSettings.disableMusic) return
 
         music.play()
         music.volume = if (runsOnMobile) 0.05F else 0.2F

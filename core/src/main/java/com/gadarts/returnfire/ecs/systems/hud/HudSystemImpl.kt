@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
-import com.gadarts.returnfire.GameDebugSettings
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.FlagComponent
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
@@ -74,13 +73,16 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
                     this,
                     hudButtons,
                     gameSessionData.hudData.turretTouchpad,
+                    false,
+                    gamePlayManagers.assetsManager.gameSettings
                 ),
             TurretCharacterDefinition.JEEP to
                 OnScreenInputInitializerGroundCharacter(
                     this,
                     hudButtons,
                     null,
-                    true
+                    true,
+                    gamePlayManagers.assetsManager.gameSettings
                 )
         )
     }
@@ -107,7 +109,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
                         Gdx.graphics.backBufferHeight.toFloat()
                     )
                     table.setFillParent(true)
-                    table.setDebug(GameDebugSettings.UI_DEBUG, true)
+                    table.setDebug(gamePlayManagers.assetsManager.gameSettings.uiDebug, true)
                     gameSessionData.hudData.ui.add(table).bottom().growX().expandY()
                     addBoardingButton(table)
                     table.row()
@@ -245,12 +247,12 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
     }
 
     override fun update(deltaTime: Float) {
-        if (GameDebugSettings.DEBUG_INPUT) {
+        if (gamePlayManagers.assetsManager.gameSettings.debugInput) {
             debugInput.update()
         }
 
         gameSessionData.gamePlayData.player
-        if (!GameDebugSettings.DISABLE_HUD) {
+        if (!gamePlayManagers.assetsManager.gameSettings.disableHud) {
             gameSessionData.hudData.stage.act(deltaTime)
             gameSessionData.hudData.stage.draw()
         }
@@ -326,7 +328,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
 
 
     private fun initializeInput() {
-        if (GameDebugSettings.DEBUG_INPUT) {
+        if (gamePlayManagers.assetsManager.gameSettings.debugInput) {
             debugInput.autoUpdate = true
             Gdx.input.inputProcessor = debugInput
         } else {
@@ -338,7 +340,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
 
     private fun createUiTable(): Table {
         val uiTable = Table()
-        uiTable.debug(if (GameDebugSettings.UI_DEBUG) Table.Debug.all else Table.Debug.none)
+        uiTable.debug(if (gamePlayManagers.assetsManager.gameSettings.uiDebug) Table.Debug.all else Table.Debug.none)
         uiTable.name = GameSessionData.UI_TABLE_NAME
         uiTable.setFillParent(true)
         val stage = gameSessionData.hudData.stage

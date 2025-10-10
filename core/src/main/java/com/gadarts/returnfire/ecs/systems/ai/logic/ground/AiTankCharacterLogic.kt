@@ -9,7 +9,7 @@ class AiTankCharacterLogic(
     gameSessionData: GameSessionData,
     autoAim: btPairCachingGhostObject,
     gamePlayManagers: GamePlayManagers
-) : AiGroundCharacterLogic(gameSessionData, autoAim, gamePlayManagers) {
+) : AiGroundCharacterLogic(gameSessionData, gamePlayManagers, autoAim) {
     init {
         goal = AiCharacterGoals.ATTACK_PLAYER
     }
