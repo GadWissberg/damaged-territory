@@ -141,7 +141,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     val turretBaseComponent = ComponentsMapper.turretBase.get(character) ?: return
 
                     val turretAutomationComponent =
-                        ComponentsMapper.turretAutomationComponent.get(turretBaseComponent.turret)
+                        ComponentsMapper.turretAutomation.get(turretBaseComponent.turret)
                     if (turretAutomationComponent != null) {
                         turretAutomationComponent.enabled = false
                     }
@@ -729,7 +729,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         )
         val turretBaseComponent = ComponentsMapper.turretBase.get(character)
         if (turretBaseComponent != null) {
-            val automationComponent = ComponentsMapper.turretAutomationComponent.get(turretBaseComponent.turret)
+            val automationComponent = ComponentsMapper.turretAutomation.get(turretBaseComponent.turret)
             if (automationComponent != null && !automationComponent.enabled) {
                 automationComponent.enabled = true
             }

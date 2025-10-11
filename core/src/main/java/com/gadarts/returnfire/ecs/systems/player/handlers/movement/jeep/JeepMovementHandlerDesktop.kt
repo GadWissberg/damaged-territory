@@ -39,7 +39,7 @@ class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(JeepMovementHand
     }
 
     private fun rotateFrontWheels(character: Entity, side: Int) {
-        val frontWheelsComponent = ComponentsMapper.frontWheelsComponent.get(character)
+        val frontWheelsComponent = ComponentsMapper.frontWheels.get(character)
         frontWheelsComponent.steeringSide = side
     }
 
@@ -73,7 +73,7 @@ class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(JeepMovementHand
         if (rotation != ROTATION_IDLE) {
             rotate(rigidBody, rotation)
         }
-        val frontWheelsComponent = ComponentsMapper.frontWheelsComponent.get(character)
+        val frontWheelsComponent = ComponentsMapper.frontWheels.get(character)
         val steeringRotation = frontWheelsComponent.steeringRotation
         if (frontWheelsComponent.steeringSide > 0) {
             frontWheelsComponent.steeringRotation = min(steeringRotation + 1F, STEERING_MAX_ANGLE)
@@ -137,7 +137,7 @@ class JeepMovementHandlerDesktop : GroundVehicleMovementHandler(JeepMovementHand
             val rigidBody = ComponentsMapper.physics.get(character).rigidBody
             rigidBody.angularFactor = Vector3.Zero
         }
-        ComponentsMapper.frontWheelsComponent.get(character).steeringSide = 0
+        ComponentsMapper.frontWheels.get(character).steeringSide = 0
     }
 
     override fun onTurretTouchPadTouchDown(deltaX: Float, deltaY: Float, character: Entity) {

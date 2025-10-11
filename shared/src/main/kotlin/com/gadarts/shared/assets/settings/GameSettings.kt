@@ -69,6 +69,8 @@ class GameSettings(
     val aiAvoidGoingBackToBase: Boolean = false,
     @SerializedName("ai_force_thrust")
     val aiForceThrust: Boolean = false,
+    @SerializedName("ai_show_path_nodes")
+    val aiShowPathNodes: Boolean = false,
     @SerializedName("use_debug_dll")
     val useDebugDll: Boolean = false
 )

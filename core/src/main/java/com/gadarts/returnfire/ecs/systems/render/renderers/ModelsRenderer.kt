@@ -204,7 +204,7 @@ class ModelsRenderer(
         batch: ModelBatch
     ) {
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
-        val frontWheelComponent = ComponentsMapper.frontWheelsComponent.get(entity)
+        val frontWheelComponent = ComponentsMapper.frontWheels.get(entity)
         if (frontWheelComponent != null) {
             renderWheel(
                 modelInstanceComponent,

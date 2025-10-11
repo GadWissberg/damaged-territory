@@ -72,7 +72,7 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
             )
             val cannonTransform = ComponentsMapper.modelInstance.get(cannon).gameModelInstance.modelInstance.transform
             val cannonRotation = cannonTransform.getRotation(auxQuat2)
-            val turretCannonComponent = ComponentsMapper.turretCannonComponent.get(cannon)
+            val turretCannonComponent = ComponentsMapper.turretCannon.get(cannon)
             cannonTransform.setToTranslation(
                 auxVector1
             ).rotate(turretTransform.getRotation(auxQuat1.idt())).rotate(Vector3.Z, cannonRotation.roll)
@@ -84,14 +84,14 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
                     )
                 )
         }
-        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
+        val turretAutomationComponent = ComponentsMapper.turretAutomation.get(turret)
         if (turretAutomationComponent != null && turretAutomationComponent.enabled) {
             shootingHandler.update(turretComponent.base)
         }
     }
 
     private fun handleTurretAutomationAiming(turret: Entity, deltaTime: Float) {
-        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret) ?: return
+        val turretAutomationComponent = ComponentsMapper.turretAutomation.get(turret) ?: return
         if (!turretAutomationComponent.enabled) return
 
         val target = turretAutomationComponent.target
@@ -139,7 +139,7 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
     ) {
         val turretComponent = ComponentsMapper.turret.get(turret)
         val turretPosition = ModelUtils.getPositionOfModel(turret, auxVector1)
-        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
+        val turretAutomationComponent = ComponentsMapper.turretAutomation.get(turret)
         val color = ComponentsMapper.character.get(turretComponent.base).color
         var closestRival: Entity? = null
         var closestRivalDistance = AUTOMATED_TURRET_MAX_DISTANCE
@@ -169,7 +169,7 @@ class TurretsHandler(gamePlayManagers: GamePlayManagers, gameSessionData: GameSe
         turret: Entity,
         deltaTime: Float
     ): Boolean {
-        val turretAutomationComponent = ComponentsMapper.turretAutomationComponent.get(turret)
+        val turretAutomationComponent = ComponentsMapper.turretAutomation.get(turret)
         val target = turretAutomationComponent.target ?: return false
 
         val targetPosition = ModelUtils.getPositionOfModel(target)

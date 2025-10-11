@@ -1,6 +1,6 @@
 {
   "development": {
-    "map": "map_0",
+    "map": "small",
     "print_bit_map": false,
     "show_object_pool_profiling": false,
     "show_collision_shapes": false,
@@ -25,13 +25,14 @@
     "enable_profiler": true,
     "disable_hud": false,
     "selected_vehicle": "apache",
-    "selected_vehicle_ai": null,
+    "selected_vehicle_ai": "tank",
     "force_aim": 1,
-    "ai_disabled": true,
-    "ai_vehicle_disabled": true,
+    "ai_disabled": false,
+    "ai_vehicle_disabled": false,
     "ai_attack_disabled": false,
     "ai_avoid_going_back_to_base": false,
     "ai_force_thrust": false,
+    "ai_show_path_nodes": false,
     "use_debug_dll": false
   },
   "production": {

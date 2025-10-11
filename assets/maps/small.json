@@ -51,6 +51,13 @@
       "row": 5,
       "column": 13,
       "rotation": 0.0
+    },
+    {
+      "definition": "BASE_GREEN",
+      "type": "AMB",
+      "row": 8,
+      "column": 7,
+      "rotation": 0.0
     }
   ],
   "width": 32,

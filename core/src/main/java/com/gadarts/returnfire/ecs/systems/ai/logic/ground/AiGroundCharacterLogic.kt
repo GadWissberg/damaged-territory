@@ -61,7 +61,7 @@ abstract class AiGroundCharacterLogic(
 
         val aiComponent = ComponentsMapper.baseAi.get(character)
 
-        val groundCharacterAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
+        val groundCharacterAiComponent = ComponentsMapper.groundCharacterAi.get(character)
         val roamingEndTime = groundCharacterAiComponent.roamingEndTime
         val mapGraph = gameSessionData.mapData.mapGraph
         val path = groundCharacterAiComponent.path
@@ -143,7 +143,7 @@ abstract class AiGroundCharacterLogic(
 
 
     private fun deactivateRoamingIfNeeded(character: Entity) {
-        val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
+        val tankAiComponent = ComponentsMapper.groundCharacterAi.get(character)
         val baseAiComponent = ComponentsMapper.baseAi.get(character)
         val roamingEndTime = tankAiComponent.roamingEndTime
         if (roamingEndTime == null || roamingEndTime < TimeUtils.millis()) {
@@ -155,7 +155,7 @@ abstract class AiGroundCharacterLogic(
     }
 
     private fun activateRoaming(tank: Entity) {
-        val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(tank)
+        val tankAiComponent = ComponentsMapper.groundCharacterAi.get(tank)
         val baseAiComponent = ComponentsMapper.baseAi.get(tank)
         baseAiComponent.state = AiStatus.ROAMING
         tankAiComponent.roamingEndTime = System.currentTimeMillis() + 10000L
@@ -341,7 +341,7 @@ abstract class AiGroundCharacterLogic(
     ) {
         val aiComponent = ComponentsMapper.baseAi.get(character)
         aiComponent.state = AiStatus.PLANNING
-        ComponentsMapper.groundCharacterAiComponent.get(character).roamingEndTime = 0
+        ComponentsMapper.groundCharacterAi.get(character).roamingEndTime = 0
         aiComponent.target = gameSessionData.mapData.elevators[ComponentsMapper.boarding.get(character).color]
     }
 
@@ -351,7 +351,7 @@ abstract class AiGroundCharacterLogic(
         deltaTime: Float
     ) {
         val baseAiComponent = ComponentsMapper.baseAi.get(vehicle)
-        val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(vehicle)
+        val tankAiComponent = ComponentsMapper.groundCharacterAi.get(vehicle)
         val pathNodes = tankAiComponent.path.nodes
         val target = baseAiComponent.target
         val targetTransform =
@@ -516,7 +516,7 @@ abstract class AiGroundCharacterLogic(
                     val colliderModelInstanceComponent =
                         ComponentsMapper.modelInstance.get(collisionObjectEntity)
                     val aiComponent = ComponentsMapper.baseAi.get(character)
-                    val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
+                    val tankAiComponent = ComponentsMapper.groundCharacterAi.get(character)
                     if (colliderModelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
                             auxVector3_1
                         )
@@ -558,7 +558,7 @@ abstract class AiGroundCharacterLogic(
                 tileCollector
             )
             val aiComponent = ComponentsMapper.baseAi.get(character)
-            val tankAiComponent = ComponentsMapper.groundCharacterAiComponent.get(character)
+            val tankAiComponent = ComponentsMapper.groundCharacterAi.get(character)
             aiComponent.state =
                 if (tankAiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
             tankAiComponent.setNodesToExclude(result)

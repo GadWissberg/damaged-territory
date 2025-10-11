@@ -204,7 +204,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             deltaTime
         )
         val turretBaseComponent = ComponentsMapper.turretBase.get(player)
-        if (turretBaseComponent == null || !ComponentsMapper.turretAutomationComponent.has(
+        if (turretBaseComponent == null || !ComponentsMapper.turretAutomation.has(
                 turretBaseComponent.turret
             )
         ) {

@@ -41,7 +41,7 @@ class AiApacheLogic(
     override fun preUpdate(character: Entity, deltaTime: Float) {
         super.preUpdate(character, deltaTime)
         val aiComponent = ComponentsMapper.baseAi.get(character)
-        val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
+        val apacheAiComponent = ComponentsMapper.apacheAi.get(character)
         val returningToBase = ComponentsMapper.elevator.has(aiComponent.target)
         val targetPosition = getPositionOfCurrentTarget(character)
         val characterTransform = ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform
@@ -74,7 +74,7 @@ class AiApacheLogic(
         val playerModelInstance =
             ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance
         val aiComponent = ComponentsMapper.baseAi.get(character)
-        val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
+        val apacheAiComponent = ComponentsMapper.apacheAi.get(character)
         val returningToBase = ComponentsMapper.elevator.has(aiComponent.target)
         return if (!returningToBase && apacheAiComponent.runAway.isZero) {
             playerModelInstance.transform.getTranslation(
@@ -111,7 +111,7 @@ class AiApacheLogic(
             stopAttack()
         }
         val characterComponent = ComponentsMapper.character.get(character)
-        val apacheAiComponent = ComponentsMapper.apacheAiComponent.get(character)
+        val apacheAiComponent = ComponentsMapper.apacheAi.get(character)
         if (shouldReturnToBase(character)) {
             goBackToBase(character)
         } else if (apacheAiComponent.runAway.isZero) {

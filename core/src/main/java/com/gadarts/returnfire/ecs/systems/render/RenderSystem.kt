@@ -4,11 +4,14 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
@@ -20,6 +23,7 @@ import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.GroundComponent
 import com.gadarts.returnfire.ecs.components.IndependentDecalComponent
 import com.gadarts.returnfire.ecs.components.ModelCacheComponent
+import com.gadarts.returnfire.ecs.components.ai.GroundCharacterAiComponent
 import com.gadarts.returnfire.ecs.components.amb.AmbAnimationComponent
 import com.gadarts.returnfire.ecs.components.cd.ChildDecal
 import com.gadarts.returnfire.ecs.components.cd.ChildDecalComponent
@@ -39,7 +43,24 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     Disposable {
 
     private val renderFlags = RenderFlags()
-    private lateinit var relatedEntities: RenderSystemRelatedEntities
+    private val relatedEntities: RenderSystemRelatedEntities by lazy {
+        RenderSystemRelatedEntities(
+            engine!!.getEntitiesFor(
+                Family.all(ModelInstanceComponent::class.java)
+                    .exclude(
+                        ModelCacheComponent::class.java,
+                        GroundBlastComponent::class.java,
+                        GroundComponent::class.java
+                    )
+                    .get()
+            ),
+            engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
+            engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get()),
+            engine.getEntitiesFor(Family.all(GroundBlastComponent::class.java).get()),
+            engine.getEntitiesFor(Family.all(AmbAnimationComponent::class.java).get()),
+            engine.getEntitiesFor(Family.all(GroundCharacterAiComponent::class.java).get()),
+        )
+    }
     private val batches: RenderSystemBatches by lazy {
         RenderSystemBatches(
             DecalBatch(
@@ -47,7 +68,8 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 CameraGroupStrategy(gameSessionData.renderData.camera)
             ),
             ModelBatch(),
-            ModelBatch(DepthShaderProvider())
+            ModelBatch(DepthShaderProvider()),
+            ShapeRenderer()
         )
     }
     private val modelsRenderer by lazy {
@@ -102,22 +124,12 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
 
     override fun initialize(gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         super.initialize(gameSessionData, gamePlayManagers)
-        relatedEntities = RenderSystemRelatedEntities(
-            engine!!.getEntitiesFor(
-                Family.all(ModelInstanceComponent::class.java)
-                    .exclude(
-                        ModelCacheComponent::class.java,
-                        GroundBlastComponent::class.java,
-                        GroundComponent::class.java
-                    )
-                    .get()
-            ),
-            engine.getEntitiesFor(Family.all(ChildDecalComponent::class.java).get()),
-            engine.getEntitiesFor(Family.all(IndependentDecalComponent::class.java).get()),
-            engine.getEntitiesFor(Family.all(GroundBlastComponent::class.java).get()),
-            engine.getEntitiesFor(Family.all(AmbAnimationComponent::class.java).get()),
-        )
         modelsRenderer.initializeDirectionalLightAndShadows()
+        if (gamePlayManagers.assetsManager.gameSettings.aiShowPathNodes) {
+            batches.shapeRenderer.projectionMatrix = gameSessionData.renderData.camera.combined
+            batches.shapeRenderer.transformMatrix = gameSessionData.renderData.camera.view
+        }
+
     }
 
     override fun update(deltaTime: Float) {
@@ -150,6 +162,25 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 animationComponent.play()
             }
         }
+        renderAiPathNodes()
+    }
+
+    private fun renderAiPathNodes() {
+        if (!gamePlayManagers.assetsManager.gameSettings.aiShowPathNodes) return
+
+        batches.shapeRenderer.projectionMatrix = gameSessionData.renderData.camera.combined
+        batches.shapeRenderer.transformMatrix = auxMatrix.idt()
+        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST)
+        val shapeRenderer = batches.shapeRenderer
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
+        for (entity in relatedEntities.groundAiCharacterEntities) {
+            val aiComponent = ComponentsMapper.groundCharacterAi.get(entity)
+            aiComponent.path.nodes.forEach { node ->
+                shapeRenderer.box(node.x + 0.5F, 0.1F, node.y + 0.5F, 1F, 1F, 1F)
+            }
+        }
+        shapeRenderer.end()
+        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST)
     }
 
     private fun renderCollisionShapes() {
@@ -260,6 +291,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         val auxVector3_1 = Vector3()
         val auxVector3_2 = Vector3()
         val auxBox = BoundingBox()
+        val auxMatrix = Matrix4()
         const val DECALS_POOL_SIZE = 200
     }
 

@@ -69,7 +69,7 @@ class AiEnemyTurretLogic(private val gameSessionData: GameSessionData, private v
                     6F
                 )
             ) {
-                val turretEnemyAiComponent = ComponentsMapper.turretEnemyAiComponent.get(turret)
+                val turretEnemyAiComponent = ComponentsMapper.turretEnemyAi.get(turret)
                 val now = TimeUtils.millis()
                 if (turretEnemyAiComponent.attackReady) {
                     turretEnemyAiComponent.attackReady = false

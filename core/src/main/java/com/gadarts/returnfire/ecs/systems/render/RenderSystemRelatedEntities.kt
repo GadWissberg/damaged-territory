@@ -9,6 +9,7 @@ data class RenderSystemRelatedEntities(
     val decalEntities: ImmutableArray<Entity>,
     val waterWaveEntities: ImmutableArray<Entity>,
     val animationEntities: ImmutableArray<Entity>,
+    val groundAiCharacterEntities: ImmutableArray<Entity>,
 ) {
     val independentDecalsToRemove: ArrayList<Entity> = ArrayList()
 }
