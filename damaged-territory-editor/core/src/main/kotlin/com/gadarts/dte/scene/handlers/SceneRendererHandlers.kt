@@ -24,7 +24,7 @@ data class SceneRendererHandlers(
         CameraHandler(sharedData, dispatcher),
         RenderingHandler(auxiliaryModels, sharedData, dispatcher),
         CursorHandler(sharedData, assetsManager, tileFactory, objectFactory, dispatcher),
-        MapHandler(sharedData, assetsManager, dispatcher)
+        MapHandler(sharedData, assetsManager, tileFactory, objectFactory, dispatcher),
     )
 
     override fun dispose() {

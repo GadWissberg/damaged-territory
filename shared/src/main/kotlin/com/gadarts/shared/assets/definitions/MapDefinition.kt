@@ -9,7 +9,8 @@ enum class MapDefinition :
     MAP_0,
     TO_OPTIMIZE,
     SMALL,
-    STRANDED;
+    STRANDED,
+    MAP_1;
 
 
     private val pathFormat = "maps/%s.json"

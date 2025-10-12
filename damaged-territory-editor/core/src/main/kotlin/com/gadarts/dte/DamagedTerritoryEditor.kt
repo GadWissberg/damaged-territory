@@ -16,7 +16,7 @@ class DamagedTerritoryEditor(private val dispatcher: MessageDispatcher) : Applic
     private val gameAssetsManager: GameAssetManager by lazy { GameAssetManager() }
     private val tileFactory = TileFactory(sharedData, gameAssetsManager)
     private val objectFactory = ObjectFactory(sharedData, gameAssetsManager)
-    private val ui by lazy { EditorUi(sharedData, tileFactory, objectFactory, dispatcher, gameAssetsManager) }
+    private val ui by lazy { EditorUi(sharedData, dispatcher, gameAssetsManager) }
     private val sceneRenderer: SceneRenderer by lazy {
         SceneRenderer(
             sharedData,

@@ -36,6 +36,6 @@ class SceneRenderer(
 
 
     companion object {
-        const val MAP_SIZE = 32
+        const val MAP_SIZE = 64
     }
 }

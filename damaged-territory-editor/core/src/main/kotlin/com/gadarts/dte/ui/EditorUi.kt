@@ -18,17 +18,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.viewport.ScreenViewport
-import com.gadarts.dte.*
+import com.gadarts.dte.EditorEvents
+import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.Modes
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
-import com.gadarts.shared.SharedUtils.INITIAL_INDEX_OF_TILES_MAPPING
 import com.gadarts.shared.SharedUtils.tilesChars
 import com.gadarts.shared.assets.map.GameMap
 import com.gadarts.shared.assets.map.GameMapPlacedObject
 import com.gadarts.shared.assets.map.GameMapTileLayer
 import com.gadarts.shared.assets.map.TilesMapping
-import com.gadarts.shared.data.type.ElementType
 import com.google.gson.GsonBuilder
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.*
@@ -37,8 +36,6 @@ import com.kotcrab.vis.ui.widget.file.FileChooserListener
 
 class EditorUi(
     private val sharedData: SharedData,
-    private val tileFactory: TileFactory,
-    private val objectFactory: ObjectFactory,
     private val dispatcher: MessageDispatcher,
     gameAssetsManager: GameAssetManager,
 ) {
@@ -111,41 +108,13 @@ class EditorUi(
             val json = file.readString()
             val gameMap = GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
                 .create().fromJson(json, GameMap::class.java)
-            clearMapData()
-            inflateLayers(gameMap)
-            val definitions = ElementType.entries.flatMap { it.definitions }
-            gameMap.objects.map { obj ->
-                objectFactory.addObject(
-                    obj.column, obj.row,
-                    definitions.first { it.getName().lowercase() == obj.definition.lowercase() },
-                    Quaternion(Vector3.Y, obj.rotation ?: 0f)
-                )
-            }
+            dispatcher.dispatchMessage(EditorEvents.MAP_LOADED.ordinal, gameMap)
             editorPanel.mapLoaded()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-
-    private fun clearMapData() {
-        sharedData.mapData.layers.drop(1).forEach {
-            it.tiles.forEach { tileArray ->
-                tileArray.forEach { tile ->
-                    if (tile != null) {
-                        sharedData.mapData.modelInstances.remove(
-                            tile.modelInstance
-                        )
-                    }
-                }
-            }
-        }
-        sharedData.mapData.placedObjects.forEach {
-            sharedData.mapData.modelInstances.remove(it.modelInstance)
-        }
-        sharedData.mapData.layers.retainAll(listOf(sharedData.mapData.layers.first()).toSet())
-        sharedData.mapData.placedObjects.clear()
-    }
 
     private fun createButtonGroup(): ButtonGroup<VisImageButton> {
         val buttonGroup = ButtonGroup<VisImageButton>()
@@ -155,41 +124,6 @@ class EditorUi(
         return buttonGroup
     }
 
-    private fun inflateLayers(gameMap: GameMap) {
-        gameMap.layers.mapIndexed { i, layer ->
-            inflateLayer(gameMap, layer, i)
-        }
-
-    }
-
-    private fun inflateLayer(
-        gameMap: GameMap,
-        layer: GameMapTileLayer,
-        i: Int
-    ) {
-        val tiles = Array<Array<PlacedTile?>>(gameMap.depth) { Array(gameMap.width) { null } }
-        layer.tiles.mapIndexed { j, tile ->
-            val index = tile.code - INITIAL_INDEX_OF_TILES_MAPPING
-            if (index > 0) {
-                TilesMapping.tiles[index].let { textureName ->
-                    val x = j % gameMap.width
-                    val z = j / gameMap.width
-                    tiles[z][x] = tileFactory.createTile(textureName, x, z, i + 1)
-                }
-            }
-        }
-        val bitMap = Array(gameMap.depth) { Array(gameMap.width) { 0 } }
-        tiles.forEachIndexed { z, row ->
-            row.forEachIndexed { x, placedTile ->
-                if (placedTile != null && placedTile.definition.surroundedTile) {
-                    bitMap[z][x] = 1
-                }
-            }
-        }
-        TileLayer(name = layer.name, tiles = tiles, bitMap = bitMap).also {
-            sharedData.mapData.layers.add(it)
-        }
-    }
 
     private fun showLoadMapDialog() {
         val lastPath = getLastOpenedDir()
@@ -464,10 +398,17 @@ class EditorUi(
         val menuBar = MenuBar()
         val fileMenu = Menu("File")
         val newItem = MenuItem("New")
+        fileMenu.addItem(newItem)
+        newItem.addListener(object : ChangeListener() {
+            override fun changed(event: ChangeEvent?, actor: Actor?) {
+                invokeTilesModeButtonClick()
+                dispatcher.dispatchMessage(EditorEvents.MAP_NEW.ordinal)
+                editorPanel.mapLoaded()
+            }
+        })
         val saveItem = MenuItem("Save")
         val openItem = MenuItem("Open")
         val exitItem = MenuItem("Exit")
-        fileMenu.addItem(newItem)
         fileMenu.addItem(saveItem)
         fileMenu.addItem(openItem)
         fileMenu.addSeparator()
