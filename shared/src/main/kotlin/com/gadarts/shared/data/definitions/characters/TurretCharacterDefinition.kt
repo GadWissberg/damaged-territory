@@ -56,7 +56,7 @@ enum class TurretCharacterDefinition(
         linearDamping = 0.9F,
         angularDamping = 0.99F,
         separateTextureForDeadTurret = true,
-        placeable = true,
+        placeable = false,
         deployable = true
     ),
     JEEP(
