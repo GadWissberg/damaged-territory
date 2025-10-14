@@ -49,16 +49,16 @@ class ModelsRenderer(
         batch: ModelBatch,
         camera: Camera,
         applyEnvironment: Boolean,
-        renderParticleEffects: Boolean,
         forShadow: Boolean,
-        deltaTime: Float
+        deltaTime: Float,
+        renderModelCaches: Boolean,
     ) {
         batch.begin(camera)
         axisModelHandler.render(batch)
         for (entity in relatedEntities.modelInstanceEntities) {
             renderModel(entity, batch, applyEnvironment, deltaTime, forShadow)
         }
-        if (!gameSettings.hideFloor && renderFlags.renderGround) {
+        if (renderModelCaches && !gameSettings.hideFloor && renderFlags.renderGround) {
             if (gameSettings.renderOnlyFirstFloorLayer) {
                 renderLayerRegions(layersModelCaches[0], applyEnvironment, batch)
             } else {
@@ -71,7 +71,7 @@ class ModelsRenderer(
             }
         }
         batch.end()
-        if (renderParticleEffects) {
+        if (!forShadow) {
             batch.begin(camera)
             batches.modelBatch.render(gameSessionData.renderData.particleSystem, environment)
             batch.end()
@@ -132,9 +132,9 @@ class ModelsRenderer(
                 batch = batches.shadowBatch,
                 camera = shadowLight.camera,
                 applyEnvironment = false,
-                renderParticleEffects = false,
                 forShadow = true,
-                deltaTime = deltaTime
+                deltaTime = deltaTime,
+                renderModelCaches = false
             )
             shadowLight.end()
         }
@@ -171,7 +171,7 @@ class ModelsRenderer(
         deltaTime: Float,
         forShadow: Boolean = false,
     ) {
-        if (isEntityVisible(entity, forShadow)) {
+        if (isEntityVisible(entity, false)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val gameModelInstance = modelInstanceComponent.gameModelInstance
 
@@ -299,7 +299,6 @@ class ModelsRenderer(
         val isShadow = forShadow && gameModelInstance.shadow != null
         val modelInstance =
             (if (isShadow) gameModelInstance.shadow else gameModelInstance.modelInstance) ?: return
-
         renderRenderableProvider(modelInstance, applyEnvironment, batch)
     }
 

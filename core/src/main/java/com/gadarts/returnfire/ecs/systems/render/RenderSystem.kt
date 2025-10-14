@@ -141,9 +141,9 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             batch = batches.modelBatch,
             camera = gameSessionData.renderData.camera,
             applyEnvironment = true,
-            renderParticleEffects = true,
             forShadow = false,
-            deltaTime = deltaTime
+            deltaTime = deltaTime,
+            renderModelCaches = true
         )
         modelsRenderer.renderWaterWaves(deltaTime)
         renderCollisionShapes()
