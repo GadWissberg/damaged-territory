@@ -171,7 +171,7 @@ class ModelsRenderer(
         deltaTime: Float,
         forShadow: Boolean = false,
     ) {
-        if (isEntityVisible(entity, false)) {
+        if (isEntityVisible(entity, forShadow)) {
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val gameModelInstance = modelInstanceComponent.gameModelInstance
 
@@ -328,7 +328,7 @@ class ModelsRenderer(
 
         val center: Vector3 =
             gameModelInstance.modelInstance.transform.getTranslation(RenderSystem.auxVector3_1)
-        dims.scl(if (extendBoundingBoxSize) 16.6F else 1.3F)
+        dims.scl(if (extendBoundingBoxSize) boundingBox.max.y * 2.4F else 1.3F)
 
         val frustum = gameSessionData.renderData.camera.frustum
         val isInFrustum = if (gameModelInstance.sphere) frustum.sphereInFrustum(

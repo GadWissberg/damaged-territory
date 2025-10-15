@@ -33,6 +33,13 @@
       "row": 10,
       "column": 5,
       "rotation": 0.0
+    },
+    {
+      "definition": "ANTENNA",
+      "type": "AMB",
+      "row": 9,
+      "column": 9,
+      "rotation": 0.0
     }
   ],
   "width": 64,
