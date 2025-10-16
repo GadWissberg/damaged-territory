@@ -34,9 +34,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         val renderData = gameSessionData.renderData
         val camera = renderData.camera
         val playerPosition = ModelUtils.getPositionOfModel(player)
-        val finalCameraRelativeTargetPosition =
-            auxVector3_1.set(renderData.cameraRelativeTargetPosition)
-
+        val finalCameraRelativeTargetPosition = auxVector3_1.set(renderData.cameraRelativeTargetPosition)
         val finalCameraRelativeLookAtTargetPosition =
             auxVector3_2.set(renderData.cameraRelativeTargetLookAtPosition)
         handleCameraPushWhenThrusting(
@@ -61,8 +59,11 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         val pitchDeg = pitchRad * MathUtils.radDeg
         val constrainedDirection =
             auxVector3_2.set(Vector3.Z).scl(-1f).rotate(Vector3.X, pitchDeg).nor()
-        camera.direction.set(constrainedDirection)
+        val dirSmoothFactor = 1f - exp(-deltaTime * 10f)
+        camera.direction.lerp(constrainedDirection, dirSmoothFactor)
+        camera.direction.nor()
         camera.up.set(Vector3.Y)
+        camera.update()
     }
 
     private fun positionCamera(

@@ -159,7 +159,7 @@ class BulletEngineHandler(
     fun update(deltaTime: Float) {
         gameSessionData.physicsData.collisionWorld.stepSimulation(
             deltaTime,
-            20,
+            4,
             1f / gameSessionData.fpsTarget
         )
     }

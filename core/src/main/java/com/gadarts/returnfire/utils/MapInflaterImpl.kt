@@ -20,8 +20,8 @@ import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.Bullet
-import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION
-import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.ISLAND_SLEEPING
+import com.badlogic.gdx.physics.bullet.collision.Collision
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.*
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
@@ -354,7 +354,7 @@ class MapInflaterImpl(
                 ambDefinition.collisionFlags,
                 if (ambDefinition.collisionFlags == CollisionFlags.CF_STATIC_OBJECT) 0F else ambDefinition.mass,
                 4F,
-                activationState = if (ambDefinition.collisionFlags == CollisionFlags.CF_KINEMATIC_OBJECT) DISABLE_DEACTIVATION else ISLAND_SLEEPING
+                activationState = Collision.DISABLE_SIMULATION
             )
         }
         addAnimationToAmb(gameModelInstance, entity)
@@ -937,7 +937,7 @@ class MapInflaterImpl(
             0F,
             CollisionFlags.CF_STATIC_OBJECT,
             auxMatrix.idt().translate(position),
-            activationState = ISLAND_SLEEPING
+            activationState = DISABLE_SIMULATION
         )
     }
 
