@@ -19,7 +19,12 @@ class TileFactory(private val sharedData: SharedData, private val gameAssetsMana
         z: Int,
         layerIndex: Int,
     ): PlacedTile {
-        val modelInstance = EditorModelInstance(EditorModelInstanceProps(sharedData.floorModel, null))
+        val modelInstance = EditorModelInstance(
+            EditorModelInstanceProps(
+                sharedData.floorModel,
+                null,
+            )
+        )
         val placedTile =
             PlacedTile(modelInstance, gameAssetsManager.getTexturesDefinitions().definitions[textureName]!!)
         sharedData.mapData.modelInstances.add(modelInstance)

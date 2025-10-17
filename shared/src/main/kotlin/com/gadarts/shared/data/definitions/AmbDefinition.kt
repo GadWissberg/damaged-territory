@@ -1,5 +1,7 @@
 package com.gadarts.shared.data.definitions
 
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.gadarts.shared.SharedUtils.DROWNING_HEIGHT
 import com.gadarts.shared.assets.definitions.SoundDefinition
@@ -36,7 +38,8 @@ enum class AmbDefinition(
     val placeable: Boolean = true,
     val customTexture: String? = null,
     val onCreation: OnAmbCreation? = null,
-    val outlineEffect: Boolean = false
+    val outlineEffect: Boolean = false,
+    val relatedModelsToBeRenderedInEditor: List<RelatedModelToBeRenderedInEditor> = emptyList()
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -92,13 +95,35 @@ enum class AmbDefinition(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
         placeInMiddleOfCell = false,
-        marksNodeAsBlocked = false
+        marksNodeAsBlocked = false,
+        relatedModelsToBeRenderedInEditor = listOf(
+            RelatedModelToBeRenderedInEditor(
+                Matrix4().translate(1F, 0F, 1F),
+                ModelDefinition.PIT_DOOR,
+                "pit_door_texture_brown"
+            ), RelatedModelToBeRenderedInEditor(
+                Matrix4().translate(1F, 0F, 1F).rotate(Vector3.Y, 180F),
+                ModelDefinition.PIT_DOOR,
+                "pit_door_texture_brown"
+            )
+        )
     ),
     BASE_GREEN(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
         placeInMiddleOfCell = false,
-        marksNodeAsBlocked = false
+        marksNodeAsBlocked = false,
+        relatedModelsToBeRenderedInEditor = listOf(
+            RelatedModelToBeRenderedInEditor(
+                Matrix4().translate(1F, 0F, 1F),
+                ModelDefinition.PIT_DOOR,
+                "pit_door_texture_green"
+            ), RelatedModelToBeRenderedInEditor(
+                Matrix4().translate(1F, 0F, 1F).rotate(Vector3.Y, 180F),
+                ModelDefinition.PIT_DOOR,
+                "pit_door_texture_green"
+            )
+        )
     ),
     ROCK_BIG(
         modelDefinition = ModelDefinition.ROCK_BIG,

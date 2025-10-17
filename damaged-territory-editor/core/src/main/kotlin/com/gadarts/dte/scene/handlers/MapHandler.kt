@@ -157,7 +157,12 @@ class MapHandler(
             Array(MAP_SIZE) {
                 if (texture != null) {
                     texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
-                    val modelInstance = EditorModelInstance(EditorModelInstanceProps(sharedData.floorModel, null))
+                    val modelInstance = EditorModelInstance(
+                        EditorModelInstanceProps(
+                            sharedData.floorModel,
+                            null,
+                        )
+                    )
                     (modelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute)
                         .set(TextureRegion(texture))

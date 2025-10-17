@@ -54,7 +54,12 @@ class CursorHandler(
         SharedUtils.createFlatMesh(modelBuilder, "cursor", 0.5F, null, 0F, cursorMaterial)
         cursorMaterial.set(BlendingAttribute(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 0.1F))
         tileModel = modelBuilder.end()
-        setCursorModelInstance(EditorModelInstanceProps(tileModel, null))
+        setCursorModelInstance(
+            EditorModelInstanceProps(
+                tileModel,
+                null,
+            )
+        )
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(this)
     }
 
@@ -82,7 +87,7 @@ class CursorHandler(
                 setCursorModelInstance(
                     EditorModelInstanceProps(
                         assetsManager.getAssetByDefinition(definition),
-                        definition
+                        definition,
                     ),
                 )
             }
@@ -91,7 +96,12 @@ class CursorHandler(
             override fun react(msg: Telegram) {
                 val selectedMode = sharedData.selectionData.selectedMode
                 if (selectedMode == Modes.TILES) {
-                    setCursorModelInstance(EditorModelInstanceProps(tileModel, null))
+                    setCursorModelInstance(
+                        EditorModelInstanceProps(
+                            tileModel,
+                            null,
+                        )
+                    )
                 } else if (selectedMode == Modes.OBJECTS) {
                     dispatcher.dispatchMessage(EditorEvents.OBJECT_SELECTED.ordinal)
                 }

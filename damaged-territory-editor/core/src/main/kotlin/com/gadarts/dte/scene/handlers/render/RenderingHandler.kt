@@ -79,19 +79,25 @@ class RenderingHandler(
         modelBatch.begin(sharedData.camera)
         sharedData.mapData.modelInstances.forEach { modelInstance ->
             if (modelInstance.applyGray) {
-                modelInstance.userData = modelInstance
-                modelBatch.render(modelInstance)
+                renderEditorModelInstance(modelInstance)
             }
         }
         modelBatch.end()
         modelBatch.begin(sharedData.camera)
         sharedData.mapData.modelInstances.forEach { modelInstance ->
             if (!modelInstance.applyGray) {
-                modelInstance.userData = modelInstance
-                modelBatch.render(modelInstance)
+                renderEditorModelInstance(modelInstance)
             }
         }
         modelBatch.end()
+    }
+
+    private fun renderEditorModelInstance(modelInstance: EditorModelInstance) {
+        modelInstance.userData = modelInstance
+        modelBatch.render(modelInstance)
+        modelInstance.relatedModelsToBeRenderedInEditor?.forEach { relatedModelToBeRenderedInEditor ->
+            renderEditorModelInstance(relatedModelToBeRenderedInEditor)
+        }
     }
 
     init {
