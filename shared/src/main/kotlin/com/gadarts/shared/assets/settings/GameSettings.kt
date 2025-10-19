@@ -72,7 +72,9 @@ class GameSettings(
     @SerializedName("ai_show_path_nodes")
     val aiShowPathNodes: Boolean = false,
     @SerializedName("use_debug_dll")
-    val useDebugDll: Boolean = false
+    val useDebugDll: Boolean = false,
+    @SerializedName("force_gibs")
+    val forceGibs: Boolean = false
 )
 
 

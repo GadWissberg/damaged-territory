@@ -25,6 +25,7 @@ enum class ModelDefinition(
     val origin: Vector3 = Vector3.Zero,
     val decal: String? = null,
     val loopAnimation: Boolean = false,
+    val mainMaterialIndex: Int = 0,
 ) :
     AssetDefinition<Model> {
 
@@ -35,8 +36,8 @@ enum class ModelDefinition(
         separateModelForShadow = true
     ),
     APACHE_DEAD,
-    APACHE_DEAD_FRONT,
-    APACHE_DEAD_BACK,
+    APACHE_DEAD_FRONT(mainMaterialIndex = 1),
+    APACHE_DEAD_BACK(mainMaterialIndex = 1),
     BULLET(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT)),
     CANNON_BULLET(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.BULLET_FLAT)),
     MISSILE(physicsData = ModelDefinitionPhysicsData(pooledObjectPhysicalDefinition = PooledObjectPhysicalDefinition.MISSILE)),

@@ -121,10 +121,11 @@ object SharedUtils {
     fun applyCustomTextureToModelInstance(
         assetsManager: GameAssetManager,
         modelInstance: ModelInstance,
-        customTexture: String
+        customTexture: String,
+        materialIndex: Int = 0,
     ) {
         val textureAttribute: TextureAttribute =
-            modelInstance.materials.get(0).get(TextureAttribute.Diffuse) as TextureAttribute
+            modelInstance.materials.get(materialIndex).get(TextureAttribute.Diffuse) as TextureAttribute
         textureAttribute.textureDescription.texture = assetsManager.getTexture(customTexture)
     }
 

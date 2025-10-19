@@ -22,7 +22,12 @@ class GameModelInstanceFactory(private val assetsManager: GameAssetManager) {
             ) else null
         val modelInstance = ModelInstance(assetsManager.getAssetByDefinition(modelDefinition, selectedIndex))
         if (customTexture != null) {
-            SharedUtils.applyCustomTextureToModelInstance(assetsManager, modelInstance, customTexture)
+            SharedUtils.applyCustomTextureToModelInstance(
+                assetsManager,
+                modelInstance,
+                customTexture,
+                modelDefinition.mainMaterialIndex
+            )
         }
         val gameModelInstance = GameModelInstance(
             modelInstance,
