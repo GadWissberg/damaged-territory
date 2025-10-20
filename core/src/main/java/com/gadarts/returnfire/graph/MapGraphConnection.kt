@@ -1,7 +1,6 @@
-package com.gadarts.returnfire.model
+package com.gadarts.returnfire.graph
 
 import com.badlogic.gdx.ai.pfa.Connection
-import com.gadarts.returnfire.model.graph.MapGraphNode
 
 class MapGraphConnection(private val from: MapGraphNode, private val to: MapGraphNode, private val cost: MapGraphCost) :
     Connection<MapGraphNode> {

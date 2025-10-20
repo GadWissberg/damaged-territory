@@ -20,11 +20,11 @@ import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterShootingHa
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
+import com.gadarts.returnfire.graph.MapGraph
+import com.gadarts.returnfire.graph.MapGraphCost
+import com.gadarts.returnfire.graph.MapGraphNode
+import com.gadarts.returnfire.graph.MapGraphType
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.MapGraph
-import com.gadarts.returnfire.model.MapGraphCost
-import com.gadarts.returnfire.model.MapGraphType
-import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import kotlin.math.abs

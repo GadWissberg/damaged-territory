@@ -47,6 +47,13 @@
       "row": 11,
       "column": 10,
       "rotation": 0.0
+    },
+    {
+      "definition": "TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 9,
+      "column": 7,
+      "rotation": 0.0
     }
   ],
   "width": 64,

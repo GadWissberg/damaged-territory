@@ -140,7 +140,7 @@ class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<E
                     .finishAndAddToEngine()
                 crashSoundEmitter.crash()
                 crashSoundEmitter.soundToStop.stop(crashSoundEmitter.soundToStopId)
-                gamePlayManagers.stainsHandler.addCrate(position)
+                gamePlayManagers.stainsManager.addCrate(position)
             }
             return true
         }

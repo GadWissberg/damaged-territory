@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy
 import com.badlogic.gdx.graphics.g3d.decals.Decal
@@ -31,7 +30,6 @@ import com.gadarts.returnfire.ecs.components.effects.GroundBlastComponent
 import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.SessionState
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
@@ -70,6 +68,15 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             ModelBatch(),
             ModelBatch(DepthShaderProvider()),
             ShapeRenderer()
+        )
+    }
+    private val debugDisplayRenderer by lazy {
+        DebugDisplayRenderer(
+            gamePlayManagers.assetsManager,
+            batches.shapeRenderer,
+            relatedEntities.groundAiCharacterEntities,
+            gameSessionData.renderData.camera,
+            gameSessionData.physicsData.debugDrawingMethod
         )
     }
     private val modelsRenderer by lazy {
@@ -146,7 +153,6 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             renderModelCaches = true
         )
         modelsRenderer.renderWaterWaves(deltaTime)
-        renderCollisionShapes()
         renderDecals(deltaTime)
         if (!gamePlayManagers.assetsManager.gameSettings.avoidParticleEffectsDrawing) {
             gameSessionData.renderData.particleSystem.begin()
@@ -162,34 +168,10 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 animationComponent.play()
             }
         }
-        renderAiPathNodes()
+        debugDisplayRenderer.render()
     }
 
-    private fun renderAiPathNodes() {
-        if (!gamePlayManagers.assetsManager.gameSettings.aiShowPathNodes) return
 
-        batches.shapeRenderer.projectionMatrix = gameSessionData.renderData.camera.combined
-        batches.shapeRenderer.transformMatrix = auxMatrix.idt()
-        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST)
-        val shapeRenderer = batches.shapeRenderer
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line)
-        for (entity in relatedEntities.groundAiCharacterEntities) {
-            val aiComponent = ComponentsMapper.groundCharacterAi.get(entity)
-            aiComponent.path.nodes.forEach { node ->
-                shapeRenderer.box(node.x + 0.5F, 0.1F, node.y + 0.5F, 1F, 1F, 1F)
-            }
-        }
-        shapeRenderer.end()
-        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST)
-    }
-
-    private fun renderCollisionShapes() {
-        if (!gamePlayManagers.assetsManager.gameSettings.showCollisionShapes) return
-
-        val debugDrawingMethod: CollisionShapesDebugDrawing? =
-            gameSessionData.physicsData.debugDrawingMethod
-        debugDrawingMethod?.drawCollisionShapes(gameSessionData.renderData.camera)
-    }
 
     override fun resume(delta: Long) {
 
@@ -212,7 +194,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         renderIndependentDecals()
         gameSessionData.profilingData.holesRendered = 0
         if (!gamePlayManagers.assetsManager.gameSettings.hideBulletHoles) {
-            for (hole in gamePlayManagers.stainsHandler.holes) {
+            for (hole in gamePlayManagers.stainsManager.holes) {
                 if (isDecalVisible(hole)) {
                     batches.decalBatch.add(hole)
                     gameSessionData.profilingData.holesRendered++

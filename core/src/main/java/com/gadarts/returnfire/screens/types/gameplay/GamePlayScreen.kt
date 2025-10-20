@@ -1,11 +1,7 @@
 package com.gadarts.returnfire.screens.types.gameplay
 
-import com.badlogic.ashley.core.Component
-import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Screen
-import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.ecs.systems.EntityBuilderImpl
@@ -19,11 +15,9 @@ import com.gadarts.returnfire.ecs.systems.camera.CameraSystem
 import com.gadarts.returnfire.ecs.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.ecs.systems.character.factories.OpponentCharacterFactory
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
-import com.gadarts.returnfire.ecs.systems.data.StainsHandler
+import com.gadarts.returnfire.ecs.systems.data.StainsManager
 import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.ecs.systems.effects.EffectsSystem
-import com.gadarts.returnfire.ecs.systems.events.SystemEvents
-import com.gadarts.returnfire.ecs.systems.events.data.RemoveComponentEventData
 import com.gadarts.returnfire.ecs.systems.hud.HudSystemImpl
 import com.gadarts.returnfire.ecs.systems.map.MapSystemImpl
 import com.gadarts.returnfire.ecs.systems.physics.PhysicsSystem
@@ -40,24 +34,12 @@ class GamePlayScreen(
     private val generalManagers: GeneralManagers,
     runsOnMobile: Boolean,
     fpsTarget: Int,
-) : Screen, Telegraph {
-
-    init {
-        val fileName = generalManagers.assetsManager.gameSettings.map.getPaths()[0]
-        generalManagers.assetsManager.load(
-            fileName,
-            GameMap::class.java
-        )
-        generalManagers.assetsManager.finishLoading()
-    }
+) : Screen {
 
     private var initialized: Boolean = false
     private var autoAim: Boolean = true
     private lateinit var selectedCharacter: CharacterDefinition
-    private val entitiesToRemove = mutableListOf<Entity>()
-    private val entitiesPendingToRemove = mutableListOf<Entity>()
-    private val componentsToRemove = mutableListOf<Component>()
-    private val entitiesToRemoveComponentsFrom = mutableListOf<Entity>()
+    private val ecsRemovalManager by lazy { EcsRemovalManager(engine, generalManagers.dispatcher) }
     private lateinit var factories: Factories
     private var pauseTime: Long = 0
     private val gameSessionData: GameSessionData by lazy {
@@ -71,8 +53,17 @@ class GamePlayScreen(
             engine
         )
     }
-    private val engine: PooledEngine by lazy { PooledEngine() }
     private lateinit var systems: List<GameEntitySystem>
+    private val engine: PooledEngine by lazy { PooledEngine() }
+
+    init {
+        val fileName = generalManagers.assetsManager.gameSettings.map.getPaths()[0]
+        generalManagers.assetsManager.load(
+            fileName,
+            GameMap::class.java
+        )
+        generalManagers.assetsManager.finishLoading()
+    }
 
     private fun createFactories(
         entityBuilderImpl: EntityBuilderImpl,
@@ -135,19 +126,7 @@ class GamePlayScreen(
 
     override fun render(delta: Float) {
         engine.update(delta)
-        if (entitiesPendingToRemove.isNotEmpty()) {
-            entitiesToRemove.addAll(entitiesPendingToRemove)
-            entitiesPendingToRemove.clear()
-            entitiesToRemove.forEach {
-                engine.removeEntity(it)
-            }
-            entitiesToRemove.clear()
-        }
-        entitiesToRemoveComponentsFrom.forEachIndexed { index, entity ->
-            entity.remove(componentsToRemove[index]::class.java)
-        }
-        entitiesToRemoveComponentsFrom.clear()
-        componentsToRemove.clear()
+        ecsRemovalManager.update()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -177,23 +156,6 @@ class GamePlayScreen(
 
     }
 
-    override fun handleMessage(msg: Telegram?): Boolean {
-        if (msg == null) return false
-
-        val message = msg.message
-        if (message == SystemEvents.REMOVE_ENTITY.ordinal) {
-            val extraInfo = msg.extraInfo
-            if (extraInfo != null) {
-                entitiesPendingToRemove.add(extraInfo as Entity)
-            }
-        } else if (message == SystemEvents.REMOVE_COMPONENT.ordinal) {
-            entitiesToRemoveComponentsFrom.add(RemoveComponentEventData.entity)
-            componentsToRemove.add(RemoveComponentEventData.component)
-        }
-
-        return true
-    }
-
     fun initialize(selectedCharacter: CharacterDefinition, autoAim: Boolean) {
         this.selectedCharacter = selectedCharacter
         this.autoAim = autoAim
@@ -216,11 +178,9 @@ class GamePlayScreen(
                 factories,
                 generalManagers.screensManagers,
                 ecs,
-                StainsHandler(generalManagers.assetsManager),
+                StainsManager(generalManagers.assetsManager),
                 MapPathFinder(gameSessionData.mapData, PathHeuristic()),
             )
-            generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_ENTITY.ordinal)
-            generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_COMPONENT.ordinal)
             initializeSystems(gamePlayManagers)
             initialized = true
         }

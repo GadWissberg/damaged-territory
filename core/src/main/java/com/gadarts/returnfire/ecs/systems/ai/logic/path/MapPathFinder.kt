@@ -1,11 +1,11 @@
 package com.gadarts.returnfire.ecs.systems.ai.logic.path
 
 import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder
-import com.gadarts.returnfire.model.MapGraphCost
-import com.gadarts.returnfire.model.MapGraphPath
-import com.gadarts.returnfire.model.MapGraphType
-import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.returnfire.ecs.systems.data.map.GameSessionDataMap
+import com.gadarts.returnfire.graph.MapGraphCost
+import com.gadarts.returnfire.graph.MapGraphNode
+import com.gadarts.returnfire.graph.MapGraphPath
+import com.gadarts.returnfire.graph.MapGraphType
 
 class MapPathFinder(private val mapData: GameSessionDataMap, private val pathHeuristic: PathHeuristic) {
     private val pathFinder: IndexedAStarPathFinder<MapGraphNode> by lazy {

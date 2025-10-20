@@ -17,52 +17,33 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
         val finalPositionX = x.toFloat() + 0.5F
         val finalPositionY = 0.07f
         val finalPositionZ = z.toFloat() + 0.5F
-        val modelInstance = EditorModelInstance(
-            EditorModelInstanceProps(
-                gameAssetsManager.getAssetByDefinition(definition),
-                definition,
-                if (elementDefinition is AmbDefinition) elementDefinition.relatedModelsToBeRenderedInEditor.map {
-                    val relatedModelDefinition = it.modelDefinition
-                    val editorModelInstance = EditorModelInstance(
-                        EditorModelInstanceProps(
-                            gameAssetsManager.getAssetByDefinition(
-                                relatedModelDefinition
-                            ),
-                            relatedModelDefinition, null
-                        )
-                    )
-                    editorModelInstance.transform.set(it.relativeTransform).trn(
-                        finalPositionX,
-                        finalPositionY,
-                        finalPositionZ
-                    )
-                    val customTexture = it.customTexture
-                    if (customTexture != null) {
-                        (editorModelInstance.materials.get(0)
-                            .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                            gameAssetsManager.getTexture(customTexture)
-                    }
-                    editorModelInstance
-                } else null
-            )
-        )
-        sharedData.mapData.modelInstances.add(modelInstance)
-        modelInstance.transform.setToTranslation(
+        val relatedModelToBeRenderedInEditors = createRelatedModelToBeRenderedInEditor(
+            elementDefinition,
             finalPositionX,
             finalPositionY,
             finalPositionZ
         )
+        val modelInstance = EditorModelInstance(
+            EditorModelInstanceProps(
+                gameAssetsManager.getAssetByDefinition(definition),
+                definition,
+                relatedModelToBeRenderedInEditors
+            )
+        )
+        sharedData.mapData.modelInstances.add(modelInstance)
+        modelInstance.transform.setToTranslation(finalPositionX, finalPositionY, finalPositionZ)
         if (rotation != null) {
             modelInstance.transform.rotate(rotation)
         }
-        sharedData.mapData.placedObjects.add(
-            PlacedObject(
-                z,
-                x,
-                elementDefinition,
-                modelInstance
-            )
-        )
+        sharedData.mapData.placedObjects.add(PlacedObject(z, x, elementDefinition, modelInstance))
+        applyCustomTexture(elementDefinition, modelInstance)
+        return true
+    }
+
+    private fun applyCustomTexture(
+        elementDefinition: ElementDefinition,
+        modelInstance: EditorModelInstance
+    ) {
         if (elementDefinition is AmbDefinition) {
             val customTexture = elementDefinition.customTexture
             if (customTexture != null) {
@@ -73,10 +54,35 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
                 )
             }
         }
-        return true
     }
 
-    companion object {
-        private val auxVector = com.badlogic.gdx.math.Vector3()
-    }
+    @Suppress("SameParameterValue")
+    private fun createRelatedModelToBeRenderedInEditor(
+        elementDefinition: ElementDefinition,
+        finalPositionX: Float,
+        finalPositionY: Float,
+        finalPositionZ: Float
+    ) = if (elementDefinition is AmbDefinition) elementDefinition.relatedModelsToBeRenderedInEditor.map {
+        val relatedModelDefinition = it.modelDefinition
+        val editorModelInstance = EditorModelInstance(
+            EditorModelInstanceProps(
+                gameAssetsManager.getAssetByDefinition(
+                    relatedModelDefinition
+                ),
+                relatedModelDefinition, null
+            )
+        )
+        editorModelInstance.transform.set(it.relativeTransform).trn(
+            finalPositionX,
+            finalPositionY,
+            finalPositionZ
+        )
+        val customTexture = it.customTexture
+        if (customTexture != null) {
+            (editorModelInstance.materials.get(0)
+                .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                gameAssetsManager.getTexture(customTexture)
+        }
+        editorModelInstance
+    } else null
 }

@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.model
+package com.gadarts.returnfire.graph
 
 enum class MapGraphType {
     AVAILABLE,

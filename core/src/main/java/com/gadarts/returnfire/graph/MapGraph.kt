@@ -1,9 +1,8 @@
-package com.gadarts.returnfire.model
+package com.gadarts.returnfire.graph
 
 import com.badlogic.gdx.ai.pfa.Connection
 import com.badlogic.gdx.ai.pfa.indexed.IndexedGraph
 import com.badlogic.gdx.utils.Array
-import com.gadarts.returnfire.model.graph.MapGraphNode
 
 class MapGraph(val width: Int, val depth: Int) : IndexedGraph<MapGraphNode> {
     var maxCost: MapGraphCost = MapGraphCost.FREE_WAY

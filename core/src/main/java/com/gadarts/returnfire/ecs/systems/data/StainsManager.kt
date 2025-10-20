@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.shared.GameAssetManager
 
-class StainsHandler(assetsManager: GameAssetManager) {
+class StainsManager(assetsManager: GameAssetManager) {
     val holes: MutableList<Decal> = ArrayDeque()
 
     private val smallHolesTextureRegions by lazy {

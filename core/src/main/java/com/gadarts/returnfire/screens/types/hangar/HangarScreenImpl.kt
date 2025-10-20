@@ -30,7 +30,7 @@ class HangarScreenImpl(
     override fun show() {
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(stage)
         if (initialized) {
-            hangarSceneHandler.returnFromCombat()
+            hangarSceneHandler.hangarElevatorHandler.returnFromCombat()
         } else {
             initialize()
         }

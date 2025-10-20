@@ -103,7 +103,7 @@ enum class ModelDefinition(
     CEILING,
     STAGE,
     PROPELLER,
-    PIT(),
+    PIT,
     PIT_DOOR,
     ROCK_BIG(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AutomaticShapeCreator)),
     ROCK_MED(physicsData = ModelDefinitionPhysicsData(physicalShapeCreator = AutomaticShapeCreator)),

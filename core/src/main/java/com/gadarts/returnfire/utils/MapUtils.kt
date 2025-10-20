@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.model.MapGraph
+import com.gadarts.returnfire.graph.MapGraph
 import com.gadarts.shared.SharedUtils.tilesChars
 import com.gadarts.shared.assets.definitions.external.ExternalDefinitions
 import com.gadarts.shared.assets.definitions.external.TextureDefinition

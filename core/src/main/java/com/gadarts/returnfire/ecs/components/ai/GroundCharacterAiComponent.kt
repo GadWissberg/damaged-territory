@@ -1,8 +1,8 @@
 package com.gadarts.returnfire.ecs.components.ai
 
 import com.badlogic.ashley.core.Component
-import com.gadarts.returnfire.model.MapGraphPath
-import com.gadarts.returnfire.model.graph.MapGraphNode
+import com.gadarts.returnfire.graph.MapGraphNode
+import com.gadarts.returnfire.graph.MapGraphPath
 
 class GroundCharacterAiComponent : Component {
     var roamingEndTime: Long? = null

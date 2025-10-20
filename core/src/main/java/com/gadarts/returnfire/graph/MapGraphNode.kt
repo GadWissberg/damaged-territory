@@ -1,6 +1,4 @@
-package com.gadarts.returnfire.model.graph
-
-import com.gadarts.returnfire.model.MapGraphType
+package com.gadarts.returnfire.graph
 
 data class MapGraphNode(val index: Int, val x: Int, val y: Int, var type: MapGraphType) {
     override fun toString(): String = "Node: $index, x: $x, y: $y, type: $type"
