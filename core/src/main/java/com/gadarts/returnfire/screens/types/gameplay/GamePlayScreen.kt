@@ -19,7 +19,7 @@ import com.gadarts.returnfire.ecs.systems.camera.CameraSystem
 import com.gadarts.returnfire.ecs.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.ecs.systems.character.factories.OpponentCharacterFactory
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
-import com.gadarts.returnfire.ecs.systems.data.StainsHandler
+import com.gadarts.returnfire.ecs.systems.data.StainsManager
 import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.ecs.systems.effects.EffectsSystem
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
@@ -30,6 +30,7 @@ import com.gadarts.returnfire.ecs.systems.physics.PhysicsSystem
 import com.gadarts.returnfire.ecs.systems.player.PlayerSystemImpl
 import com.gadarts.returnfire.ecs.systems.render.RenderSystem
 import com.gadarts.returnfire.factories.*
+import com.gadarts.returnfire.managers.CtfManager
 import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
@@ -216,8 +217,9 @@ class GamePlayScreen(
                 factories,
                 generalManagers.screensManagers,
                 ecs,
-                StainsHandler(generalManagers.assetsManager),
+                StainsManager(generalManagers.assetsManager),
                 MapPathFinder(gameSessionData.mapData, PathHeuristic()),
+                CtfManager(generalManagers, gameSessionData,ecs.engine)
             )
             generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_ENTITY.ordinal)
             generalManagers.dispatcher.addListener(this, SystemEvents.REMOVE_COMPONENT.ordinal)

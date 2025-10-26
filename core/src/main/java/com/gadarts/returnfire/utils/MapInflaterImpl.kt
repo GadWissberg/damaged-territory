@@ -1024,7 +1024,7 @@ class MapInflaterImpl(
         addExtSea(width, EXT_SIZE, width / 2F, depth + EXT_SIZE / 2F)
         addExtSea(EXT_SIZE, EXT_SIZE, width + EXT_SIZE / 2F, depth + EXT_SIZE / 2F)
         addExtSea(EXT_SIZE, depth, width + EXT_SIZE / 2F, depth / 2F)
-        addExtSea(EXT_SIZE, EXT_SIZE, width + EXT_SIZE / 2F, -depth / 2F)
+        addExtSea(EXT_SIZE, EXT_SIZE, width + EXT_SIZE / 2F, -EXT_SIZE / 2F)
     }
 
     private fun addFloorModels(

@@ -2,40 +2,34 @@ package com.gadarts.returnfire.ecs.systems.character.react
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
-import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
+import com.gadarts.returnfire.managers.CtfManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition
-import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
 import kotlin.math.max
 
-class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<Entity>) : HandlerOnEvent {
+class CharacterSystemOnPhysicsCollision(
+    private val ctfManager: CtfManager
+) : HandlerOnEvent {
 
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj0.userData as Entity,
             PhysicsCollisionEventData.colObj1.userData as Entity,
-            gameSessionData,
-            gamePlayManagers.dispatcher,
-            gamePlayManagers.soundManager
         ) || handleJeepFlagCollision(
             PhysicsCollisionEventData.colObj1.userData as Entity,
             PhysicsCollisionEventData.colObj0.userData as Entity,
-            gameSessionData,
-            gamePlayManagers.dispatcher,
-            gamePlayManagers.soundManager,
         ) || handleBulletCharacter(gamePlayManagers, gameSessionData)
             || applyEventForCrashingAircraft(
             PhysicsCollisionEventData.colObj0.userData as Entity,
@@ -53,9 +47,6 @@ class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<E
     private fun handleJeepFlagCollision(
         jeep: Entity,
         flag: Entity,
-        gameSessionData: GameSessionData,
-        dispatcher: MessageDispatcher,
-        soundManager: SoundManager,
     ): Boolean {
         if (!ComponentsMapper.character.has(jeep) || !ComponentsMapper.modelInstance.has(flag)) return false
 
@@ -64,30 +55,7 @@ class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<E
         val flagComponent = ComponentsMapper.flag.get(flag)
         val isEntity1Flag = flagComponent != null
         if (isEntity0Jeep && isEntity1Flag) {
-            val characterColor = characterComponent.color
-            if (characterColor != flagComponent.color) {
-                if (flagComponent.follow == null || ComponentsMapper.flagFloor.has(
-                        flagComponent.follow
-                    )
-                ) {
-                    flagComponent.follow = jeep
-                    soundManager.play(SoundDefinition.FLAG_TAKEN)
-                    dispatcher.dispatchMessage(SystemEvents.FLAG_TAKEN.ordinal, flag)
-                }
-            } else {
-                if (flagComponent.follow == null) {
-                    val flagFloor = flagFloors.first { ComponentsMapper.flagFloor.get(it).color == characterColor }
-                    flagComponent.follow = flagFloor
-                    soundManager.play(SoundDefinition.FLAG_RETURNED)
-                    dispatcher.dispatchMessage(SystemEvents.FLAG_RETURNED.ordinal, flag)
-                } else {
-                    val rivalColor =
-                        if (characterColor == CharacterColor.GREEN) CharacterColor.BROWN else CharacterColor.GREEN
-                    if (ComponentsMapper.flag.get(gameSessionData.gamePlayData.flags[rivalColor]).follow == jeep) {
-                        dispatcher.dispatchMessage(SystemEvents.FLAG_POINT.ordinal, characterColor)
-                    }
-                }
-            }
+            ctfManager.handleJeepFlagCollision(jeep, flag)
             return true
         }
         return false
@@ -140,7 +108,7 @@ class CharacterSystemOnPhysicsCollision(private val flagFloors: ImmutableArray<E
                     .finishAndAddToEngine()
                 crashSoundEmitter.crash()
                 crashSoundEmitter.soundToStop.stop(crashSoundEmitter.soundToStopId)
-                gamePlayManagers.stainsHandler.addCrate(position)
+                gamePlayManagers.stainsManager.addCrate(position)
             }
             return true
         }

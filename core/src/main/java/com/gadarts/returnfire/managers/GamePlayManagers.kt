@@ -4,7 +4,7 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.gadarts.returnfire.factories.Factories
 import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.ecs.systems.ai.logic.path.MapPathFinder
-import com.gadarts.returnfire.ecs.systems.data.StainsHandler
+import com.gadarts.returnfire.ecs.systems.data.StainsManager
 import com.gadarts.shared.GameAssetManager
 
 data class GamePlayManagers(
@@ -14,6 +14,7 @@ data class GamePlayManagers(
     val factories: Factories,
     val screensManager: ScreensManager,
     val ecs: EcsManager,
-    val stainsHandler: StainsHandler,
+    val stainsManager: StainsManager,
     val pathFinder: MapPathFinder,
+    val ctfManager: CtfManager
 )

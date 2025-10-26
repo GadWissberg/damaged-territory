@@ -19,7 +19,6 @@ import com.gadarts.returnfire.ecs.components.CharacterComponent
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ElevatorComponent
 import com.gadarts.returnfire.ecs.components.ElevatorComponent.Companion.MAX_Y
-import com.gadarts.returnfire.ecs.components.FlagFloorComponent
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.MutableGameModelInstanceInfo
@@ -95,11 +94,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY to CharacterSystemOnCharacterWeaponShotPrimary(this),
             SystemEvents.CHARACTER_WEAPON_ENGAGED_SECONDARY to CharacterSystemOnCharacterWeaponShotSecondary(this),
             SystemEvents.PHYSICS_COLLISION to CharacterSystemOnPhysicsCollision(
-                engine.getEntitiesFor(
-                    Family.all(
-                        FlagFloorComponent::class.java
-                    ).get()
-                )
+                gamePlayManagers.ctfManager
             ),
             SystemEvents.CHARACTER_REQUEST_BOARDING to CharacterSystemOnCharacterRequestBoarding(),
             SystemEvents.AMB_SOUND_COMPONENT_ADDED to CharacterSystemOnAmbSoundComponentAdded(this),
@@ -144,6 +139,14 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         ComponentsMapper.turretAutomation.get(turretBaseComponent.turret)
                     if (turretAutomationComponent != null) {
                         turretAutomationComponent.enabled = false
+                    }
+                    val characterComponent = ComponentsMapper.character.get(character)
+                    if (characterComponent.definition == TurretCharacterDefinition.JEEP) {
+                        val rivalFlag =
+                            gameSessionData.gamePlayData.flags[if (characterComponent.color == CharacterColor.GREEN) CharacterColor.BROWN else CharacterColor.GREEN]
+                        if (ComponentsMapper.flag.get(rivalFlag).follow == character && rivalFlag != null) {
+                            gamePlayManagers.ctfManager.returnFlag(rivalFlag)
+                        }
                     }
                 }
             },

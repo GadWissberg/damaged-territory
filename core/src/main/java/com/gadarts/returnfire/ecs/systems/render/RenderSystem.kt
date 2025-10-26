@@ -212,7 +212,7 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
         renderIndependentDecals()
         gameSessionData.profilingData.holesRendered = 0
         if (!gamePlayManagers.assetsManager.gameSettings.hideBulletHoles) {
-            for (hole in gamePlayManagers.stainsHandler.holes) {
+            for (hole in gamePlayManagers.stainsManager.holes) {
                 if (isDecalVisible(hole)) {
                     batches.decalBatch.add(hole)
                     gameSessionData.profilingData.holesRendered++

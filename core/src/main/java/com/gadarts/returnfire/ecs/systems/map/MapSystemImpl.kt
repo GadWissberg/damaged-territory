@@ -181,7 +181,7 @@ class MapSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gameP
                 auxVector1
             )
         val ambComponent = ComponentsMapper.amb.get(amb)
-        gamePlayManagers.stainsHandler.addBigHole(position)
+        gamePlayManagers.stainsManager.addBigHole(position)
         ambComponent.hp = 0
         if (ComponentsMapper.fence.has(amb)) {
             val fenceComponent = ComponentsMapper.fence.get(amb)
