@@ -182,9 +182,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gamePlayManagers.factories.specialEffectsFactory.generateExplosionForCharacter(character)
         }
         var planeCrashSoundId = -1L
+        val assetsManager = gamePlayManagers.assetsManager
         if (characterComponent.definition.isFlyer()) {
             planeCrashSoundId = gamePlayManagers.soundManager.play(
-                gamePlayManagers.assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
+                assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector1
                 )
@@ -194,7 +195,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             SystemEvents.CHARACTER_DIED.ordinal,
             character
         )
-        if (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F) {
+        if (!assetsManager.gameSettings.forceGibs && (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F)) {
             turnCharacterToCorpse(character, planeCrashSoundId)
         } else {
             gibCharacter(character, planeCrashSoundId)
@@ -416,10 +417,17 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
                 auxVector1
             )
+        val customTexture = "apache_texture_dead_${ComponentsMapper.character.get(character).color.name.lowercase()}"
         val gameModelInstanceBack =
-            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_BACK)
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+                ModelDefinition.APACHE_DEAD_BACK,
+                customTexture
+            )
         val gameModelInstanceFront =
-            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.APACHE_DEAD_FRONT)
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+                ModelDefinition.APACHE_DEAD_FRONT,
+                customTexture
+            )
         val assetsManager = gamePlayManagers.assetsManager
         val frontBoundingBox =
             assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD_FRONT)
@@ -477,7 +485,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 model = gameModelInstanceBack,
                 position = position,
                 boundingBox = boundingBox,
-                texture = assetsManager.getTexture("apache_texture_dead_green")
             )
             .addDrowningEffectComponent()
             .addParticleEffectComponent(

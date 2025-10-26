@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader
 
-enum class FontDefinition(private val size: Int, private val fileName: String? = null) :
+enum class FontDefinition(private val size: Int, fileName: String? = null) :
     AssetDefinition<BitmapFont> {
     WOK_STENCIL_32(32, "wok_stencil"),
     WOK_STENCIL_256(256, "wok_stencil"),

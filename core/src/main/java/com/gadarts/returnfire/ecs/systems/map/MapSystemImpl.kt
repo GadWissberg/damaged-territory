@@ -33,8 +33,8 @@ import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.map.handlers.amb.AmbEffectsHandlers
 import com.gadarts.returnfire.ecs.systems.map.react.*
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
+import com.gadarts.returnfire.graph.MapGraphType
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.MapGraphType
 import com.gadarts.returnfire.utils.MapInflaterImpl
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.returnfire.utils.ModelUtils

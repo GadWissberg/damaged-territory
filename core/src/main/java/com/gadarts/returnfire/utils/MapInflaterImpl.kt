@@ -21,7 +21,8 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.Bullet
 import com.badlogic.gdx.physics.bullet.collision.Collision
-import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.*
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_SIMULATION
+import com.badlogic.gdx.physics.bullet.collision.CollisionConstants.ISLAND_SLEEPING
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
@@ -44,11 +45,11 @@ import com.gadarts.returnfire.ecs.systems.data.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.map.InGameTilesLayer
 import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion
 import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion.Companion.LAYER_REGION_SIZE
+import com.gadarts.returnfire.graph.MapGraph
+import com.gadarts.returnfire.graph.MapGraphCost
+import com.gadarts.returnfire.graph.MapGraphNode
+import com.gadarts.returnfire.graph.MapGraphType
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.model.MapGraph
-import com.gadarts.returnfire.model.MapGraphCost
-import com.gadarts.returnfire.model.MapGraphType
-import com.gadarts.returnfire.model.graph.MapGraphNode
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.SharedUtils.INITIAL_INDEX_OF_TILES_MAPPING
@@ -79,6 +80,65 @@ class MapInflaterImpl(
         engine.getEntitiesFor(
             Family.all(AmbComponent::class.java).get()
         )
+    }
+
+    override fun addAmbObject(
+        position: Vector3,
+        ambDefinition: AmbDefinition,
+        exculdedTiles: ArrayList<Pair<Int, Int>>,
+        rotation: Float?,
+    ) {
+        ambDefinition.onCreation?.invoke(this, auxVector3.set(position), ambDefinition, exculdedTiles)
+        excludeTilesUnderBase(ambDefinition, position, exculdedTiles)
+        if (ambDefinition.placeInMiddleOfCell) {
+            position.add(0.5F, 0F, 0.5F)
+        }
+        position.sub(ambDefinition.getModelDefinition().origin)
+        val gameModelInstance =
+            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
+                ambDefinition.getModelDefinition(),
+                ambDefinition.customTexture
+            )
+        val entityBuilder = gamePlayManagers.ecs.entityBuilder
+            .begin()
+            .addModelInstanceComponent(
+                model = gameModelInstance,
+                position = position,
+                boundingBox = null,
+                direction = rotation ?: 0F,
+                haloEffect = ambDefinition.outlineEffect
+            )
+            .addDrowningEffectComponent()
+            .addAmbComponent(
+                if (ambDefinition.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
+                ambDefinition,
+                auxVector1.set(ambDefinition.getScale(), ambDefinition.getScale(), ambDefinition.getScale()),
+            )
+        applyDecalToModel(ambDefinition, entityBuilder, gameModelInstance)
+        val isGreen = ambDefinition == AmbDefinition.BASE_GREEN
+        val isBrown = ambDefinition == AmbDefinition.BASE_BROWN
+        if (isGreen || isBrown) {
+            entityBuilder.addHangarComponent(if (isGreen) CharacterColor.GREEN else CharacterColor.BROWN)
+        }
+        val entity = entityBuilder.finishAndAddToEngine()
+        if (ambDefinition.collisionFlags >= 0) {
+            addPhysicsToObject(
+                entity,
+                gameModelInstance,
+                ambDefinition.collisionFlags,
+                if (ambDefinition.collisionFlags == CollisionFlags.CF_STATIC_OBJECT) 0F else ambDefinition.mass,
+                4F,
+                activationState = Collision.DISABLE_SIMULATION
+            )
+        }
+        addAnimationToAmb(gameModelInstance, entity)
+        if (ambDefinition == AmbDefinition.PALM_TREE) {
+            entityBuilder.addTreeComponentToEntity(entity)
+        } else if (ambDefinition.getModelDefinition() == ModelDefinition.FLAG) {
+            entityBuilder.addFlagComponentToEntity(entity, ambDefinitionToColor(ambDefinition))
+        } else if (ambDefinition.getModelDefinition() == ModelDefinition.FLAG_FLOOR) {
+            entityBuilder.addFlagFloorComponentToEntity(entity, ambDefinitionToColor(ambDefinition))
+        }
     }
 
     fun inflate() {
@@ -172,6 +232,7 @@ class MapInflaterImpl(
         }
     }
 
+
     private fun createGraph() {
         val map = gameSessionData.mapData.loadedMap
         val depth = map.depth
@@ -207,7 +268,6 @@ class MapInflaterImpl(
         connectGraphNodes(width, depth, mapGraph)
         gameSessionData.mapData.mapGraph = mapGraph
     }
-
 
     private fun connectGraphNodes(
         width: Int,
@@ -305,65 +365,6 @@ class MapInflaterImpl(
             val transform =
                 ComponentsMapper.modelInstance.get(it).gameModelInstance.modelInstance.transform
             transform.scl(scale).rotate(Vector3.Y, ComponentsMapper.amb.get(it).rotation)
-        }
-    }
-
-    override fun addAmbObject(
-        position: Vector3,
-        ambDefinition: AmbDefinition,
-        exculdedTiles: ArrayList<Pair<Int, Int>>,
-        rotation: Float?,
-    ) {
-        ambDefinition.onCreation?.invoke(this, auxVector3.set(position), ambDefinition, exculdedTiles)
-        excludeTilesUnderBase(ambDefinition, position, exculdedTiles)
-        if (ambDefinition.placeInMiddleOfCell) {
-            position.add(0.5F, 0F, 0.5F)
-        }
-        position.sub(ambDefinition.getModelDefinition().origin)
-        val gameModelInstance =
-            gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
-                ambDefinition.getModelDefinition(),
-                ambDefinition.customTexture
-            )
-        val entityBuilder = gamePlayManagers.ecs.entityBuilder
-            .begin()
-            .addModelInstanceComponent(
-                model = gameModelInstance,
-                position = position,
-                boundingBox = null,
-                direction = rotation ?: 0F,
-                haloEffect = ambDefinition.outlineEffect
-            )
-            .addDrowningEffectComponent()
-            .addAmbComponent(
-                if (ambDefinition.isRandomizeRotation()) MathUtils.random(0F, 360F) else 0F,
-                ambDefinition,
-                auxVector1.set(ambDefinition.getScale(), ambDefinition.getScale(), ambDefinition.getScale()),
-            )
-        applyDecalToModel(ambDefinition, entityBuilder, gameModelInstance)
-        val isGreen = ambDefinition == AmbDefinition.BASE_GREEN
-        val isBrown = ambDefinition == AmbDefinition.BASE_BROWN
-        if (isGreen || isBrown) {
-            entityBuilder.addHangarComponent(if (isGreen) CharacterColor.GREEN else CharacterColor.BROWN)
-        }
-        val entity = entityBuilder.finishAndAddToEngine()
-        if (ambDefinition.collisionFlags >= 0) {
-            addPhysicsToObject(
-                entity,
-                gameModelInstance,
-                ambDefinition.collisionFlags,
-                if (ambDefinition.collisionFlags == CollisionFlags.CF_STATIC_OBJECT) 0F else ambDefinition.mass,
-                4F,
-                activationState = Collision.DISABLE_SIMULATION
-            )
-        }
-        addAnimationToAmb(gameModelInstance, entity)
-        if (ambDefinition == AmbDefinition.PALM_TREE) {
-            entityBuilder.addTreeComponentToEntity(entity)
-        } else if (ambDefinition.getModelDefinition() == ModelDefinition.FLAG) {
-            entityBuilder.addFlagComponentToEntity(entity, ambDefinitionToColor(ambDefinition))
-        } else if (ambDefinition.getModelDefinition() == ModelDefinition.FLAG_FLOOR) {
-            entityBuilder.addFlagFloorComponentToEntity(entity, ambDefinitionToColor(ambDefinition))
         }
     }
 
@@ -593,23 +594,24 @@ class MapInflaterImpl(
         val bulletModelDefinition = ModelDefinition.TANK_CANNON_BULLET
         val particleEffectsPools = gameSessionData.gamePlayData.pools.particleEffectsPools
         return ArmProperties(
-            5F,
-            assetsManager.getAssetByDefinition(SoundDefinition.CANNON_B),
-            5000L,
-            10F,
-            ArmEffectsData(
+            damage = 5F,
+            shootingSound = assetsManager.getAssetByDefinition(SoundDefinition.CANNON_B),
+            reloadDuration = 5000L,
+            speed = 10F,
+            effectsData = ArmEffectsData(
                 ParticleEffectDefinition.EXPLOSION_MED,
                 null,
                 particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_EMIT),
                 particleEffectsPools.obtain(ParticleEffectDefinition.SMOKE_UP_LOOP),
             ),
-            ArmRenderData(
+            renderData = ArmRenderData(
                 bulletModelDefinition,
                 assetsManager.getCachedBoundingBox(bulletModelDefinition),
             ),
-            true,
-            gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(bulletModelDefinition),
-            -1
+            explosive = true,
+            rigidBodyPool = gameSessionData.gamePlayData.pools.rigidBodyPools.obtainRigidBodyPool(bulletModelDefinition),
+            ammo = -1,
+            destroyOnSky = false
         )
     }
 
@@ -663,8 +665,8 @@ class MapInflaterImpl(
                 def.getName().lowercase() == definition
             }
             it.type == ElementType.CHARACTER
-                && elementDefinition != SimpleCharacterDefinition.APACHE
-                && elementDefinition != TurretCharacterDefinition.TANK
+                    && elementDefinition != SimpleCharacterDefinition.APACHE
+                    && elementDefinition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 val elementDefinition = stringToDefinition(it.definition, ElementType.CHARACTER)
@@ -786,7 +788,7 @@ class MapInflaterImpl(
                     )
                     if (groundBitMap[row][col] == 0
                         && (!textureDefinition.fileName.contains("water")
-                            || exculdedTiles.contains(Pair(col, row)))
+                                || exculdedTiles.contains(Pair(col, row)))
                     ) {
                         groundBitMap[row][col] = 1
                     }
@@ -889,12 +891,12 @@ class MapInflaterImpl(
         z: Int,
         tilesEntities: Array<Array<Entity?>>,
     ) = (x > 0
-        && z > 0
-        && x < tilesEntities[0].size
-        && z < tilesEntities.size
-        && tilesEntities[z][x] != null
-        && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
-        && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.gameModelInstanceInfo?.modelDefinition == ModelDefinition.TILE_BUMPY)
+            && z > 0
+            && x < tilesEntities[0].size
+            && z < tilesEntities.size
+            && tilesEntities[z][x] != null
+            && ComponentsMapper.modelInstance.has(tilesEntities[z][x])
+            && ComponentsMapper.modelInstance.get(tilesEntities[z][x]).gameModelInstance.gameModelInstanceInfo?.modelDefinition == ModelDefinition.TILE_BUMPY)
 
     private fun flatAllTilesBelow(
         index: Int,
@@ -1057,9 +1059,9 @@ class MapInflaterImpl(
     }
 
     private fun isPositionInsideBoundaries(row: Int, col: Int) = (row >= 0
-        && col >= 0
-        && row < gameSessionData.mapData.loadedMap.depth
-        && col < gameSessionData.mapData.loadedMap.width)
+            && col >= 0
+            && row < gameSessionData.mapData.loadedMap.depth
+            && col < gameSessionData.mapData.loadedMap.width)
 
     private fun applyAnimatedTextureComponentToFloor(
         textureDefinition: TextureDefinition,

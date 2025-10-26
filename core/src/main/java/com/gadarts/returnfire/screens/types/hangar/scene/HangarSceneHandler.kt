@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
 import com.gadarts.returnfire.screens.types.hangar.HangarScreenMenu
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
@@ -24,39 +23,18 @@ class HangarSceneHandler(
     private val assetsManager: GameAssetManager,
 ) :
     Disposable {
-    private var elevatorSoundMoveSoundId: Long = -1
+    val hangarElevatorHandler by lazy { HangarElevatorHandler(soundManager, assetsManager, hangarScreenMenu) }
     private lateinit var hangarScreenMenu: HangarScreenMenu
     private val sceneModels = HangarSceneModelsData(assetsManager)
     private val hangarSceneLightingData = HangarSceneLightingData()
-    private var deployingState = 0
     private var selected: VehicleElevator? = null
     private var swingTime: Float = 0.0f
 
     fun render(delta: Float) {
         if (selected != null) {
-            val reachedDestination = selected!!.updateLocation(delta, deployingState)
-            if (reachedDestination) {
-                if (elevatorSoundMoveSoundId > -1) {
-                    soundManager.stop(
-                        assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE),
-                        elevatorSoundMoveSoundId
-                    )
-                    elevatorSoundMoveSoundId = -1
-                    soundManager.play(
-                        assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY)
-                    )
-                }
-                if (deployingState > 0) {
-                    hangarScreenMenu.switchToGameplayScreen(
-                        ToGamePlayScreenSwitchParameters(
-                            selected!!.characterDefinition,
-                            hangarScreenMenu.isAutoAimSelected()
-                        )
-                    )
-                } else {
-                    selected = null
-                    hangarScreenMenu.show()
-                }
+            val resetSelected = hangarElevatorHandler.update(selected, delta)
+            if (resetSelected) {
+                selected = null
             }
         }
         animateHook(delta)
@@ -94,10 +72,6 @@ class HangarSceneHandler(
         hangarSceneLightingData.environment.shadowMap = hangarSceneLightingData.shadowLight
     }
 
-    fun returnFromCombat() {
-        elevatorSoundMoveSoundId = soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
-        deployingState = -1
-    }
 
     private fun renderModels(environment: Environment) {
         sceneModels.batch.render(sceneModels.hangarAmbModels.sceneModelInstance, environment)
@@ -155,7 +129,7 @@ class HangarSceneHandler(
 
     fun selectCharacter(character: CharacterDefinition) {
         selected = sceneModels.stagesModels.mapping[character]
-        deployingState = 1
+        hangarElevatorHandler.onSelectCharacter()
         soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_DEPLOY))
         soundManager.play(assetsManager.getAssetByDefinition(SoundDefinition.STAGE_MOVE))
     }
