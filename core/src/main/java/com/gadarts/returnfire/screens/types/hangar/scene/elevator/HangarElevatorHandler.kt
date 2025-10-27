@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.screens.types.hangar.scene
+package com.gadarts.returnfire.screens.types.hangar.scene.elevator
 
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters

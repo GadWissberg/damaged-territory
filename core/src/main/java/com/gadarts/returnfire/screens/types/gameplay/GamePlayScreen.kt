@@ -15,6 +15,7 @@ import com.gadarts.returnfire.ecs.systems.camera.CameraSystem
 import com.gadarts.returnfire.ecs.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.ecs.systems.character.factories.OpponentCharacterFactory
 import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.ecs.systems.data.StainsManager
 import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyFactory
 import com.gadarts.returnfire.ecs.systems.effects.EffectsSystem
@@ -29,12 +30,14 @@ import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.managers.GeneralManagers
 import com.gadarts.shared.assets.map.GameMap
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class GamePlayScreen(
     private val generalManagers: GeneralManagers,
     runsOnMobile: Boolean,
     fpsTarget: Int,
+    opponentsData: Map<CharacterColor, OpponentData>,
 ) : Screen {
 
     private var initialized: Boolean = false
@@ -51,7 +54,8 @@ class GamePlayScreen(
             autoAim,
             generalManagers.assetsManager,
             ConsoleImpl(generalManagers.assetsManager, generalManagers.dispatcher),
-            engine
+            engine,
+            opponentsData
         )
     }
     private lateinit var systems: List<GameEntitySystem>
@@ -181,7 +185,7 @@ class GamePlayScreen(
                 ecs,
                 StainsManager(generalManagers.assetsManager),
                 MapPathFinder(gameSessionData.mapData, PathHeuristic()),
-                CtfManager(generalManagers, gameSessionData,ecs.engine)
+                CtfManager(generalManagers, gameSessionData, ecs.engine)
             )
             initializeSystems(gamePlayManagers)
             initialized = true

@@ -24,8 +24,8 @@
     "avoid_particle_effects_drawing": false,
     "enable_profiler": true,
     "disable_hud": false,
-    "selected_vehicle": "apache",
-    "selected_vehicle_ai": "tank",
+    "selected_vehicle": null,
+    "selected_vehicle_ai": null,
     "force_aim": 1,
     "ai_disabled": false,
     "ai_vehicle_disabled": false,
@@ -34,7 +34,7 @@
     "ai_force_thrust": false,
     "ai_show_path_nodes": false,
     "use_debug_dll": false,
-    "force_gibs": true
+    "force_gibs": false
   },
   "production": {
     "map": "map_0",

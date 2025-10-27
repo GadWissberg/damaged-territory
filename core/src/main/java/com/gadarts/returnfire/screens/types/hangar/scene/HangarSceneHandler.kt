@@ -12,15 +12,21 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.types.hangar.HangarScreenMenu
+import com.gadarts.returnfire.screens.types.hangar.scene.elevator.HangarElevatorHandler
+import com.gadarts.returnfire.screens.types.hangar.scene.elevator.VehicleElevator
+import com.gadarts.returnfire.screens.types.hangar.scene.vehicles.SelectableVehicle
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class HangarSceneHandler(
     private val soundManager: SoundManager,
     private val assetsManager: GameAssetManager,
+    private val opponentsData: Map<CharacterColor, OpponentData>,
 ) :
     Disposable {
     val hangarElevatorHandler by lazy { HangarElevatorHandler(soundManager, assetsManager, hangarScreenMenu) }
@@ -51,6 +57,10 @@ class HangarSceneHandler(
     }
 
     private fun renderVehicle(selectableVehicle: SelectableVehicle) {
+        val opponentData = opponentsData[CharacterColor.BROWN] ?: return
+        val amount = opponentData.vehicleAmounts[selectableVehicle.characterDefinition] ?: return
+        if (amount <= 0) return
+
         sceneModels.batch.render(selectableVehicle.modelInstance, hangarSceneLightingData.environment)
         selectableVehicle.children.forEach {
             sceneModels.batch.render(
@@ -77,12 +87,15 @@ class HangarSceneHandler(
         sceneModels.batch.render(sceneModels.hangarAmbModels.sceneModelInstance, environment)
         sceneModels.batch.render(sceneModels.hangarAmbModels.hookModelInstance, environment)
         sceneModels.batch.render(sceneModels.hangarAmbModels.fanModelInstance, environment)
-        sceneModels.batch.render(sceneModels.stagesModels.stageTopLeftModelInstance.modelInstance, environment)
-        sceneModels.batch.render(sceneModels.stagesModels.stageTopRightModelInstance.modelInstance, environment)
-        sceneModels.batch.render(sceneModels.stagesModels.stageTank.modelInstance, environment)
-        sceneModels.batch.render(sceneModels.stagesModels.stageApache.modelInstance, environment)
-        sceneModels.batch.render(sceneModels.stagesModels.stageJeep.modelInstance, environment)
-        sceneModels.batch.render(sceneModels.stagesModels.stageBottomRightModelInstance.modelInstance, environment)
+        sceneModels.batch.render(sceneModels.stagesModels.elevatorTopLeftModelInstance.modelInstance, environment)
+        sceneModels.batch.render(sceneModels.stagesModels.elevatorTopRightModelInstance.modelInstance, environment)
+        sceneModels.batch.render(sceneModels.stagesModels.elevatorTank.modelInstance, environment)
+        sceneModels.batch.render(sceneModels.stagesModels.elevatorApache.modelInstance, environment)
+        sceneModels.batch.render(sceneModels.stagesModels.elevatorJeep.modelInstance, environment)
+        sceneModels.batch.render(
+            sceneModels.stagesModels.elevatorBottomRightModelInstance.modelInstance,
+            environment
+        )
         sceneModels.charactersModels.vehicles.forEach { vehicle ->
             renderVehicle(vehicle)
         }
@@ -101,12 +114,12 @@ class HangarSceneHandler(
         modelBatch.render(sceneModels.hangarAmbModels.sceneModelInstance)
         modelBatch.render(sceneModels.hangarAmbModels.hookModelInstance)
         modelBatch.render(sceneModels.hangarAmbModels.fanModelInstance)
-        modelBatch.render(sceneModels.stagesModels.stageJeep.modelInstance)
-        modelBatch.render(sceneModels.stagesModels.stageTopRightModelInstance.modelInstance)
-        modelBatch.render(sceneModels.stagesModels.stageTank.modelInstance)
-        modelBatch.render(sceneModels.stagesModels.stageApache.modelInstance)
-        modelBatch.render(sceneModels.stagesModels.stageJeep.modelInstance)
-        modelBatch.render(sceneModels.stagesModels.stageBottomRightModelInstance.modelInstance)
+        modelBatch.render(sceneModels.stagesModels.elevatorJeep.modelInstance)
+        modelBatch.render(sceneModels.stagesModels.elevatorTopRightModelInstance.modelInstance)
+        modelBatch.render(sceneModels.stagesModels.elevatorTank.modelInstance)
+        modelBatch.render(sceneModels.stagesModels.elevatorApache.modelInstance)
+        modelBatch.render(sceneModels.stagesModels.elevatorJeep.modelInstance)
+        modelBatch.render(sceneModels.stagesModels.elevatorBottomRightModelInstance.modelInstance)
         modelBatch.render(sceneModels.hangarAmbModels.ceilingModelInstance)
         modelBatch.render(sceneModels.hangarAmbModels.ceilingFanModelInstance)
         modelBatch.end()

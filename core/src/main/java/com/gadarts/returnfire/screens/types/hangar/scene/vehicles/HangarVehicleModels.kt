@@ -1,14 +1,19 @@
-package com.gadarts.returnfire.screens.types.hangar.scene
+package com.gadarts.returnfire.screens.types.hangar.scene.vehicles
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.returnfire.screens.types.hangar.scene.elevator.HangarElevatorsModels
+import com.gadarts.returnfire.screens.types.hangar.scene.elevator.VehicleElevator
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
 
-class HangarCharacterModels(private val assetsManager: GameAssetManager, private val stagesModels: HangarStagesModels) {
+class HangarVehicleModels(
+    private val assetsManager: GameAssetManager,
+    private val elevatorsModels: HangarElevatorsModels
+) {
     private val tank by lazy {
-        val vehicle = createSelectableVehicle(ModelDefinition.TANK_BODY, 1.07F, -45F, stagesModels.stageTank)
+        val vehicle = createSelectableVehicle(ModelDefinition.TANK_BODY, 1.07F, -45F, elevatorsModels.elevatorTank)
         vehicle.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.TANK_TURRET)),
@@ -25,7 +30,7 @@ class HangarCharacterModels(private val assetsManager: GameAssetManager, private
     }
 
     private val apache by lazy {
-        val vehicle = createSelectableVehicle(ModelDefinition.APACHE, 1.27F, 215F, stagesModels.stageApache)
+        val vehicle = createSelectableVehicle(ModelDefinition.APACHE, 1.27F, 215F, elevatorsModels.elevatorApache)
         vehicle.addChild(
             SelectableVehicleChild(
                 ModelInstance(assetsManager.getAssetByDefinition(ModelDefinition.PROPELLER)),
@@ -36,7 +41,7 @@ class HangarCharacterModels(private val assetsManager: GameAssetManager, private
     }
 
     private val jeep by lazy {
-        val jeep = createSelectableVehicle(ModelDefinition.JEEP, 0.9F, -45F, stagesModels.stageJeep)
+        val jeep = createSelectableVehicle(ModelDefinition.JEEP, 0.9F, -45F, elevatorsModels.elevatorJeep)
         val wheel = assetsManager.getAssetByDefinition(ModelDefinition.JEEP_WHEEL)
         val wheelX = 0.25F
         jeep.addChild(
@@ -75,7 +80,7 @@ class HangarCharacterModels(private val assetsManager: GameAssetManager, private
         val modelInstance =
             ModelInstance(assetsManager.getAssetByDefinition(modelDefinition))
         val vehicle = SelectableVehicle(
-            modelInstance, vehicleElevator.modelInstance, relativeHeight,
+            modelInstance, vehicleElevator.modelInstance, vehicleElevator.characterDefinition, relativeHeight,
             yaw
         )
         return vehicle

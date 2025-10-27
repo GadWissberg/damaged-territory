@@ -7,6 +7,7 @@ import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
 import com.gadarts.returnfire.ecs.systems.data.hud.GameSessionDataHud
 import com.gadarts.returnfire.ecs.systems.data.map.GameSessionDataMap
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class GameSessionData(
@@ -16,12 +17,13 @@ class GameSessionData(
     val autoAim: Boolean,
     assetsManager: GameAssetManager,
     console: ConsoleImpl,
-    engine: PooledEngine
+    engine: PooledEngine,
+    opponentsData: Map<CharacterColor, OpponentData>
 ) :
     Disposable {
     val profilingData: GameSessionDataProfiling = GameSessionDataProfiling()
     val physicsData = GameSessionDataPhysics()
-    val gamePlayData = GameSessionDataGameplay(assetsManager, engine)
+    val gamePlayData = GameSessionDataGameplay(opponentsData, assetsManager, engine)
     val mapData = GameSessionDataMap(assetsManager)
     val hudData =
         GameSessionDataHud(console)

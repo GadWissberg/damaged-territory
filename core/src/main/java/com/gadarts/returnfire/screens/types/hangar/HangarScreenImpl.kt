@@ -6,10 +6,12 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.gadarts.returnfire.console.ConsoleImpl
+import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.screens.types.hangar.scene.HangarSceneHandler
 import com.gadarts.shared.GameAssetManager
+import com.gadarts.shared.data.CharacterColor
 
 
 class HangarScreenImpl(
@@ -18,9 +20,10 @@ class HangarScreenImpl(
     assetsManager: GameAssetManager,
     screenManager: ScreensManager,
     soundManager: SoundManager,
+    opponentsData: Map<CharacterColor, OpponentData>,
 ) : HangarScreen {
     private val stage = Stage()
-    private val hangarSceneHandler = HangarSceneHandler(soundManager, assetsManager)
+    private val hangarSceneHandler = HangarSceneHandler(soundManager, assetsManager, opponentsData)
     private val hangarScreenMenu =
         HangarScreenMenu(runsOnMobile, assetsManager, stage, hangarSceneHandler, screenManager)
     private var initialized: Boolean = false

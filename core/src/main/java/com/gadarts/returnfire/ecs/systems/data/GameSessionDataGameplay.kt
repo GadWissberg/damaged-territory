@@ -11,7 +11,11 @@ import com.gadarts.returnfire.ecs.systems.player.handlers.movement.VehicleMoveme
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.data.CharacterColor
 
-class GameSessionDataGameplay(assetsManager: GameAssetManager, engine: PooledEngine) : Disposable {
+class GameSessionDataGameplay(
+    val opponentsData: Map<CharacterColor, OpponentData>,
+    assetsManager: GameAssetManager,
+    engine: PooledEngine,
+) : Disposable {
     var sessionState: SessionState = SessionState.PLAYING
     val flags: Map<CharacterColor, Entity> by lazy {
         engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.physics.bullet.Bullet
+import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
 import com.gadarts.returnfire.managers.GeneralManagers
@@ -29,6 +30,8 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val transitionHandler = TransitionHandler(this)
     private val dispatcher = MessageDispatcher()
     private val soundManager: SoundManager by lazy { SoundManager(assetsManager, runsOnMobile) }
+    val opponentsData: Map<CharacterColor, OpponentData> =
+        CharacterColor.entries.associateBy({ it }, { OpponentData() })
     private val hangarScreenImpl by lazy {
         HangarScreenImpl(
             dispatcher,
@@ -36,6 +39,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             assetsManager,
             this,
             soundManager,
+            opponentsData
         )
     }
     private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
@@ -90,6 +94,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
                 GeneralManagers(assetsManager, soundManager, dispatcher, this),
                 runsOnMobile,
                 fpsTarget,
+                opponentsData
             )
         }
         setScreen(
