@@ -28,7 +28,7 @@ import com.gadarts.returnfire.ecs.components.pit.ElevatorDoorComponent
 import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.map.handlers.amb.AmbEffectsHandlers
 import com.gadarts.returnfire.ecs.systems.map.react.*

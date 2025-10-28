@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.screens.types.hangar
+package com.gadarts.returnfire.screens.types.hangar.menu
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -8,12 +8,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.DamagedTerritory
+import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.screens.Screens
 import com.gadarts.returnfire.screens.ScreensManager
 import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
 import com.gadarts.returnfire.screens.types.hangar.scene.HangarSceneHandler
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.FontDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
@@ -23,7 +25,8 @@ class HangarScreenMenu(
     private val assetsManager: GameAssetManager,
     private val stage: Stage,
     private val hangarSceneHandler: HangarSceneHandler,
-    private val screenManager: ScreensManager
+    private val screenManager: ScreensManager,
+    private val opponentsData: Map<CharacterColor, OpponentData>
 ) {
     fun init() {
         characterButtons.forEach {
@@ -43,8 +46,8 @@ class HangarScreenMenu(
         ).top().left().row()
         val desktopText =
             "Arrows - Movement,\nCTRL - Primary attack,\nSHIFT - Secondary attack/return to base,\n" +
-                    "ALT + LEFT/RIGHT - Rotate turret/strafe,\nENTER - Switch ground/air aim,\n" +
-                    "TAB - Open minimap,\n'~' - Open console"
+                "ALT + LEFT/RIGHT - Rotate turret/strafe,\nENTER - Switch ground/air aim,\n" +
+                "TAB - Open minimap,\n'~' - Open console"
         val androidText =
             "An on-screen game-pad will appear in-game"
         addDescription(if (runsOnMobile) androidText else desktopText)
@@ -107,6 +110,12 @@ class HangarScreenMenu(
 
     fun show() {
         stage.addActor(buttonsTable)
+        characterButtons.forEach {
+            val amount = opponentsData[CharacterColor.BROWN]!!.vehicleAmounts[it.characterDefinition]!!
+            if (amount <= 0) {
+                it.isVisible = false
+            }
+        }
     }
 
     private val aimButtonGroup: ButtonGroup<TextButton> = ButtonGroup()
@@ -117,15 +126,16 @@ class HangarScreenMenu(
         createTable()
     }
 
-    private fun createVehicleButton(text: String, characterDefinition: CharacterDefinition): TextButton {
-        val textButton = TextButton(
+    private fun createVehicleButton(text: String, characterDefinition: CharacterDefinition): VehicleButton {
+        val textButton = VehicleButton(
+            characterDefinition,
             text,
             TextButton.TextButtonStyle(
                 TextureRegionDrawable(assetsManager.getTexture("button_up")),
                 TextureRegionDrawable(assetsManager.getTexture("button_down")),
                 null,
                 assetsManager.getAssetByDefinition(FontDefinition.WOK_STENCIL_32)
-            )
+            ),
         )
         textButton.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
@@ -150,7 +160,7 @@ class HangarScreenMenu(
         )
     }
 
-    private val characterButtons: List<TextButton> by lazy {
+    private val characterButtons: List<VehicleButton> by lazy {
         listOf(
             createVehicleButton("Tank", TurretCharacterDefinition.TANK),
             createVehicleButton("Apache", SimpleCharacterDefinition.APACHE),

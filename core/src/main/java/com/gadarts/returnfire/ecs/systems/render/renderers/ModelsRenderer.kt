@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion
 import com.gadarts.returnfire.ecs.systems.render.*
 import com.gadarts.returnfire.utils.ModelUtils

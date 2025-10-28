@@ -14,7 +14,7 @@ import com.gadarts.returnfire.ecs.systems.bullet.BulletSystem
 import com.gadarts.returnfire.ecs.systems.camera.CameraSystem
 import com.gadarts.returnfire.ecs.systems.character.CharacterSystemImpl
 import com.gadarts.returnfire.ecs.systems.character.factories.OpponentCharacterFactory
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.ecs.systems.data.StainsManager
 import com.gadarts.returnfire.ecs.systems.data.pools.RigidBodyFactory

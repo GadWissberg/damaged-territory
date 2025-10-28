@@ -6,7 +6,7 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.FlagFloorComponent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.shared.assets.definitions.SoundDefinition
 import com.gadarts.shared.data.CharacterColor

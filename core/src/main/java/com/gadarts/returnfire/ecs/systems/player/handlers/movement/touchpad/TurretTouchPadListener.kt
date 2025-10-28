@@ -5,7 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Touchpad
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.TimeUtils
-import com.gadarts.returnfire.ecs.systems.data.GameSessionDataGameplay
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionDataGameplay
 import com.gadarts.returnfire.ecs.systems.player.handlers.PlayerShootingHandler
 
 class TurretTouchPadListener(

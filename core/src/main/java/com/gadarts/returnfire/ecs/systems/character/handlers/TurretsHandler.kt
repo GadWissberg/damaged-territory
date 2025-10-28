@@ -10,7 +10,7 @@ import com.gadarts.returnfire.ecs.components.BrownComponent
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.GreenComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.assets.definitions.SoundDefinition

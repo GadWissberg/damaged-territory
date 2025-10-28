@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.systems.data.GameSessionDataGameplay
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionDataGameplay
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.GameAssetManager

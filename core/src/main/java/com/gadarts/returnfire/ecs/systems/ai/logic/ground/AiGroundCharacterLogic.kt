@@ -17,7 +17,7 @@ import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiGroundCharacterLogic
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiTurretStatus
 import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterShootingHandler
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
 import com.gadarts.returnfire.graph.MapGraph

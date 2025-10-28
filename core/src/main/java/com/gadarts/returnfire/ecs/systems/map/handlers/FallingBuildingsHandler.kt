@@ -7,7 +7,7 @@ import com.badlogic.gdx.physics.bullet.collision.Collision
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.map.MapSystem
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.shared.assets.definitions.SoundDefinition

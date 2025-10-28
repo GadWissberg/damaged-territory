@@ -8,7 +8,7 @@ import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ComponentsMapper.baseAi
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiCharacterGoals
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.shared.assets.settings.GameSettings
 import com.gadarts.shared.data.CharacterColor

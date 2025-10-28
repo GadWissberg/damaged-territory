@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.effects.GroundBlastComponent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 
 class WaterSplashHandler(private val engine: PooledEngine) {
     private lateinit var gameSessionData: GameSessionData

@@ -5,7 +5,7 @@ import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.character.CharacterSystem
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.data.CharacterWeaponShotEventData
 
 class CharacterSystemOnCharacterWeaponShotPrimary(characterSystem: CharacterSystem) :

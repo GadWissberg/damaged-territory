@@ -16,7 +16,7 @@ import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler.Companion.COLLISION_GROUP_GROUND
 

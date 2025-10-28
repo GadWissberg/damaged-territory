@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiCharacterGoals
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
 

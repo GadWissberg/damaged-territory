@@ -2,7 +2,7 @@ package com.gadarts.returnfire.screens.types.hangar.scene.elevator
 
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
-import com.gadarts.returnfire.screens.types.hangar.HangarScreenMenu
+import com.gadarts.returnfire.screens.types.hangar.menu.HangarScreenMenu
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.SoundDefinition
 

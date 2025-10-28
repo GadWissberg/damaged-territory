@@ -9,6 +9,7 @@ import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.returnfire.screens.ScreensManager
+import com.gadarts.returnfire.screens.types.hangar.menu.HangarScreenMenu
 import com.gadarts.returnfire.screens.types.hangar.scene.HangarSceneHandler
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.data.CharacterColor
@@ -25,7 +26,7 @@ class HangarScreenImpl(
     private val stage = Stage()
     private val hangarSceneHandler = HangarSceneHandler(soundManager, assetsManager, opponentsData)
     private val hangarScreenMenu =
-        HangarScreenMenu(runsOnMobile, assetsManager, stage, hangarSceneHandler, screenManager)
+        HangarScreenMenu(runsOnMobile, assetsManager, stage, hangarSceneHandler, screenManager, opponentsData)
     private var initialized: Boolean = false
 
     private val console = ConsoleImpl(assetsManager, dispatcher)

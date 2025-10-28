@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.gadarts.returnfire.DamagedTerritory
 import com.gadarts.returnfire.managers.GamePlayManagers
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 
 class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {

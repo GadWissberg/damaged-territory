@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.ecs.systems.data
+package com.gadarts.returnfire.ecs.systems.data.session
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.FlagComponent
+import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.ecs.systems.data.pools.GameSessionDataPools
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.VehicleMovementHandler
 import com.gadarts.shared.GameAssetManager
@@ -16,7 +17,7 @@ class GameSessionDataGameplay(
     assetsManager: GameAssetManager,
     engine: PooledEngine,
 ) : Disposable {
-    var sessionState: SessionState = SessionState.PLAYING
+    var gameSessionState: GameSessionState = GameSessionState.PLAYING
     val flags: Map<CharacterColor, Entity> by lazy {
         engine.getEntitiesFor(Family.all(FlagComponent::class.java).get())
             .associateBy({ ComponentsMapper.flag.get(it).color }, { it })
@@ -29,4 +30,3 @@ class GameSessionDataGameplay(
     }
 
 }
-

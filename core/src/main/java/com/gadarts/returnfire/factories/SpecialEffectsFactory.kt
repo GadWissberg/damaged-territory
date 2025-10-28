@@ -15,7 +15,7 @@ import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.HaloEffect
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.managers.EcsManager
 import com.gadarts.returnfire.managers.SoundManager
 import com.gadarts.shared.GameAssetManager

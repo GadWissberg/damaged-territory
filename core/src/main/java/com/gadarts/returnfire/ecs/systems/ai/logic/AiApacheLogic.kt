@@ -11,7 +11,7 @@ import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiCharacterGoals
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
 import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterShootingHandler
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.apache.ApacheMovementHandlerDesktop
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.ModelUtils

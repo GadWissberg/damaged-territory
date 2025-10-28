@@ -3,7 +3,7 @@ package com.gadarts.returnfire.ecs.systems.player.react
 import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.player.handlers.PlayerShootingHandler
 
 class PlayerSystemOnButtonWeaponPrimaryReleased(private val playerShootingHandler: PlayerShootingHandler) :

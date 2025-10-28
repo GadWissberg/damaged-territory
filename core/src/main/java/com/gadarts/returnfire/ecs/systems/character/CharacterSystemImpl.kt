@@ -31,7 +31,7 @@ import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterAmbSoundHandler
 import com.gadarts.returnfire.ecs.systems.character.handlers.TurretsHandler
 import com.gadarts.returnfire.ecs.systems.character.react.*
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.RemoveComponentEventData
 import com.gadarts.returnfire.ecs.systems.render.RenderSystem
@@ -201,6 +201,11 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             gibCharacter(character, planeCrashSoundId)
         }
         removeCharacterIfOnHangar(character)
+        val opponentData = gameSessionData.gamePlayData.opponentsData[characterComponent.color]
+        if (opponentData != null) {
+            opponentData.vehicleAmounts[characterComponent.definition] =
+                opponentData.vehicleAmounts[characterComponent.definition]!! - 1
+        }
     }
 
     private fun removeCharacterIfOnHangar(character: Entity) {

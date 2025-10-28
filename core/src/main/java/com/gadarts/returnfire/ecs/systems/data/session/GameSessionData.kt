@@ -1,9 +1,10 @@
-package com.gadarts.returnfire.ecs.systems.data
+package com.gadarts.returnfire.ecs.systems.data.session
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.console.ConsoleImpl
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
+import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.ecs.systems.data.hud.GameSessionDataHud
 import com.gadarts.returnfire.ecs.systems.data.map.GameSessionDataMap
 import com.gadarts.shared.GameAssetManager

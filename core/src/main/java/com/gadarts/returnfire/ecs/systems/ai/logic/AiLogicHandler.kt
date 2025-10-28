@@ -14,7 +14,7 @@ import com.gadarts.returnfire.ecs.components.turret.TurretComponent
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
 import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiJeepCharacterLogic
 import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiTankCharacterLogic
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
 import com.gadarts.returnfire.managers.GamePlayManagers

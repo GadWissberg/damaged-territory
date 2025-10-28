@@ -1,13 +1,12 @@
 package com.gadarts.returnfire.ecs.systems.character.react
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.factories.SpecialEffectsFactory
 import com.gadarts.returnfire.managers.CtfManager

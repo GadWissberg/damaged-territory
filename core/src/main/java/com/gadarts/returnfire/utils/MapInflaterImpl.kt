@@ -41,7 +41,7 @@ import com.gadarts.returnfire.ecs.components.physics.PhysicsComponent
 import com.gadarts.returnfire.ecs.components.pit.HangarComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretBaseComponent
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.map.InGameTilesLayer
 import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion
 import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion.Companion.LAYER_REGION_SIZE

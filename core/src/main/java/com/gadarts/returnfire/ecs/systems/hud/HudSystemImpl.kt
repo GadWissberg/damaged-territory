@@ -18,8 +18,8 @@ import com.gadarts.returnfire.ecs.components.FlagComponent
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
-import com.gadarts.returnfire.ecs.systems.data.SessionState
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionState
 import com.gadarts.returnfire.ecs.systems.data.hud.Minimap
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.HUD_ELEMENT_PADDING_BOTTOM
@@ -139,7 +139,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
                 gameSessionData: GameSessionData,
                 gamePlayManagers: GamePlayManagers
             ) {
-                if (gameSessionData.gamePlayData.sessionState == SessionState.GAME_OVER) return
+                if (gameSessionData.gamePlayData.gameSessionState == GameSessionState.GAME_OVER) return
 
                 val color = msg.extraInfo as CharacterColor
                 gameOver(color)
@@ -190,7 +190,7 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
         winner: CharacterColor,
     ) {
         gamePlayManagers.soundManager.play(if (winner == CharacterColor.BROWN) SoundDefinition.GAME_WIN else SoundDefinition.GAME_OVER)
-        gameSessionData.gamePlayData.sessionState = SessionState.GAME_OVER
+        gameSessionData.gamePlayData.gameSessionState = GameSessionState.GAME_OVER
         val label = Label(
             "${winner.name.uppercase()} WINS!",
             Label.LabelStyle(

@@ -18,7 +18,7 @@ import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.data.CollisionShapesDebugDrawing
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 
 class BulletEngineHandler(
     private val gameSessionData: GameSessionData,

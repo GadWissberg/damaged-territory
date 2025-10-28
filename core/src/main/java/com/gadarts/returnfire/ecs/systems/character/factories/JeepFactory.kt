@@ -11,7 +11,7 @@ import com.gadarts.returnfire.ecs.components.bullet.BulletBehavior
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.returnfire.factories.GameModelInstanceFactory
 import com.gadarts.returnfire.ecs.systems.EntityBuilder
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
 import com.gadarts.shared.assets.definitions.SoundDefinition

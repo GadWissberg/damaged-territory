@@ -17,7 +17,7 @@ import com.gadarts.returnfire.ecs.components.model.MutableGameModelInstanceInfo
 import com.gadarts.returnfire.ecs.components.physics.RigidBody
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
 import com.gadarts.returnfire.ecs.systems.bullet.BulletSystem.Companion.auxBoundingBox
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.PhysicsCollisionEventData
 import com.gadarts.returnfire.ecs.systems.map.MapSystem

@@ -11,7 +11,7 @@ import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.CharacterWeaponShotEventData
 import com.gadarts.returnfire.ecs.systems.player.PlayerSystem

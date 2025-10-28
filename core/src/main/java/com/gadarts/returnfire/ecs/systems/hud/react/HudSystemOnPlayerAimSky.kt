@@ -8,7 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.hud.HudButtons
 
 class HudSystemOnPlayerAimSky(private val hudButtons: HudButtons) : HandlerOnEvent {

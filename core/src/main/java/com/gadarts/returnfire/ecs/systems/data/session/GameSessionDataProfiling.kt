@@ -1,4 +1,4 @@
-package com.gadarts.returnfire.ecs.systems.data
+package com.gadarts.returnfire.ecs.systems.data.session
 
 class GameSessionDataProfiling {
 

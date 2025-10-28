@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
-import com.gadarts.returnfire.ecs.systems.data.GameSessionData
-import com.gadarts.returnfire.ecs.systems.data.SessionState
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionState
 import com.gadarts.returnfire.utils.ModelUtils
 import kotlin.math.abs
 import kotlin.math.exp
@@ -87,7 +87,7 @@ class CameraMovementHandler(private val gameSessionData: GameSessionData) {
         if (player == null || ComponentsMapper.character.get(player).dead) return
 
         val thrusting = gamePlayData.playerMovementHandler.isThrusting(player)
-        if (thrusting && gameSessionData.gamePlayData.sessionState != SessionState.GAME_OVER) {
+        if (thrusting && gameSessionData.gamePlayData.gameSessionState != GameSessionState.GAME_OVER) {
             auxMatrix.idt().rotate(
                 Vector3.Y,
                 ComponentsMapper.modelInstance.get(player)

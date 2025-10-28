@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.systems.data.OpponentData
 import com.gadarts.returnfire.managers.SoundManager
-import com.gadarts.returnfire.screens.types.hangar.HangarScreenMenu
+import com.gadarts.returnfire.screens.types.hangar.menu.HangarScreenMenu
 import com.gadarts.returnfire.screens.types.hangar.scene.elevator.HangarElevatorHandler
 import com.gadarts.returnfire.screens.types.hangar.scene.elevator.VehicleElevator
 import com.gadarts.returnfire.screens.types.hangar.scene.vehicles.SelectableVehicle
