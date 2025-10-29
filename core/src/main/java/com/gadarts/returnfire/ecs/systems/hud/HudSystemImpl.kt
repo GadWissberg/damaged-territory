@@ -18,9 +18,9 @@ import com.gadarts.returnfire.ecs.components.FlagComponent
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.systems.GameEntitySystem
 import com.gadarts.returnfire.ecs.systems.HandlerOnEvent
+import com.gadarts.returnfire.ecs.systems.data.hud.Minimap
 import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.session.GameSessionState
-import com.gadarts.returnfire.ecs.systems.data.hud.Minimap
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.HUD_ELEMENT_PADDING_BOTTOM
 import com.gadarts.returnfire.ecs.systems.hud.HudSystem.Companion.JOYSTICK_PADDING_HORIZONTAL
@@ -143,6 +143,18 @@ class HudSystemImpl(gamePlayManagers: GamePlayManagers) : HudSystem,
 
                 val color = msg.extraInfo as CharacterColor
                 gameOver(color)
+            }
+        },
+        SystemEvents.VEHICLES_DEPLETED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                gamePlayManagers: GamePlayManagers
+            ) {
+                if (gameSessionData.gamePlayData.gameSessionState == GameSessionState.GAME_OVER) return
+
+                val color = msg.extraInfo as CharacterColor
+                gameOver(if (color == CharacterColor.BROWN) CharacterColor.GREEN else CharacterColor.BROWN)
             }
         },
         SystemEvents.CHARACTER_ONBOARDING_FINISHED to object : HandlerOnEvent {

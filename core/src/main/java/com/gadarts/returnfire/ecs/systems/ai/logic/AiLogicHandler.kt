@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
@@ -22,6 +21,7 @@ import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 import com.gadarts.shared.data.definitions.characters.SimpleCharacterDefinition
 import com.gadarts.shared.data.definitions.characters.TurretCharacterDefinition
+import java.util.*
 
 class AiLogicHandler(
     private val gameSessionData: GameSessionData,
@@ -31,6 +31,7 @@ class AiLogicHandler(
     engine: Engine
 ) : Disposable {
 
+    private val randomizedFightersList = mutableListOf<CharacterDefinition>()
     private var lastDeployTime: Long = 0
     private var lastDeployedCharacter: CharacterDefinition = SimpleCharacterDefinition.APACHE
     private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
@@ -107,7 +108,15 @@ class AiLogicHandler(
     }
 
     fun begin() {
-        deployCharacter(if (MathUtils.randomBoolean()) SimpleCharacterDefinition.APACHE else TurretCharacterDefinition.TANK)
+        gameSessionData.gamePlayData.opponentsData[CharacterColor.GREEN]?.vehicleAmounts?.forEach { (characterDefinition, amount) ->
+            if (characterDefinition != TurretCharacterDefinition.JEEP) {
+                for (i in 0 until amount) {
+                    randomizedFightersList.add(characterDefinition)
+                }
+            }
+        }
+        randomizedFightersList.shuffle(Random(System.currentTimeMillis()))
+        deployNextCharacter()
     }
 
     private fun deployCharacter(selectedCharacter: CharacterDefinition) {
@@ -123,14 +132,21 @@ class AiLogicHandler(
         gameSessionData.aiOpponentGoal = null
     }
 
-    fun onCharacterOnboarded() {
+    fun onVehicleOnboarded(vehicle: Entity) {
+        randomizedFightersList.add(ComponentsMapper.character.get(vehicle).definition)
         deployNextCharacter()
     }
 
     private fun deployNextCharacter() {
-        val randomFighter =
-            if (MathUtils.randomBoolean()) SimpleCharacterDefinition.APACHE else TurretCharacterDefinition.TANK
-        deployCharacter(if (lastDeployedCharacter != TurretCharacterDefinition.JEEP) TurretCharacterDefinition.JEEP else randomFighter)
+        val hasJeeps = (gameSessionData.gamePlayData.opponentsData[CharacterColor.GREEN]?.vehicleAmounts?.get(
+            TurretCharacterDefinition.JEEP
+        ) ?: 0
+            ) > 0
+        if (randomizedFightersList.isNotEmpty()) {
+            deployCharacter(if (lastDeployedCharacter != TurretCharacterDefinition.JEEP && hasJeeps) TurretCharacterDefinition.JEEP else randomizedFightersList.removeFirst())
+        } else if (hasJeeps) {
+            deployCharacter(TurretCharacterDefinition.JEEP)
+        }
     }
 
     fun onElevatorEmptyOnboard() {

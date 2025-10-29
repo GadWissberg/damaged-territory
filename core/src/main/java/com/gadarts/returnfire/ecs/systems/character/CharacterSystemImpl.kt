@@ -183,7 +183,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         }
         var planeCrashSoundId = -1L
         val assetsManager = gamePlayManagers.assetsManager
-        if (characterComponent.definition.isFlyer()) {
+        val definition = characterComponent.definition
+        if (definition.isFlyer()) {
             planeCrashSoundId = gamePlayManagers.soundManager.play(
                 assetsManager.getAssetByDefinition(SoundDefinition.PLANE_CRASH),
                 ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
@@ -191,20 +192,22 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 )
             )
         }
-        gamePlayManagers.dispatcher.dispatchMessage(
-            SystemEvents.CHARACTER_DIED.ordinal,
-            character
-        )
-        if (!assetsManager.gameSettings.forceGibs && (!characterComponent.definition.isGibable() || MathUtils.random() >= 0.5F)) {
+        gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_DIED.ordinal, character)
+        if (!assetsManager.gameSettings.forceGibs && (!definition.isGibable() || MathUtils.random() >= 0.5F)) {
             turnCharacterToCorpse(character, planeCrashSoundId)
         } else {
             gibCharacter(character, planeCrashSoundId)
         }
         removeCharacterIfOnHangar(character)
         val opponentData = gameSessionData.gamePlayData.opponentsData[characterComponent.color]
-        if (opponentData != null) {
-            opponentData.vehicleAmounts[characterComponent.definition] =
-                opponentData.vehicleAmounts[characterComponent.definition]!! - 1
+        if (opponentData != null && definition.isDeployable()) {
+            opponentData.vehicleAmounts[definition] = opponentData.vehicleAmounts[definition]!! - 1
+            if (opponentData.vehicleAmounts.all { it.value == 0 }) {
+                gamePlayManagers.dispatcher.dispatchMessage(
+                    SystemEvents.VEHICLES_DEPLETED.ordinal,
+                    characterComponent.color
+                )
+            }
         }
     }
 
@@ -240,7 +243,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     }
                 } else {
                     val turretComponent = ComponentsMapper.turret.get(entity)
-                    if (turretComponent != null) {
+                    if (turretComponent?.cannon != null) {
                         dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, turretComponent.cannon)
                     }
                 }

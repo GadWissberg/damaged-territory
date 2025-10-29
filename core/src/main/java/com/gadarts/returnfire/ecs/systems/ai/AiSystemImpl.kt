@@ -84,7 +84,7 @@ class AiSystemImpl(gamePlayManagers: GamePlayManagers) : AiSystem, GameEntitySys
                 ) {
                     val character = msg.extraInfo as Entity
                     if (ComponentsMapper.baseAi.has(character)) {
-                        logicHandler.onCharacterOnboarded()
+                        logicHandler.onVehicleOnboarded(character)
                     }
                 }
             },
