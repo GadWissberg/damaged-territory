@@ -30,13 +30,14 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
         modelInstanceComponent.gameModelInstance.modelInstance.transform.getRotation(auxQuaternion1)
         auxQuaternion1.setEulerAngles(0F, auxQuaternion1.pitch, auxQuaternion1.roll)
         val rigidBody = ComponentsMapper.physics.get(character).rigidBody
+        rigidBody.motionState.getWorldTransform(auxMatrix)
         modelInstanceComponent.gameModelInstance.modelInstance.transform.setToTranslation(
-            rigidBody.worldTransform.getTranslation(
+            auxMatrix.getTranslation(
                 auxVector3_1
             ),
         )
         auxQuaternion2.idt().setEulerAngles(
-            rigidBody.worldTransform.getRotation(auxQuaternion3).yaw,
+            auxMatrix.getRotation(auxQuaternion3).yaw,
             auxQuaternion1.pitch,
             auxQuaternion1.roll
         )
@@ -62,5 +63,6 @@ abstract class ApacheMovementHandler : VehicleMovementHandler(
         private val auxQuaternion1 = Quaternion()
         private val auxQuaternion2 = Quaternion()
         private val auxQuaternion3 = Quaternion()
+        private val auxMatrix = com.badlogic.gdx.math.Matrix4()
     }
 }

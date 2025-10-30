@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.gadarts.returnfire.DamagedTerritory
-import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
+import com.gadarts.returnfire.managers.GamePlayManagers
 
 class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers) {
 
@@ -34,11 +34,12 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
     override fun update(delta: Float) {
         if (gamePlayManagers.assetsManager.gameSettings.enableProfiler && glProfiler.isEnabled) {
             stringBuilder.setLength(0)
+            val value = Gdx.graphics.framesPerSecond
             displayLine(
                 label = LABEL_FPS,
-                value = Gdx.graphics.framesPerSecond,
+                value = value,
                 newline = true,
-                markRedOnBadValue = true
+                markRed = value < gameSessionData.fpsTarget * 5 / 6
             )
             displayHeapSize()
             displayGlProfiling()
@@ -109,7 +110,8 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
         displayLine(LABEL_SHADER_SWITCHES, glProfiler.shaderSwitches)
         val valueWithoutText = glProfiler.textureBindings - 1
         displayLine(LABEL_TEXTURE_BINDINGS, valueWithoutText)
-        displayLine(LABEL_VERTEX_COUNT, glProfiler.vertexCount.total)
+        val vertexCount = glProfiler.vertexCount.total
+        displayLine(label = LABEL_VERTEX_COUNT, value = vertexCount, markRed = vertexCount >= 300000)
         glProfiler.reset()
     }
 
@@ -117,10 +119,10 @@ class ProfilingSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gam
         label: String,
         value: Any,
         newline: Boolean = true,
-        markRedOnBadValue: Boolean = false
+        markRed: Boolean = false
     ): StringBuilder {
         stringBuilder.append(label)
-        if (markRedOnBadValue && value is Int && value < gameSessionData.fpsTarget * 5 / 6) {
+        if (value is Int && markRed) {
             stringBuilder.append("[#FF0000]$value[#FFFFFF]")
         } else {
             stringBuilder.append(value)
