@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
+import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.systems.ai.logic.AiCharacterLogic
 import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
@@ -20,10 +21,7 @@ import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterShootingHa
 import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.physics.BulletEngineHandler
 import com.gadarts.returnfire.ecs.systems.player.handlers.movement.tank.TankMovementHandlerDesktop
-import com.gadarts.returnfire.graph.MapGraph
-import com.gadarts.returnfire.graph.MapGraphCost
-import com.gadarts.returnfire.graph.MapGraphNode
-import com.gadarts.returnfire.graph.MapGraphType
+import com.gadarts.returnfire.graph.*
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.returnfire.utils.MapUtils
 import com.gadarts.shared.assets.definitions.SoundDefinition
@@ -58,56 +56,14 @@ abstract class AiGroundCharacterLogic(
             movementHandler.thrust(character)
             return
         }
-
         val aiComponent = ComponentsMapper.baseAi.get(character)
+        val target = aiComponent.target ?: return
 
         val groundCharacterAiComponent = ComponentsMapper.groundCharacterAi.get(character)
-        val roamingEndTime = groundCharacterAiComponent.roamingEndTime
         val mapGraph = gameSessionData.mapData.mapGraph
         val path = groundCharacterAiComponent.path
         if (aiComponent.state == AiStatus.PLANNING) {
-            val position =
-                ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
-                    auxVector3_2
-                )
-
-            val start = mapGraph.getNode(position.x.toInt(), position.z.toInt())
-            val transform =
-                ComponentsMapper.modelInstance.get(aiComponent.target).gameModelInstance.modelInstance.transform
-            val targetPosition =
-                transform.getTranslation(
-                    auxVector3_1
-                )
-            val end = mapGraph.getNode(targetPosition.x.toInt(), targetPosition.z.toInt())
-            path.clear()
-            val pathFound =
-                gamePlayManagers.pathFinder.searchNodePath(
-                    start,
-                    end,
-                    path,
-                    groundCharacterAiComponent.nodesToExclude,
-                    MapGraphCost.FREE_WAY
-                )
-            if (pathFound) {
-                aiComponent.state = AiStatus.MOVING
-                path.nodes.removeIndex(0)
-                groundCharacterAiComponent.currentNode = start
-            } else {
-                val pathFoundIncludingBlockedWAY = gamePlayManagers.pathFinder.searchNodePath(
-                    start,
-                    end,
-                    path,
-                    groundCharacterAiComponent.nodesToExclude,
-                    MapGraphCost.BLOCKED_WAY
-                )
-                if (pathFoundIncludingBlockedWAY) {
-                    aiComponent.state = AiStatus.MOVING
-                    path.nodes.removeIndex(0)
-                    groundCharacterAiComponent.currentNode = start
-                } else {
-                    activateRoaming(character)
-                }
-            }
+            handlePlanningState(character, target)
         } else if (aiComponent.state == AiStatus.MOVING) {
             handleMovingState(character, deltaTime)
         } else {
@@ -122,22 +78,89 @@ abstract class AiGroundCharacterLogic(
                     )
                 ) {
                     aiComponent.state =
-                        if (roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
+                        if (groundCharacterAiComponent.roamingEndTime == null) AiStatus.PLANNING else AiStatus.ROAMING
                 }
             } else if (aiComponent.state == AiStatus.ROAMING) {
-                val position =
-                    ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
-                        auxVector3_1
-                    )
-                val currentNode = mapGraph.getNode(position.x.toInt(), position.z.toInt())
-                mapGraph.maxCost = MapGraphCost.FREE_WAY
-                val connections = mapGraph.getConnections(currentNode)
-                if (!connections.isEmpty) {
-                    path.clear()
-                    path.add(connections.random().toNode)
-                    aiComponent.state = AiStatus.MOVING
-                }
+                handleRoamingState(character, mapGraph, path, aiComponent)
             }
+        }
+    }
+
+    private fun handleRoamingState(
+        character: Entity,
+        mapGraph: MapGraph,
+        path: MapGraphPath,
+        aiComponent: BaseAiComponent
+    ) {
+        val position =
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_1
+            )
+        val currentNode = mapGraph.getNode(position.x.toInt(), position.z.toInt())
+        mapGraph.maxCost = MapGraphCost.FREE_WAY
+        val connections = mapGraph.getConnections(currentNode)
+        if (!connections.isEmpty) {
+            path.clear()
+            path.add(connections.random().toNode)
+            aiComponent.state = AiStatus.MOVING
+        }
+    }
+
+    private fun handlePlanningState(
+        character: Entity,
+        target: Entity,
+    ) {
+        val aiComponent = ComponentsMapper.baseAi.get(character)
+        val groundCharacterAiComponent = ComponentsMapper.groundCharacterAi.get(character)
+        val path = groundCharacterAiComponent.path
+        val mapGraph = gameSessionData.mapData.mapGraph
+        val position =
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance.transform.getTranslation(
+                auxVector3_2
+            )
+        val start = mapGraph.getNode(position.x.toInt(), position.z.toInt())
+        val transform = ComponentsMapper.modelInstance.get(target).gameModelInstance.modelInstance.transform
+        val targetPosition = transform.getTranslation(auxVector3_1)
+        val end = mapGraph.getNode(targetPosition.x.toInt(), targetPosition.z.toInt())
+        path.clear()
+        val pathFound =
+            gamePlayManagers.pathFinder.searchNodePath(
+                start,
+                end,
+                path,
+                groundCharacterAiComponent.nodesToExclude,
+                MapGraphCost.FREE_WAY
+            )
+        if (pathFound) {
+            aiComponent.state = AiStatus.MOVING
+            path.nodes.removeIndex(0)
+            groundCharacterAiComponent.currentNode = start
+        } else {
+            tryFindingPathWithBlockedNodes(start, end, character)
+        }
+    }
+
+    private fun tryFindingPathWithBlockedNodes(
+        start: MapGraphNode,
+        end: MapGraphNode,
+        character: Entity
+    ) {
+        val aiComponent = ComponentsMapper.baseAi.get(character)
+        val groundCharacterAiComponent = ComponentsMapper.groundCharacterAi.get(character)
+        val path = groundCharacterAiComponent.path
+        val pathFoundIncludingBlockedWAY = gamePlayManagers.pathFinder.searchNodePath(
+            start,
+            end,
+            path,
+            groundCharacterAiComponent.nodesToExclude,
+            MapGraphCost.BLOCKED_WAY
+        )
+        if (pathFoundIncludingBlockedWAY) {
+            aiComponent.state = AiStatus.MOVING
+            path.nodes.removeIndex(0)
+            groundCharacterAiComponent.currentNode = start
+        } else {
+            activateRoaming(character)
         }
     }
 
@@ -685,14 +708,14 @@ abstract class AiGroundCharacterLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                    rayTest(
-                        position,
-                        direction,
-                        collisionWorld,
-                        callback,
-                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                        MAX_LOOKING_AHEAD
-                    ) || rayTest(
+                rayTest(
+                    position,
+                    direction,
+                    collisionWorld,
+                    callback,
+                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                    MAX_LOOKING_AHEAD
+                ) || rayTest(
                 position,
                 direction,
                 collisionWorld,

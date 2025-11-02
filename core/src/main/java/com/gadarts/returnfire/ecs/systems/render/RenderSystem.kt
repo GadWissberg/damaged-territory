@@ -4,11 +4,16 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy
 import com.badlogic.gdx.graphics.g3d.decals.Decal
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
+import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
@@ -39,6 +44,20 @@ import com.gadarts.returnfire.utils.GeneralUtils
 
 class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers),
     Disposable {
+    private val pixelScale = 3
+    private val pixelFbo: FrameBuffer by lazy {
+        val width = Gdx.graphics.width / pixelScale
+        val height = Gdx.graphics.height / pixelScale
+        FrameBuffer(Pixmap.Format.RGBA8888, width, height, true).apply {
+            colorBufferTexture.setFilter(
+                Texture.TextureFilter.Nearest,
+                Texture.TextureFilter.Nearest
+            )
+        }
+    }
+    private val pixelBatch: SpriteBatch by lazy {
+        SpriteBatch()
+    }
 
     private val renderFlags = RenderFlags()
     private val relatedEntities: RenderSystemRelatedEntities by lazy {
@@ -142,8 +161,25 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     override fun update(deltaTime: Float) {
         if (gameSessionData.gamePlayData.gameSessionState == GameSessionState.GAME_OVER) return
 
-        modelsRenderer.renderShadows(deltaTime)
+        renderScene(deltaTime)
         GeneralUtils.clearScreen()
+        pixelBatch.begin()
+        pixelBatch.draw(
+            pixelFbo.colorBufferTexture,
+            0f, 0f,
+            Gdx.graphics.width.toFloat(),
+            Gdx.graphics.height.toFloat(),
+            0F, 0F, 1F, 1F
+        )
+        pixelBatch.end()
+    }
+
+    private fun renderScene(deltaTime: Float) {
+        modelsRenderer.renderShadows(deltaTime)
+        pixelFbo.begin()
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.width / pixelScale, Gdx.graphics.height / pixelScale)
+        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
         modelsRenderer.renderModels(
             batch = batches.modelBatch,
             camera = gameSessionData.renderData.camera,
@@ -169,9 +205,9 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
             }
         }
         debugDisplayRenderer.render()
+
+        pixelFbo.end()
     }
-
-
 
     override fun resume(delta: Long) {
 

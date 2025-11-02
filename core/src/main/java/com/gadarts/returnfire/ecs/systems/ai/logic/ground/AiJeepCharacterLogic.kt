@@ -20,7 +20,9 @@ class AiJeepCharacterLogic(
 
     override fun preUpdate(character: Entity, deltaTime: Float) {
         super.preUpdate(character, deltaTime)
-        val flagComponent = ComponentsMapper.flag.get(gameSessionData.gamePlayData.flags[CharacterColor.BROWN])
+        val flag = gameSessionData.gamePlayData.flags[CharacterColor.BROWN] ?: return
+
+        val flagComponent = ComponentsMapper.flag.get(flag)
         if (goal != AiCharacterGoals.GO_TO_YOUR_FLAG && flagComponent.follow == character) {
             goal = AiCharacterGoals.GO_TO_YOUR_FLAG
             ComponentsMapper.baseAi.get(character).target = gameSessionData.gamePlayData.flags[CharacterColor.GREEN]

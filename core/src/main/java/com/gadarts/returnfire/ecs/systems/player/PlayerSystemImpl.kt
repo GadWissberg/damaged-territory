@@ -270,7 +270,7 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
             Input.Keys.ENTER -> {
                 if (!gameSessionData.autoAim && ComponentsMapper.character.get(
                         player
-                    ).definition == SimpleCharacterDefinition.APACHE
+                    ).definition.isFlyer()
                 ) {
                     playerShootingHandler.toggleSkyAim()
                 }

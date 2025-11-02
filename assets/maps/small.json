@@ -56,13 +56,6 @@
       "rotation": 0.0
     },
     {
-      "definition": "FLAG_FLOOR_BROWN",
-      "type": "AMB",
-      "row": 6,
-      "column": 6,
-      "rotation": 0.0
-    },
-    {
       "definition": "FLAG_FLOOR_GREEN",
       "type": "AMB",
       "row": 13,

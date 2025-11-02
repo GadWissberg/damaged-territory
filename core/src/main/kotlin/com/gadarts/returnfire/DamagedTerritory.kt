@@ -30,7 +30,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     private val transitionHandler = TransitionHandler(this)
     private val dispatcher = MessageDispatcher()
     private val soundManager: SoundManager by lazy { SoundManager(assetsManager, runsOnMobile) }
-    val opponentsData: Map<CharacterColor, OpponentData> =
+    private val opponentsData: Map<CharacterColor, OpponentData> =
         CharacterColor.entries.associateBy({ it }, { OpponentData() })
     private val hangarScreenImpl by lazy {
         HangarScreenImpl(
@@ -88,6 +88,14 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         }
     }
 
+    override fun setScreenWithFade(
+        screen: Screens,
+        durationInSeconds: Float,
+        param: ScreenSwitchParameters?
+    ) {
+        transitionHandler.switch(screen, durationInSeconds, param)
+    }
+
     private fun goToGameplayScreen(selectedCharacter: CharacterDefinition, autoAim: Boolean) {
         if (gamePlayScreen == null) {
             gamePlayScreen = GamePlayScreen(
@@ -108,6 +116,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         dispatcher.dispatchMessage(SystemEvents.OPPONENT_ENTERED_GAME_PLAY_SCREEN.ordinal)
     }
 
+
     private fun goToHangarScreen(disposeScreen: Boolean) {
         soundManager.stopAll(assetsManager)
         setScreen(hangarScreenImpl)
@@ -117,19 +126,9 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         }
     }
 
-
-    override fun setScreenWithFade(
-        screen: Screens,
-        durationInSeconds: Float,
-        param: ScreenSwitchParameters?
-    ) {
-        transitionHandler.switch(screen, durationInSeconds, param)
-    }
-
     companion object {
         const val VERSION: String = "0.11"
         const val MAX_RESOLUTION_WIDTH = 1920
         const val MAX_RESOLUTION_HEIGHT = 1080
-
     }
 }
