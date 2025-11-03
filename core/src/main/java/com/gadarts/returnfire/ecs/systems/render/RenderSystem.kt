@@ -216,6 +216,8 @@ class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
     override fun dispose() {
         batches.dispose()
         modelsRenderer.dispose()
+        pixelFbo.dispose()
+        pixelBatch.dispose()
     }
 
 

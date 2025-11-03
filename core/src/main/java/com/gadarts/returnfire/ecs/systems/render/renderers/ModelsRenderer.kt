@@ -17,8 +17,8 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.returnfire.ecs.components.model.ModelInstanceComponent
-import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.data.map.LayerRegion
+import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.render.*
 import com.gadarts.returnfire.utils.ModelUtils
 import com.gadarts.shared.assets.settings.GameSettings
@@ -54,7 +54,9 @@ class ModelsRenderer(
         renderModelCaches: Boolean,
     ) {
         batch.begin(camera)
-        axisModelHandler.render(batch)
+        if (gameSettings.showAxis) {
+            axisModelHandler.render(batch)
+        }
         for (entity in relatedEntities.modelInstanceEntities) {
             renderModel(entity, batch, applyEnvironment, deltaTime, forShadow)
         }
@@ -175,7 +177,7 @@ class ModelsRenderer(
             val modelInstanceComponent = ComponentsMapper.modelInstance.get(entity)
             val gameModelInstance = modelInstanceComponent.gameModelInstance
 
-            renderRenderableProvider(gameModelInstance, forShadow, applyEnvironment, batch)
+            renderGameModelInstance(gameModelInstance, forShadow, applyEnvironment, batch)
             if (!modelInstanceComponent.hidden
                 && modelInstanceComponent.hideAt != -1L
                 && modelInstanceComponent.hideAt <= TimeUtils.millis()
@@ -243,7 +245,7 @@ class ModelsRenderer(
             relativeTransform
         )
         transform.rotate(Vector3.Y, steeringRotation)
-        renderRenderableProvider(
+        renderGameModelInstance(
             wheelGameModelInstance,
             forShadow,
             applyEnvironment,
@@ -281,7 +283,7 @@ class ModelsRenderer(
                     childModelInstanceComponent.relativePosition
                 )
             )
-            renderRenderableProvider(
+            renderGameModelInstance(
                 childGameModelInstance,
                 forShadow,
                 applyEnvironment,
@@ -290,7 +292,7 @@ class ModelsRenderer(
         }
     }
 
-    private fun renderRenderableProvider(
+    private fun renderGameModelInstance(
         gameModelInstance: GameModelInstance,
         forShadow: Boolean,
         applyEnvironment: Boolean,

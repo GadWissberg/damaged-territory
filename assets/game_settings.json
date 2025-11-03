@@ -1,11 +1,12 @@
 {
   "development": {
-    "map": "map_1",
+    "map": "small",
     "print_bit_map": false,
     "show_object_pool_profiling": false,
     "show_collision_shapes": false,
     "show_gl_profiling": true,
     "show_heap_size": false,
+    "show_axis": false,
     "debug_input": false,
     "ui_debug": false,
     "sfx": true,

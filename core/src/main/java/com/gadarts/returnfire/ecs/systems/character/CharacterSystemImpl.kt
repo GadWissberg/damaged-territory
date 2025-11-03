@@ -2,7 +2,9 @@ package com.gadarts.returnfire.ecs.systems.character
 
 import com.badlogic.ashley.core.*
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
@@ -281,6 +283,29 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             val characterTransform =
                 modelInstanceComponent.gameModelInstance.modelInstance.transform
             val characterComponent = ComponentsMapper.character.get(character)
+            if (characterComponent.applyDamageEmission) {
+                applyDamageEmissionOnCharacter(character, EMISSION)
+                characterComponent.applyDamageEmission = false
+            } else {
+                val lastDamageEmission = characterComponent.lastDamageEmission
+                if (lastDamageEmission != null) {
+                    val elapsed = TimeUtils.timeSinceMillis(lastDamageEmission)
+                    val duration = 250L
+                    if (elapsed > duration) {
+                        applyDamageEmissionOnCharacter(character, 0f)
+                        val emission = modelInstanceComponent.gameModelInstance.modelInstance
+                            .materials[0]
+                            .get(ColorAttribute.Emissive) as ColorAttribute
+                        emission.color.set(Color.BLACK)
+                        characterComponent.resetLastDamageEmission()
+                    } else {
+                        // Interpolate from 0.75 -> 0 over 250ms
+                        val t = elapsed.toFloat() / duration.toFloat()
+                        val fadeValue = MathUtils.lerp(EMISSION, 0f, t)
+                        applyDamageEmissionOnCharacter(character, fadeValue)
+                    }
+                }
+            }
             val definition = characterComponent.definition
             val isApache = definition == SimpleCharacterDefinition.APACHE
             if (isApache && ComponentsMapper.childDecal.has(character)) {
@@ -332,6 +357,45 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
             }
         }
         boardingHandler.updateElevators(deltaTime)
+    }
+
+    private fun applyDamageEmissionOnCharacter(
+        character: Entity, value: Float
+    ) {
+        val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
+        applyDamageEmissionOnModel(modelInstanceComponent.gameModelInstance, value)
+
+        val childModelInstanceComponent = ComponentsMapper.childModelInstance.get(character)
+        if (childModelInstanceComponent != null) {
+            applyDamageEmissionOnModel(childModelInstanceComponent.gameModelInstance, value)
+        }
+        if (ComponentsMapper.turretBase.has(character)) {
+            val turretBaseComponent = ComponentsMapper.turretBase.get(character)
+            val turret = turretBaseComponent.turret
+            val turretModelInstanceComponent = ComponentsMapper.modelInstance.get(turret)
+            applyDamageEmissionOnModel(turretModelInstanceComponent.gameModelInstance, value)
+            val cannon = ComponentsMapper.turret.get(turret).cannon
+            if (cannon != null) {
+                val cannonModelInstanceComponent = ComponentsMapper.modelInstance.get(cannon)
+                applyDamageEmissionOnModel(cannonModelInstanceComponent.gameModelInstance, value)
+            }
+        }
+    }
+
+    private fun applyDamageEmissionOnModel(
+        gameModelInstance: GameModelInstance,
+        value: Float
+    ) {
+        val mainMaterialIndex =
+            gameModelInstance.gameModelInstanceInfo?.modelDefinition?.mainMaterialIndex
+        val emission =
+            gameModelInstance.modelInstance.materials[mainMaterialIndex
+                ?: 0].get(
+                ColorAttribute.Emissive
+            ) as ColorAttribute
+        emission.color.set(
+            value, value, value, 1F
+        )
     }
 
     private fun gibCharacter(character: Entity, planeCrashSoundId: Long) {
@@ -586,10 +650,9 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
     }
 
 
-
-
     companion object {
         const val ROT_STEP = 1600F
+        private const val EMISSION = 0.75f
         private val auxMatrix = Matrix4()
         private val auxQuat = Quaternion()
         private val auxVector1 = Vector3()

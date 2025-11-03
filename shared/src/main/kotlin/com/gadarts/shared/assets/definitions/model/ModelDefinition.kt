@@ -33,7 +33,8 @@ enum class ModelDefinition(
     TILE_BUMPY(fileNames = 3),
     APACHE(
         physicsData = ModelDefinitionPhysicsData(centerOfMass = Vector3(0F, -0.2F, 0F)),
-        separateModelForShadow = true
+        separateModelForShadow = true,
+        mainMaterialIndex = 1
     ),
     APACHE_DEAD,
     APACHE_DEAD_FRONT(mainMaterialIndex = 1),

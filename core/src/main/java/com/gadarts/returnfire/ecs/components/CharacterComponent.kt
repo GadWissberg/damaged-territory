@@ -12,6 +12,9 @@ class CharacterComponent(
     var fuel: Float,
     var hp: Float
 ) : Component {
+    var lastDamageEmission: Long? = 0
+        private set
+    var applyDamageEmission = false
     var idleFuelConsumptionTimer: Float = 0.0f
     val creationTime = TimeUtils.millis()
     var smokeEmission: Entity? = null
@@ -19,6 +22,12 @@ class CharacterComponent(
 
     fun takeDamage(damage: Float) {
         hp -= damage
+        lastDamageEmission = TimeUtils.millis()
+        applyDamageEmission = true
+    }
+
+    fun resetLastDamageEmission() {
+        lastDamageEmission = null
     }
 
 }

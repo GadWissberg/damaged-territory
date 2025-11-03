@@ -17,6 +17,8 @@ class GameSettings(
     val showGlProfiling: Boolean = false,
     @SerializedName("show_heap_size")
     val showHeapSize: Boolean = false,
+    @SerializedName("show_axis")
+    val showAxis: Boolean = false,
     @SerializedName("debug_input")
     val debugInput: Boolean = false,
     @SerializedName("ui_debug")

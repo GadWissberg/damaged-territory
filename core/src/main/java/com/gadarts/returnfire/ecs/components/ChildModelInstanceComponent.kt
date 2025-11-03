@@ -9,6 +9,7 @@ class ChildModelInstanceComponent(
     val followParentRotation: Boolean,
     relativePosition: Vector3
 ) : Component {
+
     var visible: Boolean = true
     val relativePosition = Vector3()
 
