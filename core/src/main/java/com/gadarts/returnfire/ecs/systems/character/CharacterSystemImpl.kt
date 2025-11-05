@@ -542,7 +542,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         if (characterDefinition == TurretCharacterDefinition.TANK) {
             rigidBody.friction = 1F
         }
-        if (characterDefinition == SimpleCharacterDefinition.APACHE) {
+        if (characterDefinition.isFlyer()) {
             rigidBody.gravity = auxVector2.set(PhysicsComponent.worldGravity).scl(0.25F)
             pushRigidBodyRandomly(rigidBody, 12F)
             rigidBody.applyTorqueImpulse(

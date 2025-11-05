@@ -18,7 +18,6 @@ import com.gadarts.returnfire.screens.transition.TransitionHandler
 import com.gadarts.returnfire.screens.types.gameplay.GamePlayScreen
 import com.gadarts.returnfire.screens.types.gameplay.ToGamePlayScreenSwitchParameters
 import com.gadarts.returnfire.screens.types.gameplay.ToHangarScreenSwitchParameters
-import com.gadarts.returnfire.screens.types.hangar.HangarScreenImpl
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.MusicDefinition
 import com.gadarts.shared.data.CharacterColor
@@ -26,14 +25,14 @@ import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget: Int) : Game(),
     ScreensManager {
-    private var gamePlayScreen: GamePlayScreen? = null
     private val transitionHandler = TransitionHandler(this)
     private val dispatcher = MessageDispatcher()
     private val soundManager: SoundManager by lazy { SoundManager(assetsManager, runsOnMobile) }
     private val opponentsData: Map<CharacterColor, OpponentData> =
         CharacterColor.entries.associateBy({ it }, { OpponentData() })
-    private val hangarScreenImpl by lazy {
-        HangarScreenImpl(
+    private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
+    private val screens: GameScreens by lazy {
+        GameScreens(
             dispatcher,
             runsOnMobile,
             assetsManager,
@@ -42,9 +41,6 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             opponentsData
         )
     }
-    private val assetsManager: GameAssetManager by lazy { GameAssetManager() }
-    private val customDesktopLib: String =
-        "C:\\Users\\gadw1\\StudioProjects\\libgdx\\extensions\\gdx-bullet\\jni\\vs\\gdxBullet\\x64\\Debug\\gdxBullet.dll"
 
     override fun create() {
         val screenWidth = Gdx.graphics.displayMode.width
@@ -58,7 +54,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         Gdx.input.inputProcessor = InputMultiplexer()
         val gameSettings = assetsManager.gameSettings
         if (gameSettings.useDebugDll) {
-            System.load(customDesktopLib)
+            System.load(CUSTOM_DESKTOP_LIB)
         } else {
             Bullet.init()
         }
@@ -69,7 +65,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
                 gameSettings.forceAim > 0,
             )
         } else {
-            setScreen(hangarScreenImpl)
+            setScreen(screens.hangarScreen)
         }
     }
 
@@ -97,8 +93,8 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
     }
 
     private fun goToGameplayScreen(selectedCharacter: CharacterDefinition, autoAim: Boolean) {
-        if (gamePlayScreen == null) {
-            gamePlayScreen = GamePlayScreen(
+        if (screens.gamePlayScreen == null) {
+            screens.gamePlayScreen = GamePlayScreen(
                 GeneralManagers(assetsManager, soundManager, dispatcher, this),
                 runsOnMobile,
                 fpsTarget,
@@ -106,9 +102,9 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
             )
         }
         setScreen(
-            gamePlayScreen
+            screens.gamePlayScreen
         )
-        gamePlayScreen!!.initialize(selectedCharacter, autoAim)
+        screens.gamePlayScreen!!.initialize(selectedCharacter, autoAim)
         OpponentEnteredGameplayScreenEventData.set(
             CharacterColor.BROWN,
             selectedCharacter
@@ -119,10 +115,10 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
 
     private fun goToHangarScreen(disposeScreen: Boolean) {
         soundManager.stopAll(assetsManager)
-        setScreen(hangarScreenImpl)
+        setScreen(screens.hangarScreen)
         if (disposeScreen) {
-            gamePlayScreen?.dispose()
-            gamePlayScreen = null
+            screens.gamePlayScreen?.dispose()
+            screens.gamePlayScreen = null
         }
     }
 
@@ -130,5 +126,7 @@ class DamagedTerritory(private val runsOnMobile: Boolean, private val fpsTarget:
         const val VERSION: String = "0.11"
         const val MAX_RESOLUTION_WIDTH = 1920
         const val MAX_RESOLUTION_HEIGHT = 1080
+        private const val CUSTOM_DESKTOP_LIB =
+            "C:\\Users\\gadw1\\StudioProjects\\libgdx\\extensions\\gdx-bullet\\jni\\vs\\gdxBullet\\x64\\Debug\\gdxBullet.dll"
     }
 }

@@ -12,7 +12,7 @@ import com.gadarts.shared.data.definitions.AmbDefinition
 import com.gadarts.shared.data.definitions.ElementDefinition
 
 class ObjectFactory(private val sharedData: SharedData, private val gameAssetsManager: GameAssetManager) {
-    fun addObject(x: Int, z: Int, elementDefinition: ElementDefinition, rotation: Quaternion? = null): Boolean {
+    fun addObject(x: Int, z: Int, elementDefinition: ElementDefinition, rotation: Quaternion? = null) {
         val definition = elementDefinition.getModelDefinition()
         val finalPositionX = x.toFloat() + 0.5F
         val finalPositionY = 0.07f
@@ -37,7 +37,6 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
         }
         sharedData.mapData.placedObjects.add(PlacedObject(z, x, elementDefinition, modelInstance))
         applyCustomTexture(elementDefinition, modelInstance)
-        return true
     }
 
     private fun applyCustomTexture(

@@ -196,28 +196,7 @@ class EditorUi(
             IconsTextures.ICON_FILE_SAVE.getFileName(), object : ClickListener() {
                 override fun clicked(event: InputEvent?, x: Float, y: Float) {
                     super.clicked(event, x, y)
-                    val gameMapTileLayers = sharedData.mapData.layers.drop(1).map { layer ->
-                        val tilesString = convertLayerToString(layer)
-                        GameMapTileLayer(name = layer.name, tiles = tilesString)
-                    }
-                    val gameMapPlacedObjects = sharedData.mapData.placedObjects.map { obj ->
-                        val definition = obj.definition
-                        GameMapPlacedObject(
-                            definition = definition.getName(),
-                            type = definition.getType(),
-                            row = obj.row,
-                            column = obj.column,
-                            rotation = obj.modelInstance.transform.getRotation(Quaternion())
-                                .getAngleAround(Vector3.Y)
-                        )
-                    }
-                    val firstLayerTiles = sharedData.mapData.layers[0].tiles
-                    val gameMap = GameMap(
-                        layers = gameMapTileLayers, objects = gameMapPlacedObjects,
-                        width = firstLayerTiles[0].size, depth = firstLayerTiles.size
-                    )
-                    val json = GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
-                        .create().toJson(gameMap)
+                    val json = serializeMap()
 
                     val chooser = FileChooser(FileChooser.Mode.SAVE)
                     val lastPath = getLastOpenedDir()
@@ -247,6 +226,32 @@ class EditorUi(
                 }
             }, buttonBar.table
         )
+    }
+
+    private fun serializeMap(): String? {
+        val gameMapTileLayers = sharedData.mapData.layers.drop(1).map { layer ->
+            val tilesString = convertLayerToString(layer)
+            GameMapTileLayer(name = layer.name, tiles = tilesString)
+        }
+        val gameMapPlacedObjects = sharedData.mapData.placedObjects.map { obj ->
+            val definition = obj.definition
+            GameMapPlacedObject(
+                definition = definition.getName(),
+                type = definition.getType(),
+                row = obj.row,
+                column = obj.column,
+                rotation = obj.modelInstance.transform.getRotation(Quaternion())
+                    .getAngleAround(Vector3.Y)
+            )
+        }
+        val firstLayerTiles = sharedData.mapData.layers[0].tiles
+        val gameMap = GameMap(
+            layers = gameMapTileLayers, objects = gameMapPlacedObjects,
+            width = firstLayerTiles[0].size, depth = firstLayerTiles.size
+        )
+        val json = GsonBuilder().setPrettyPrinting().disableHtmlEscaping()
+            .create().toJson(gameMap)
+        return json
     }
 
     private fun addModeButton(

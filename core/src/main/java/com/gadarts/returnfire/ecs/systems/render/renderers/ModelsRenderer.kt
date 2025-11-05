@@ -80,6 +80,56 @@ class ModelsRenderer(
         }
     }
 
+    fun renderWaterWaves(deltaTime: Float) {
+        batches.modelBatch.begin(gameSessionData.renderData.camera)
+        Gdx.gl.glDepthMask(false)
+        for (entity in relatedEntities.waterWaveEntities) {
+            renderModel(entity, batches.modelBatch, true, deltaTime)
+        }
+        batches.modelBatch.end()
+        Gdx.gl.glDepthMask(true)
+    }
+
+    fun disableShadow() {
+        environment.remove(shadowLight)
+        environment.shadowMap = null
+    }
+
+    fun initializeDirectionalLightAndShadows() {
+        extracted()
+        val dirValue = 0.4f
+        shadowLight.set(dirValue, dirValue, dirValue, 0.3F, -0.7f, -0.3f)
+        enableShadow()
+    }
+
+    fun enableShadow() {
+        environment.add(shadowLight)
+        environment.shadowMap = shadowLight
+    }
+
+    override fun dispose() {
+        shadowLight.dispose()
+    }
+
+    fun renderShadows(deltaTime: Float) {
+        if (renderFlags.renderShadows) {
+            val camera = gameSessionData.renderData.camera
+            shadowLight.begin(
+                RenderSystem.auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
+                camera.direction
+            )
+            renderModels(
+                batch = batches.shadowBatch,
+                camera = shadowLight.camera,
+                applyEnvironment = false,
+                forShadow = true,
+                deltaTime = deltaTime,
+                renderModelCaches = false
+            )
+            shadowLight.end()
+        }
+    }
+
     private fun renderLayerRegions(
         layerRegions: Array<Array<LayerRegion?>>,
         applyEnvironment: Boolean,
@@ -105,7 +155,6 @@ class ModelsRenderer(
             )
         }
     }
-
     private fun isLayerRegionVisible(layerRegion: LayerRegion?): Boolean {
         if (layerRegion == null) return false
         val frustum = gameSessionData.renderData.camera.frustum
@@ -113,55 +162,6 @@ class ModelsRenderer(
         return frustum.boundsInFrustum(layerRegion.boundingBox)
     }
 
-    fun renderWaterWaves(deltaTime: Float) {
-        batches.modelBatch.begin(gameSessionData.renderData.camera)
-        Gdx.gl.glDepthMask(false)
-        for (entity in relatedEntities.waterWaveEntities) {
-            renderModel(entity, batches.modelBatch, true, deltaTime)
-        }
-        batches.modelBatch.end()
-        Gdx.gl.glDepthMask(true)
-    }
-
-    fun renderShadows(deltaTime: Float) {
-        if (renderFlags.renderShadows) {
-            val camera = gameSessionData.renderData.camera
-            shadowLight.begin(
-                RenderSystem.auxVector3_1.set(camera.position).add(-2F, 0F, -4F),
-                camera.direction
-            )
-            renderModels(
-                batch = batches.shadowBatch,
-                camera = shadowLight.camera,
-                applyEnvironment = false,
-                forShadow = true,
-                deltaTime = deltaTime,
-                renderModelCaches = false
-            )
-            shadowLight.end()
-        }
-    }
-
-    fun disableShadow() {
-        environment.remove(shadowLight)
-        environment.shadowMap = null
-    }
-
-    fun initializeDirectionalLightAndShadows() {
-        extracted()
-        val dirValue = 0.4f
-        shadowLight.set(dirValue, dirValue, dirValue, 0.3F, -0.7f, -0.3f)
-        enableShadow()
-    }
-
-    fun enableShadow() {
-        environment.add(shadowLight)
-        environment.shadowMap = shadowLight
-    }
-
-    override fun dispose() {
-        shadowLight.dispose()
-    }
 
     private fun isConsideredCharacter(entity: Entity) =
         (ComponentsMapper.character.has(entity) || ComponentsMapper.turret.has(entity))

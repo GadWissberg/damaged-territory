@@ -193,12 +193,15 @@ class CursorHandler(
             return placeTile(x, z)
         } else if (sharedData.selectionData.selectedMode == Modes.OBJECTS) {
             val selectedObject = sharedData.selectionData.selectedObject
-            return if (selectedObject != null) objectFactory.addObject(
-                x,
-                z,
-                selectedObject,
-                cursorModelInstance?.transform?.getRotation(auxQuaternion)
-            ) else false
+            if (selectedObject != null) {
+                objectFactory.addObject(
+                    x,
+                    z,
+                    selectedObject,
+                    cursorModelInstance?.transform?.getRotation(auxQuaternion)
+                )
+                return true
+            } else return false
         }
         return false
     }
