@@ -57,7 +57,6 @@ enum class ModelDefinition(
     FLAG(loopAnimation = true),
     FLAG_FLOOR,
     TURRET_CANNON(
-        boundingBoxData = ModelDefinitionBoundingBoxData(Vector3(0.4F, 1F, 1F), Vector3(0.2F, 0F, 0F)),
         separateModelForShadow = true
     ),
     TURRET_CANNON_DEAD_0(
@@ -152,7 +151,8 @@ enum class ModelDefinition(
     JEEP_DESTROYED,
     JEEP_GUN,
     JEEP_TURRET_BASE,
-    JEEP_WHEEL;
+    JEEP_WHEEL,
+    TRUCK;
 
     private val pathFormat = "models/%s.g3dj"
     private val paths = ArrayList<String>()

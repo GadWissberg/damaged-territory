@@ -15,9 +15,17 @@ class MapSystemOnOpponentEnteredGamePlayScreen(private val mapSystem: MapSystem)
     override fun react(msg: Telegram, gameSessionData: GameSessionData, gamePlayManagers: GamePlayManagers) {
         if (OpponentEnteredGameplayScreenEventData.characterColor != CharacterColor.BROWN) return
 
+        val player = gameSessionData.gamePlayData.player!!
+        val definition = ComponentsMapper.character.get(player).definition
+        val boundingBox =
+            gamePlayManagers.assetsManager.getCachedBoundingBox(definition.getModelDefinition())
         ComponentsMapper.modelInstance.get(gameSessionData.mapData.elevators[CharacterColor.BROWN]).gameModelInstance.modelInstance.transform.setTranslation(
-            ModelUtils.getPositionOfModel(mapSystem.findHangar(gameSessionData.gamePlayData.player!!))
-                .add(1F, ElevatorComponent.BOTTOM_EDGE_Y, 1F)
+            ModelUtils.getPositionOfModel(mapSystem.findHangar(player))
+                .add(
+                    1F,
+                    ElevatorComponent.BOTTOM_EDGE_Y - (if (definition.isOriginPointAtBottom()) -0.1F else boundingBox.height / 2F),
+                    1F
+                )
         )
     }
 

@@ -218,6 +218,12 @@ enum class AmbDefinition(
         stayOnDeath = true,
         destroyedByExplosiveOnly = false,
         destructionSound = SoundDefinition.METAL_CRASH
+    ),
+    TRUCK(
+        modelDefinition = ModelDefinition.TRUCK,
+        collisionFlags = CollisionFlags.CF_KINEMATIC_OBJECT,
+        mass = 5F,
+        hp = 3,
     );
 
 

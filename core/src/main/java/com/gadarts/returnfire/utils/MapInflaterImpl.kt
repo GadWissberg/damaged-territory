@@ -502,31 +502,24 @@ class MapInflaterImpl(
             )
             .finishAndAddToEngine()
         ComponentsMapper.turretBase.get(baseEntity).turret = turret
-        addPhysicsToTurret(assetsManager, turret, modelInstance.modelInstance)
+        addPhysicsToTurret(turret, modelInstance)
     }
 
     private fun addPhysicsToTurret(
-        assetsManager: GameAssetManager,
         turret: Entity,
-        modelInstance: ModelInstance
+        modelInstance: GameModelInstance
     ) {
-        val cachedBoundingBox = assetsManager.getCachedBoundingBox(ModelDefinition.TURRET_CANNON)
-        val shape = btCompoundShape()
-        shape.addChildShape(
-            auxMatrix.idt().translate(ModelDefinition.TURRET_CANNON.boundingBoxData.boundingBoxBias), btBoxShape(
-                auxVector1.set(
-                    cachedBoundingBox.width / 2F,
-                    cachedBoundingBox.height / 2F,
-                    cachedBoundingBox.depth / 2F
-                )
+        val modelCollisionShapeInfo =
+            gamePlayManagers.assetsManager.getCachedModelCollisionShapeInfo(
+                modelInstance.gameModelInstanceInfo!!
             )
-        )
+        val shape = SharedUtils.buildShapeFromModelCollisionShapeInfo(modelCollisionShapeInfo!!)
         gamePlayManagers.ecs.entityBuilder.addPhysicsComponentToEntity(
             turret,
             shape,
             10F,
             CollisionFlags.CF_KINEMATIC_OBJECT,
-            modelInstance.transform,
+            modelInstance.modelInstance.transform,
         )
     }
 

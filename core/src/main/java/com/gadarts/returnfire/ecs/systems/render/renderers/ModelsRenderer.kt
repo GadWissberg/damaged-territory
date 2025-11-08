@@ -155,6 +155,7 @@ class ModelsRenderer(
             )
         }
     }
+
     private fun isLayerRegionVisible(layerRegion: LayerRegion?): Boolean {
         if (layerRegion == null) return false
         val frustum = gameSessionData.renderData.camera.frustum
@@ -330,7 +331,10 @@ class ModelsRenderer(
 
         val center: Vector3 =
             gameModelInstance.modelInstance.transform.getTranslation(RenderSystem.auxVector3_1)
-        dims.scl(if (extendBoundingBoxSize) boundingBox.max.y * 2.4F else 1.3F)
+        val diagonalVec = auxVector
+        val diagonal = boundingBox.getDimensions(diagonalVec).len()
+        val scale = if (extendBoundingBoxSize) maxOf(diagonal, 1F) * 4.2F else 1.3F
+        dims.scl(scale)
 
         val frustum = gameSessionData.renderData.camera.frustum
         val isInFrustum = if (gameModelInstance.sphere) frustum.sphereInFrustum(

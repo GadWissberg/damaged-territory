@@ -19,7 +19,8 @@ enum class TurretCharacterDefinition(
     private val placeable: Boolean = false,
     private val linearDamping: Float = 0.0F,
     private val angularDamping: Float = 0.0F,
-    private val deployable: Boolean,
+    private val deployable: Boolean = true,
+    private val originPointAtBottom: Boolean = false
 ) : CharacterDefinition {
     TURRET_CANNON(
         hp = 75F,
@@ -57,7 +58,6 @@ enum class TurretCharacterDefinition(
         angularDamping = 0.99F,
         separateTextureForDeadTurret = true,
         placeable = false,
-        deployable = true
     ),
     JEEP(
         hp = 60F,
@@ -73,8 +73,12 @@ enum class TurretCharacterDefinition(
         placeable = false,
         linearDamping = 0.8F,
         angularDamping = 0.999F,
-        deployable = true
+        originPointAtBottom = true
     );
+
+    override fun isOriginPointAtBottom(): Boolean {
+        return originPointAtBottom
+    }
 
     override fun isUseSeparateTransformObjectForPhysics(): Boolean {
         return false

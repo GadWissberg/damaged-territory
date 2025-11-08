@@ -1,6 +1,6 @@
 {
   "development": {
-    "map": "small",
+    "map": "map_1",
     "print_bit_map": false,
     "show_object_pool_profiling": false,
     "show_collision_shapes": false,
@@ -9,7 +9,7 @@
     "show_axis": false,
     "debug_input": false,
     "ui_debug": false,
-    "sfx": true,
+    "sfx": false,
     "disable_music": true,
     "disable_amb_sounds": false,
     "hide_player": false,
@@ -25,7 +25,7 @@
     "avoid_particle_effects_drawing": false,
     "enable_profiler": true,
     "disable_hud": false,
-    "selected_vehicle": "APACHE",
+    "selected_vehicle": "JEEP",
     "selected_vehicle_ai": "TANK",
     "force_aim": 1,
     "ai_disabled": false,

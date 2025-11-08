@@ -37,6 +37,9 @@ enum class SimpleCharacterDefinition(
         true
     );
 
+    override fun isOriginPointAtBottom(): Boolean {
+        return false
+    }
     override fun isFlyer(): Boolean {
         return flyer
     }

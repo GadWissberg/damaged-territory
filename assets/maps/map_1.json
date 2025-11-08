@@ -1756,7 +1756,7 @@
       "type": "AMB",
       "row": 55,
       "column": 51,
-      "rotation": 360.0
+      "rotation": 0.0
     },
     {
       "definition": "ANTENNA",
@@ -1812,21 +1812,21 @@
       "type": "AMB",
       "row": 23,
       "column": 58,
-      "rotation": 179.99998
+      "rotation": 179.99997
     },
     {
       "definition": "STREET_LIGHT",
       "type": "AMB",
       "row": 42,
       "column": 58,
-      "rotation": 179.99998
+      "rotation": 179.99997
     },
     {
       "definition": "STREET_LIGHT",
       "type": "AMB",
       "row": 55,
       "column": 58,
-      "rotation": 179.99998
+      "rotation": 179.99997
     },
     {
       "definition": "STREET_LIGHT",
@@ -1854,28 +1854,28 @@
       "type": "AMB",
       "row": 56,
       "column": 8,
-      "rotation": 360.0
+      "rotation": 0.0
     },
     {
       "definition": "STREET_LIGHT",
       "type": "AMB",
       "row": 43,
       "column": 8,
-      "rotation": 360.0
+      "rotation": 0.0
     },
     {
       "definition": "STREET_LIGHT",
       "type": "AMB",
       "row": 30,
       "column": 8,
-      "rotation": 360.0
+      "rotation": 0.0
     },
     {
       "definition": "STREET_LIGHT",
       "type": "AMB",
       "row": 20,
       "column": 10,
-      "rotation": 179.99997
+      "rotation": 179.99995
     },
     {
       "definition": "RUINS",
@@ -1938,56 +1938,56 @@
       "type": "AMB",
       "row": 52,
       "column": 48,
-      "rotation": 89.99997
+      "rotation": 89.999954
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 52,
       "column": 49,
-      "rotation": 89.99997
+      "rotation": 89.999954
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 52,
       "column": 50,
-      "rotation": 89.99997
+      "rotation": 89.999954
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 52,
       "column": 51,
-      "rotation": 89.99997
+      "rotation": 89.999954
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 52,
       "column": 52,
-      "rotation": 89.99997
+      "rotation": 89.999954
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 52,
       "column": 53,
-      "rotation": 89.99997
+      "rotation": 89.999954
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 52,
       "column": 54,
-      "rotation": 89.99997
+      "rotation": 89.999954
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 52,
       "column": 55,
-      "rotation": 89.99997
+      "rotation": 89.999954
     },
     {
       "definition": "FENCE",
@@ -2001,7 +2001,7 @@
       "type": "AMB",
       "row": 60,
       "column": 47,
-      "rotation": 360.0
+      "rotation": 0.0
     },
     {
       "definition": "SIGN",
@@ -2015,14 +2015,14 @@
       "type": "AMB",
       "row": 9,
       "column": 17,
-      "rotation": 179.99998
+      "rotation": 179.99997
     },
     {
       "definition": "SIGN_BIG",
       "type": "AMB",
       "row": 6,
       "column": 52,
-      "rotation": 270.00003
+      "rotation": 270.0
     },
     {
       "definition": "WATCH_TOWER",
@@ -2113,42 +2113,42 @@
       "type": "AMB",
       "row": 2,
       "column": 16,
-      "rotation": 179.99995
+      "rotation": 179.99994
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 3,
       "column": 16,
-      "rotation": 179.99995
+      "rotation": 179.99994
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 4,
       "column": 16,
-      "rotation": 179.99995
+      "rotation": 179.99994
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 5,
       "column": 16,
-      "rotation": 179.99995
+      "rotation": 179.99994
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 6,
       "column": 16,
-      "rotation": 360.0
+      "rotation": 0.0
     },
     {
       "definition": "FENCE",
       "type": "AMB",
       "row": 10,
       "column": 16,
-      "rotation": 179.99994
+      "rotation": 179.99992
     },
     {
       "definition": "WATCH_TOWER",
@@ -2191,6 +2191,13 @@
       "row": 11,
       "column": 11,
       "rotation": 270.0
+    },
+    {
+      "definition": "TRUCK",
+      "type": "AMB",
+      "row": 11,
+      "column": 9,
+      "rotation": 0.0
     }
   ],
   "width": 64,

@@ -30,6 +30,7 @@ interface CharacterDefinition : ElementDefinition {
     fun getFriction(): Float
     fun getMass(): Float
     fun isDeployable(): Boolean
+    fun isOriginPointAtBottom(): Boolean
 
     companion object {
         const val FLYER_HEIGHT = 3.9F
