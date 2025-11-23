@@ -11,4 +11,5 @@ interface ElementDefinition {
     fun getName(): String
     fun isMarksNodeAsBlocked(): Boolean
     fun isPlaceable(): Boolean
+    fun definitionPerColor(): Boolean
 }

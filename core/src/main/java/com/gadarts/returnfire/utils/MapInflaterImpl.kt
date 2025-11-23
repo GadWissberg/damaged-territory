@@ -74,6 +74,7 @@ class MapInflaterImpl(
         ambDefinition: AmbDefinition,
         exculdedTiles: ArrayList<Pair<Int, Int>>,
         rotation: Float?,
+        color: CharacterColor?,
     ) {
         ambDefinition.onCreation?.invoke(this, auxVector3.set(position), ambDefinition, exculdedTiles)
         excludeTilesUnderBase(ambDefinition, position, exculdedTiles)
@@ -102,10 +103,8 @@ class MapInflaterImpl(
                 auxVector1.set(ambDefinition.getScale(), ambDefinition.getScale(), ambDefinition.getScale()),
             )
         applyDecalToModel(ambDefinition, entityBuilder, gameModelInstance)
-        val isGreen = ambDefinition == AmbDefinition.BASE_GREEN
-        val isBrown = ambDefinition == AmbDefinition.BASE_BROWN
-        if (isGreen || isBrown) {
-            entityBuilder.addHangarComponent(if (isGreen) CharacterColor.GREEN else CharacterColor.BROWN)
+        if (ambDefinition == AmbDefinition.OPPONENT_BASE && color != null) {
+            entityBuilder.addHangarComponent(color)
         }
         val entity = entityBuilder.finishAndAddToEngine()
         if (ambDefinition.collisionFlags >= 0) {
@@ -363,9 +362,9 @@ class MapInflaterImpl(
     private fun excludeTilesUnderBase(
         def: AmbDefinition,
         position: Vector3,
-        exculdedTiles: ArrayList<Pair<Int, Int>>
+        exculdedTiles: ArrayList<Pair<Int, Int>>,
     ) {
-        if (def == AmbDefinition.BASE_BROWN || def == AmbDefinition.BASE_GREEN) {
+        if (def == AmbDefinition.OPPONENT_BASE) {
             val x = position.x.toInt()
             val z = position.z.toInt()
             exculdedTiles.add(Pair(x, z))
@@ -389,7 +388,7 @@ class MapInflaterImpl(
                 0F,
                 gamePlayManagers.assetsManager.gameSettings.hideEnemies
             )
-            .addCharacterComponent(TurretCharacterDefinition.TURRET_CANNON, CharacterColor.GREEN)
+            .addCharacterComponent(TurretCharacterDefinition.GUARD_TURRET_CANNON, CharacterColor.GREEN)
         GeneralUtils.addColorComponent(
             entityBuilder,
             CharacterColor.GREEN
@@ -631,7 +630,8 @@ class MapInflaterImpl(
                     auxVector2.set(it.column.toFloat(), 0.02F, it.row.toFloat()),
                     stringToDefinition as AmbDefinition,
                     exculdedTiles,
-                    it.rotation
+                    it.rotation,
+                    it.color
                 )
             }
         applyTransformOnAmbEntities()

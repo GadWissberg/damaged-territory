@@ -81,9 +81,9 @@ class CursorHandler(
     override val subscribedEvents: Map<EditorEvents, EditorOnEvent> = mapOf(
         EditorEvents.OBJECT_SELECTED to object : EditorOnEvent {
             override fun react(msg: Telegram) {
-                val selectedObject = sharedData.selectionData.selectedObject ?: return
+                val selectedObject = sharedData.selectionData.placeableObject ?: return
 
-                val definition = selectedObject.getModelDefinition()
+                val definition = selectedObject.definition.getModelDefinition()
                 setCursorModelInstance(
                     EditorModelInstanceProps(
                         assetsManager.getAssetByDefinition(definition),
@@ -192,7 +192,7 @@ class CursorHandler(
         if (sharedData.selectionData.selectedMode == Modes.TILES) {
             return placeTile(x, z)
         } else if (sharedData.selectionData.selectedMode == Modes.OBJECTS) {
-            val selectedObject = sharedData.selectionData.selectedObject
+            val selectedObject = sharedData.selectionData.placeableObject
             if (selectedObject != null) {
                 objectFactory.addObject(
                     x,

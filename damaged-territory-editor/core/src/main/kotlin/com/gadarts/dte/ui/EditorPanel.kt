@@ -17,10 +17,11 @@ import com.badlogic.gdx.utils.Array
 import com.gadarts.dte.EditorEvents
 import com.gadarts.dte.TileLayer
 import com.gadarts.dte.scene.Modes
+import com.gadarts.dte.scene.PlaceableObject
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.assets.definitions.external.TextureDefinition
-import com.gadarts.shared.data.definitions.ElementDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.type.ElementType
 import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisLabel
@@ -31,11 +32,19 @@ class EditorPanel(
     private val dispatcher: MessageDispatcher,
     private val gameAssetsManager: GameAssetManager
 ) {
-    private val objectList: SelectableList<ElementDefinition> by lazy {
+    private val objectList: SelectableList<PlaceableObject> by lazy {
         val entries = ElementType.entries.flatMap { it.definitions }.filter { it.isPlaceable() }
-        SelectableList<ElementDefinition>(VisUI.getSkin()).apply {
-            val array = Array<ElementDefinition>()
-            array.addAll(*entries.filter { it.isPlaceable() }.toTypedArray())
+        SelectableList<PlaceableObject>(VisUI.getSkin()).apply {
+            val array = Array<PlaceableObject>()
+            entries.forEach {
+                if (it.definitionPerColor()) {
+                    array.addAll(*CharacterColor.entries.map { color ->
+                        PlaceableObject(it, color)
+                    }.toTypedArray())
+                } else {
+                    array.add(PlaceableObject(it, null))
+                }
+            }
             setItems(array)
             style.background = VisUI.getSkin().getDrawable("window-bg")
             selectedIndex = 1
@@ -91,7 +100,7 @@ class EditorPanel(
         objectsListTable.background = VisUI.getSkin().getDrawable("window-bg")
         objectList.addListener(object : ChangeListener() {
             override fun changed(event: ChangeEvent?, actor: Actor?) {
-                sharedData.selectionData.selectedObject = objectList.items[objectList.selectedIndex]
+                sharedData.selectionData.placeableObject = objectList.items[objectList.selectedIndex]
                 dispatcher.dispatchMessage(EditorEvents.OBJECT_SELECTED.ordinal)
             }
         })

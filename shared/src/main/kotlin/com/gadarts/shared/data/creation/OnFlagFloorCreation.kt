@@ -15,7 +15,8 @@ class OnFlagFloorCreation(private val color: CharacterColor) : OnAmbCreation {
             position,
             if (color == CharacterColor.BROWN) AmbDefinition.FLAG_BROWN else AmbDefinition.FLAG_GREEN,
             exculdedTiles,
-            null
+            null,
+            color
         )
     }
 

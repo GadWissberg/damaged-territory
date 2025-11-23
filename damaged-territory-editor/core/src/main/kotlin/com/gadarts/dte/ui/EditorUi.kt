@@ -241,7 +241,8 @@ class EditorUi(
                 row = obj.row,
                 column = obj.column,
                 rotation = obj.modelInstance.transform.getRotation(Quaternion())
-                    .getAngleAround(Vector3.Y)
+                    .getAngleAround(Vector3.Y),
+                color = obj.color
             )
         }
         val firstLayerTiles = sharedData.mapData.layers[0].tiles

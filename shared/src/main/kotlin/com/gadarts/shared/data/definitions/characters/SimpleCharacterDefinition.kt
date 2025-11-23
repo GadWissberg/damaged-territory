@@ -40,6 +40,7 @@ enum class SimpleCharacterDefinition(
     override fun isOriginPointAtBottom(): Boolean {
         return false
     }
+
     override fun isFlyer(): Boolean {
         return flyer
     }
@@ -133,6 +134,10 @@ enum class SimpleCharacterDefinition(
     }
 
     override fun isDeployable(): Boolean {
+        return true
+    }
+
+    override fun definitionPerColor(): Boolean {
         return true
     }
 }

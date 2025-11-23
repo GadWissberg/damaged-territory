@@ -1,5 +1,6 @@
 package com.gadarts.shared.assets.map
 
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.type.ElementType
 
 data class GameMapPlacedObject(
@@ -7,5 +8,6 @@ data class GameMapPlacedObject(
     val type: ElementType,
     val row: Int,
     val column: Int,
-    val rotation: Float?
+    val rotation: Float?,
+    val color: CharacterColor?
 )

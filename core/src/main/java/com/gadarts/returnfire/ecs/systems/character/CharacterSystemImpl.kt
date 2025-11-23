@@ -510,7 +510,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         )
         val characterDefinition = characterComponent.definition
         val modelInstanceComponent = ComponentsMapper.modelInstance.get(character)
-        val isTurretCannon = characterDefinition == TurretCharacterDefinition.TURRET_CANNON
+        val isTurretCannon = characterDefinition == TurretCharacterDefinition.GUARD_TURRET_CANNON
         val deadGameModelInstance = if (!isTurretCannon)
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
                 characterDefinition.getCorpseModelDefinitions().random()

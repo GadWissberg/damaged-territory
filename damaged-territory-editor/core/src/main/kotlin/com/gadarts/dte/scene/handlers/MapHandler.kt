@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.gadarts.dte.*
 import com.gadarts.dte.scene.SceneRenderer.Companion.MAP_SIZE
+import com.gadarts.dte.scene.PlaceableObject
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
 import com.gadarts.dte.scene.handlers.render.EditorModelInstanceProps
@@ -57,7 +58,10 @@ class MapHandler(
                 gameMap.objects.map { obj ->
                     objectFactory.addObject(
                         obj.column, obj.row,
-                        definitions.first { it.getName().lowercase() == obj.definition.lowercase() },
+                        PlaceableObject(
+                            definitions.first { it.getName().lowercase() == obj.definition.lowercase() },
+                            obj.color
+                        ),
                         Quaternion(Vector3.Y, obj.rotation ?: 0f)
                     )
                 }

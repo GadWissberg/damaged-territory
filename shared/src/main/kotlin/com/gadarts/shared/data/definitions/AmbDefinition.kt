@@ -39,7 +39,8 @@ enum class AmbDefinition(
     val customTexture: String? = null,
     val onCreation: OnAmbCreation? = null,
     val outlineEffect: Boolean = false,
-    val relatedModelsToBeRenderedInEditor: List<RelatedModelToBeRenderedInEditor> = emptyList()
+    val relatedModelsToBeRenderedInEditor: List<RelatedModelToBeRenderedInEditor> = emptyList(),
+    val definitionPerColor: Boolean = false
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -91,7 +92,7 @@ enum class AmbDefinition(
         marksNodeAsBlocked = false,
         collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE
     ),
-    BASE_BROWN(
+    OPPONENT_BASE(
         modelDefinition = ModelDefinition.PIT,
         collisionFlags = -1,
         placeInMiddleOfCell = false,
@@ -100,30 +101,14 @@ enum class AmbDefinition(
             RelatedModelToBeRenderedInEditor(
                 Matrix4().translate(1F, 0F, 1F),
                 ModelDefinition.PIT_DOOR,
-                "pit_door_texture_brown"
+                "pit_door_texture"
             ), RelatedModelToBeRenderedInEditor(
                 Matrix4().translate(1F, 0F, 1F).rotate(Vector3.Y, 180F),
                 ModelDefinition.PIT_DOOR,
-                "pit_door_texture_brown"
+                "pit_door_texture"
             )
-        )
-    ),
-    BASE_GREEN(
-        modelDefinition = ModelDefinition.PIT,
-        collisionFlags = -1,
-        placeInMiddleOfCell = false,
-        marksNodeAsBlocked = false,
-        relatedModelsToBeRenderedInEditor = listOf(
-            RelatedModelToBeRenderedInEditor(
-                Matrix4().translate(1F, 0F, 1F),
-                ModelDefinition.PIT_DOOR,
-                "pit_door_texture_green"
-            ), RelatedModelToBeRenderedInEditor(
-                Matrix4().translate(1F, 0F, 1F).rotate(Vector3.Y, 180F),
-                ModelDefinition.PIT_DOOR,
-                "pit_door_texture_green"
-            )
-        )
+        ),
+        definitionPerColor = true
     ),
     ROCK_BIG(
         modelDefinition = ModelDefinition.ROCK_BIG,
@@ -253,5 +238,9 @@ enum class AmbDefinition(
 
     override fun isPlaceable(): Boolean {
         return placeable
+    }
+
+    override fun definitionPerColor(): Boolean {
+        return definitionPerColor
     }
 }

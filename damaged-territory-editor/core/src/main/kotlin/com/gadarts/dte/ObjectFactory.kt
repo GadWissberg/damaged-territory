@@ -2,26 +2,33 @@ package com.gadarts.dte
 
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.Quaternion
+import com.gadarts.dte.scene.PlaceableObject
 import com.gadarts.dte.scene.PlacedObject
 import com.gadarts.dte.scene.SharedData
 import com.gadarts.dte.scene.handlers.render.EditorModelInstance
 import com.gadarts.dte.scene.handlers.render.EditorModelInstanceProps
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.definitions.AmbDefinition
-import com.gadarts.shared.data.definitions.ElementDefinition
 
 class ObjectFactory(private val sharedData: SharedData, private val gameAssetsManager: GameAssetManager) {
-    fun addObject(x: Int, z: Int, elementDefinition: ElementDefinition, rotation: Quaternion? = null) {
+    fun addObject(
+        x: Int,
+        z: Int,
+        placeableObject: PlaceableObject,
+        rotation: Quaternion? = null,
+    ) {
+        val elementDefinition = placeableObject.definition
         val definition = elementDefinition.getModelDefinition()
         val finalPositionX = x.toFloat() + 0.5F
         val finalPositionY = 0.07f
         val finalPositionZ = z.toFloat() + 0.5F
         val relatedModelToBeRenderedInEditors = createRelatedModelToBeRenderedInEditor(
-            elementDefinition,
+            placeableObject,
             finalPositionX,
             finalPositionY,
-            finalPositionZ
+            finalPositionZ,
         )
         val modelInstance = EditorModelInstance(
             EditorModelInstanceProps(
@@ -35,16 +42,25 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
         if (rotation != null) {
             modelInstance.transform.rotate(rotation)
         }
-        sharedData.mapData.placedObjects.add(PlacedObject(z, x, elementDefinition, modelInstance))
-        applyCustomTexture(elementDefinition, modelInstance)
+        sharedData.mapData.placedObjects.add(
+            PlacedObject(
+                z,
+                x,
+                elementDefinition,
+                modelInstance,
+                placeableObject.color
+            )
+        )
+        applyCustomTexture(placeableObject, modelInstance)
     }
 
     private fun applyCustomTexture(
-        elementDefinition: ElementDefinition,
+        placeableObject: PlaceableObject,
         modelInstance: EditorModelInstance
     ) {
-        if (elementDefinition is AmbDefinition) {
-            val customTexture = elementDefinition.customTexture
+        val definition = placeableObject.definition
+        if (definition is AmbDefinition) {
+            val customTexture = definition.customTexture
             if (customTexture != null) {
                 SharedUtils.applyCustomTextureToModelInstance(
                     gameAssetsManager,
@@ -52,36 +68,54 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
                     customTexture
                 )
             }
+        } else if (definition.definitionPerColor()) {
+            val modelDefinition = definition.getModelDefinition()
+            val textureAttribute =
+                gameAssetsManager.getAssetByDefinition(modelDefinition).materials[modelDefinition.mainMaterialIndex].get(
+                    TextureAttribute.Diffuse
+                ) as TextureAttribute
+            //TODO make models hold the texture file name.
+//            SharedUtils.applyCustomTextureToModelInstance(
+//                gameAssetsManager,
+//                modelInstance,
+//                null
+//            )
+
         }
     }
 
     @Suppress("SameParameterValue")
     private fun createRelatedModelToBeRenderedInEditor(
-        elementDefinition: ElementDefinition,
+        placeableObject: PlaceableObject,
         finalPositionX: Float,
         finalPositionY: Float,
-        finalPositionZ: Float
-    ) = if (elementDefinition is AmbDefinition) elementDefinition.relatedModelsToBeRenderedInEditor.map {
-        val relatedModelDefinition = it.modelDefinition
-        val editorModelInstance = EditorModelInstance(
-            EditorModelInstanceProps(
-                gameAssetsManager.getAssetByDefinition(
-                    relatedModelDefinition
-                ),
-                relatedModelDefinition, null
+        finalPositionZ: Float,
+    ) =
+        if (placeableObject.definition is AmbDefinition) placeableObject.definition.relatedModelsToBeRenderedInEditor.map {
+            val relatedModelDefinition = it.modelDefinition
+            val editorModelInstance = EditorModelInstance(
+                EditorModelInstanceProps(
+                    gameAssetsManager.getAssetByDefinition(
+                        relatedModelDefinition
+                    ),
+                    relatedModelDefinition, null
+                )
             )
-        )
-        editorModelInstance.transform.set(it.relativeTransform).trn(
-            finalPositionX,
-            finalPositionY,
-            finalPositionZ
-        )
-        val customTexture = it.customTexture
-        if (customTexture != null) {
-            (editorModelInstance.materials.get(0)
-                .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                gameAssetsManager.getTexture(customTexture)
-        }
-        editorModelInstance
-    } else null
+            editorModelInstance.transform.set(it.relativeTransform).trn(
+                finalPositionX,
+                finalPositionY,
+                finalPositionZ
+            )
+            var customTexture = it.customTexture
+            if (customTexture != null) {
+                val color: CharacterColor? = placeableObject.color
+                if (color != null) {
+                    customTexture = customTexture + "_" + color.name.lowercase()
+                }
+                (editorModelInstance.materials.get(0)
+                    .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                    gameAssetsManager.getTexture(customTexture)
+            }
+            editorModelInstance
+        } else null
 }

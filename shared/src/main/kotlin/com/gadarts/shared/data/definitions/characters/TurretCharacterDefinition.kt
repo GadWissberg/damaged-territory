@@ -22,7 +22,7 @@ enum class TurretCharacterDefinition(
     private val deployable: Boolean = true,
     private val originPointAtBottom: Boolean = false
 ) : CharacterDefinition {
-    TURRET_CANNON(
+    GUARD_TURRET_CANNON(
         hp = 75F,
         baseModelDefinition = ModelDefinition.TURRET_BASE,
         smokeEmissionRelativePosition = Vector3(0F, 2F, 0F),
@@ -174,5 +174,9 @@ enum class TurretCharacterDefinition(
 
     override fun isDeployable(): Boolean {
         return deployable
+    }
+
+    override fun definitionPerColor(): Boolean {
+        return true
     }
 }
