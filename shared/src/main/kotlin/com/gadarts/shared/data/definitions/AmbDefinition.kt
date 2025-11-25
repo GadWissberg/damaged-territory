@@ -36,11 +36,10 @@ enum class AmbDefinition(
     val forceSingleNodeForMarksNodeAsBlocked: Boolean = false,
     val drowningHeight: Float = DROWNING_HEIGHT,
     val placeable: Boolean = true,
-    val customTexture: String? = null,
     val onCreation: OnAmbCreation? = null,
     val outlineEffect: Boolean = false,
     val relatedModelsToBeRenderedInEditor: List<RelatedModelToBeRenderedInEditor> = emptyList(),
-    val definitionPerColor: Boolean = false
+    val customTexturePerColor: String? = null
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -62,35 +61,20 @@ enum class AmbDefinition(
         corpseCollisionSound = SoundDefinition.ROCKS,
         corpsePartDestroyOnGroundImpact = true,
     ),
-    FLAG_BROWN(
+    FLAG(
         modelDefinition = ModelDefinition.FLAG,
-        customTexture = "flag_texture_brown",
         outlineEffect = true,
         placeable = false,
-        marksNodeAsBlocked = false
+        marksNodeAsBlocked = false,
+        customTexturePerColor = "flag_texture"
     ),
-    FLAG_GREEN(
-        modelDefinition = ModelDefinition.FLAG,
-        customTexture = "flag_texture_green",
-        outlineEffect = true,
-        placeable = false,
-        marksNodeAsBlocked = false
-    ),
-    FLAG_FLOOR_BROWN(
+    FLAG_FLOOR(
         modelDefinition = ModelDefinition.FLAG_FLOOR,
         placeable = true,
-        customTexture = "flag_floor_texture_brown",
         onCreation = OnFlagFloorCreation(CharacterColor.BROWN),
         marksNodeAsBlocked = false,
-        collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE
-    ),
-    FLAG_FLOOR_GREEN(
-        modelDefinition = ModelDefinition.FLAG_FLOOR,
-        placeable = true,
-        customTexture = "flag_floor_texture_green",
-        onCreation = OnFlagFloorCreation(CharacterColor.GREEN),
-        marksNodeAsBlocked = false,
-        collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE
+        collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE,
+        customTexturePerColor = "flag_floor_texture"
     ),
     OPPONENT_BASE(
         modelDefinition = ModelDefinition.PIT,
@@ -108,7 +92,7 @@ enum class AmbDefinition(
                 "pit_door_texture"
             )
         ),
-        definitionPerColor = true
+        customTexturePerColor = "pit_texture"
     ),
     ROCK_BIG(
         modelDefinition = ModelDefinition.ROCK_BIG,
@@ -240,7 +224,7 @@ enum class AmbDefinition(
         return placeable
     }
 
-    override fun definitionPerColor(): Boolean {
-        return definitionPerColor
+    override fun customTexturePerColor(): String? {
+        return customTexturePerColor
     }
 }

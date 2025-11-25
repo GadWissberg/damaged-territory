@@ -59,28 +59,13 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
         modelInstance: EditorModelInstance
     ) {
         val definition = placeableObject.definition
-        if (definition is AmbDefinition) {
-            val customTexture = definition.customTexture
-            if (customTexture != null) {
-                SharedUtils.applyCustomTextureToModelInstance(
-                    gameAssetsManager,
-                    modelInstance,
-                    customTexture
-                )
-            }
-        } else if (definition.definitionPerColor()) {
-            val modelDefinition = definition.getModelDefinition()
-            val textureAttribute =
-                gameAssetsManager.getAssetByDefinition(modelDefinition).materials[modelDefinition.mainMaterialIndex].get(
-                    TextureAttribute.Diffuse
-                ) as TextureAttribute
-            //TODO make models hold the texture file name.
-//            SharedUtils.applyCustomTextureToModelInstance(
-//                gameAssetsManager,
-//                modelInstance,
-//                null
-//            )
-
+        val definitionPerColor = definition.customTexturePerColor()
+        if (definitionPerColor != null && placeableObject.color != null) {
+            SharedUtils.applyCustomTextureToModelInstance(
+                gameAssetsManager,
+                modelInstance,
+                "${definitionPerColor}_${placeableObject.color.name.lowercase()}"
+            )
         }
     }
 

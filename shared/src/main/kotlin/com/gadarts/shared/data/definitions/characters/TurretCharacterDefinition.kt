@@ -20,7 +20,8 @@ enum class TurretCharacterDefinition(
     private val linearDamping: Float = 0.0F,
     private val angularDamping: Float = 0.0F,
     private val deployable: Boolean = true,
-    private val originPointAtBottom: Boolean = false
+    private val originPointAtBottom: Boolean = false,
+    private val customTexturePerColor: String? = null
 ) : CharacterDefinition {
     GUARD_TURRET_CANNON(
         hp = 75F,
@@ -39,7 +40,8 @@ enum class TurretCharacterDefinition(
         isNonMoving = true,
         mass = 0F,
         placeable = true,
-        deployable = false
+        deployable = false,
+        customTexturePerColor = "guard_turret_base_texture"
     ),
     TANK(
         hp = 275F,
@@ -176,7 +178,7 @@ enum class TurretCharacterDefinition(
         return deployable
     }
 
-    override fun definitionPerColor(): Boolean {
-        return true
+    override fun customTexturePerColor(): String? {
+        return customTexturePerColor
     }
 }

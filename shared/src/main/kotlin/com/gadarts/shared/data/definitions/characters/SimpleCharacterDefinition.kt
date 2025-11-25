@@ -137,7 +137,7 @@ enum class SimpleCharacterDefinition(
         return true
     }
 
-    override fun definitionPerColor(): Boolean {
-        return true
+    override fun customTexturePerColor(): String? {
+        return null
     }
 }

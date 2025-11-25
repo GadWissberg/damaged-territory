@@ -44,7 +44,7 @@ import com.gadarts.returnfire.utils.GeneralUtils
 
 class RenderSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePlayManagers),
     Disposable {
-    private val pixelScale = 3
+    private val pixelScale = 2
     private val pixelFbo: FrameBuffer by lazy {
         val width = Gdx.graphics.width / pixelScale
         val height = Gdx.graphics.height / pixelScale

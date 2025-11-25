@@ -640,6 +640,30 @@
     },
     {
       "file_name": "flag_floor_texture_brown"
+    },
+    {
+      "file_name": "guard_turret_base_texture_brown"
+    },
+    {
+      "file_name": "guard_turret_base_texture_green"
+    },
+    {
+      "file_name": "guard_turret_cannon_texture_brown"
+    },
+    {
+      "file_name": "guard_turret_cannon_texture_green"
+    },
+    {
+      "file_name": "guard_turret_cannon_dead_0_texture_brown"
+    },
+    {
+      "file_name": "guard_turret_cannon_dead_0_texture_green"
+    },
+    {
+      "file_name": "guard_turret_cannon_dead_1_texture_green"
+    },
+    {
+      "file_name": "guard_turret_cannon_dead_1_texture_brown"
     }
   ]
 }

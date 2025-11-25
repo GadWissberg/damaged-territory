@@ -7,13 +7,6 @@
   ],
   "objects": [
     {
-      "definition": "BASE_BROWN",
-      "type": "AMB",
-      "row": 5,
-      "column": 3,
-      "rotation": 0.0
-    },
-    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "row": 6,
@@ -39,27 +32,6 @@
       "type": "AMB",
       "row": 9,
       "column": 9,
-      "rotation": 0.0
-    },
-    {
-      "definition": "BASE_GREEN",
-      "type": "AMB",
-      "row": 11,
-      "column": 10,
-      "rotation": 0.0
-    },
-    {
-      "definition": "TURRET_CANNON",
-      "type": "CHARACTER",
-      "row": 9,
-      "column": 7,
-      "rotation": 0.0
-    },
-    {
-      "definition": "FLAG_FLOOR_GREEN",
-      "type": "AMB",
-      "row": 13,
-      "column": 8,
       "rotation": 0.0
     }
   ],

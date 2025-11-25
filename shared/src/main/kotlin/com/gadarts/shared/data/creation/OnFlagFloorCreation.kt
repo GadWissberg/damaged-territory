@@ -13,7 +13,7 @@ class OnFlagFloorCreation(private val color: CharacterColor) : OnAmbCreation {
     ) {
         mapInflater.addAmbObject(
             position,
-            if (color == CharacterColor.BROWN) AmbDefinition.FLAG_BROWN else AmbDefinition.FLAG_GREEN,
+            AmbDefinition.FLAG,
             exculdedTiles,
             null,
             color
