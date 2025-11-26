@@ -9,11 +9,11 @@ import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.managers.GamePlayManagers
 import com.gadarts.shared.data.CharacterColor
 
-class AiJeepCharacterLogic(
+class AiJeepVehicleLogic(
     private val gameSessionData: GameSessionData,
     gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject,
-) : AiGroundCharacterLogic(gameSessionData, gamePlayManagers, autoAim), Disposable {
+) : AiGroundVehicleLogic(gameSessionData, gamePlayManagers, autoAim), Disposable {
     init {
         goal = AiCharacterGoals.GET_THE_RIVAL_FLAG
     }

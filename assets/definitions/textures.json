@@ -664,6 +664,12 @@
     },
     {
       "file_name": "guard_turret_cannon_dead_1_texture_brown"
+    },
+    {
+      "file_name": "pit_texture_brown"
+    },
+    {
+      "file_name": "pit_texture_green"
     }
   ]
 }

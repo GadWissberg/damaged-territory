@@ -7,10 +7,15 @@ import com.gadarts.returnfire.ecs.components.model.GameModelInstance
 import com.gadarts.shared.GameAssetManager
 import com.gadarts.shared.SharedUtils
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.ImmutableGameModelInstanceInfo
 
 class GameModelInstanceFactory(private val assetsManager: GameAssetManager) {
-    fun createGameModelInstance(modelDefinition: ModelDefinition, customTexture: String? = null): GameModelInstance {
+    fun createGameModelInstance(
+        modelDefinition: ModelDefinition,
+        customTexture: String? = null,
+        color: CharacterColor? = null
+    ): GameModelInstance {
         val paths = modelDefinition.getPaths()
         val selectedIndex = random(paths.size - 1)
         val shadow =
@@ -21,11 +26,11 @@ class GameModelInstanceFactory(private val assetsManager: GameAssetManager) {
                 )
             ) else null
         val modelInstance = ModelInstance(assetsManager.getAssetByDefinition(modelDefinition, selectedIndex))
-        if (customTexture != null) {
-            SharedUtils.applyCustomTextureToModelInstance(
+        if (customTexture != null && color != null) {
+            SharedUtils.applyCustomTexturePerColorToModelInstance(
                 assetsManager,
                 modelInstance,
-                customTexture,
+                customTexture, color,
                 modelDefinition.mainMaterialIndex
             )
         }

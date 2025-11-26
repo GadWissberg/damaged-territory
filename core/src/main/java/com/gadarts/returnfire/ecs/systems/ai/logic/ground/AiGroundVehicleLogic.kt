@@ -13,8 +13,8 @@ import com.badlogic.gdx.utils.Disposable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
-import com.gadarts.returnfire.ecs.systems.ai.logic.AiCharacterLogic
-import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiGroundCharacterLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
+import com.gadarts.returnfire.ecs.systems.ai.logic.AiVehicleLogic
+import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiGroundVehicleLogic.BaseRotationAnglesMatch.MAX_LOOKING_AHEAD
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiStatus
 import com.gadarts.returnfire.ecs.systems.ai.logic.status.AiTurretStatus
 import com.gadarts.returnfire.ecs.systems.character.handlers.CharacterShootingHandler
@@ -28,11 +28,11 @@ import com.gadarts.shared.assets.definitions.SoundDefinition
 import kotlin.math.abs
 import kotlin.math.atan2
 
-abstract class AiGroundCharacterLogic(
+abstract class AiGroundVehicleLogic(
     private val gameSessionData: GameSessionData,
-    private val gamePlayManagers: GamePlayManagers,
+    gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject,
-) : AiCharacterLogic(gamePlayManagers.dispatcher, gameSessionData, gamePlayManagers.assetsManager.gameSettings),
+) : AiVehicleLogic(gamePlayManagers, gameSessionData),
     Disposable {
     private val movementHandler: TankMovementHandlerDesktop by lazy {
         val movementHandler = TankMovementHandlerDesktop()
@@ -708,14 +708,14 @@ abstract class AiGroundCharacterLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                rayTest(
-                    position,
-                    direction,
-                    collisionWorld,
-                    callback,
-                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                    MAX_LOOKING_AHEAD
-                ) || rayTest(
+                    rayTest(
+                        position,
+                        direction,
+                        collisionWorld,
+                        callback,
+                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                        MAX_LOOKING_AHEAD
+                    ) || rayTest(
                 position,
                 direction,
                 collisionWorld,

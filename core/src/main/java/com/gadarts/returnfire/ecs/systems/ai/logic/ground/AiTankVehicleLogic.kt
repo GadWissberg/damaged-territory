@@ -5,13 +5,13 @@ import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiCharacterGoals
 import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.managers.GamePlayManagers
 
-class AiTankCharacterLogic(
+class AiTankVehicleLogic(
     gameSessionData: GameSessionData,
     autoAim: btPairCachingGhostObject,
     gamePlayManagers: GamePlayManagers
-) : AiGroundCharacterLogic(gameSessionData, gamePlayManagers, autoAim) {
+) : AiGroundVehicleLogic(gameSessionData, gamePlayManagers, autoAim) {
     init {
-        goal = AiCharacterGoals.ATTACK_PLAYER
+        goal = AiCharacterGoals.ATTACK_TARGET
     }
 
 

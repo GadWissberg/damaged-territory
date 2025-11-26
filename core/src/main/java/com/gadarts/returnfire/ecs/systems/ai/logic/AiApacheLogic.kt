@@ -19,9 +19,9 @@ import com.gadarts.shared.assets.definitions.SoundDefinition
 
 class AiApacheLogic(
     private val gameSessionData: GameSessionData,
-    private val gamePlayManagers: GamePlayManagers,
+    gamePlayManagers: GamePlayManagers,
     autoAim: btPairCachingGhostObject
-) : AiCharacterLogic(gamePlayManagers.dispatcher, gameSessionData, gamePlayManagers.assetsManager.gameSettings) {
+) : AiVehicleLogic(gamePlayManagers, gameSessionData) {
     private var nextStrafeActivation: Long = 0
     private val shootingHandler = CharacterShootingHandler(
         gamePlayManagers.soundManager, gamePlayManagers.assetsManager.getAssetByDefinition(
@@ -34,8 +34,8 @@ class AiApacheLogic(
     }
 
     init {
-        goal = AiCharacterGoals.ATTACK_PLAYER
-        shootingHandler.initialize(dispatcher, gameSessionData, autoAim)
+        goal = AiCharacterGoals.ATTACK_TARGET
+        shootingHandler.initialize(gamePlayManagers.dispatcher, gameSessionData, autoAim)
     }
 
     override fun preUpdate(character: Entity, deltaTime: Float) {

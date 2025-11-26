@@ -1,6 +1,6 @@
 {
   "development": {
-    "map": "map_1",
+    "map": "small",
     "print_bit_map": false,
     "show_object_pool_profiling": false,
     "show_collision_shapes": false,

@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.shared.assets.utils.ModelCollisionShapeInfo
+import com.gadarts.shared.data.CharacterColor
 
 object SharedUtils {
     const val GAME_VIEW_FOV = 60F
@@ -118,15 +119,17 @@ object SharedUtils {
         return compoundShape
     }
 
-    fun applyCustomTextureToModelInstance(
+    fun applyCustomTexturePerColorToModelInstance(
         assetsManager: GameAssetManager,
         modelInstance: ModelInstance,
         customTexture: String,
-        materialIndex: Int = 0,
+        color: CharacterColor,
+        materialIndex: Int = 0
     ) {
         val textureAttribute: TextureAttribute =
             modelInstance.materials.get(materialIndex).get(TextureAttribute.Diffuse) as TextureAttribute
-        textureAttribute.textureDescription.texture = assetsManager.getTexture(customTexture)
+        textureAttribute.textureDescription.texture =
+            assetsManager.getTexture("${customTexture}_${color.name.lowercase()}")
     }
 
 }

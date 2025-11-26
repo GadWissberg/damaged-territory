@@ -85,7 +85,8 @@ class MapInflaterImpl(
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
                 ambDefinition.getModelDefinition(),
-                ambDefinition.customTexture
+                ambDefinition.customTexturePerColor,
+                color
             )
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
             .begin()
@@ -121,9 +122,9 @@ class MapInflaterImpl(
         if (ambDefinition == AmbDefinition.PALM_TREE) {
             entityBuilder.addTreeComponentToEntity(entity)
         } else if (ambDefinition.getModelDefinition() == ModelDefinition.FLAG) {
-            entityBuilder.addFlagComponentToEntity(entity, ambDefinitionToColor(ambDefinition))
+            entityBuilder.addFlagComponentToEntity(entity, color!!)
         } else if (ambDefinition.getModelDefinition() == ModelDefinition.FLAG_FLOOR) {
-            entityBuilder.addFlagFloorComponentToEntity(entity, ambDefinitionToColor(ambDefinition))
+            entityBuilder.addFlagFloorComponentToEntity(entity, color!!)
         }
     }
 
@@ -304,16 +305,6 @@ class MapInflaterImpl(
             val transform =
                 ComponentsMapper.modelInstance.get(it).gameModelInstance.modelInstance.transform
             transform.scl(scale).rotate(Vector3.Y, ComponentsMapper.amb.get(it).rotation)
-        }
-    }
-
-    private fun ambDefinitionToColor(ambDefinition: AmbDefinition): CharacterColor {
-        return when (ambDefinition) {
-            AmbDefinition.FLAG_BROWN -> CharacterColor.BROWN
-            AmbDefinition.FLAG_GREEN -> CharacterColor.GREEN
-            AmbDefinition.FLAG_FLOOR_BROWN -> CharacterColor.BROWN
-            AmbDefinition.FLAG_FLOOR_GREEN -> CharacterColor.GREEN
-            else -> throw IllegalArgumentException("Amb definition $ambDefinition is not a flag!")
         }
     }
 
@@ -597,8 +588,8 @@ class MapInflaterImpl(
                 def.getName().lowercase() == definition
             }
             it.type == ElementType.CHARACTER
-                && elementDefinition != SimpleCharacterDefinition.APACHE
-                && elementDefinition != TurretCharacterDefinition.TANK
+                    && elementDefinition != SimpleCharacterDefinition.APACHE
+                    && elementDefinition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 val elementDefinition = stringToDefinition(it.definition, ElementType.CHARACTER)

@@ -61,10 +61,11 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
         val definition = placeableObject.definition
         val definitionPerColor = definition.customTexturePerColor()
         if (definitionPerColor != null && placeableObject.color != null) {
-            SharedUtils.applyCustomTextureToModelInstance(
+            SharedUtils.applyCustomTexturePerColorToModelInstance(
                 gameAssetsManager,
                 modelInstance,
-                "${definitionPerColor}_${placeableObject.color.name.lowercase()}"
+                definitionPerColor,
+                placeableObject.color
             )
         }
     }

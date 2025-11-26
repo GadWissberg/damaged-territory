@@ -11,8 +11,8 @@ import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ai.BaseAiComponent
 import com.gadarts.returnfire.ecs.components.turret.TurretComponent
 import com.gadarts.returnfire.ecs.systems.ai.logic.goals.AiOpponentGoal
-import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiJeepCharacterLogic
-import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiTankCharacterLogic
+import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiJeepVehicleLogic
+import com.gadarts.returnfire.ecs.systems.ai.logic.ground.AiTankVehicleLogic
 import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.OpponentEnteredGameplayScreenEventData
@@ -37,7 +37,7 @@ class AiLogicHandler(
     private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(Family.all(TurretComponent::class.java, BaseAiComponent::class.java).get())
     }
-    private val aiEnemyTurretLogic by lazy { AiEnemyTurretLogic(gameSessionData, gamePlayManagers) }
+    private val aiGuardTurretLogic by lazy { AiGuardTurretLogic(gameSessionData, gamePlayManagers) }
 
     private val logics = mapOf(
         SimpleCharacterDefinition.APACHE to AiApacheLogic(
@@ -45,12 +45,12 @@ class AiLogicHandler(
             gamePlayManagers,
             autoAim
         ),
-        TurretCharacterDefinition.TANK to AiTankCharacterLogic(
+        TurretCharacterDefinition.TANK to AiTankVehicleLogic(
             gameSessionData,
             autoAim,
             gamePlayManagers
         ),
-        TurretCharacterDefinition.JEEP to AiJeepCharacterLogic(
+        TurretCharacterDefinition.JEEP to AiJeepVehicleLogic(
             gameSessionData,
             gamePlayManagers,
             autoAim,
@@ -92,11 +92,11 @@ class AiLogicHandler(
             val characterComponent = ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base)
             if (characterComponent == null || characterComponent.dead || ComponentsMapper.deathSequence.has(turret)) continue
 
-            aiEnemyTurretLogic.attack(deltaTime, turret)
+            aiGuardTurretLogic.attack(deltaTime, turret)
         }
     }
 
-    private fun updateLogic(character: Entity, deltaTime: Float, logic: AiCharacterLogic) {
+    private fun updateLogic(character: Entity, deltaTime: Float, logic: AiVehicleLogic) {
         logic.preUpdate(character, deltaTime)
         logic.update(character, deltaTime)
     }

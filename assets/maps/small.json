@@ -33,6 +33,38 @@
       "row": 9,
       "column": 9,
       "rotation": 0.0
+    },
+    {
+      "definition": "OPPONENT_BASE",
+      "type": "AMB",
+      "row": 6,
+      "column": 4,
+      "rotation": 0.0,
+      "color": "BROWN"
+    },
+    {
+      "definition": "OPPONENT_BASE",
+      "type": "AMB",
+      "row": 11,
+      "column": 10,
+      "rotation": 0.0,
+      "color": "GREEN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 5,
+      "column": 7,
+      "rotation": 0.0,
+      "color": "BROWN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 9,
+      "column": 12,
+      "rotation": 0.0,
+      "color": "GREEN"
     }
   ],
   "width": 64,
