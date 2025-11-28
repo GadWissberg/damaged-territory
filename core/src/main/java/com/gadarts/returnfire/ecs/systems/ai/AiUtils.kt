@@ -9,18 +9,25 @@ import com.gadarts.returnfire.ecs.systems.ai.logic.AiVehicleLogic.Companion.auxV
 import com.gadarts.returnfire.ecs.systems.ai.logic.AiVehicleLogic.Companion.auxVector2
 
 object AiUtils {
-    fun findNearestRivalCharacter(character: Entity, enemies: ImmutableArray<Entity>): Entity? {
+    fun findNearestRivalCharacter(
+        character: Entity,
+        rivalCharacters: ImmutableArray<Entity>,
+        maxDistance: Float
+    ): Entity? {
         var nearestEnemy: Entity? = null
         ComponentsMapper.physics.get(character).rigidBody.motionState.getWorldTransform(auxMatrix1)
-        var lowestDistance = Float.MAX_VALUE
-        for (enemy in enemies) {
-            ComponentsMapper.physics.get(enemy).rigidBody.motionState.getWorldTransform(auxMatrix2)
-            val enemyPosition = auxMatrix2.getTranslation(auxVector2)
-            val characterPosition = auxMatrix1.getTranslation(auxVector1)
-            val distanceToEnemy = characterPosition.dst2(enemyPosition)
-            if (nearestEnemy == null || distanceToEnemy < lowestDistance) {
-                nearestEnemy = enemy
-                lowestDistance = distanceToEnemy
+        var lowestDistance = maxDistance
+        for (rivalCharacter in rivalCharacters) {
+            if (!ComponentsMapper.boarding.has(rivalCharacter)) {
+                val physicsComponent = ComponentsMapper.physics.get(rivalCharacter)
+                physicsComponent.rigidBody.motionState.getWorldTransform(auxMatrix2)
+                val enemyPosition = auxMatrix2.getTranslation(auxVector2)
+                val characterPosition = auxMatrix1.getTranslation(auxVector1)
+                val distanceToEnemy = characterPosition.dst2(enemyPosition)
+                if (nearestEnemy == null || distanceToEnemy < lowestDistance) {
+                    nearestEnemy = rivalCharacter
+                    lowestDistance = distanceToEnemy
+                }
             }
         }
         return nearestEnemy

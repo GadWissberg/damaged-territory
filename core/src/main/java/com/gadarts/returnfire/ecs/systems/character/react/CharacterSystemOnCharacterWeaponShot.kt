@@ -29,9 +29,13 @@ abstract class CharacterSystemOnCharacterWeaponShot(private val characterSystem:
         positionSpark(arm, shooter, relativePosition)
         initiateTurretKickoff(shooter, arm)
         val bulletDirection: Matrix4 = calculateBulletDirection(shooter, relativePosition, arm)
+        val shooterBase =
+            if (ComponentsMapper.turret.has(shooter)) ComponentsMapper.turret.get(shooter).base else shooter
+        val characterComponent = ComponentsMapper.character.get(shooterBase)
+        val color = characterComponent.color
         BulletCreationRequestEventData.set(
             arm,
-            ComponentsMapper.player.has(CharacterWeaponShotEventData.shooter),
+            color,
             relativePosition,
             bulletDirection,
             CharacterWeaponShotEventData.target,

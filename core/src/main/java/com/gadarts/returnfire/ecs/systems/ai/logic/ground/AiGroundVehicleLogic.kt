@@ -699,7 +699,7 @@ abstract class AiGroundVehicleLogic(
 
             callback.collisionFilterGroup = BulletEngineHandler.COLLISION_GROUP_GENERAL
             callback.collisionFilterMask =
-                BulletEngineHandler.COLLISION_GROUP_PLAYER or BulletEngineHandler.COLLISION_GROUP_AI or BulletEngineHandler.COLLISION_GROUP_GENERAL
+                BulletEngineHandler.COLLISION_GROUP_BROWN or BulletEngineHandler.COLLISION_GROUP_GREEN or BulletEngineHandler.COLLISION_GROUP_GENERAL
             val collided = rayTest(
                 position,
                 direction,
@@ -743,7 +743,7 @@ abstract class AiGroundVehicleLogic(
             val direction = auxVector3_1.set(Vector3.X).rot(transform).rotate(Vector3.Y, rotationAroundY).nor()
             callback.collisionFilterGroup = BulletEngineHandler.COLLISION_GROUP_GENERAL
             callback.collisionFilterMask =
-                BulletEngineHandler.COLLISION_GROUP_PLAYER or BulletEngineHandler.COLLISION_GROUP_GENERAL
+                BulletEngineHandler.COLLISION_GROUP_BROWN or BulletEngineHandler.COLLISION_GROUP_GENERAL
             val collided = rayTest(
                 position,
                 direction,

@@ -37,7 +37,7 @@ abstract class AiVehicleLogic(
             val isEnemy = ComponentsMapper.character.get(character).color == CharacterColor.GREEN
             target =
                 if (isEnemy) gameSessionData.gamePlayData.player else AiUtils.findNearestRivalCharacter(
-                    character, enemies
+                    character, enemies, Float.MAX_VALUE
                 )
             setTarget(character, target)
         }

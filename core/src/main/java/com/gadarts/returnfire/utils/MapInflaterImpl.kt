@@ -368,6 +368,7 @@ class MapInflaterImpl(
     private fun addCharacter(
         position: Vector3,
         characterDefinition: CharacterDefinition,
+        color: CharacterColor?,
     ) {
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(characterDefinition.getModelDefinition())
@@ -377,25 +378,31 @@ class MapInflaterImpl(
                 position,
                 null,
                 0F,
-                gamePlayManagers.assetsManager.gameSettings.hideEnemies
+                gamePlayManagers.assetsManager.gameSettings.hideEnemies,
             )
-            .addCharacterComponent(TurretCharacterDefinition.GUARD_TURRET_CANNON, CharacterColor.GREEN)
+            .addCharacterComponent(TurretCharacterDefinition.GUARD_TURRET_CANNON, color!!)
         GeneralUtils.addColorComponent(
             entityBuilder,
-            CharacterColor.GREEN
+            color
         )
-        val baseEntity = entityBuilder
+        val character = entityBuilder
             .addBaseAiComponent(characterDefinition.getHP())
             .addTurretBaseComponent()
             .finishAndAddToEngine()
+        SharedUtils.applyCustomTexturePerColorToModelInstance(
+            gamePlayManagers.assetsManager,
+            ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance,
+            characterDefinition.customTexturePerColor()!!,
+            color
+        )
         addPhysicsToObject(
-            baseEntity,
+            character,
             gameModelInstance,
             CollisionFlags.CF_STATIC_OBJECT,
             0F,
         )
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
-            addTurret(baseEntity)
+            addTurret(character)
         }
     }
 
@@ -588,14 +595,15 @@ class MapInflaterImpl(
                 def.getName().lowercase() == definition
             }
             it.type == ElementType.CHARACTER
-                    && elementDefinition != SimpleCharacterDefinition.APACHE
-                    && elementDefinition != TurretCharacterDefinition.TANK
+                && elementDefinition != SimpleCharacterDefinition.APACHE
+                && elementDefinition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 val elementDefinition = stringToDefinition(it.definition, ElementType.CHARACTER)
                 addCharacter(
                     auxVector2.set(it.column.toFloat() + 0.5F, 0.01F, it.row.toFloat() + 0.5F),
                     elementDefinition as CharacterDefinition,
+                    it.color
                 )
             }
     }

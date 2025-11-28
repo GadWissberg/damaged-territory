@@ -2,7 +2,7 @@ package com.gadarts.returnfire.ecs.components.ai
 
 import com.badlogic.ashley.core.Component
 
-class TurretEnemyAiComponent : Component {
+class GuardTurretAiComponent : Component {
     var attackReadyTime: Long = 0
     var attackReady: Boolean = true
 

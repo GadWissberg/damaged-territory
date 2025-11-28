@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.returnfire.ecs.components.arm.ArmComponent
+import com.gadarts.shared.data.CharacterColor
 
 object BulletCreationRequestEventData {
     var aimSky: Boolean = false
@@ -12,21 +13,21 @@ object BulletCreationRequestEventData {
         private set
     val direction: Matrix4 = Matrix4()
     val relativePosition = Vector3()
-    var friendly: Boolean = false
+    var color: CharacterColor = CharacterColor.BROWN
         private set
     lateinit var armComponent: ArmComponent
         private set
 
     fun set(
         arm: ArmComponent,
-        friendly: Boolean,
+        color: CharacterColor,
         relativePosition: Vector3,
         direction: Matrix4,
         target: Entity?,
         aimSky: Boolean
     ) {
         this.armComponent = arm
-        this.friendly = friendly
+        this.color = color
         this.relativePosition.set(relativePosition)
         this.direction.set(direction)
         this.target = target

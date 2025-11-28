@@ -65,8 +65,8 @@ class AiSystemImpl(gamePlayManagers: GamePlayManagers) : AiSystem, GameEntitySys
     }
     private val autoAim by lazy {
         gamePlayManagers.factories.autoAimShapeFactory.generate(
-            BulletEngineHandler.COLLISION_GROUP_AI,
-            BulletEngineHandler.COLLISION_GROUP_PLAYER,
+            BulletEngineHandler.COLLISION_GROUP_GREEN,
+            BulletEngineHandler.COLLISION_GROUP_BROWN,
         )
     }
 

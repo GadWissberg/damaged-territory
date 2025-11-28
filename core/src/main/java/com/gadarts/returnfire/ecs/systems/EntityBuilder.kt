@@ -125,7 +125,7 @@ interface EntityBuilder {
     ): EntityBuilder
 
     fun addAmbComponent(rotation: Float, def: AmbDefinition, scale: Vector3): EntityBuilder
-    fun addBaseAiComponent(initialHp: Float, target: Entity? = null): EntityBuilder
+    fun addBaseAiComponent(initialHp: Float): EntityBuilder
     fun addBaseAiComponentToEntity(entity: Entity, initialHp: Float, target: Entity? = null): BaseAiComponent
     fun addPhysicsComponent(
         shape: btCollisionShape,
@@ -151,7 +151,7 @@ interface EntityBuilder {
         bulletBehavior: BulletBehavior,
         explosion: ParticleEffectDefinition?,
         explosive: Boolean,
-        friendly: Boolean,
+        color: CharacterColor,
         damage: Float,
         destroyOnSky: Boolean
     ): EntityBuilder

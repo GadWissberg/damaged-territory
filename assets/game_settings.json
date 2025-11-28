@@ -18,7 +18,7 @@
     "hide_amb_objects": false,
     "hide_bullet_holes": false,
     "render_only_first_floor_layer": false,
-    "force_player_hp": -1,
+    "force_player_hp": 1000000,
     "force_enemy_hp": -1.0,
     "force_ammo": -1,
     "force_initial_fuel": -1.0,

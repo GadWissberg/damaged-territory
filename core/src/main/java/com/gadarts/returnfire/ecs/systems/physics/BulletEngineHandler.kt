@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.systems.data.CollisionShapesDebugDrawing
 import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
+import com.gadarts.shared.data.CharacterColor
 
 class BulletEngineHandler(
     private val gameSessionData: GameSessionData,
@@ -60,29 +61,29 @@ class BulletEngineHandler(
             val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
             if (isBullet) {
                 val bulletComponent = ComponentsMapper.bullet.get(entity)
-                val friendly = bulletComponent.friendly
+                val color = bulletComponent.color
                 val mask =
-                    0x11111111 xor (if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_AI_BULLET)
+                    0x11111111 xor (if (color == CharacterColor.BROWN) COLLISION_GROUP_BROWN_BULLET else COLLISION_GROUP_GREEN_BULLET)
                 btRigidBody.contactCallbackFilter = mask
                 collisionWorld.addRigidBody(
                     btRigidBody,
-                    if (friendly) COLLISION_GROUP_PLAYER_BULLET else COLLISION_GROUP_AI_BULLET,
+                    if (color == CharacterColor.BROWN) COLLISION_GROUP_BROWN_BULLET else COLLISION_GROUP_GREEN_BULLET,
                     mask
                 )
-            } else if (ComponentsMapper.player.has(entity)) {
+            } else if (ComponentsMapper.brown.has(entity)) {
                 val mask =
-                    COLLISION_GROUP_AI_BULLET or COLLISION_GROUP_AI or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
+                    COLLISION_GROUP_GREEN_BULLET or COLLISION_GROUP_GREEN or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
                 btRigidBody.contactCallbackFilter = mask
                 collisionWorld.addRigidBody(
                     btRigidBody,
-                    COLLISION_GROUP_PLAYER,
+                    COLLISION_GROUP_BROWN,
                     mask
                 )
-            } else if (ComponentsMapper.baseAi.has(entity)) {
+            } else if (ComponentsMapper.green.has(entity)) {
                 collisionWorld.addRigidBody(
                     btRigidBody,
-                    COLLISION_GROUP_AI,
-                    COLLISION_GROUP_PLAYER or COLLISION_GROUP_AI or COLLISION_GROUP_GENERAL or COLLISION_GROUP_PLAYER_BULLET or COLLISION_GROUP_GROUND
+                    COLLISION_GROUP_GREEN,
+                    COLLISION_GROUP_BROWN or COLLISION_GROUP_GREEN or COLLISION_GROUP_GENERAL or COLLISION_GROUP_BROWN_BULLET or COLLISION_GROUP_GROUND
                 )
             } else if (ComponentsMapper.ground.has(entity)) {
                 btRigidBody.contactCallbackFilter = AllFilter
@@ -110,7 +111,7 @@ class BulletEngineHandler(
             collisionWorld.addCollisionObject(
                 ghostObject,
                 COLLISION_GROUP_GENERAL,
-                COLLISION_GROUP_AI_BULLET or COLLISION_GROUP_AI
+                COLLISION_GROUP_GREEN_BULLET or COLLISION_GROUP_GREEN
             )
         }
     }
@@ -182,10 +183,10 @@ class BulletEngineHandler(
 
     companion object {
         val auxVector = Vector3()
-        const val COLLISION_GROUP_PLAYER = 0x00000001
-        const val COLLISION_GROUP_AI = 0x00000010
-        const val COLLISION_GROUP_PLAYER_BULLET = 0x00000100
-        const val COLLISION_GROUP_AI_BULLET = 0x00001000
+        const val COLLISION_GROUP_BROWN = 0x00000001
+        const val COLLISION_GROUP_GREEN = 0x00000010
+        const val COLLISION_GROUP_BROWN_BULLET = 0x00000100
+        const val COLLISION_GROUP_GREEN_BULLET = 0x00001000
         const val COLLISION_GROUP_GENERAL = 0x00010000
         const val COLLISION_GROUP_GROUND = 0x00100000
         const val COLLISION_GROUP_FLYING_PART = 0x01000000

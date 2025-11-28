@@ -11,7 +11,6 @@ import com.gadarts.returnfire.ecs.components.BrownComponent
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.GreenComponent
 import com.gadarts.returnfire.ecs.systems.ai.AiUtils
-import com.gadarts.returnfire.ecs.systems.data.session.GameSessionData
 import com.gadarts.returnfire.ecs.systems.events.SystemEvents
 import com.gadarts.returnfire.ecs.systems.events.data.CharacterWeaponShotEventData
 import com.gadarts.returnfire.managers.GamePlayManagers
@@ -20,7 +19,7 @@ import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sqrt
 
-class AiGuardTurretLogic(private val gameSessionData: GameSessionData, private val gamePlayManagers: GamePlayManagers) {
+class AiGuardTurretLogic(private val gamePlayManagers: GamePlayManagers) {
     private val greens by lazy {
         gamePlayManagers.ecs.engine.getEntitiesFor(
             Family.all(GreenComponent::class.java).get()
@@ -50,7 +49,7 @@ class AiGuardTurretLogic(private val gameSessionData: GameSessionData, private v
                 ComponentsMapper.modelInstance.get(target).gameModelInstance.modelInstance.transform.getTranslation(
                     auxVector3_1
                 )
-            if (position.dst2(targetPosition) > 90F) return
+            if (position.dst2(targetPosition) > MAX_DISTANCE) return
 
             val directionToTarget = auxVector3_3.set(targetPosition).sub(position).nor()
             val currentRotation = transform.getRotation(auxQuat1)
@@ -98,7 +97,7 @@ class AiGuardTurretLogic(private val gameSessionData: GameSessionData, private v
                         gamePlayManagers.soundManager.play(armProperties.shootingSound, position)
                         CharacterWeaponShotEventData.setWithTarget(
                             turret,
-                            target!!,
+                            target,
                         )
                         gamePlayManagers.dispatcher.dispatchMessage(SystemEvents.CHARACTER_WEAPON_ENGAGED_PRIMARY.ordinal)
                     } else if (turretEnemyAiComponent.attackReadyTime <= now) {
@@ -113,7 +112,7 @@ class AiGuardTurretLogic(private val gameSessionData: GameSessionData, private v
         } else {
             val color = ComponentsMapper.character.get(ComponentsMapper.turret.get(turret).base).color
             baseAiComponent.target =
-                AiUtils.findNearestRivalCharacter(turret, if (color == CharacterColor.GREEN) browns else greens)
+                AiUtils.findNearestRivalCharacter(turret, if (color == CharacterColor.GREEN) browns else greens, MAX_DISTANCE)
         }
     }
 
@@ -128,5 +127,6 @@ class AiGuardTurretLogic(private val gameSessionData: GameSessionData, private v
         private val auxQuat1 = Quaternion()
         private val auxQuat2 = Quaternion()
         private const val ROTATION_STEP_SIZE = 40F
+        private const val MAX_DISTANCE = 90F
     }
 }

@@ -98,8 +98,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(ApacheAiComponent::class.java)
     val groundCharacterAi: ComponentMapper<GroundCharacterAiComponent> =
         ComponentMapper.getFor(GroundCharacterAiComponent::class.java)
-    val turretEnemyAi: ComponentMapper<TurretEnemyAiComponent> =
-        ComponentMapper.getFor(TurretEnemyAiComponent::class.java)
+    val turretEnemyAi: ComponentMapper<GuardTurretAiComponent> =
+        ComponentMapper.getFor(GuardTurretAiComponent::class.java)
     val frontWheels: ComponentMapper<FrontWheelsComponent> =
         ComponentMapper.getFor(FrontWheelsComponent::class.java)
     val turretCannon: ComponentMapper<TurretCannonComponent> =
@@ -110,4 +110,8 @@ object ComponentsMapper {
         ComponentMapper.getFor(FlagComponent::class.java)
     val flagFloor: ComponentMapper<FlagFloorComponent> =
         ComponentMapper.getFor(FlagFloorComponent::class.java)
+    val green: ComponentMapper<GreenComponent> =
+        ComponentMapper.getFor(GreenComponent::class.java)
+    val brown: ComponentMapper<BrownComponent> =
+        ComponentMapper.getFor(BrownComponent::class.java)
 }

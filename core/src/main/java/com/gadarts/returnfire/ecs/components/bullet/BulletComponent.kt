@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.Pool.Poolable
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.shared.assets.definitions.ParticleEffectDefinition
+import com.gadarts.shared.data.CharacterColor
 
 class BulletComponent : Component, Poolable {
     var destroyOnSky: Boolean = false
@@ -12,7 +13,7 @@ class BulletComponent : Component, Poolable {
         private set
     var damage: Float = 0F
         private set
-    var friendly: Boolean = false
+    var color: CharacterColor = CharacterColor.BROWN
         private set
     var explosive: Boolean = false
         private set
@@ -31,7 +32,7 @@ class BulletComponent : Component, Poolable {
         behavior: BulletBehavior,
         explosion: ParticleEffectDefinition?,
         explosive: Boolean,
-        friendly: Boolean,
+        color: CharacterColor,
         damage: Float,
         destroyOnSky: Boolean
     ) {
@@ -39,7 +40,7 @@ class BulletComponent : Component, Poolable {
         this.createdTime = TimeUtils.millis()
         this.explosion = explosion
         this.explosive = explosive
-        this.friendly = friendly
+        this.color = color
         this.damage = damage
         this.destroyed = false
         this.destroyOnSky = destroyOnSky

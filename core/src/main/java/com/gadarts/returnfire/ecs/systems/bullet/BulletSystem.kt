@@ -186,7 +186,7 @@ class BulletSystem(gamePlayManagers: GamePlayManagers) : GameEntitySystem(gamePl
                 bulletBehavior,
                 BulletCreationRequestEventData.armComponent.armProperties.effectsData.explosion,
                 BulletCreationRequestEventData.armComponent.armProperties.explosive,
-                BulletCreationRequestEventData.friendly,
+                BulletCreationRequestEventData.color,
                 BulletCreationRequestEventData.armComponent.armProperties.damage,
                 BulletCreationRequestEventData.armComponent.armProperties.destroyOnSky
             )

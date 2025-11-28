@@ -37,7 +37,7 @@ class AiLogicHandler(
     private val enemyTurretEntities: ImmutableArray<Entity> by lazy {
         engine.getEntitiesFor(Family.all(TurretComponent::class.java, BaseAiComponent::class.java).get())
     }
-    private val aiGuardTurretLogic by lazy { AiGuardTurretLogic(gameSessionData, gamePlayManagers) }
+    private val aiGuardTurretLogic by lazy { AiGuardTurretLogic(gamePlayManagers) }
 
     private val logics = mapOf(
         SimpleCharacterDefinition.APACHE to AiApacheLogic(

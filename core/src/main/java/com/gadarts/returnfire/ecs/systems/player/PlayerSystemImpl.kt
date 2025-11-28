@@ -65,8 +65,8 @@ class PlayerSystemImpl(gamePlayManagers: GamePlayManagers) : GameEntitySystem(ga
     private val autoAim by lazy {
         if (gameSessionData.autoAim) {
             gamePlayManagers.factories.autoAimShapeFactory.generate(
-                BulletEngineHandler.COLLISION_GROUP_PLAYER,
-                BulletEngineHandler.COLLISION_GROUP_AI
+                BulletEngineHandler.COLLISION_GROUP_BROWN,
+                BulletEngineHandler.COLLISION_GROUP_GREEN
             )
         } else {
             null
