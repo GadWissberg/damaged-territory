@@ -228,7 +228,7 @@ abstract class AiGroundVehicleLogic(
         val turret = ComponentsMapper.turretBase.get(character).turret ?: return
 
         val playerTransform =
-            ComponentsMapper.modelInstance.get(gameSessionData.gamePlayData.player).gameModelInstance.modelInstance.transform
+            ComponentsMapper.modelInstance.get(ComponentsMapper.aiTurret.get(turret).target).gameModelInstance.modelInstance.transform
         val destinationPosition = playerTransform.getTranslation(auxVector3_1)
         val aiTurretComponent = ComponentsMapper.aiTurret.get(turret)
         if (aiTurretComponent.state == AiTurretStatus.ATTACK) {
@@ -345,7 +345,6 @@ abstract class AiGroundVehicleLogic(
         ) {
             val aiTurretComponent = ComponentsMapper.aiTurret.get(character)
             aiTurretComponent.state = AiTurretStatus.ATTACK
-            aiTurretComponent.target = gameSessionData.gamePlayData.player
             aiTurretComponent.nextLookingAroundTime = System.currentTimeMillis() + MathUtils.random(6000L)
         }
 
@@ -708,14 +707,14 @@ abstract class AiGroundVehicleLogic(
                 Vector3(RAY_FORWARD_OFFSET, 0F, 0F).rot(transform),
                 MAX_LOOKING_AHEAD
             ) ||
-                    rayTest(
-                        position,
-                        direction,
-                        collisionWorld,
-                        callback,
-                        auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
-                        MAX_LOOKING_AHEAD
-                    ) || rayTest(
+                rayTest(
+                    position,
+                    direction,
+                    collisionWorld,
+                    callback,
+                    auxVector3_3.set(RAY_FORWARD_OFFSET, 0F, RAY_FORWARD_SIDE_OFFSET).rot(transform),
+                    MAX_LOOKING_AHEAD
+                ) || rayTest(
                 position,
                 direction,
                 collisionWorld,

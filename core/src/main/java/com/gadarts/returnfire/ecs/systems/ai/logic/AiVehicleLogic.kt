@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.returnfire.ecs.components.BrownComponent
 import com.gadarts.returnfire.ecs.components.ComponentsMapper
 import com.gadarts.returnfire.ecs.components.ComponentsMapper.baseAi
 import com.gadarts.returnfire.ecs.components.GreenComponent
@@ -20,26 +21,31 @@ abstract class AiVehicleLogic(
     private val gameSessionData: GameSessionData,
 ) : Disposable {
     protected var goal: AiCharacterGoals = AiCharacterGoals.GET_THE_RIVAL_FLAG
-    private val enemies by lazy {
-        gamePlayManagers.ecs.engine.getEntitiesFor(
-            Family.all(GreenComponent::class.java).get()
-        )
+    private val greens by lazy {
+        gamePlayManagers.ecs.engine.getEntitiesFor(Family.all(GreenComponent::class.java).get())
+    }
+    private val browns by lazy {
+        gamePlayManagers.ecs.engine.getEntitiesFor(Family.all(BrownComponent::class.java).get())
     }
 
     open fun preUpdate(character: Entity, deltaTime: Float) {
-        val aiComponent = baseAi.get(character)
-        var target = aiComponent.target
-
-        if (goal == AiCharacterGoals.GET_THE_RIVAL_FLAG && (target == null || !ComponentsMapper.flag.has(target))) {
-            val rivalFlag = gameSessionData.gamePlayData.flags[CharacterColor.BROWN]
-            setTarget(character, rivalFlag)
-        } else if (goal == AiCharacterGoals.ATTACK_TARGET && (target == null || !ComponentsMapper.character.has(target))) {
-            val isEnemy = ComponentsMapper.character.get(character).color == CharacterColor.GREEN
-            target =
-                if (isEnemy) gameSessionData.gamePlayData.player else AiUtils.findNearestRivalCharacter(
-                    character, enemies, Float.MAX_VALUE
-                )
-            setTarget(character, target)
+        val rivalColor =
+            if (ComponentsMapper.character.get(character).color == CharacterColor.BROWN) CharacterColor.GREEN else CharacterColor.BROWN
+        val target = baseAi.get(character).target
+        val noTargetSet = target == null
+        if (noTargetSet || ComponentsMapper.flag.has(target) || ComponentsMapper.character.get(target).dead) {
+            val nearestRivalCharacter = AiUtils.findNearestRivalCharacter(
+                character, if (rivalColor == CharacterColor.BROWN) browns else greens, 20F
+            )
+            if (nearestRivalCharacter != null) {
+                goal = AiCharacterGoals.ATTACK_TARGET
+                setTarget(character, nearestRivalCharacter)
+            } else if (noTargetSet) {
+                goal = AiCharacterGoals.GET_THE_RIVAL_FLAG
+                val rivalFlag =
+                    gameSessionData.gamePlayData.flags[rivalColor]
+                setTarget(character, rivalFlag)
+            }
         }
     }
 
@@ -51,8 +57,8 @@ abstract class AiVehicleLogic(
         if (target == null) return
 
         baseAi.get(character).target = target
-        if (ComponentsMapper.aiTurret.has(character)) {
-            ComponentsMapper.aiTurret.get(character).target = target
+        if (ComponentsMapper.turretBase.has(character)) {
+            ComponentsMapper.aiTurret.get(ComponentsMapper.turretBase.get(character).turret).target = target
         }
     }
 

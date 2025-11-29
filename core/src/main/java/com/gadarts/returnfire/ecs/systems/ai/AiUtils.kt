@@ -18,7 +18,12 @@ object AiUtils {
         ComponentsMapper.physics.get(character).rigidBody.motionState.getWorldTransform(auxMatrix1)
         var lowestDistance = maxDistance
         for (rivalCharacter in rivalCharacters) {
-            if (!ComponentsMapper.boarding.has(rivalCharacter)) {
+            if (!ComponentsMapper.character.get(rivalCharacter).dead && (!ComponentsMapper.boarding.has(rivalCharacter) || !ComponentsMapper.boarding.get(
+                    rivalCharacter
+                )
+                    .isBoarding()
+                    )
+            ) {
                 val physicsComponent = ComponentsMapper.physics.get(rivalCharacter)
                 physicsComponent.rigidBody.motionState.getWorldTransform(auxMatrix2)
                 val enemyPosition = auxMatrix2.getTranslation(auxVector2)
