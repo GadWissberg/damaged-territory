@@ -58,52 +58,24 @@ class BulletEngineHandler(
         val collisionWorld = gameSessionData.physicsData.collisionWorld
         if (ComponentsMapper.physics.has(entity)) {
             val isBullet = ComponentsMapper.bullet.has(entity)
-            val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
             if (isBullet) {
-                val bulletComponent = ComponentsMapper.bullet.get(entity)
-                val color = bulletComponent.color
-                val mask =
-                    0x11111111 xor (if (color == CharacterColor.BROWN) COLLISION_GROUP_BROWN_BULLET else COLLISION_GROUP_GREEN_BULLET)
-                btRigidBody.contactCallbackFilter = mask
-                collisionWorld.addRigidBody(
-                    btRigidBody,
-                    if (color == CharacterColor.BROWN) COLLISION_GROUP_BROWN_BULLET else COLLISION_GROUP_GREEN_BULLET,
-                    mask
-                )
+                addBullet(entity)
             } else if (ComponentsMapper.brown.has(entity)) {
                 val mask =
                     COLLISION_GROUP_GREEN_BULLET or COLLISION_GROUP_GREEN or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL or COLLISION_GROUP_BROWN
-                collisionWorld.addRigidBody(
-                    btRigidBody,
-                    COLLISION_GROUP_BROWN,
-                    mask
-                )
+                addBody(entity, COLLISION_GROUP_BROWN, mask)
             } else if (ComponentsMapper.green.has(entity)) {
-                collisionWorld.addRigidBody(
-                    btRigidBody,
+                addBody(
+                    entity,
                     COLLISION_GROUP_GREEN,
                     COLLISION_GROUP_BROWN or COLLISION_GROUP_GREEN or COLLISION_GROUP_GENERAL or COLLISION_GROUP_BROWN_BULLET or COLLISION_GROUP_GROUND
                 )
             } else if (ComponentsMapper.ground.has(entity)) {
-                btRigidBody.contactCallbackFilter = AllFilter
-                collisionWorld.addRigidBody(
-                    btRigidBody,
-                    COLLISION_GROUP_GROUND,
-                    AllFilter
-                )
+                addGroundTile(entity)
             } else if (ComponentsMapper.flyingPart.has(entity)) {
-                collisionWorld.addRigidBody(
-                    btRigidBody,
-                    COLLISION_GROUP_FLYING_PART,
-                    COLLISION_GROUP_GROUND
-                )
+                addBody(entity, COLLISION_GROUP_FLYING_PART, COLLISION_GROUP_GROUND)
             } else {
-                btRigidBody.contactCallbackFilter = AllFilter
-                collisionWorld.addRigidBody(
-                    btRigidBody,
-                    COLLISION_GROUP_GENERAL,
-                    AllFilter
-                )
+                addGeneralEntity(entity)
             }
         } else if (ComponentsMapper.ghostPhysics.has(entity)) {
             val ghostObject = ComponentsMapper.ghostPhysics.get(entity).ghost
@@ -113,6 +85,53 @@ class BulletEngineHandler(
                 COLLISION_GROUP_GREEN_BULLET or COLLISION_GROUP_GREEN
             )
         }
+    }
+
+    private fun addGeneralEntity(entity: Entity) {
+        val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
+        btRigidBody.contactCallbackFilter = AllFilter
+        addBody(
+            entity,
+            COLLISION_GROUP_GENERAL,
+            AllFilter
+        )
+    }
+
+
+    private fun addGroundTile(entity: Entity) {
+        val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
+        btRigidBody.contactCallbackFilter = AllFilter
+        addBody(
+            entity,
+            COLLISION_GROUP_GROUND,
+            AllFilter
+        )
+    }
+
+    private fun addBody(entity: Entity, group: Int, mask: Int) {
+        val collisionWorld = gameSessionData.physicsData.collisionWorld
+        val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
+        collisionWorld.addRigidBody(
+            btRigidBody,
+            group,
+            mask
+        )
+    }
+
+    private fun addBullet(
+        entity: Entity,
+    ) {
+        val btRigidBody: btRigidBody = ComponentsMapper.physics.get(entity).rigidBody
+        val bulletComponent = ComponentsMapper.bullet.get(entity)
+        val color = bulletComponent.color
+        val mask =
+            0x11111111 xor (if (color == CharacterColor.BROWN) COLLISION_GROUP_BROWN_BULLET else COLLISION_GROUP_GREEN_BULLET)
+        btRigidBody.contactCallbackFilter = mask
+        addBody(
+            entity,
+            if (color == CharacterColor.BROWN) COLLISION_GROUP_BROWN_BULLET else COLLISION_GROUP_GREEN_BULLET,
+            mask
+        )
     }
 
     override fun entityRemoved(entity: Entity) {

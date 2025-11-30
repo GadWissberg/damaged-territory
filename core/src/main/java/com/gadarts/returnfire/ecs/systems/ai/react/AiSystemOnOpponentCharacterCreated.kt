@@ -20,7 +20,6 @@ class AiSystemOnOpponentCharacterCreated(
             val definition = characterComponent.definition
             gamePlayManagers.ecs.entityBuilder.addBaseAiComponentToEntity(
                 entity,
-                definition.getHP()
             )
             aiSystem.invokeAiComponentInitializer(definition, entity)
             val gameSettings = gamePlayManagers.assetsManager.gameSettings

@@ -54,11 +54,22 @@ import com.gadarts.shared.data.definitions.AmbDefinition
 import com.gadarts.shared.data.definitions.characters.CharacterDefinition
 
 class EntityBuilderImpl : EntityBuilder {
-
     private lateinit var gameSettings: GameSettings
     private lateinit var dispatcher: MessageDispatcher
     private lateinit var factories: Factories
     private lateinit var engine: PooledEngine
+
+    fun initialize(
+        engine: PooledEngine,
+        factories: Factories,
+        dispatcher: MessageDispatcher,
+        gameSettings: GameSettings
+    ) {
+        this.engine = engine
+        this.factories = factories
+        this.dispatcher = dispatcher
+        this.gameSettings = gameSettings
+    }
 
     override fun begin(): EntityBuilderImpl {
         entity = engine.createEntity()
@@ -76,29 +87,6 @@ class EntityBuilderImpl : EntityBuilder {
     ): EntityBuilderImpl {
         addModelInstanceComponent(entity!!, model, position, boundingBox, direction, hidden, texture, haloEffect)
         return this
-    }
-
-    private fun addModelInstanceComponent(
-        entity: Entity,
-        model: GameModelInstance,
-        position: Vector3,
-        boundingBox: BoundingBox?,
-        direction: Float,
-        hidden: Boolean,
-        texture: Texture?,
-        haloEffect: Boolean
-    ) {
-        val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
-        modelInstanceComponent.init(
-            gameModelInstance = model,
-            position = position,
-            boundingBox = boundingBox,
-            direction = direction,
-            hidden = hidden,
-            texture = texture,
-            haloEffect = if (haloEffect) factories.specialEffectsFactory.generateHaloEffect() else null,
-        )
-        entity.add(modelInstanceComponent)
     }
 
     override fun addModelInstanceComponentToEntity(
@@ -300,12 +288,12 @@ class EntityBuilderImpl : EntityBuilder {
         return this
     }
 
-    override fun addBaseAiComponent(initialHp: Float): EntityBuilder {
-        addBaseAiComponentToEntity(entity!!, initialHp, null)
+    override fun addBaseAiComponent(): EntityBuilder {
+        addBaseAiComponentToEntity(entity!!, null)
         return this
     }
 
-    override fun addBaseAiComponentToEntity(entity: Entity, initialHp: Float, target: Entity?): BaseAiComponent {
+    override fun addBaseAiComponentToEntity(entity: Entity, target: Entity?): BaseAiComponent {
         val baseAiComponent = BaseAiComponent(target)
         entity.add(baseAiComponent)
         return baseAiComponent
@@ -667,6 +655,30 @@ class EntityBuilderImpl : EntityBuilder {
         return physicsComponent
     }
 
+    private fun addModelInstanceComponent(
+        entity: Entity,
+        model: GameModelInstance,
+        position: Vector3,
+        boundingBox: BoundingBox?,
+        direction: Float,
+        hidden: Boolean,
+        texture: Texture?,
+        haloEffect: Boolean
+    ) {
+        val modelInstanceComponent = engine.createComponent(ModelInstanceComponent::class.java)
+        modelInstanceComponent.init(
+            gameModelInstance = model,
+            position = position,
+            boundingBox = boundingBox,
+            direction = direction,
+            hidden = hidden,
+            texture = texture,
+            haloEffect = if (haloEffect) factories.specialEffectsFactory.generateHaloEffect() else null,
+        )
+        entity.add(modelInstanceComponent)
+    }
+
+
     private fun initializeRigidBody(
         rigidBody: RigidBody,
         activationState: Int,
@@ -693,7 +705,6 @@ class EntityBuilderImpl : EntityBuilder {
         }
     }
 
-
     private fun addAmbSoundComponent(entity: Entity, sound: Sound): Entity {
         val ambSoundComponent = AmbSoundComponent(sound)
         entity.add(ambSoundComponent)
@@ -702,18 +713,6 @@ class EntityBuilderImpl : EntityBuilder {
             entity
         )
         return entity
-    }
-
-    fun initialize(
-        engine: PooledEngine,
-        factories: Factories,
-        dispatcher: MessageDispatcher,
-        gameSettings: GameSettings
-    ) {
-        this.engine = engine
-        this.factories = factories
-        this.dispatcher = dispatcher
-        this.gameSettings = gameSettings
     }
 
     companion object {

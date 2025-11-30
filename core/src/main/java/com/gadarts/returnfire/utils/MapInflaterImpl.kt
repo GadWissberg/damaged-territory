@@ -386,7 +386,7 @@ class MapInflaterImpl(
             color
         )
         val character = entityBuilder
-            .addBaseAiComponent(characterDefinition.getHP())
+            .addBaseAiComponent()
             .addTurretBaseComponent()
             .finishAndAddToEngine()
         SharedUtils.applyCustomTexturePerColorToModelInstance(
@@ -478,7 +478,7 @@ class MapInflaterImpl(
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(ModelDefinition.TURRET_CANNON)
         val spark = addTurretSpark(assetsManager, modelInstance.modelInstance)
         val turret = gamePlayManagers.ecs.entityBuilder.begin()
-            .addBaseAiComponent(0F)
+            .addBaseAiComponent()
             .addModelInstanceComponent(
                 modelInstance,
                 calculateTurretPosition(baseEntity, assetsManager),
