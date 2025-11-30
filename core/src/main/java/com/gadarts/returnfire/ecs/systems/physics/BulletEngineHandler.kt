@@ -72,8 +72,7 @@ class BulletEngineHandler(
                 )
             } else if (ComponentsMapper.brown.has(entity)) {
                 val mask =
-                    COLLISION_GROUP_GREEN_BULLET or COLLISION_GROUP_GREEN or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL
-                btRigidBody.contactCallbackFilter = mask
+                    COLLISION_GROUP_GREEN_BULLET or COLLISION_GROUP_GREEN or COLLISION_GROUP_GROUND or COLLISION_GROUP_GENERAL or COLLISION_GROUP_BROWN
                 collisionWorld.addRigidBody(
                     btRigidBody,
                     COLLISION_GROUP_BROWN,
