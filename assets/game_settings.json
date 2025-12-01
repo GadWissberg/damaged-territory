@@ -25,7 +25,7 @@
     "avoid_particle_effects_drawing": false,
     "enable_profiler": true,
     "disable_hud": false,
-    "selected_vehicle": "JEEP",
+    "selected_vehicle": "APACHE",
     "selected_vehicle_ai": "TANK",
     "force_aim": 1,
     "ai_disabled": false,

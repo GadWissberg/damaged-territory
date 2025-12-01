@@ -23,20 +23,6 @@
   ],
   "objects": [
     {
-      "definition": "FLAG_FLOOR_GREEN",
-      "type": "AMB",
-      "row": 56,
-      "column": 58,
-      "rotation": 0.0
-    },
-    {
-      "definition": "FLAG_FLOOR_BROWN",
-      "type": "AMB",
-      "row": 9,
-      "column": 6,
-      "rotation": 0.0
-    },
-    {
       "definition": "PALM_TREE",
       "type": "AMB",
       "row": 8,
@@ -1798,21 +1784,21 @@
       "type": "AMB",
       "row": 23,
       "column": 58,
-      "rotation": 179.99992
+      "rotation": 179.9999
     },
     {
       "definition": "STREET_LIGHT",
       "type": "AMB",
       "row": 42,
       "column": 58,
-      "rotation": 179.99992
+      "rotation": 179.9999
     },
     {
       "definition": "STREET_LIGHT",
       "type": "AMB",
       "row": 55,
       "column": 58,
-      "rotation": 179.99992
+      "rotation": 179.9999
     },
     {
       "definition": "STREET_LIGHT",
@@ -1861,7 +1847,7 @@
       "type": "AMB",
       "row": 20,
       "column": 10,
-      "rotation": 179.99991
+      "rotation": 179.9999
     },
     {
       "definition": "RUINS",
@@ -1980,7 +1966,7 @@
       "type": "AMB",
       "row": 9,
       "column": 17,
-      "rotation": 179.99992
+      "rotation": 179.9999
     },
     {
       "definition": "SIGN_BIG",
@@ -2149,6 +2135,78 @@
       "type": "AMB",
       "row": 58,
       "column": 56,
+      "rotation": 0.0,
+      "color": "GREEN"
+    },
+    {
+      "definition": "FLAG_FLOOR",
+      "type": "AMB",
+      "row": 6,
+      "column": 4,
+      "rotation": 0.0,
+      "color": "BROWN"
+    },
+    {
+      "definition": "FLAG_FLOOR",
+      "type": "AMB",
+      "row": 58,
+      "column": 54,
+      "rotation": 0.0,
+      "color": "GREEN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 10,
+      "column": 7,
+      "rotation": 0.0,
+      "color": "BROWN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 10,
+      "column": 11,
+      "rotation": 0.0,
+      "color": "BROWN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 7,
+      "column": 15,
+      "rotation": 0.0,
+      "color": "BROWN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 53,
+      "column": 48,
+      "rotation": 0.0,
+      "color": "GREEN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 53,
+      "column": 54,
+      "rotation": 0.0,
+      "color": "GREEN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 53,
+      "column": 58,
+      "rotation": 0.0,
+      "color": "GREEN"
+    },
+    {
+      "definition": "GUARD_TURRET_CANNON",
+      "type": "CHARACTER",
+      "row": 59,
+      "column": 48,
       "rotation": 0.0,
       "color": "GREEN"
     }

@@ -471,7 +471,7 @@ class MapInflaterImpl(
     }
 
     private fun addTurret(
-        baseEntity: Entity
+        baseEntity: Entity,
     ) {
         val assetsManager = gamePlayManagers.assetsManager
         val modelInstance =

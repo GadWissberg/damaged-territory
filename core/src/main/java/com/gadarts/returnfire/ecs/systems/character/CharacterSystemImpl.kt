@@ -576,8 +576,10 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                     val randomDeadModel = turretCorpseModelDefinitions.random()
                     val oldModelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
                     auxMatrix.set(oldModelInstance.transform)
+                    val randomDeadModelInstance =
+                        ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(randomDeadModel))
                     turretModelInstanceComponent.gameModelInstance = GameModelInstance(
-                        ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(randomDeadModel)),
+                        randomDeadModelInstance,
                         ImmutableGameModelInstanceInfo(randomDeadModel),
                     )
                     val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
