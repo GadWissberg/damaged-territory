@@ -44,7 +44,8 @@ class EcsRemovalManager(private val engine: PooledEngine, dispatcher: MessageDis
         if (message == SystemEvents.REMOVE_ENTITY.ordinal) {
             val extraInfo = msg.extraInfo
             if (extraInfo != null) {
-                entitiesPendingToRemove.add(extraInfo as Entity)
+                val entity = extraInfo as Entity
+                entitiesPendingToRemove.add(entity)
             }
         } else if (message == SystemEvents.REMOVE_COMPONENT.ordinal) {
             entitiesToRemoveComponentsFrom.add(RemoveComponentEventData.entity)

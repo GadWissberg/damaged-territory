@@ -9,6 +9,7 @@ import com.gadarts.shared.assets.definitions.model.ModelDefinition
 import com.gadarts.shared.data.CharacterColor
 import com.gadarts.shared.data.creation.OnAmbCreation
 import com.gadarts.shared.data.creation.OnFlagFloorCreation
+import com.gadarts.shared.data.definitions.characters.ElementTextures
 import com.gadarts.shared.data.type.ElementType
 
 enum class AmbDefinition(
@@ -39,7 +40,7 @@ enum class AmbDefinition(
     val onCreation: OnAmbCreation? = null,
     val outlineEffect: Boolean = false,
     val relatedModelsToBeRenderedInEditor: List<RelatedModelToBeRenderedInEditor> = emptyList(),
-    val customTexturePerColor: String? = null
+    val customTextures: ElementTextures? = null
 ) : ElementDefinition {
     PALM_TREE(
         modelDefinition = ModelDefinition.PALM_TREE,
@@ -66,7 +67,10 @@ enum class AmbDefinition(
         outlineEffect = true,
         placeable = false,
         marksNodeAsBlocked = false,
-        customTexturePerColor = "flag_texture"
+        customTextures = ElementTextures(
+            regular = "flag_texture",
+            destroyed = null
+        )
     ),
     FLAG_FLOOR(
         modelDefinition = ModelDefinition.FLAG_FLOOR,
@@ -74,7 +78,10 @@ enum class AmbDefinition(
         onCreation = OnFlagFloorCreation(CharacterColor.BROWN),
         marksNodeAsBlocked = false,
         collisionFlags = CollisionFlags.CF_NO_CONTACT_RESPONSE,
-        customTexturePerColor = "flag_floor_texture"
+        customTextures = ElementTextures(
+            regular = "flag_floor_texture",
+            destroyed = null
+        )
     ),
     OPPONENT_BASE(
         modelDefinition = ModelDefinition.PIT,
@@ -92,7 +99,10 @@ enum class AmbDefinition(
                 "pit_door_texture"
             )
         ),
-        customTexturePerColor = "pit_texture"
+        customTextures = ElementTextures(
+            regular = "pit_texture",
+            destroyed = null
+        )
     ),
     ROCK_BIG(
         modelDefinition = ModelDefinition.ROCK_BIG,
@@ -224,7 +234,7 @@ enum class AmbDefinition(
         return placeable
     }
 
-    override fun customTexturePerColor(): String? {
-        return customTexturePerColor
+    override fun textures(): ElementTextures? {
+        return customTextures
     }
 }

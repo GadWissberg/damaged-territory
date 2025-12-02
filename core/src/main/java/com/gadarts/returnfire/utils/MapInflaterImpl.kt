@@ -85,7 +85,7 @@ class MapInflaterImpl(
         val gameModelInstance =
             gamePlayManagers.factories.gameModelInstanceFactory.createGameModelInstance(
                 ambDefinition.getModelDefinition(),
-                ambDefinition.customTexturePerColor,
+                ambDefinition.customTextures?.regular,
                 color
             )
         val entityBuilder = gamePlayManagers.ecs.entityBuilder
@@ -392,7 +392,7 @@ class MapInflaterImpl(
         SharedUtils.applyCustomTexturePerColorToModelInstance(
             gamePlayManagers.assetsManager,
             ComponentsMapper.modelInstance.get(character).gameModelInstance.modelInstance,
-            characterDefinition.customTexturePerColor()!!,
+            characterDefinition.textures()!!.regular,
             color
         )
         addPhysicsToObject(
@@ -402,7 +402,7 @@ class MapInflaterImpl(
             0F,
         )
         if (characterDefinition.getCharacterType() == CharacterType.TURRET) {
-            addTurret(character)
+            addTurret(character, characterDefinition, color)
         }
     }
 
@@ -472,6 +472,8 @@ class MapInflaterImpl(
 
     private fun addTurret(
         baseEntity: Entity,
+        characterDefinition: CharacterDefinition,
+        color: CharacterColor,
     ) {
         val assetsManager = gamePlayManagers.assetsManager
         val modelInstance =
@@ -500,6 +502,13 @@ class MapInflaterImpl(
             .finishAndAddToEngine()
         ComponentsMapper.turretBase.get(baseEntity).turret = turret
         addPhysicsToTurret(turret, modelInstance)
+        SharedUtils.applyCustomTexturePerColorToModelInstance(
+            gamePlayManagers.assetsManager,
+            ComponentsMapper.modelInstance.get(turret).gameModelInstance.modelInstance,
+            (characterDefinition as TurretCharacterDefinition).turretTextures().regular,
+            color,
+            modelInstance.gameModelInstanceInfo?.modelDefinition?.mainMaterialIndex ?: 0
+        )
     }
 
     private fun addPhysicsToTurret(
@@ -595,8 +604,8 @@ class MapInflaterImpl(
                 def.getName().lowercase() == definition
             }
             it.type == ElementType.CHARACTER
-                && elementDefinition != SimpleCharacterDefinition.APACHE
-                && elementDefinition != TurretCharacterDefinition.TANK
+                    && elementDefinition != SimpleCharacterDefinition.APACHE
+                    && elementDefinition != TurretCharacterDefinition.TANK
         }
             .forEach {
                 val elementDefinition = stringToDefinition(it.definition, ElementType.CHARACTER)

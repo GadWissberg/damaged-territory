@@ -5,7 +5,6 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Quaternion
@@ -518,7 +517,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
         val position = modelInstanceComponent.gameModelInstance.modelInstance.transform.getTranslation(
             auxVector1
         )
-        val color = characterComponent.color.name.lowercase()
+        val color = characterComponent.color
+        val colorName = color.name.lowercase()
         if (!isTurretCannon) {
             modelInstanceComponent.gameModelInstance.modelInstance.transform.setTranslation(position)
             modelInstanceComponent.init(
@@ -527,7 +527,7 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 assetsManager.getCachedBoundingBox(ModelDefinition.APACHE_DEAD),
                 0F,
                 false,
-                assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$color"),
+                assetsManager.getTexture("${characterDefinition.getModelDefinition().name.lowercase()}_texture_dead_$colorName"),
                 null
             )
         }
@@ -574,7 +574,8 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                 val cannon = ComponentsMapper.turret.get(turret).cannon
                 if (turretCorpseModelDefinitions.isNotEmpty()) {
                     val randomDeadModel = turretCorpseModelDefinitions.random()
-                    val oldModelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
+                    val gameModelInstance = turretModelInstanceComponent.gameModelInstance
+                    val oldModelInstance = gameModelInstance.modelInstance
                     auxMatrix.set(oldModelInstance.transform)
                     val randomDeadModelInstance =
                         ModelInstance(gamePlayManagers.assetsManager.getAssetByDefinition(randomDeadModel))
@@ -582,15 +583,16 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                         randomDeadModelInstance,
                         ImmutableGameModelInstanceInfo(randomDeadModel),
                     )
-                    val modelInstance = turretModelInstanceComponent.gameModelInstance.modelInstance
-                    val separateTextureForDeadTurret = turretCharacterDefinition.separateTextureForDeadTurret
-                    if (separateTextureForDeadTurret) {
-                        val turretDeadTextureName =
-                            "${characterDefinition.name.lowercase()}_turret_texture_destroyed_${color}"
-                        val turretDeadTexture = assetsManager.getTexture(turretDeadTextureName)
-                        modelInstance.materials[0].set(TextureAttribute.createDiffuse(turretDeadTexture))
+                    characterDefinition.turretTextures().destroyed?.let {
+                        SharedUtils.applyCustomTexturePerColorToModelInstance(
+                            assetsManager,
+                            randomDeadModelInstance,
+                            it,
+                            color,
+                            gameModelInstance.gameModelInstanceInfo?.modelDefinition?.mainMaterialIndex ?: 0
+                        )
                     }
-                    modelInstance.transform.set(auxMatrix)
+                    randomDeadModelInstance.transform.set(auxMatrix)
                     turretModelInstanceComponent.gameModelInstance.setBoundingBox(
                         gamePlayManagers.assetsManager.getCachedBoundingBox(randomDeadModel)
                     )
@@ -607,11 +609,6 @@ class CharacterSystemImpl(gamePlayManagers: GamePlayManagers) : CharacterSystem,
                             gamePlayManagers.assetsManager.getCachedBoundingBox(ModelDefinition.TANK_CANNON_DESTROYED)
                         )
                         newGameModelInstance.modelInstance.transform.set(auxMatrix)
-                        if (separateTextureForDeadTurret) {
-                            val cannonModelInstance = cannonModelInstanceComponent.gameModelInstance.modelInstance
-                            (cannonModelInstance.materials[0].get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                                assetsManager.getTexture("${characterDefinition.name.lowercase()}_cannon_texture_destroyed_$color")
-                        }
                     }
                 } else {
                     dispatcher.dispatchMessage(SystemEvents.REMOVE_ENTITY.ordinal, turret)

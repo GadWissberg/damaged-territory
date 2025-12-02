@@ -6,7 +6,6 @@ import com.gadarts.shared.data.type.CharacterType
 
 enum class TurretCharacterDefinition(
     val turretCorpseModelDefinitions: List<ModelDefinition>,
-    val separateTextureForDeadTurret: Boolean = false,
     private val hp: Float,
     private val baseModelDefinition: ModelDefinition,
     private val smokeEmissionRelativePosition: Vector3,
@@ -15,13 +14,14 @@ enum class TurretCharacterDefinition(
     private val corpseModelDefinitions: List<ModelDefinition>,
     private val isNonMoving: Boolean,
     private val mass: Float,
+    private val textures: ElementTextures,
+    private val turretTextures: ElementTextures,
     private val fuelConsumptionPace: Float = 0.0F,
     private val placeable: Boolean = false,
     private val linearDamping: Float = 0.0F,
     private val angularDamping: Float = 0.0F,
     private val deployable: Boolean = true,
     private val originPointAtBottom: Boolean = false,
-    private val customTexturePerColor: String? = null,
 ) : CharacterDefinition {
     GUARD_TURRET_CANNON(
         hp = 75F,
@@ -41,10 +41,11 @@ enum class TurretCharacterDefinition(
         mass = 0F,
         placeable = true,
         deployable = false,
-        customTexturePerColor = "guard_turret_base_texture",
+        textures = ElementTextures("guard_turret_base_texture", null),
+        turretTextures = ElementTextures("guard_turret_cannon_texture", "guard_turret_cannon_dead_texture"),
     ),
     TANK(
-        hp = 275F,
+        hp = 1F,
         baseModelDefinition = ModelDefinition.TANK_BODY,
         smokeEmissionRelativePosition = Vector3.Zero,
         gravity = Vector3(0F, -10F, 0F),
@@ -58,8 +59,9 @@ enum class TurretCharacterDefinition(
         fuelConsumptionPace = 0.1F,
         linearDamping = 0.9F,
         angularDamping = 0.99F,
-        separateTextureForDeadTurret = true,
         placeable = false,
+        textures = ElementTextures("tank_body_texture", "tank_body_texture_dead"),
+        turretTextures = ElementTextures("tank_turret_texture", "tank_turret_texture_destroyed"),
     ),
     JEEP(
         hp = 60F,
@@ -75,7 +77,9 @@ enum class TurretCharacterDefinition(
         placeable = false,
         linearDamping = 0.8F,
         angularDamping = 0.999F,
-        originPointAtBottom = true
+        originPointAtBottom = true,
+        textures = ElementTextures("jeep_texture", "jeep_texture_dead"),
+        turretTextures = ElementTextures("jeep_turret_base", null),
     );
 
     override fun isOriginPointAtBottom(): Boolean {
@@ -178,7 +182,11 @@ enum class TurretCharacterDefinition(
         return deployable
     }
 
-    override fun customTexturePerColor(): String? {
-        return customTexturePerColor
+    override fun textures(): ElementTextures {
+        return textures
+    }
+
+    fun turretTextures(): ElementTextures {
+        return turretTextures
     }
 }

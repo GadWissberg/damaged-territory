@@ -18,7 +18,8 @@ enum class SimpleCharacterDefinition(
     private val linearDamping: Float,
     private val angularDamping: Float,
     private val friction: Float,
-    private val useSeparateTransformObjectForPhysics: Boolean
+    private val useSeparateTransformObjectForPhysics: Boolean,
+    private val textures: ElementTextures
 ) : CharacterDefinition {
     APACHE(
         125F,
@@ -34,7 +35,8 @@ enum class SimpleCharacterDefinition(
         0.4F,
         0.75F,
         1.5F,
-        true
+        true,
+        ElementTextures("apache_texture", "apache_texture_dead")
     );
 
     override fun isOriginPointAtBottom(): Boolean {
@@ -137,7 +139,7 @@ enum class SimpleCharacterDefinition(
         return true
     }
 
-    override fun customTexturePerColor(): String? {
-        return null
+    override fun textures(): ElementTextures {
+        return textures
     }
 }

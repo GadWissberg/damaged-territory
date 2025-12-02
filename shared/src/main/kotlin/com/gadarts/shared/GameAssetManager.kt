@@ -48,6 +48,7 @@ open class GameAssetManager : AssetManager() {
         )
     }
 
+    @Suppress("SameParameterValue")
     private fun readGameSettings(env: String): GameSettings {
         val gson = GsonBuilder()
             .registerTypeAdapter(MapDefinition::class.java, MapDefinitionTypeAdapter())
@@ -206,6 +207,7 @@ open class GameAssetManager : AssetManager() {
         val definitionLoader = DefinitionLoader(resolver)
         setLoader(ExternalDefinitions::class.java, "json", definitionLoader)
     }
+
 
     fun getCachedBoundingBox(definition: ModelDefinition): BoundingBox {
         return auxBoundingBox.set(

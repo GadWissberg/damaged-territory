@@ -59,12 +59,12 @@ class ObjectFactory(private val sharedData: SharedData, private val gameAssetsMa
         modelInstance: EditorModelInstance
     ) {
         val definition = placeableObject.definition
-        val definitionPerColor = definition.customTexturePerColor()
+        val definitionPerColor = definition.textures()
         if (definitionPerColor != null && placeableObject.color != null) {
             SharedUtils.applyCustomTexturePerColorToModelInstance(
                 gameAssetsManager,
                 modelInstance,
-                definitionPerColor,
+                definitionPerColor.regular,
                 placeableObject.color
             )
         }

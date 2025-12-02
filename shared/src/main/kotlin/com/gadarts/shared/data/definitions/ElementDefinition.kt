@@ -1,6 +1,7 @@
 package com.gadarts.shared.data.definitions
 
 import com.gadarts.shared.assets.definitions.model.ModelDefinition
+import com.gadarts.shared.data.definitions.characters.ElementTextures
 import com.gadarts.shared.data.type.ElementType
 
 interface ElementDefinition {
@@ -11,5 +12,5 @@ interface ElementDefinition {
     fun getName(): String
     fun isMarksNodeAsBlocked(): Boolean
     fun isPlaceable(): Boolean
-    fun customTexturePerColor(): String?
+    fun textures(): ElementTextures?
 }

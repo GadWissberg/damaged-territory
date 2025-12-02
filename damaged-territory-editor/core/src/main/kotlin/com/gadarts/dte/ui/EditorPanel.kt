@@ -37,7 +37,7 @@ class EditorPanel(
         SelectableList<PlaceableObject>(VisUI.getSkin()).apply {
             val array = Array<PlaceableObject>()
             entries.forEach {
-                if (it.customTexturePerColor() != null) {
+                if (it.textures() != null) {
                     array.addAll(*CharacterColor.entries.map { color ->
                         PlaceableObject(it, color)
                     }.toTypedArray())

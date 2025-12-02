@@ -29,11 +29,20 @@ abstract class AiVehicleLogic(
     }
 
     open fun preUpdate(character: Entity, deltaTime: Float) {
+        val color = ComponentsMapper.character.get(character).color
         val rivalColor =
-            if (ComponentsMapper.character.get(character).color == CharacterColor.BROWN) CharacterColor.GREEN else CharacterColor.BROWN
+            if (color == CharacterColor.BROWN) CharacterColor.GREEN else CharacterColor.BROWN
         val target = baseAi.get(character).target
         val noTargetSet = target == null
-        if (noTargetSet || ComponentsMapper.flag.has(target) || ComponentsMapper.character.get(target).dead) {
+        if (noTargetSet
+            || ComponentsMapper.flag.has(target)
+        ) {
+            if (!noTargetSet && (ComponentsMapper.character.has(target) && ComponentsMapper.character.get(
+                    target
+                ).dead)
+            ) {
+                setTarget(character, null)
+            }
             val nearestRivalCharacter = AiUtils.findNearestRivalCharacter(
                 character, if (rivalColor == CharacterColor.BROWN) browns else greens, 20F
             )
