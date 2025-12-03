@@ -323,8 +323,8 @@ abstract class AiGroundVehicleLogic(
             movementHandler.applyTurretRotation(0F, character)
             val target = ComponentsMapper.aiTurret.get(character).target ?: return
 
-            if (ComponentsMapper.character.get(target).definition.isFlyer()) {
-                shootingHandler.startSecondaryShooting(gameSessionData.gamePlayData.player)
+            if (ComponentsMapper.character.has(target) && ComponentsMapper.character.get(target).definition.isFlyer()) {
+                shootingHandler.startSecondaryShooting(character)
             } else {
                 shootingHandler.startPrimaryShooting(null)
             }

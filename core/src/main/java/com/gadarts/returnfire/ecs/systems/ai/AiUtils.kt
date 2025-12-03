@@ -29,7 +29,7 @@ object AiUtils {
                 val enemyPosition = auxMatrix2.getTranslation(auxVector2)
                 val characterPosition = auxMatrix1.getTranslation(auxVector1)
                 val distanceToEnemy = characterPosition.dst2(enemyPosition)
-                if (nearestEnemy == null || distanceToEnemy < lowestDistance) {
+                if (distanceToEnemy < lowestDistance) {
                     nearestEnemy = rivalCharacter
                     lowestDistance = distanceToEnemy
                 }

@@ -127,6 +127,6 @@ class AiGuardTurretLogic(private val gamePlayManagers: GamePlayManagers) {
         private val auxQuat1 = Quaternion()
         private val auxQuat2 = Quaternion()
         private const val ROTATION_STEP_SIZE = 40F
-        private const val MAX_DISTANCE = 90F
+        private const val MAX_DISTANCE = 80F
     }
 }
